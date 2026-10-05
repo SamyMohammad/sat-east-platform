@@ -29,8 +29,14 @@ expose it over the API.
 ```sql
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
--- question_keys, rate_limits and all internal helper functions live here.
+-- question_keys, rate_limits, materialized views and RPC-internal helpers live here.
 ```
+
+> **Exception — RLS policy helpers stay in `public`.** Policy expressions run as the querying role,
+> so a policy calling `private.is_teacher()` would fail with "permission denied for schema private".
+> `public.is_teacher()` and `public.has_access(course_id)` are `security definer`, read only the
+> caller's own data, and get `grant execute ... to authenticated`. Everything a `security definer`
+> RPC calls internally may live in `private`.
 
 **Layer 2 — auto-enable RLS on every new `public` table** (fail closed: a forgotten policy blocks
 access instead of opening it).
@@ -78,6 +84,12 @@ select is_empty($$
          or not exists (select 1 from pg_policies p
                         where p.schemaname = 'public' and p.tablename = c.relname))
 $$, 'NFR-08: every public table has RLS enabled and at least one policy');
+
+-- Views / materialized views cannot have RLS and are exposed by default → none allowed in public.
+select is_empty($$
+  select c.relname from pg_class c join pg_namespace n on n.oid = c.relnamespace
+  where n.nspname = 'public' and c.relkind in ('v','m')
+$$, 'no views or materialized views in the public schema');
 ```
 Plus `supabase db lint` and the Supabase **security advisors** checked every sprint.
 
@@ -102,7 +114,7 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare v_uid uuid := auth.uid();
 begin
   if v_uid is null then raise exception 'not_authenticated'; end if;
-  if not private.has_access_topic(v_uid, p_topic_id) then raise exception 'topic_locked'; end if;
+  if not public.has_access_topic(p_topic_id) then raise exception 'topic_locked'; end if;
   -- logic using fully-qualified names: public.topics, private.question_keys ...
   return jsonb_build_object('ok', true);
 end $$;
@@ -145,8 +157,18 @@ answer tapped → AnswerOutbox (hive_ce, survives reload) → SyncWorker → sav
 - **Everything up-front:** `start_attempt` returns all questions; images are precached → once started,
   the attempt works fully offline.
 - **Server time:** `start_attempt` returns `deadline` and `server_now`; client stores the offset and
-  never trusts its own clock (NFR-05). `save_answer` keeps the 30 s grace rule from `07`.
-- **Submit offline:** UI shows "Will submit when online"; the deadline cron auto-submits server-side.
+  never trusts its own clock (NFR-05).
+- **Deadline vs. offline — the explicit trade-off:**
+  - *Homework* is untimed → nothing is ever lost; the outbox flushes whenever the student is back.
+  - *Quiz / mock* are timed → the server accepts writes only until `deadline + settings.save_grace_s`
+    (default 30 s, teacher can widen it). We never trust a client-sent `answered_at` (NFR-05), so an
+    answer made in time but synced after the grace window is lost. The UI shows a red
+    "offline — answers not saved yet" banner with a countdown so the student knows to reconnect.
+- **Auto-submit:** the `cron-expire-attempts` job (every minute) submits and grades `in_progress`
+  attempts past `deadline + grace`; `start_attempt`/`get_attempt_review` also do it lazily on read.
+- **Second device / reinstall:** when `start_attempt` resumes an in-progress attempt it returns the
+  saved answers **with their `client_seq`**; the client seeds its counter at `max + 1`, so a new device's
+  writes are never discarded as "older".
 - **Practice requires a connection** (keys are server-side) — acceptable.
 
 ---
@@ -211,7 +233,9 @@ provider, or WhatsApp OTP. Tracked as P2.
 
 ## 10. Scaling — measure first
 - Indexes from `06` §5; enable `pg_stat_statements`; review advisors each sprint.
-- Teacher matrix (ANL-05) and class insights (ANL-06) read from **materialized views** refreshed by
-  `pg_cron` every 10 min (`refresh materialized view concurrently` → needs a unique index).
+- Teacher matrix (ANL-05) and class insights (ANL-06) read from **materialized views in `private`**
+  (materialized views can't have RLS), refreshed by `pg_cron` every 10 min (`refresh materialized
+  view concurrently` → needs a unique index). Read only via the `teacher_matrix` /
+  `teacher_class_insights` RPCs, which check `is_teacher()`.
 - Performance test: seed a 44-question attempt and assert `submit_attempt` < 1.5 s (NFR-02) in CI.
 - Connection pooling (Supavisor) is on by default; partition `attempt_answers` only past 50M rows.

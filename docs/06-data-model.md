@@ -219,14 +219,14 @@ audit_log(id bigserial, actor uuid, action text, entity text, entity_id uuid,
 | courses, units, topics, subtopics, prices | select published | all |
 | topic_assets | select metadata if enrolled or free preview (no URLs — URLs via EF) | all |
 | questions (public columns) | select published in enrolled course **only via RPC** for attempts; practice pool via `get_practice_questions` | all |
-| private.question_keys, private.rate_limits | **none** (not exposed) | via RPC / EF only |
+| private.question_keys, private.rate_limits, private analytics matviews | **none** (not exposed) | via RPC / EF only |
 | enrollments, orders | select own | all |
 | attempts, attempt_answers | select own; write via RPC only | all |
 | topic_progress, skill_mastery, mistake_notebook | select own | all |
 | ai_*, escalations | select/insert own | all |
 | settings | select | all |
 
-Helper: `is_teacher()` SQL function checking `profiles.role`; `has_access(course_id)` checks an
+Helper (in `public`, `security definer`, callable by `authenticated` — policies run as the caller): `is_teacher()` SQL function checking `profiles.role`; `has_access(course_id)` checks an
 active enrollment with `now() < expires_at`, or free-preview topic.
 
 ## 5. Indexes (minimum)

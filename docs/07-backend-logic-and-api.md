@@ -14,8 +14,8 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `mark_notes_opened` | asset_id | ok | |
 | `get_practice_questions` | topic_id, subtopic_id?, difficulty?, limit | questions (no keys) | practice pool; prefers unseen |
 | `check_practice_answer` | question_id, answer, time_ms | is_correct, key, explanation | logs a `practice` attempt answer |
-| `start_attempt` | kind, topic_id? / mock_group? | attempt_id, questions (no keys), time_limit_s, deadline, server_now | idempotent: returns existing in-progress attempt |
-| `save_answer` | attempt_id, question_id, answer, time_ms, marked, eliminated, client_seq | ok | upsert; ignores older `client_seq`; rejected after deadline + 30 s grace |
+| `start_attempt` | kind, topic_id? / mock_group? | attempt_id, questions (no keys), time_limit_s, deadline, server_now, saved answers + client_seq | idempotent: resumes an in-progress attempt (client continues from max client_seq + 1) |
+| `save_answer` | attempt_id, question_id, answer, time_ms, marked, eliminated, client_seq | ok | upsert; ignores older `client_seq`; rejected after deadline + `settings.save_grace_s` (30 s) |
 | `submit_attempt` | attempt_id | report | grades, updates progress/mastery/unlocks, returns keys |
 | `get_attempt_review` | attempt_id | questions + keys + explanations + my answers | only if submitted |
 | `tag_error_type` | attempt_id, question_id, error_type | ok | |
@@ -40,7 +40,7 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `ai-tutor` | Grounded LLM answer (see §6) |
 | `import-questions` | Validate and upsert pipeline JSON (teacher) |
 | `send-email` | Templates via Resend |
-| `cron-*` | Nightly: expire enrollments, inactivity nudges, mastery decay, live reminders |
+| `cron-*` | Every minute: `cron-expire-attempts` (auto-submit timed attempts past deadline + grace). Nightly: expire enrollments, inactivity nudges, mastery decay, live reminders |
 
 ## 2. Unlock state machine
 

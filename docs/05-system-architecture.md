@@ -82,7 +82,7 @@ lib/
 **Rule of thumb**
 - Plain reads/writes of a user's own rows → direct PostgREST with **RLS**.
 - Anything involving answer keys, money, unlocking, scoring, or third-party secrets → **Edge Function** or `SECURITY DEFINER` Postgres function. Clients never read answer keys.
-- Secrets and internal helpers live in the non-exposed **`private` schema** (`private.question_keys`, `private.rate_limits`, helper functions). New functions are not executable until explicitly granted (16 §1).
+- Secrets and internal helpers live in the non-exposed **`private` schema** (`private.question_keys`, `private.rate_limits`, analytics materialized views, RPC-internal helpers). RLS policy helpers (`is_teacher()`, `has_access()`) stay in `public` because policies run as the caller. New functions are not executable until explicitly granted (16 §1).
 
 | Component | Responsibility |
 |-----------|----------------|
