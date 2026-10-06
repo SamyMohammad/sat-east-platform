@@ -38,7 +38,7 @@ Ordered by "what everything else depends on". Each line = one branch + one PR.
 | 3 | **RLS baseline + pgTAP tests** with `supabase_test_helpers`: policies, `is_teacher()`, `has_access()`, test "`private` not reachable via API", CI gate "no public table without RLS + policy" | Non-negotiable rule #1 & #3 | F-2, NFR-07/08 |
 | 4 | **SPR grader, test-first** (SQL function + Dart mirror for the input preview). Both read one fixture file `supabase/tests/fixtures/spr_cases.json` built from `08` §6 and `12` §2 | Pure logic, perfect first TDD task, highest trust risk | GRD-02, 16 §2 |
 | 5 | **CI** (GitHub Actions): `dart format`, `flutter analyze`, `flutter test`, `supabase test db`, `supabase db lint`, secret-grep on web build, build web. **Staging** (free Supabase project): deploy migrations + EFs on `main`, daily keep-alive cron | Gates every later PR | F-3, 16 §7 |
-| 6 | **Design system + `QuestionView`** prototype (LaTeX via `flutter_math_fork`, MCQ + SPR input, 360/768/1280) | Shared by 4 features (rule #6) | F-4 |
+| 6 | ⏸ **UI checkpoint — design with Claude Design first**, then **Design system + `QuestionView`** prototype (LaTeX via `flutter_math_fork`, MCQ + SPR input, 360/768/1280) | Shared by 4 features (rule #6) | F-4 |
 | 7 | **Spike: encrypted HLS** — ffmpeg AES-128 HLS on Cloudflare R2, signed key URL from a local Edge Function, `hls.js` on web + `video_player` on Android/iOS, moving watermark overlay (1 day, throwaway branch) | Highest platform risk; proves the free option | ADR-002 |
 | 8 | **Spike: Paymob** test checkout + HMAC webhook in an Edge Function (1 day) | Money path | ADR-003 |
 | 9 | **Spike: PDF viewer** (`pdfrx`) + watermark overlay + signed URL (1 day) | Content protection | SEC-02 |
