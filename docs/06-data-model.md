@@ -5,18 +5,23 @@ snake_case, enums as Postgres enums, soft-delete via `status`/`retired` not row 
 This is the **starting schema** — the first migration should implement it close to verbatim.
 
 Rules the first migration applies where the sketches below leave them open (F-2, docs/15 §1 row 2b):
-- **Foreign keys:** a FK to `profiles` (the user's own data) is `on delete cascade`; a FK to
+- **Foreign keys:** a FK to `profiles` for the user's own data is `on delete cascade`; a FK to
   content or catalogue rows (`courses`, `topics`, `questions` …) is `on delete restrict`,
-  because content is retired via `status`, not deleted.
+  because content is retired via `status`, not deleted. Authorship references (`owner_id`,
+  `created_by`, `redeemed_by`, `unlocked_by`, `actor`) are `on delete set null`. `orders.user_id`
+  is `restrict`: an account with payment records is never hard-deleted.
+  `attempt_answers (attempt_id, question_id)` references `attempt_questions`, so only questions
+  in the frozen draw can be answered.
 - **Not null:** FKs, enums, `created_at` and every column the sketch marks `not null` or uses as a
   key are `not null`. Optional columns (marked `null`, profile details, scores) stay nullable.
 - **`updated_at`:** every table that has it gets a `before update` trigger
   (`private.set_updated_at()`).
 - **Sign-up:** an `after insert` trigger on `auth.users` creates the `profiles` row. `full_name`
-  comes from the sign-up metadata `full_name`, falling back to the e-mail's local part. `role` is
+  comes from the sign-up metadata `full_name`, falling back to the e-mail's local part, then to 'Student' (phone sign-up). `role` is
   always the default `student`; it is never read from client metadata.
 - **Locked until row 3:** row 2b ships tables only. RLS is on (hardening Layer 2) but there are no
-  grants or policies yet, so the API sees nothing until the RLS baseline (row 3) adds them.
+  grants or policies yet, so the API sees nothing until the RLS baseline (row 3) adds them. Only `service_role` (Edge
+  Functions) gets table grants now.
 
 ## 1. ERD (simplified)
 
@@ -249,7 +254,7 @@ active enrollment with `now() < expires_at`, or free-preview topic.
 - `attempt_answers(question_id)` for class insights
 - `attempts(user_id, kind, topic_id)`
 - `questions(topic_id, subtopic_id, pool, status, difficulty)`
-- `question_exposure(user_id)`
+- `question_exposure(user_id)` — covered by its primary key `(user_id, question_id)`
 - `orders(gateway_txn_id)` unique
 - `enrollments(user_id, course_id)` unique
 
