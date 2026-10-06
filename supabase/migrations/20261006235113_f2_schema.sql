@@ -514,3 +514,50 @@ $$;
 -- Grants: none to anon/authenticated until row 3. service_role (Edge Functions) only.
 grant select, insert, update, delete on all tables in schema public to service_role;
 grant usage, select on all sequences in schema public to service_role;
+
+-- updated_at (docs/06 conventions)
+create function private.set_updated_at()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end;
+$$;
+
+create trigger set_updated_at before update on public.questions
+  for each row execute function private.set_updated_at();
+create trigger set_updated_at before update on private.question_keys
+  for each row execute function private.set_updated_at();
+create trigger set_updated_at before update on public.video_progress
+  for each row execute function private.set_updated_at();
+create trigger set_updated_at before update on public.skill_mastery
+  for each row execute function private.set_updated_at();
+create trigger set_updated_at before update on public.settings
+  for each row execute function private.set_updated_at();
+
+-- Sign-up → profile (docs/06 conventions). role is never read from client metadata.
+create function private.handle_new_user()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  insert into public.profiles (id, full_name)
+  values (
+    new.id,
+    coalesce(
+      nullif(trim(new.raw_user_meta_data ->> 'full_name'), ''),
+      nullif(split_part(coalesce(new.email, ''), '@', 1), ''),
+      'Student'
+    )
+  );
+  return new;
+end;
+$$;
+
+create trigger on_auth_user_created after insert on auth.users
+  for each row execute function private.handle_new_user();
