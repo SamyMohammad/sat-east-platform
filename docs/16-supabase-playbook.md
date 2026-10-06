@@ -60,6 +60,12 @@ create event trigger ensure_rls on ddl_command_end
   execute function private.rls_auto_enable();
 ```
 > Verify in Phase 0 that the hosted `postgres` role may create event triggers. If not, Layer 4 still catches it.
+>
+> **Scope of Layers 2–3:** they cover objects created by `postgres`, which is the role every migration
+> runs as. DDL run as `supabase_admin` (superuser) skips the event trigger (supautils), and that role's
+> own default grants give anon/authenticated full table access. So never make schema changes as
+> `supabase_admin`. `alter table … set schema public` also skips the trigger. Layer 4 is the backstop
+> for both.
 
 **Layer 3 — functions, tables and sequences are not reachable unless granted.** By default every new
 function is executable by `PUBLIC` (so by `anon` and `authenticated`), and Supabase auto-grants new
