@@ -1,0 +1,13 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+
+# Secrets
+.env
+.env.*
+!.env.example
+
+# Local knowledge graph (regenerate with graphify update .)
+graphify-out/
