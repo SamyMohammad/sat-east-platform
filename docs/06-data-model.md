@@ -97,10 +97,12 @@ subtopics(id uuid pk, topic_id fk, title text, sort int)
 topic_assets(id uuid pk, topic_id fk, subtopic_id uuid null,
   kind text check (kind in ('video','notes','book')),
   title text, sort int,
-  video_provider_id text null, duration_s int null,
+  video_provider_id text null, duration_s int null,  -- R2 prefix now; VdoCipher id after upgrade
   storage_path text null, page_count int null)
 
 video_chapters(id uuid pk, asset_id fk, subtopic_id fk, start_s int, label text)
+private.video_keys(asset_id uuid pk fk topic_assets, key bytea not null,  -- AES-128 HLS key (ADR-002)
+  r2_prefix text not null, created_at timestamptz)                  -- served only via video-otp
 
 skills(id uuid pk, code text unique,  -- e.g. ALG.LIN.PARALLEL_PERP
   name text, domain text,              -- Algebra | Advanced Math | PSDA | Geometry & Trig
