@@ -5,3 +5,30 @@
 -- Never list it in supabase/config.toml [api] schemas, so PostgREST can never expose it.
 create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
+
+-- Layer 2 — auto-enable RLS on every new public table. A forgotten policy then blocks access
+-- instead of opening it. object_identity is already quoted, so %s (not %I) is correct.
+create or replace function private.rls_auto_enable()
+returns event_trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  cmd record;
+begin
+  for cmd in
+    select * from pg_event_trigger_ddl_commands()
+    where command_tag in ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+      and object_type = 'table'
+      and schema_name = 'public'
+  loop
+    execute format('alter table %s enable row level security', cmd.object_identity);
+  end loop;
+end;
+$$;
+
+drop event trigger if exists ensure_rls;
+create event trigger ensure_rls on ddl_command_end
+  when tag in ('CREATE TABLE', 'CREATE TABLE AS', 'SELECT INTO')
+  execute function private.rls_auto_enable();
