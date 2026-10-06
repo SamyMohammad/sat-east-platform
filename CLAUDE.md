@@ -70,6 +70,10 @@ Dart MCP server (`dart-flutter` plugin) — add `apps/client/` as a root first (
 - Dependencies: read package source with `read_package_uris` / `rip_grep_packages` instead of guessing APIs.
 - Running app (connect via `dtd` first): `hot_reload`, `hot_restart`, `get_runtime_errors`, `widget_inspector`, `flutter_driver_command` (tap / enter text / screenshot).
 
+Library docs & GitHub:
+- context7 MCP (`resolve-library-id` → `query-docs`) before writing code against any package API (bloc, go_router, get_it, supabase_flutter, supabase-js/Deno) or doing a version upgrade — don't rely on memory.
+- GitHub via `gh` CLI (authenticated): `gh pr create`, `gh pr checks --watch`, `gh run view --log-failed`. No GitHub MCP needed.
+
 Skills by task:
 - Scaffold feature: `flutter-feature` · Cubit/Bloc: `flutter-code-quality:state-management` · architecture: `flutter-code-quality:architecture`.
 - Tests: `dart-flutter:flutter-add-widget-test`, `dart-flutter:dart-add-unit-test`, `dart-flutter:flutter-add-integration-test`, `dart-flutter:dart-generate-test-mocks`, `flutter-design-fidelity:golden-tests`; `test-writer` agent for bloc/widget tests.
