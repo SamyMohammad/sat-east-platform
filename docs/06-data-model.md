@@ -4,6 +4,20 @@ Conventions: `uuid` PKs (`gen_random_uuid()`), `created_at timestamptz default n
 snake_case, enums as Postgres enums, soft-delete via `status`/`retired` not row deletion.
 This is the **starting schema** — the first migration should implement it close to verbatim.
 
+Rules the first migration applies where the sketches below leave them open (F-2, docs/15 §1 row 2b):
+- **Foreign keys:** a FK to `profiles` (the user's own data) is `on delete cascade`; a FK to
+  content or catalogue rows (`courses`, `topics`, `questions` …) is `on delete restrict`,
+  because content is retired via `status`, not deleted.
+- **Not null:** FKs, enums, `created_at` and every column the sketch marks `not null` or uses as a
+  key are `not null`. Optional columns (marked `null`, profile details, scores) stay nullable.
+- **`updated_at`:** every table that has it gets a `before update` trigger
+  (`private.set_updated_at()`).
+- **Sign-up:** an `after insert` trigger on `auth.users` creates the `profiles` row. `full_name`
+  comes from the sign-up metadata `full_name`, falling back to the e-mail's local part. `role` is
+  always the default `student`; it is never read from client metadata.
+- **Locked until row 3:** row 2b ships tables only. RLS is on (hardening Layer 2) but there are no
+  grants or policies yet, so the API sees nothing until the RLS baseline (row 3) adds them.
+
 ## 1. ERD (simplified)
 
 ```
@@ -238,3 +252,23 @@ active enrollment with `now() < expires_at`, or free-preview topic.
 - `question_exposure(user_id)`
 - `orders(gateway_txn_id)` unique
 - `enrollments(user_id, course_id)` unique
+
+## 6. `settings` defaults (seed)
+
+Seeded with `on conflict (key) do nothing`, so a value the teacher has changed is never
+overwritten. Defaults come from `13` Q-11 / Q-14 and `07`; the teacher can change them later.
+
+| Key | Default | Source | Used by |
+|-----|---------|--------|---------|
+| `pass_mark` | 75 | Q-11 | quiz done (07 §2) |
+| `homework_size` | 20 | Q-11 | homework draw (07 §3) |
+| `practice_min` | 10 | Q-11 | practice done (07 §2) |
+| `cooldown_h` | 12 | Q-11 | retry after a failed quiz (`cooldown_active`) |
+| `video_done_pct` | 80 | 07 §2 | video done |
+| `save_grace_s` | 30 | 07 §1 | `save_answer` after the deadline |
+| `ai_daily_cap` | 20 | 07 §6 | AI tutor messages per day |
+| `device_limit` | 2 | Q-14 | `register-device` (07 §8) |
+| `device_changes_30d` | 2 | Q-14 | `register-device` |
+
+Other tunables (quiz/review/drill sizes and mixes, rate limits, mock blueprints) are seeded by the
+story that first reads them.
