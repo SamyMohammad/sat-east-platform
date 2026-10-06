@@ -28,6 +28,32 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 - Error codes from `docs/07` §9.
 - SPR grading rules and test table: `docs/08` §6 and `docs/12` §2 — keep tests in sync.
 
+## A. Engineering rules
+1. **Layers (MUST):** presentation → domain → data, never skipped or mixed. Presentation renders, handles interaction and observes state — zero business logic. Business logic in domain; Supabase/storage access in data. No new abstractions or patterns without a stated reason.
+2. **Shared code:** anything used in 2+ features goes in `lib/core/` (logic, constants, extensions) or `lib/shared/widgets/` (UI, e.g. `QuestionView`). Search both before creating — never duplicate across features.
+3. **Errors:** catch at the data boundary, flow up through every layer. Handle null, empty, loading and error states explicitly — no silent failures, no empty `catch`.
+4. **Change discipline:** smallest change that solves the problem; fix root causes; no unrelated refactors; don't break existing APIs, flows or UX unless told to. Read the code before changing it and state assumptions when unclear.
+5. **Dependencies:** justify every new package; latest stable, maintained, production-grade (check with `pub_dev_search`). Prefer the SDK or an existing dependency.
+6. **Security:** no secrets in code or `env/*.json` — every `--dart-define` value ships inside the client (only the Supabase URL + anon key belong there). Never log tokens, answer keys, payment data or PII. Client-side validation is UX only; the server re-validates (rule 2). Flag security risks when you see them.
+7. **Testing:** test domain, data and every public Cubit method (success + failure, ADR-007). Bug fixes start with a failing reproduction test. Deterministic tests only — no real network, no real timers (inject a clock), one behavior per test.
+8. **Workflow (mandatory):** new feature → `/flutter-feature` first. Before calling a task done → `/flutter-code-quality:review-gate` (format/analyze/tests) then `/flutter-code-review`. After approval → `git-expert` agent for branch, commit and PR.
+9. **Suggest agents proactively (MUST)** — don't wait to be asked:
+   - `debugger` — any bug, crash, failing test or unexpected behavior.
+   - `code-reviewer` — always offer it after `/flutter-code-review` passes, before the PR.
+   - `test-writer` — code added or changed without tests. Test files are written by this agent (a project hook asks before any `*_test.dart` Write).
+   - `git-expert` — branch, commit, PR, merge conflict, rebase.
+
+## B. Flutter / Dart rules
+1. **State:** Cubit by default, Bloc only where events matter (ADR-007) — no Riverpod/Provider/GetX. Cubits depend on use cases or domain repository interfaces (skip pass-through use cases, ADR-007 §5) — never on data sources or `SupabaseClient`. Check `isClosed` before emitting after an `await`; cancel stream subscriptions (Realtime, timers) in `close()`. `setState` only for local UI state, in the smallest widget.
+2. **No code generation:** no `freezed`, `json_serializable` or `build_runner`. Use sealed classes + exhaustive `switch`, records, and hand-written `fromJson`/`toJson` in data models.
+3. **Domain purity:** nothing under `domain/` imports `package:flutter/...` or `package:supabase_flutter/...`.
+4. **Feature layout:** `lib/features/<feature>/{data,domain,presentation}` with inner folders per the `flutter-feature` skill (ADR-007 §4).
+5. **Error contract:** data sources catch `PostgrestException` / `FunctionException` / `AuthException` and map them to `AppError` with a code from `docs/07` §9. Repositories return `Result<T>` (`Success` / `Failure`, `lib/core/errors/result.dart`). Presentation maps error codes to user-facing English copy — never show raw exception text.
+6. **DI:** `get_it`, registered only in `lib/core/di/injection.dart` — lazy singletons for services/repos, factories for cubits. Never instantiate them by hand in widgets.
+7. **Build discipline:** `const` wherever possible. Never create `TextEditingController`, `AnimationController`, `FocusNode`, `ScrollController` or streams in `build()`; create in `initState`, dispose in `dispose()`. No heavy work in `build()`. Small composed widgets; `BlocBuilder`/`BlocSelector` on the smallest subtree, never at the top of a screen.
+8. **Navigation:** `go_router` only (`lib/core/router/`); no `Navigator.push` with ad-hoc routes.
+9. **Layout & text:** check web at 360 px and 1280 px. Content text (notes, AI replies) uses direction-aware widgets (`Directionality` / `TextDirection` detection) — rule 8.
+
 ## Commands
 Client (run from `apps/client/`; copy `env/<flavor>.example.json` to `env/<flavor>.json` first):
 - `flutter run -d chrome --dart-define-from-file=env/dev.json` (web has no `--flavor`)
@@ -35,3 +61,20 @@ Client (run from `apps/client/`; copy `env/<flavor>.example.json` to `env/<flavo
 - `dart format .` · `flutter analyze --fatal-infos` · `flutter test`
 
 Supabase (from repo root): `scripts/db-up.ps1` (`-Functions` to keep edge-runtime) · `scripts/db-reset.ps1` · `scripts/db-test.ps1` · `scripts/db-down.ps1`
+
+## Dart/Flutter tooling
+Per-story skill order is in `docs/15` §2; this section maps tools to tasks.
+
+Dart MCP server (`dart-flutter` plugin) — add `apps/client/` as a root first (`roots` tool):
+- Code: `analyze_files` (prefer over raw `flutter analyze` mid-task), `lsp` (hover / symbol search), `pub` (add/remove/get/outdated), `pub_dev_search`.
+- Dependencies: read package source with `read_package_uris` / `rip_grep_packages` instead of guessing APIs.
+- Running app (connect via `dtd` first): `hot_reload`, `hot_restart`, `get_runtime_errors`, `widget_inspector`, `flutter_driver_command` (tap / enter text / screenshot).
+
+Skills by task:
+- Scaffold feature: `flutter-feature` · Cubit/Bloc: `flutter-code-quality:state-management` · architecture: `flutter-code-quality:architecture`.
+- Tests: `dart-flutter:flutter-add-widget-test`, `dart-flutter:dart-add-unit-test`, `dart-flutter:flutter-add-integration-test`, `dart-flutter:dart-generate-test-mocks`, `flutter-design-fidelity:golden-tests`; `test-writer` agent for bloc/widget tests.
+- Routing / JSON / l10n: `dart-flutter:flutter-setup-declarative-routing`, `dart-flutter:flutter-implement-json-serialization`, `dart-flutter:flutter-setup-localization`.
+- Layout & UI: `flutter-code-quality:responsive-adaptive`, `dart-flutter:flutter-fix-layout-issues`, `flutter-code-quality:a11y-and-rtl` (mixed Arabic/English, rule 8), `flutter-design-fidelity:design-tokens` / `figma-to-widget` / `visual-verification`.
+- Debugging: `dart-flutter:dart-fix-runtime-errors`, `dart-flutter:dart-resolve-package-conflicts`, `debugger` agent.
+- Before commit/PR: `flutter-code-quality:review-gate`, then `code-reviewer` / `pr-reviewer` agents.
+- Not for this project: `flutter-use-http-package` (we use `supabase_flutter`, no Dio/http), `flutter-webview-shell`, FFI skills.
