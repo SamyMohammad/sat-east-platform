@@ -61,15 +61,30 @@ create event trigger ensure_rls on ddl_command_end
 ```
 > Verify in Phase 0 that the hosted `postgres` role may create event triggers. If not, Layer 4 still catches it.
 
-**Layer 3 — functions are not callable unless granted.** By default every new function in `public`
-is executable by `anon` and `authenticated`. Turn that off once, then grant per RPC:
+**Layer 3 — functions, tables and sequences are not reachable unless granted.** By default every new
+function is executable by `PUBLIC` (so by `anon` and `authenticated`), and Supabase auto-grants new
+`public` tables to the API roles. Turn that off once, then grant per object.
+Verified in F-2: a per-schema `revoke … from public` alone does **not** work. Postgres's
+EXECUTE-to-PUBLIC is a *global* default, and per-schema defaults can only add to it. So the revoke
+must be global (`supabase/tests/02_hardening_default_privileges.test.sql` proves it).
 
 ```sql
+-- functions: global PUBLIC revoke + Supabase's per-schema API-role grants (service_role keeps its grant)
+alter default privileges for role postgres
+  revoke execute on functions from public;
 alter default privileges for role postgres in schema public
-  revoke execute on functions from public, anon, authenticated;
--- per RPC:
+  revoke execute on functions from anon, authenticated;
+-- tables / sequences: same as Supabase's hosted default from 2026-10-30
+alter default privileges for role postgres in schema public
+  revoke all on tables from anon, authenticated, service_role;
+alter default privileges for role postgres in schema public
+  revoke all on sequences from anon, authenticated, service_role;
+-- per RPC / table:
 grant execute on function public.submit_attempt(uuid) to authenticated;
 ```
+> Keep `supabase/config.toml` `auto_expose_new_tables` at its default. Setting it to `false` locally also
+> revokes `service_role`'s EXECUTE on functions, which hosted projects do not do. Local would then drift
+> from staging/prod. The migration alone gives the same fail-closed result everywhere.
 
 **Layer 4 — CI gate (pgTAP).** Fails the build if any `public` table lacks RLS or a policy.
 Use [`supabase_test_helpers`](https://github.com/usebasejump/supabase-test-helpers)
@@ -131,6 +146,8 @@ grant  execute on function public.example_rpc(uuid) to authenticated;
 6. فيه `grant execute ... to authenticated` بس (مش `anon`)؟
 7. فيه رقم ثابت (pass mark، cooldown...)؟ لازم يتقري من `settings`.
 8. فيه pgTAP test جديد، و`supabase test db` نجح؟
+
+> Canonical English checklist (9 items, incl. table grants): `supabase/templates/README.md`.
 
 **Shared fixtures — one rule, two implementations.** The SPR grader exists in SQL (real grading) and
 Dart (input preview/validation). Both test suites read `supabase/tests/fixtures/spr_cases.json`
