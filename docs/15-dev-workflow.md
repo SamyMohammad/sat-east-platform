@@ -53,15 +53,15 @@ Later sprints pick up the rest of the playbook: Outbox sync (S4, 16 §3), rate l
 ## 2. The per-story loop (use for every story in `03-backlog-user-stories.md`)
 
 ```
- 1 PICK      → 2 CLARIFY → 3 PLAN → 4 BRANCH → 5 BACKEND → 6 FLUTTER → 7 VERIFY → 8 REVIEW → 9 SHIP
- (story+IDs)   (if fuzzy)   (spec)   (git)      (SQL/EF+    (TDD)        (gate)     (agent)   (PR)
+ 1 PICK      → 2 BRAINSTORM → 3 PLAN → 4 BRANCH → 5 BACKEND → 6 FLUTTER → 7 VERIFY → 8 REVIEW → 9 SHIP
+ (story+IDs)   (always)       (spec)   (git)      (SQL/EF+    (TDD)        (gate)     (agent)   (PR)
                                                  tests)
 ```
 
 | Step | What you do | How (in Claude Code) |
 |------|-------------|----------------------|
 | **1. Pick** | Take the next story of the current sprint (`11` §Phase 1 table). Note its requirement IDs (e.g. `L-6` → `PRC-03, LRN-03`) and acceptance criteria from `02`. | `Implement story L-6 (PRC-03, LRN-03). Read docs/02, 07 §2–3 first.` |
-| **2. Clarify** *(only if ambiguous)* | Stress-test the story before coding. | `/grilling` — or `/superpowers:brainstorming` for UI-heavy stories |
+| **2. Brainstorm** *(every story)* | Before planning, review the story for anything to change or add: missing cases, better UX, spec gaps. **Size it to the story:** new UI or logic gets a full session; a task the spec already defines in detail (e.g. a schema "close to verbatim") gets a quick pass on open points only. **Every change or addition is written into the docs first** (`02` / `06` / `07` / new ADR), so the docs stay the source of truth and the plan argues from them. | `/superpowers:brainstorming` → design doc. Add `/grilling` afterwards when the design is still shaky. |
 | **3. Plan** | Turn the story into small tasks: migration → RPC/EF → tests → repo → cubit → screen. | `/superpowers:writing-plans` — saves a plan file you approve. Check every library API the plan relies on with **context7** first. |
 | **4. Branch** | `feat/L-6-quiz-unlock` from `main`. | Ask Claude, or the `git-expert` agent |
 | **5. Backend** | Copy a template from `supabase/templates/`, then migration in `supabase/migrations/`, RLS + pgTAP test in `supabase/tests/`, RPC or Edge Function. Check it with the review checklist (`16` §2). Grading/unlock/money logic is **server-side only**. | `/supabase:supabase` skill (+ **context7** for supabase-js / Deno APIs in Edge Functions) → then `supabase db reset` + `supabase test db` |
