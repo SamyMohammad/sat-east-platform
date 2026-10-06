@@ -31,6 +31,7 @@ Three pgTAP files (one per layer) prove the behaviour by creating probe objects 
 
 ## Decisions for review (confirm before executing)
 - **D1 — Close Data API exposure for tables and sequences too, not just functions.** Supabase hosted projects stop auto-granting new `public` tables and sequences to `anon`/`authenticated`/`service_role` on **2026-10-30** (changelog entry 45329). Local `config.toml` still auto-grants (`auto_expose_new_tables` unset). Without action, local and staging/prod would behave differently.
+  - **Outcome (superseded during execution):** the `config.toml` flip was tried in Task 3 Step 6 and reverted. Locally it also strips `service_role`'s EXECUTE on functions, which hosted projects don't do. The migration's revokes alone give the same fail-closed result everywhere. See PR #1 (D1) and docs/16 Layer 3.
   - **Plan:** set `auto_expose_new_tables = false` in `config.toml` and put the same revokes in the hardening migration, so local, staging and prod all fail closed.
   - **Consequence:** every future table migration must contain explicit `grant` statements. The `table.sql` template carries them.
 - **D2 — The docs/16 Layer-3 snippet is suspected to be insufficient.** Postgres documentation says per-schema `ALTER DEFAULT PRIVILEGES … IN SCHEMA` can only *add* to the global defaults. It cannot revoke the built-in global `EXECUTE … TO PUBLIC` on functions, so `in schema public … revoke execute … from public` may be a no-op and `anon` still inherits EXECUTE via PUBLIC.

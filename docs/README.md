@@ -36,6 +36,8 @@ and laptop; UI is English-only.
 | 15 | [Developer Workflow](15-dev-workflow.md) | Dev | Daily — how to build each story |
 | 16 | [Supabase Playbook](16-supabase-playbook.md) | Architect / Dev | Before any SQL; drawbacks → mitigations |
 | ADR | [Architecture Decision Records](adr/) | Architect | When questioning a tech choice |
+| — | [SQL / Edge Function templates](../supabase/templates/README.md) | Dev | Start every new SQL file here (CLAUDE.md rule 10) + review checklist |
+| — | [Implementation plans](superpowers/plans/) | Dev | Per-story plans from `/superpowers:writing-plans` |
 
 There is also a [`CLAUDE.md`](../CLAUDE.md) at the repo root with conventions for AI-assisted coding.
 
