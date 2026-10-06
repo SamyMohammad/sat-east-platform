@@ -1,0 +1,1 @@
+-- Local dev seed data. Settings defaults come with the schema migration (Phase 0 #2b).

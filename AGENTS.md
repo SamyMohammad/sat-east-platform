@@ -1,4 +1,4 @@
-# CLAUDE.md — SAT/EST Math Platform
+# AGENTS.md — SAT/EST Math Platform
 
 Read `docs/README.md` first. Specs live in `docs/`; decisions in `docs/adr/`.
 

@@ -1,0 +1,10 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+
+# Secrets
+.env
+.env.*
+!.env.example

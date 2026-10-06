@@ -1,0 +1,6 @@
+{
+  "FLAVOR": "staging",
+  "SUPABASE_URL": "https://<project-ref>.supabase.co",
+  "SUPABASE_PUBLISHABLE_KEY": "<publishable key from supabase status / dashboard>",
+  "ENABLE_PURCHASE": false
+}
