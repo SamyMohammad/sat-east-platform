@@ -12,7 +12,7 @@ The real critical path is not code. These block milestones and take weeks, so st
 | # | Ask the teacher | Blocks | Ref |
 |---|-----------------|--------|-----|
 | 1 | Commercial register / tax card → start **Paymob** onboarding now | M3 (Paymob live) | Q-03, ADR-003 |
-| 2 | Open a **VdoCipher** account (test folder) | Phase 0 spike | ADR-002 |
+| 2 | Accept the **video protection trade-off** (free encrypted HLS, web-download risk) or fund VdoCipher | Phase 0 spike | ADR-002 |
 | 3 | Monthly budget (video, Desmos, LLM, Supabase, email) | Plans to buy | Q-04 |
 | 4 | Confirm device limit (2 devices, 2 changes / 30 days) | Sprint S1 | Q-14 |
 | 5 | Approve **taxonomy** (topics → subtopics → skill codes) as `content/taxonomy.csv` | M1, all analytics | 09 §4 |
@@ -39,7 +39,7 @@ Ordered by "what everything else depends on". Each line = one branch + one PR.
 | 4 | **SPR grader, test-first** (SQL function + Dart mirror for the input preview). Both read one fixture file `supabase/tests/fixtures/spr_cases.json` built from `08` §6 and `12` §2 | Pure logic, perfect first TDD task, highest trust risk | GRD-02, 16 §2 |
 | 5 | **CI** (GitHub Actions): `dart format`, `flutter analyze`, `flutter test`, `supabase test db`, `supabase db lint`, secret-grep on web build, build web. **Staging** (free Supabase project): deploy migrations + EFs on `main`, daily keep-alive cron | Gates every later PR | F-3, 16 §7 |
 | 6 | **Design system + `QuestionView`** prototype (LaTeX via `flutter_math_fork`, MCQ + SPR input, 360/768/1280) | Shared by 4 features (rule #6) | F-4 |
-| 7 | **Spike: VdoCipher** DRM + watermark on web/Android/iOS (1 day, throwaway branch) | Highest platform risk | ADR-002 |
+| 7 | **Spike: encrypted HLS** — ffmpeg AES-128 HLS on Cloudflare R2, signed key URL from a local Edge Function, `hls.js` on web + `video_player` on Android/iOS, moving watermark overlay (1 day, throwaway branch) | Highest platform risk; proves the free option | ADR-002 |
 | 8 | **Spike: Paymob** test checkout + HMAC webhook in an Edge Function (1 day) | Money path | ADR-003 |
 | 9 | **Spike: PDF viewer** (`pdfrx`) + watermark overlay + signed URL (1 day) | Content protection | SEC-02 |
 | 10 | Sentry (client + EFs) + PostHog `AnalyticsService` skeleton; Firebase project for FCM + App Check (monitor mode) | Cheap now, painful later | F-5, ADR-008 |

@@ -10,8 +10,8 @@
                            │ supabase-dart │ video SDK    │ WebView/iframe
                            ▼               ▼              ▼
                 ┌──────────────────┐  ┌──────────┐  ┌──────────┐
-                │    Supabase      │  │VdoCipher │  │ Desmos   │
-                │ Auth · Postgres  │  │ DRM video│  │ API (JS) │
+                │    Supabase      │  │Cloudflare│  │ Desmos   │
+                │ Auth · Postgres  │  │ R2 (HLS) │  │ API (JS) │
                 │ Storage · Edge Fn│  └──────────┘  └──────────┘
                 │ Realtime · Cron  │
                 └──┬────┬────┬─────┘
@@ -37,7 +37,7 @@ question JSON → imported via the teacher area. See 09.
 | State mgmt | Riverpod (or BLoC — developer's choice, be consistent) | — |
 | Architecture | Clean Architecture, feature-first folders | — |
 | Backend | Supabase: Postgres 15+, Auth, Storage, Edge Functions (Deno/TS), pg_cron, Realtime | ADR-001 |
-| Video | VdoCipher (DRM + dynamic watermark, Flutter SDK) | ADR-002 |
+| Video | MVP: AES-128 encrypted HLS on Cloudflare R2 + Flutter watermark overlay; upgrade: VdoCipher DRM behind `VideoSource` | ADR-002 |
 | Payments | Paymob (cards incl. international, wallets) + activation codes | ADR-003 |
 | Calculator | Desmos API, commercial plan, loaded in WebView/iframe | ADR-004 |
 | AI tutor | LLM via Edge Function, grounded on stored solutions | ADR-005 |
@@ -111,9 +111,10 @@ Client            create-checkout(EF)       Paymob            payment-webhook(EF
 ### 5.2 Video playback
 ```
 Client ──(topic_video_id)──▶ video-otp(EF): check enrolment & access window
-                              → call VdoCipher OTP API with watermark {name, phone, user_id}
-       ◀── otp + playbackInfo ──
-Client player plays DRM stream; progress → save_video_progress RPC every 15 s
+                              → signed R2 playlist URL + key URL (TTL ≤ 5 min)
+       ◀── playbackInfo ──
+Client plays encrypted HLS with watermark overlay; progress → save_video_progress RPC every 15 s
+(upgrade path: video-otp returns a VdoCipher OTP instead — same client interface)
 ```
 
 ### 5.3 Assessment (homework/quiz/mock)
@@ -128,8 +129,8 @@ submit_attempt(attempt_id) → grade server-side → write results → update ma
 
 | Env | Supabase project | Web URL | Payments | Video |
 |-----|------------------|---------|----------|-------|
-| dev | local (`supabase start`, Docker) | localhost | Paymob test mode | VdoCipher test folder |
-| staging | `sat-staging` (free tier, keep-alive cron) | preview URL | Paymob test mode | VdoCipher test folder |
+| dev | local (`supabase start`, Docker) | localhost | Paymob test mode | R2 dev bucket |
+| staging | `sat-staging` (free tier, keep-alive cron) | preview URL | Paymob test mode | R2 staging bucket |
 | prod | `sat-prod` (Pro + PITR) | custom domain | live | live |
 
 Secrets only in Supabase Edge Function secrets / CI secrets — never in the Flutter bundle

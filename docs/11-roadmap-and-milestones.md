@@ -19,7 +19,7 @@ Beta                                [==]  ← closed beta with 10–20 students
 ## Phase 0 — Foundations (weeks 1–2)
 - Repo, flavors, CI/CD, Supabase dev/prod, migrations of the schema in 06, RLS baseline.
 - Design system + `QuestionView` (LaTeX) prototype.
-- **Spikes (1 day each):** VdoCipher on web/Android/iOS · Paymob test checkout + webhook · PDF viewer with watermark.
+- **Spikes (1 day each):** Encrypted HLS from R2 + watermark on web/Android/iOS · Paymob test checkout + webhook · PDF viewer with watermark.
 - Content: taxonomy (topics → subtopics → skills) approved by teacher; pilot pipeline on 1 topic.
 - **Exit:** schema migrated, app shell deployed to staging, three spikes green, pilot topic's questions extracted.
 
@@ -51,7 +51,7 @@ placement test, misconception insights, WhatsApp notifications.
 
 | Milestone | Target | Depends on |
 |-----------|--------|-----------|
-| M0 Spikes green | end wk 2 | VdoCipher account, Paymob test keys |
+| M0 Spikes green | end wk 2 | Cloudflare R2 bucket, Paymob test keys |
 | M1 Taxonomy approved | end wk 2 | Teacher |
 | M2 First 10 topics content-complete | wk 10 | Pipeline + teacher review + videos recorded |
 | M3 Paymob live | wk 10 | Teacher's commercial papers (Q-03) — codes are the fallback |

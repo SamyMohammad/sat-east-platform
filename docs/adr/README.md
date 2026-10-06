@@ -3,7 +3,7 @@
 | ADR | Title | Status |
 |-----|-------|--------|
 | [ADR-001](ADR-001-stack-flutter-supabase.md) | Flutter (web + mobile) with Supabase backend | Accepted |
-| [ADR-002](ADR-002-video-hosting.md) | Video hosting with DRM and dynamic watermark (VdoCipher) | Proposed |
+| [ADR-002](ADR-002-video-hosting.md) | Video: encrypted HLS on R2 (MVP), VdoCipher DRM as upgrade | Proposed |
 | [ADR-003](ADR-003-payments.md) | Payments: Paymob + activation codes | Proposed |
 | [ADR-004](ADR-004-desmos.md) | Desmos calculator in the exam engine (paid commercial plan) | Proposed |
 | [ADR-005](ADR-005-ai-tutor.md) | AI tutor grounded in teacher-approved solutions | Proposed |

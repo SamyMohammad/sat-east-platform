@@ -12,7 +12,7 @@ exam timing.** UI polish gets lighter coverage.
 | Dart unit | `flutter_test` | SPR input validation/preview, timers, view models |
 | Widget | `flutter_test` + golden tests | QuestionView with LaTeX, exam screen states at 360/768/1280 |
 | Integration / E2E | `integration_test` (+ Patrol for native dialogs) on staging | Happy paths below |
-| Manual | Checklist per release | DRM playback & watermark on each platform, screenshot blocking, payment in test mode |
+| Manual | Checklist per release | Encrypted video playback & watermark on each platform, screenshot blocking, payment in test mode |
 
 ## 2. Critical test cases
 

@@ -12,7 +12,7 @@
 | NFR-08 | Security | RLS on every table; no table without a policy | CI check query on `pg_tables` / `pg_policies` |
 | NFR-09 | Security | Secrets only server-side | No service-role / gateway / LLM keys in client bundle (CI grep) |
 | NFR-10 | Security | Payment webhooks verified + idempotent | HMAC check, unique txn id |
-| NFR-11 | Content protection | DRM video, watermark, signed PDF URLs (≤ 5 min), secure screen on mobile | See SEC-* |
+| NFR-11 | Content protection | Encrypted HLS video (DRM upgrade path), watermark, signed PDF URLs (≤ 5 min), secure screen on mobile | See SEC-* |
 | NFR-12 | Privacy | Most students are minors | Collect minimum data; privacy policy; parent contact optional; no selling data; delete account on request |
 | NFR-13 | Privacy | AI conversations | Stored for quality; disclosed in privacy policy; not used to train third-party models (check provider settings) |
 | NFR-14 | Accessibility | Readable math, contrast, font scaling | WCAG AA contrast; LaTeX scales with text size; keyboard navigation in exam on web |

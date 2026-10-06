@@ -53,7 +53,7 @@ These are hypotheses for a new product with no baseline; revisit after the first
 - Auto-grading for MCQ and grid-in (Student-Produced Response) with equivalent-answer handling.
 - Student analytics: skill mastery, weak points, mistake notebook, time per question.
 - Teacher dashboard: per-topic completion matrix, homework status, class-wide hardest questions.
-- Content protection: DRM video with student watermark, in-app-only PDF viewer, device limit.
+- Content protection: encrypted video (DRM as upgrade path — ADR-002) with student watermark, in-app-only PDF viewer, device limit.
 - AI tutor grounded in stored solutions, with escalation to teacher.
 - Mock exam phase: Bluebook-style adaptive SAT mock with Desmos, reference sheet, review tools;
   EST mock on its own template.

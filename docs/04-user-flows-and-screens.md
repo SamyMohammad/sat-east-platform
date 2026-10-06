@@ -61,7 +61,7 @@ Dashboard (alerts: stuck, inactive, reports, escalations)
 | S-13 | My courses | SAT / EST cards, access expiry |
 | S-14 | Course map | Units → topics, lock states, progress rings |
 | S-15 | Topic page | 5-step stepper (Video, Notes, Practice, Homework, Quiz) |
-| S-16 | Video player | DRM player, chapters, watermark |
+| S-16 | Video player | Encrypted HLS player (DRM later), chapters, moving watermark |
 | S-17 | Notes viewer | Paged PDF viewer with watermark, no download |
 | S-18 | Practice setup | Subtopic + difficulty filters |
 | S-19 | Question player (practice mode) | Immediate feedback, hint, explanation, Ask AI |

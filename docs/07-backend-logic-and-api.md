@@ -34,7 +34,7 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `create-checkout` | Compute price (currency, coupon), create `orders(pending)`, create Paymob payment intention, return checkout URL |
 | `payment-webhook` | Verify Paymob HMAC; idempotent on `gateway_txn_id`; mark order paid; create/extend enrollment; send receipt |
 | `redeem-code` | Activation code → enrollment |
-| `video-otp` | Check access; request VdoCipher OTP with annotation watermark (name, phone, short id) |
+| `video-otp` | Check access; return short-lived signed R2 HLS playlist + key URL and watermark text (name, phone, short id). Upgrade: VdoCipher OTP (ADR-002) |
 | `pdf-url` | Check access; return Storage signed URL (TTL 5 min) |
 | `assemble-mock` | Build mock forms for a template + set_no (teacher) or pick next unseen form for a student |
 | `ai-tutor` | Grounded LLM answer (see §6) |

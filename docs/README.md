@@ -60,7 +60,7 @@ There is also a [`CLAUDE.md`](../CLAUDE.md) at the repo root with conventions fo
 | UI language | English only | Decided |
 | Client | Flutter (web + Android + iOS), one codebase | Decided |
 | Backend | Supabase (Postgres, Auth, Storage, Edge Functions) | Decided |
-| Video hosting | VdoCipher (DRM + dynamic watermark) | Proposed — ADR-002 |
+| Video hosting | MVP: encrypted HLS on Cloudflare R2 + watermark overlay; upgrade: VdoCipher DRM | Proposed — ADR-002 |
 | Payments | Paymob (cards incl. international, wallets) | Proposed — ADR-003 |
 | Calculator | Desmos API — paid commercial plan required | Proposed — ADR-004 |
 | AI tutor | LLM grounded in teacher-approved solutions; escalates to teacher | Proposed — ADR-005 |

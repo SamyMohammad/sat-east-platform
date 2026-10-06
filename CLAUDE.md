@@ -14,7 +14,7 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 1. **Answer keys never reach the client before submission.** Keys/explanations live in `private.question_keys` (non-exposed schema). Only `check_practice_answer`, `submit_attempt`, `get_attempt_review` return them.
 2. Grading, unlocking, scoring, payments, enrollment, device registration → server-side (RPC / Edge Function). Never trust client-sent scores, amounts, or timers.
 3. Every new table ships with RLS enabled and policies + a test in `supabase/tests/`.
-4. Secrets (service role, Paymob, VdoCipher, LLM, Desmos) only in Edge Function secrets.
+4. Secrets (service role, Paymob, R2/VdoCipher, LLM, Desmos) only in Edge Function secrets.
    Secret data (answer keys, rate limits) and internal helpers live in the non-exposed `private` schema.
 5. Tunable values (pass mark, cooldowns, pool split, device limit, blueprints, scale tables) come from the `settings` table — no magic numbers.
 6. One shared `QuestionView` widget for practice, homework, quiz and mock.

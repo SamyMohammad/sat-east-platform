@@ -140,7 +140,7 @@ Each requirement has an ID used in the backlog (03) and tests (12).
 
 | ID | Requirement | Pri |
 |----|-------------|-----|
-| SEC-01 | DRM video streaming with dynamic watermark (student name + phone/ID). | P0 |
+| SEC-01 | Protected video streaming (MVP: AES-128 encrypted HLS with short-lived keys; upgrade: DRM — ADR-002) with dynamic watermark (student name + phone/ID). | P0 |
 | SEC-02 | PDFs viewed in-app only via short-lived signed URLs; watermark overlay on every page; no download/print UI. | P0 |
 | SEC-03 | Mobile apps block screenshots/screen recording (Android `FLAG_SECURE`; iOS capture detection + blur). | P0 |
 | SEC-04 | Suspicious activity flags: many devices, abnormal concurrent sessions, many countries. | P1 |

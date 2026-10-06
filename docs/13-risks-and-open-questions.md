@@ -27,7 +27,7 @@
 | R-01 | Answer keys/explanations take far longer than the app (16k questions, no keys) | High | High | Pipeline from week 1; launch with 100–150 Qs/topic; double-solve to cut review load |
 | R-02 | Wrong answer keys published → trust loss | Med | High | Double-solve + sampling; "report a problem"; re-grade on key fix (GRD-04) |
 | R-03 | Copyright claim over third-party questions | Med | High | Rights gate in pipeline (09 §7); original items only from third-party style |
-| R-04 | Content leaks (screen recording, account sharing) | High | Med | DRM, watermark with identity, device limit, FLAG_SECURE; accept residual risk |
+| R-04 | Content leaks (screen recording, account sharing) | High | Med | Encrypted HLS, moving watermark with identity, device limit, FLAG_SECURE; web download possible for technical users (ADR-002) → re-evaluate after beta, upgrade to DRM if leaks appear |
 | R-05 | App Store rejection over digital purchases | Med | Med | ADR-006: web purchases, access-only apps, demo account |
 | R-06 | Paymob onboarding delayed (papers) | Med | Med | Activation codes from day one |
 | R-07 | Desmos cost too high / delayed approval | Med | High (mocks) | Contact early; budget it in Q-04 |
