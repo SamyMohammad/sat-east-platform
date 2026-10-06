@@ -127,5 +127,6 @@ log everything for teacher review.
 - Sessions on revoked devices: client checks device status on app resume and every N minutes; RPCs reject when the device header `x-device-id` is revoked (checked in `has_access`).
 
 ## 9. Error codes
-`not_enrolled`, `access_expired`, `topic_locked`, `attempt_closed`, `deadline_passed`,
-`device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`, `rate_limited`, `payment_invalid`.
+`not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
+`attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,
+`rate_limited`, `payment_invalid`, `internal` (Edge Functions only — unexpected failure).
