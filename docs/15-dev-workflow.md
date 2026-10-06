@@ -68,7 +68,16 @@ Later sprints pick up the rest of the playbook: Outbox sync (S4, 16 §3), rate l
 | **6. Flutter** | Scaffold the feature (data/domain/presentation), cubit with sealed states, screen. Write the test first. | `/flutter-feature` (scaffold) · `/flutter-code-quality:state-management` · `/superpowers:test-driven-development` · `test-writer` agent for bloc/widget tests · **context7** before using any package API (bloc, go_router, supabase_flutter, get_it) |
 | **7. Verify** | Format, analyze (infos fatal), tests, forbidden patterns. Run on web at 360 + 1280 px. | `/flutter-code-quality:review-gate` · `/flutter-code-quality:responsive-adaptive` · `/superpowers:verification-before-completion` |
 | **8. Review** | Independent review: architecture, security (keys never leak!), performance. | `code-reviewer` agent · `/security-review` for auth/payment/RLS stories |
-| **9. Ship** | Commit, PR titled with the IDs: `PRC-03 LRN-03: timed quiz unlocks next topic`. Merge when CI is green. Update the graph. | `/caveman:caveman-commit` or `git-expert` agent · `gh pr create` / `gh pr checks --watch` (gh CLI, already authenticated) · `pr-reviewer` agent · `graphify update .` |
+| **9. Ship** | Commit, PR titled with the IDs: `PRC-03 LRN-03: timed quiz unlocks next topic`. **You push** (see the handoff below), then Claude opens the PR. Merge when CI is green. Update the graph. | `/caveman:caveman-commit` or `git-expert` agent · `gh pr create` / `gh pr checks --watch` (gh CLI, already authenticated) · `pr-reviewer` agent · `graphify update .` |
+
+**Ship handoff — push is manual.** Claude Code's permission mode blocks Claude from pushing code to
+GitHub or creating repos (it counts as data leaving the machine), and Claude never works around that block.
+1. Claude commits locally, runs the safety checks, then stops and prints the exact commands.
+2. You run them in your own terminal from the repo root:
+   `git push -u origin <branch>` (first time only: `gh repo create SamyMohammad/sat-east-platform --private --source . --remote origin`, then `git push -u origin main`).
+3. You reply "كمّل". Claude (or `git-expert`) runs `gh pr create` with the prepared title and body, then `gh pr checks --watch`.
+
+To let Claude push by itself instead, allow `Bash(git push:*)` in `/permissions`. That's your decision.
 
 **Definition of done** (from `11`): acceptance criteria met + tests + deployed to staging.
 
