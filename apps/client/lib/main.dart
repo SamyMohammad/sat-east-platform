@@ -24,3 +24,5 @@ Future<void> main() async {
 
   runApp(const App());
 }
+
+int   badlyFormatted( )=>1;
