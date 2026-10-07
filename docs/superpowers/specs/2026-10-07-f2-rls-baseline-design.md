@@ -27,7 +27,8 @@ table without RLS or a policy" fail the build.
 3. Students never read the question bank tables directly; RPCs only (anti-scraping, rule 1).
 4. `ai_*` select-only for students; writes go through the `ai-tutor` EF.
 5. Column-level grants: `profiles` update (6 editable columns), `notifications` update (`read_at`),
-   `orders` select (all columns except `raw_payload`).
+   `orders` select (all columns except `raw_payload`), `topic_assets` select (all columns except
+   `storage_path`, `video_provider_id` — added after the final review).
 6. `attempt_answers` select own only when the parent attempt's status is not `in_progress`.
 7. Helpers are `security definer`, `stable`, `set search_path = ''`, `language sql`, granted to
    `authenticated` (and `anon` only where an anon policy needs them — none do).

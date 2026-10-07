@@ -1,7 +1,7 @@
 -- F-2 / NFR-07 / NFR-08 — docs/06 §4 learning rows: attempts, answers (rule 1), orders, AI, self-reported rows.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(14);
+select plan(18);
 
 select tests.create_supabase_user('student_a');
 select tests.create_supabase_user('student_b');
@@ -65,6 +65,17 @@ select throws_ok(format($$ insert into public.official_scores (user_id, course_i
                            values (%L, '00000000-0000-0000-0000-0000000000c1', 800, current_date) $$,
                         tests.get_supabase_uid('student_b')), '42501', null,
                  'NFR-08: student cannot record a score for someone else');
+select throws_ok($$ insert into public.enrollments (user_id, course_id, expires_at)
+                    values (auth.uid(), '00000000-0000-0000-0000-0000000000c1', now() + interval '1 year') $$, '42501', null,
+                 'NFR-08: student cannot enroll themselves');
+select throws_ok($$ insert into public.devices (user_id, device_fingerprint) values (auth.uid(), 'fp-x') $$, '42501', null,
+                 'NFR-08: student cannot register devices directly (register-device EF only)');
+select throws_ok($$ insert into public.topic_progress (user_id, topic_id, quiz_passed_at)
+                    values (auth.uid(), '00000000-0000-0000-0000-0000000000d1', now()) $$, '42501', null,
+                 'NFR-08: student cannot write own progress (unlocks are server-side)');
+select is_empty($$ update public.attempts set status = 'submitted'
+                   where id = '00000000-0000-0000-0000-0000000000a1' returning id $$,
+                'NFR-07: student cannot submit an attempt directly (would expose answers)');
 select lives_ok($$ insert into public.question_reports (question_id, user_id, reason)
                    values ('00000000-0000-0000-0000-0000000000f1', auth.uid(), 'typo') $$,
                 'NFR-08: student reports a question');

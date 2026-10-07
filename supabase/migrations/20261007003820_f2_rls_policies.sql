@@ -1,6 +1,7 @@
 -- F-2 row 3: RLS baseline (docs/06 §4). Teacher: all on every public table except audit_log.
 -- Students/anon: only the rows below. Grants: authenticated gets full DML because the teacher is
--- an authenticated user; RLS is the student gate; column grants narrow profiles/notifications/orders.
+-- an authenticated user; RLS is the student gate; column grants narrow profiles/notifications/orders/
+-- topic_assets.
 
 -- 1. Grants
 grant select on public.courses, public.units, public.topics, public.subtopics, public.prices to anon;
@@ -20,6 +21,11 @@ grant select (id, user_id, course_id, price_id, coupon_id, amount_minor, currenc
   on public.orders to authenticated;
 
 revoke insert, update, delete on public.audit_log from authenticated;
+
+-- Asset storage paths (R2 prefix, PDF path) are never readable through the API; URLs come from EFs.
+revoke select on public.topic_assets from authenticated;
+grant select (id, topic_id, subtopic_id, kind, title, sort, duration_s, page_count, created_at)
+  on public.topic_assets to authenticated;
 
 -- 2. Teacher manages all (one permissive policy per table)
 do $$

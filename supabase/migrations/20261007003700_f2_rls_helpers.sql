@@ -39,8 +39,10 @@ set search_path = ''
 as $$
   select exists (
     select 1 from public.topics t
+    join public.courses c on c.id = t.course_id
     where t.id = p_topic_id
       and t.is_published
+      and c.is_published
       and (t.is_free_preview or public.has_access(t.course_id))
   );
 $$;

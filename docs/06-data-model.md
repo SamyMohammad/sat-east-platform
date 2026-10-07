@@ -236,9 +236,10 @@ audit_log(id bigserial, actor uuid, action text, entity text, entity_id uuid,
 Teacher: **all** on every table (one `for all … is_teacher()` policy), except `audit_log` (select
 only; rows are written by `security definer` functions). Grants: `anon` gets select on the catalogue tables
 only. `authenticated` gets DML on every table, because the teacher is an `authenticated` user; RLS
-is the student gate. Column grants narrow `profiles` (update), `notifications` (update) and
-`orders` (select), and `audit_log` is select-only. These column limits apply to the teacher too:
-`orders.raw_payload` and `profiles.role` are changed only from the dashboard. Agreed in row 3 (docs/15 §1, 2026-10-07).
+is the student gate. Column grants narrow `profiles` (update), `notifications` (update),
+`orders` (select) and `topic_assets` (select), and `audit_log` is select-only. These column limits apply to the teacher too:
+`orders.raw_payload`, `topic_assets` paths and `profiles.role` are read or changed only from the
+dashboard or an Edge Function. Agreed in row 3 (docs/15 §1, 2026-10-07).
 
 | Table | Anon | Student |
 |-------|------|---------|
@@ -246,7 +247,7 @@ is the student gate. Column grants narrow `profiles` (update), `notifications` (
 | prices | select active, course published | same |
 | profiles | — | select own; update own `full_name, phone, country, school, grade, timezone` only |
 | devices | — | select own (writes: `register-device` EF) |
-| topic_assets, video_chapters | — | select metadata if `has_access_topic` (no URLs — URLs via EF) |
+| topic_assets, video_chapters | — | select metadata if `has_access_topic`; `storage_path` and `video_provider_id` are not granted (URLs via EF) |
 | skills, subtopic_skills | — | select all (taxonomy) |
 | enrollments | — | select own |
 | orders | — | select own, every column except `raw_payload` |
@@ -267,8 +268,8 @@ run as the caller, 16 §1):
 - `is_teacher()` — the caller's `profiles.role = 'teacher'`.
 - `has_access(course_id)` — the caller has an enrollment with `status = 'active'` and
   `now() < expires_at`. The device check (`x-device-id`, 07 §8) is added by the device story (S1).
-- `has_access_topic(topic_id)` — the topic is published, and either `has_access` of its course
-  or the topic is `is_free_preview`.
+- `has_access_topic(topic_id)` — the topic and its course are published, and either `has_access`
+  of the course or the topic is `is_free_preview`.
 
 Traps closed by row 3 (from the row 2b review), each with a pgTAP test:
 - `profiles.role` cannot be self-updated (column-level `update` grant).

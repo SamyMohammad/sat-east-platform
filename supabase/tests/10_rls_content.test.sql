@@ -1,7 +1,7 @@
 -- F-2 / NFR-08 — docs/06 §4 content rows: assets, chapters, live sessions, announcements.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(9);
+select plan(10);
 
 select tests.create_supabase_user('student_a');  -- enrolled
 select tests.create_supabase_user('student_b');  -- not enrolled
@@ -36,6 +36,8 @@ select is((select count(*)::int from public.topic_assets), 2, 'NFR-08: enrolled 
 select is((select count(*)::int from public.video_chapters), 1, 'NFR-08: enrolled student sees chapters');
 select is((select count(*)::int from public.live_sessions), 1, 'NFR-08: enrolled student sees live sessions');
 select is((select count(*)::int from public.announcements), 1, 'NFR-08: enrolled student sees announcements');
+select throws_ok($$ select storage_path, video_provider_id from public.topic_assets $$, '42501', null,
+                 'NFR-08: student cannot read asset storage paths (URLs via EF only)');
 
 select tests.authenticate_as('student_b');
 select is((select count(*)::int from public.topic_assets), 1, 'NFR-08: non-enrolled student sees free preview assets only');
