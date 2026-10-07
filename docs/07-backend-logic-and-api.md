@@ -129,4 +129,4 @@ log everything for teacher review.
 ## 9. Error codes
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
 `attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,
-`rate_limited`, `payment_invalid`, `internal` (Edge Functions only — unexpected failure).
+`rate_limited`, `payment_invalid`, `invalid_key` (malformed answer key — content error), `internal` (Edge Functions only — unexpected failure).
