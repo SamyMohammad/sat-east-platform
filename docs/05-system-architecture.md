@@ -130,7 +130,7 @@ submit_attempt(attempt_id) → grade server-side → write results → update ma
 | Env | Supabase project | Web URL | Payments | Video |
 |-----|------------------|---------|----------|-------|
 | dev | local (`supabase start`, Docker) | localhost | Paymob test mode | R2 dev bucket |
-| staging | `sat-staging` (free tier, own Supabase org, keep-alive cron) | Cloudflare Pages URL | Paymob test mode | R2 staging bucket |
+| staging | `sat-staging` (free tier, separate Supabase account, keep-alive cron) | Cloudflare Pages URL | Paymob test mode | R2 staging bucket |
 | prod | `sat-prod` (Pro + PITR) | custom domain | live | live |
 
 Secrets only in Supabase Edge Function secrets / CI secrets — never in the Flutter bundle

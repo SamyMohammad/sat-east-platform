@@ -16,8 +16,9 @@ manual `db push`.
 upload (row 10), custom domain (Q-01).
 
 ## Decisions (agreed 2026-10-07)
-1. Staging = new free Supabase project `sat-staging` in eu-central-1, in a **new Supabase org**.
-   The existing org is on the free plan and already has two active projects.
+1. Staging = new free Supabase project `sat-staging` in eu-central-1, in org `sat-east` owned by a
+   **separate Supabase account**. (Amended during execution: the free limit is per owner across all
+   orgs, so a new org on the main account was refused.)
 2. Web hosting = Cloudflare Pages (ADR-009).
 3. CI is advisory. Branch protection is unavailable on a private repo on GitHub Free. The rule
    is written in `docs/16` §7: never merge a PR with red or missing checks.
