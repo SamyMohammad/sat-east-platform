@@ -53,31 +53,24 @@ Later sprints pick up the rest of the playbook: Outbox sync (S4, 16 §3), rate l
 ## 2. The per-story loop (use for every story in `03-backlog-user-stories.md`)
 
 ```
- 1 PICK      → 2 CLARIFY → 3 PLAN → 4 BRANCH → 5 BACKEND → 6 FLUTTER → 7 VERIFY → 8 REVIEW → 9 SHIP
- (story+IDs)   (if fuzzy)   (spec)   (git)      (SQL/EF+    (TDD)        (gate)     (agent)   (PR)
+ 1 PICK      → 2 BRAINSTORM → 3 PLAN → 4 BRANCH → 5 BACKEND → 6 FLUTTER → 7 VERIFY → 8 REVIEW → 9 SHIP
+ (story+IDs)   (always)       (spec)   (git)      (SQL/EF+    (TDD)        (gate)     (agent)   (PR)
                                                  tests)
 ```
 
 | Step | What you do | How (in Claude Code) |
 |------|-------------|----------------------|
 | **1. Pick** | Take the next story of the current sprint (`11` §Phase 1 table). Note its requirement IDs (e.g. `L-6` → `PRC-03, LRN-03`) and acceptance criteria from `02`. | `Implement story L-6 (PRC-03, LRN-03). Read docs/02, 07 §2–3 first.` |
-| **2. Clarify** *(only if ambiguous)* | Stress-test the story before coding. | `/grilling` — or `/superpowers:brainstorming` for UI-heavy stories |
-| **3. Plan** | Turn the story into small tasks: migration → RPC/EF → tests → repo → cubit → screen. | `/superpowers:writing-plans` — saves a plan file you approve. Check every library API the plan relies on with **context7** first. |
+| **2. Brainstorm** *(every story)* | Before planning, review the story for anything to change or add: missing cases, better UX, spec gaps. **Size it to the story:** new UI or logic gets a full session; a task the spec already defines in detail (e.g. a schema "close to verbatim") gets a quick pass on open points only. **Every change or addition is written into the docs first** (`02` / `06` / `07` / new ADR), so the docs stay the source of truth and the plan argues from them. | `/superpowers:brainstorming` → design doc. Add `/grilling` afterwards when the design is still shaky. |
+| **3. Plan** | Turn the story into small tasks: migration → RPC/EF → tests → repo → cubit → screen. | Plan mode on, then `/superpowers:writing-plans` — saves a plan file you approve. Check every library API the plan relies on with **context7** first. |
 | **4. Branch** | `feat/L-6-quiz-unlock` from `main`. | Ask Claude, or the `git-expert` agent |
 | **5. Backend** | Copy a template from `supabase/templates/`, then migration in `supabase/migrations/`, RLS + pgTAP test in `supabase/tests/`, RPC or Edge Function. Check it with the review checklist (`16` §2). Grading/unlock/money logic is **server-side only**. | `/supabase:supabase` skill (+ **context7** for supabase-js / Deno APIs in Edge Functions) → then `supabase db reset` + `supabase test db` |
 | **6. Flutter** | Scaffold the feature (data/domain/presentation), cubit with sealed states, screen. Write the test first. | `/flutter-feature` (scaffold) · `/flutter-code-quality:state-management` · `/superpowers:test-driven-development` · `test-writer` agent for bloc/widget tests · **context7** before using any package API (bloc, go_router, supabase_flutter, get_it) |
 | **7. Verify** | Format, analyze (infos fatal), tests, forbidden patterns. Run on web at 360 + 1280 px. | `/flutter-code-quality:review-gate` · `/flutter-code-quality:responsive-adaptive` · `/superpowers:verification-before-completion` |
 | **8. Review** | Independent review: architecture, security (keys never leak!), performance. | `code-reviewer` agent · `/security-review` for auth/payment/RLS stories |
-| **9. Ship** | Commit, PR titled with the IDs: `PRC-03 LRN-03: timed quiz unlocks next topic`. **You push** (see the handoff below), then Claude opens the PR. Merge when CI is green. Update the graph. | `/caveman:caveman-commit` or `git-expert` agent · `gh pr create` / `gh pr checks --watch` (gh CLI, already authenticated) · `pr-reviewer` agent · `graphify update .` |
+| **9. Ship** | Commit, PR titled with the IDs: `PRC-03 LRN-03: timed quiz unlocks next topic`. Claude pushes and opens the PR. Merge when CI is green. Update the graph. | `/caveman:caveman-commit` or `git-expert` agent · `gh pr create` / `gh pr checks --watch` (gh CLI, already authenticated) · `pr-reviewer` agent · `graphify update .` |
 
-**Ship handoff — push is manual.** Claude Code's permission mode blocks Claude from pushing code to
-GitHub or creating repos (it counts as data leaving the machine), and Claude never works around that block.
-1. Claude commits locally, runs the safety checks, then stops and prints the exact commands.
-2. You run them in your own terminal from the repo root:
-   `git push -u origin <branch>` (first time only: `gh repo create SamyMohammad/sat-east-platform --private --source . --remote origin`, then `git push -u origin main`).
-3. You reply "كمّل". Claude (or `git-expert`) runs `gh pr create` with the prepared title and body, then `gh pr checks --watch`.
-
-To let Claude push by itself instead, allow `Bash(git push:*)` in `/permissions`. That's your decision.
+**Ship:** Claude handles all git (branch, commit, push, `gh pr create`, `gh pr checks --watch`) after the safety checks. You review and merge the PR.
 
 **Definition of done** (from `11`): acceptance criteria met + tests + deployed to staging.
 
