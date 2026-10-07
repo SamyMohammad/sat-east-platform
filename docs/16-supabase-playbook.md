@@ -31,6 +31,7 @@ create schema if not exists private;
 revoke all on schema private from public, anon, authenticated;
 -- question_keys, rate_limits, materialized views and RPC-internal helpers live here.
 ```
+> Checked by `scripts/api-private-check.ps1` (expects 406 for `Accept-Profile: private`).
 
 > **Exception — RLS policy helpers stay in `public`.** Policy expressions run as the querying role,
 > so a policy calling `private.is_teacher()` would fail with "permission denied for schema private".

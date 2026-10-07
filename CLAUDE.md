@@ -60,7 +60,7 @@ Client (run from `apps/client/`; copy `env/<flavor>.example.json` to `env/<flavo
 - `flutter run --flavor dev --dart-define-from-file=env/dev.json` (Android; flavors dev/staging/prod)
 - `dart format .` · `flutter analyze --fatal-infos` · `flutter test`
 
-Supabase (from repo root): `scripts/db-up.ps1` (`-Functions` to keep edge-runtime) · `scripts/db-reset.ps1` · `scripts/db-test.ps1` · `scripts/db-down.ps1`
+Supabase (from repo root): `scripts/db-up.ps1` (`-Functions` to keep edge-runtime) · `scripts/db-reset.ps1` · `scripts/db-test.ps1` · `scripts/db-down.ps1` · `scripts/api-private-check.ps1` (`private` not reachable over REST)
 
 ## Dart/Flutter tooling
 Per-story skill order is in `docs/15` §2; this section maps tools to tasks.

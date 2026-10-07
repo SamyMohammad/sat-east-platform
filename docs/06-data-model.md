@@ -233,30 +233,49 @@ audit_log(id bigserial, actor uuid, action text, entity text, entity_id uuid,
 
 ## 4. RLS policy matrix
 
-| Table | Student | Teacher |
-|-------|---------|---------|
-| profiles | select/update own | all |
-| devices | select own; insert via EF only | all |
-| courses, units, topics, subtopics, prices | select published | all |
-| topic_assets | select metadata if enrolled or free preview (no URLs — URLs via EF) | all |
-| questions (public columns) | select published in enrolled course **only via RPC** for attempts; practice pool via `get_practice_questions` | all |
-| private.question_keys, private.rate_limits, private analytics matviews | **none** (not exposed) | via RPC / EF only |
-| enrollments, orders | select own | all |
-| attempts, attempt_answers | select own; write via RPC only | all |
-| topic_progress, skill_mastery, mistake_notebook | select own | all |
-| ai_*, escalations | select/insert own | all |
-| settings | select | all |
+Teacher: **all** on every table (one `for all … is_teacher()` policy), except `audit_log` (select
+only; rows are written by `security definer` functions). Grants: `anon` gets select on the catalogue tables
+only. `authenticated` gets DML on every table, because the teacher is an `authenticated` user; RLS
+is the student gate. Column grants narrow `profiles` (update), `notifications` (update),
+`orders` (select) and `topic_assets` (select), and `audit_log` is select-only. These column limits apply to the teacher too:
+`orders.raw_payload`, `topic_assets` paths and `profiles.role` are read or changed only from the
+dashboard or an Edge Function. Agreed in row 3 (docs/15 §1, 2026-10-07).
 
-Helper (in `public`, `security definer`, callable by `authenticated` — policies run as the caller): `is_teacher()` SQL function checking `profiles.role`; `has_access(course_id)` checks an
-active enrollment with `now() < expires_at`, or free-preview topic.
+| Table | Anon | Student |
+|-------|------|---------|
+| courses, units, topics, subtopics | select published (PAY-01 public catalogue) | same |
+| prices | select active, course published | same |
+| profiles | — | select own; update own `full_name, phone, country, school, grade, timezone` only |
+| devices | — | select own (writes: `register-device` EF) |
+| topic_assets, video_chapters | — | select metadata if `has_access_topic`; `storage_path` and `video_provider_id` are not granted (URLs via EF) |
+| skills, subtopic_skills | — | select all (taxonomy) |
+| enrollments | — | select own |
+| orders | — | select own, every column except `raw_payload` |
+| attempts | — | select own |
+| attempt_answers | — | select own, only when the attempt is no longer `in_progress` (rule 1) |
+| topic_progress, video_progress, skill_mastery, mistake_notebook, mock_results | — | select own |
+| official_scores, question_reports | — | select + insert own |
+| ai_threads, ai_messages, escalations | — | select own (writes: `ai-tutor` EF, so cost caps hold) |
+| live_sessions, announcements | — | select if `has_access(course_id)` |
+| notifications | — | select own; update `read_at` only |
+| push_tokens | — | select + insert + delete own |
+| settings | — | select |
+| questions, question_choices, question_courses, question_skills, attempt_questions, question_exposure, mock_templates, mock_forms, coupons, activation_codes, device_changes, audit_log | — | **none** — RPC / EF only |
+| private.* | — | **none** (schema not exposed) |
 
-Traps the RLS baseline (row 3) must close, each with a pgTAP test (from the row 2b review):
-- **`profiles.role`:** "update own" must not let a student set `role = 'teacher'` (`is_teacher()`
-  reads it). Grant `update` only on the editable columns, not the whole table.
-- **`attempt_answers.is_correct`:** must not be readable before the attempt is submitted (rule 1).
-  Keep it null until `submit_attempt`, or limit "select own" to submitted attempts.
-- **`orders.raw_payload`, `mock_forms.question_ids`:** not readable by students; use column grants.
-- **Indexes:** add an index on every `user_id` / `thread_id` FK that a "select own" policy filters on.
+Helpers (in `public`, `security definer`, `stable`, `grant execute … to authenticated` — policies
+run as the caller, 16 §1):
+- `is_teacher()` — the caller's `profiles.role = 'teacher'`.
+- `has_access(course_id)` — the caller has an enrollment with `status = 'active'` and
+  `now() < expires_at`. The device check (`x-device-id`, 07 §8) is added by the device story (S1).
+- `has_access_topic(topic_id)` — the topic and its course are published, and either `has_access`
+  of the course or the topic is `is_free_preview`.
+
+Traps closed by row 3 (from the row 2b review), each with a pgTAP test:
+- `profiles.role` cannot be self-updated (column-level `update` grant).
+- `attempt_answers` is unreadable while the attempt is `in_progress`.
+- `orders.raw_payload` is not granted; `mock_forms` has no student access.
+- Every `user_id` / `thread_id` FK used by a "select own" policy has an index.
 
 ## 5. Indexes (minimum)
 - `attempt_answers(question_id)` for class insights
