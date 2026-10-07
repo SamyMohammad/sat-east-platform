@@ -1,7 +1,7 @@
 -- F-2 / NFR-08 — docs/06 conventions: sign-up profile, updated_at, FK delete rules.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(8);
+select plan(12);
 
 -- Sign-up trigger
 insert into auth.users (id, email, raw_user_meta_data) values
@@ -20,7 +20,19 @@ select is((select full_name from public.profiles where id = '00000000-0000-0000-
           'Student', 'phone sign-up without name or e-mail falls back to Student');
 
 -- The real sign-up path (GoTrue as supabase_auth_admin) is checked end to end in the PR
--- (postgres cannot switch to that role here).
+-- (postgres cannot switch to that role here). These guard what makes it work: the trigger fires,
+-- and the definer function's owner can write profiles despite RLS.
+select ok(exists (select 1 from pg_trigger
+                  where tgname = 'on_auth_user_created' and tgrelid = 'auth.users'::regclass
+                    and tgenabled <> 'D'),
+          'sign-up trigger exists on auth.users and is enabled');
+select ok((select prosecdef from pg_proc where oid = 'private.handle_new_user()'::regprocedure),
+          'handle_new_user is security definer');
+select is((select proowner from pg_proc where oid = 'private.handle_new_user()'::regprocedure),
+          (select relowner from pg_class where oid = 'public.profiles'::regclass),
+          'handle_new_user is owned by the owner of profiles');
+select ok(not (select relforcerowsecurity from pg_class where oid = 'public.profiles'::regclass),
+          'profiles does not force RLS on its owner');
 
 -- Fixture: course → topic → subtopic → question, attempt with an empty draw
 insert into public.courses (id, code, title, slug)

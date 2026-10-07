@@ -250,6 +250,14 @@ audit_log(id bigserial, actor uuid, action text, entity text, entity_id uuid,
 Helper (in `public`, `security definer`, callable by `authenticated` — policies run as the caller): `is_teacher()` SQL function checking `profiles.role`; `has_access(course_id)` checks an
 active enrollment with `now() < expires_at`, or free-preview topic.
 
+Traps the RLS baseline (row 3) must close, each with a pgTAP test (from the row 2b review):
+- **`profiles.role`:** "update own" must not let a student set `role = 'teacher'` (`is_teacher()`
+  reads it). Grant `update` only on the editable columns, not the whole table.
+- **`attempt_answers.is_correct`:** must not be readable before the attempt is submitted (rule 1).
+  Keep it null until `submit_attempt`, or limit "select own" to submitted attempts.
+- **`orders.raw_payload`, `mock_forms.question_ids`:** not readable by students; use column grants.
+- **Indexes:** add an index on every `user_id` / `thread_id` FK that a "select own" policy filters on.
+
 ## 5. Indexes (minimum)
 - `attempt_answers(question_id)` for class insights
 - `attempts(user_id, kind, topic_id)`
