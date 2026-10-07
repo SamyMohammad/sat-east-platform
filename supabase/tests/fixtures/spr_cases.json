@@ -45,5 +45,8 @@
   {"input": "",       "key": {"accepted": ["1"]},    "expected": "invalid"},
   {"input": "\t1/2",  "key": {"accepted": ["0.5"]},  "expected": "invalid"},
   {"input": "1/2\u00a0", "key": {"accepted": ["0.5"]}, "expected": "invalid"},
-  {"input": ".6666",  "key": {"accepted": ["0.6667"]}, "expected": "incorrect"}
+  {"input": ".6666",  "key": {"accepted": ["0.6667"]}, "expected": "incorrect"},
+  {"input": "00.67",  "key": {"accepted": ["2/3"]},  "expected": "incorrect"},
+  {"input": "000.7",  "key": {"accepted": ["2/3"]},  "expected": "incorrect"},
+  {"input": "-00.67", "key": {"accepted": ["-2/3"]}, "expected": "incorrect"}
 ]

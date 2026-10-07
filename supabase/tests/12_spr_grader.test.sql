@@ -53,11 +53,14 @@ select c from jsonb_array_elements($json$
   {"input": "",       "key": {"accepted": ["1"]},    "expected": "invalid"},
   {"input": "\t1/2",  "key": {"accepted": ["0.5"]},  "expected": "invalid"},
   {"input": "1/2\u00a0", "key": {"accepted": ["0.5"]}, "expected": "invalid"},
-  {"input": ".6666",  "key": {"accepted": ["0.6667"]}, "expected": "incorrect"}
+  {"input": ".6666",  "key": {"accepted": ["0.6667"]}, "expected": "incorrect"},
+  {"input": "00.67",  "key": {"accepted": ["2/3"]},  "expected": "incorrect"},
+  {"input": "000.7",  "key": {"accepted": ["2/3"]},  "expected": "incorrect"},
+  {"input": "-00.67", "key": {"accepted": ["-2/3"]}, "expected": "incorrect"}
 ]
 $json$::jsonb) as c;
 
-select plan((select count(*)::int * 2 + 3 from spr_cases));
+select plan((select count(*)::int * 2 + 10 from spr_cases));
 
 select is(private.spr_parse(c ->> 'input') is null, c ->> 'expected' = 'invalid',
           format('GRD-02: %L validity', c ->> 'input'))
@@ -71,6 +74,20 @@ select throws_ok($$ select private.grade_spr('1', '{"accepted": ["abc"]}') $$, '
                  'GRD-02: a malformed key value raises invalid_key');
 select throws_ok($$ select private.grade_spr('1', '{"choice": "B"}') $$, 'P0001', 'invalid_key',
                  'GRD-02: a key without accepted values raises invalid_key');
+select throws_ok($$ select private.grade_spr('1', null) $$, 'P0001', 'invalid_key',
+                 'GRD-02: a null key raises invalid_key');
+select throws_ok($$ select private.grade_spr('1', '{"accepted": []}') $$, 'P0001', 'invalid_key',
+                 'GRD-02: an empty accepted list raises invalid_key');
+select throws_ok($$ select private.grade_spr('1', '{"accepted": [null]}') $$, 'P0001', 'invalid_key',
+                 'GRD-02: a null accepted value raises invalid_key');
+select throws_ok($$ select private.grade_spr('1', '{"accepted": [1]}') $$, 'P0001', 'invalid_key',
+                 'GRD-02: a non-string accepted value raises invalid_key');
+select throws_ok($$ select private.grade_spr('1', '{"accepted": ["1"], "tolerance": "0.1"}') $$, 'P0001', 'invalid_key',
+                 'GRD-02: a non-numeric tolerance raises invalid_key');
+select throws_ok($$ select private.grade_spr('abc', '{"accepted": ["abc"]}') $$, 'P0001', 'invalid_key',
+                 'GRD-02: a bad key raises even when the answer is invalid');
+select throws_ok($$ select private.grade_spr('1', '{"accepted": ["1", "abc"]}') $$, 'P0001', 'invalid_key',
+                 'GRD-02: a bad key raises even when an earlier value matches');
 
 select is(private.spr_parse('3.14159', false), array[314159, 100000]::numeric[],
           'GRD-02: key values are not length-limited');

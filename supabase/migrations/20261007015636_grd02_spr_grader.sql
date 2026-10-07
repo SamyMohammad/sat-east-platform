@@ -67,6 +67,7 @@ declare
   scale numeric;
   sv numeric;
   k_text text;
+  k_elem jsonb;
   k numeric[];
   q numeric;
   max_len int := 5;
@@ -80,6 +81,13 @@ begin
      or (p_key ? 'tolerance' and jsonb_typeof(p_key -> 'tolerance') <> 'number') then
     raise exception 'invalid_key';
   end if;
+  -- Every accepted value must be a parseable string, checked before grading so a broken key
+  -- fails for every student, not only for those whose answer misses the valid values.
+  for k_elem in select jsonb_array_elements(p_key -> 'accepted') loop
+    if jsonb_typeof(k_elem) <> 'string' or private.spr_parse(k_elem #>> '{}', false) is null then
+      raise exception 'invalid_key';
+    end if;
+  end loop;
   if v is null then
     return false;
   end if;
@@ -90,16 +98,14 @@ begin
   if left(s, 1) = '-' then
     max_len := 6;
   end if;
-  fills := position('.' in s) > 0 and length(s) = max_len;
+  -- Padding zeros (00.67, 000.7) are not precision: at most one 0 may precede the point.
+  fills := position('.' in s) > 0 and length(s) = max_len and s !~ '^-?0[0-9]';
   dp := length(s) - position('.' in s);
   scale := power(10::numeric, dp);
   sv := v[1] * scale / v[2];  -- exact: a decimal with dp places times 10^dp is an integer
 
   for k_text in select jsonb_array_elements_text(p_key -> 'accepted') loop
     k := private.spr_parse(k_text, false);
-    if k is null then
-      raise exception 'invalid_key';
-    end if;
 
     if v[1] * k[2] = k[1] * v[2] then
       return true;

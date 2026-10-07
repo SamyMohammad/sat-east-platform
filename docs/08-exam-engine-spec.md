@@ -115,8 +115,10 @@ Precise rules (row 4, 2026-10-07):
 - Fill rule: when the value is not exactly a key, it is correct only if the answer is a decimal of
   exactly the maximum length (5, or 6 with `-`) and equals the key truncated or rounded half away
   from zero at that many decimal places (`.666` for 2/3 is incorrect: 4 characters).
+  Padding zeros do not count as filling: at most one `0` may precede the point (`00.67` is incorrect).
 - Values are exact rationals; tolerance is `|v − k| ≤ t`. Key values are not length-limited.
-- A key value that cannot be parsed, or a key without an `accepted` array, raises `invalid_key`.
+- A key whose `accepted` is missing, empty, or holds any non-string or unparseable value, or whose
+  `tolerance` is not a number, raises `invalid_key` before grading (for every answer).
 - Authoring rule: a non-terminating answer must be keyed as the exact fraction (`2/3`, not
   `0.6667`); a rounded key makes correct answers like `.6666` grade wrong.
 - Only outer ASCII spaces are trimmed; tab, newline or NBSP make the input invalid.
