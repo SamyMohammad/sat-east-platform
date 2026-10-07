@@ -1,0 +1,52 @@
+name: CI
+# F-3 (docs/16 §7). Advisory: the repo has no branch protection, so never merge on red.
+on:
+  pull_request:
+  push:
+    branches: [main]
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+permissions:
+  contents: read
+
+jobs:
+  client:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/client
+    steps:
+      # Full checkout: test/core/grading/spr_answer_test.dart reads ../../supabase/tests/.
+      - uses: actions/checkout@v7
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.1
+          cache: true
+      - run: flutter pub get
+      - run: dart format --output=none --set-exit-if-changed .
+      - run: flutter analyze --fatal-infos
+      - run: flutter test
+      - name: Write placeholder env (PR builds never deploy)
+        run: |
+          cat > env/ci.json <<'EOF'
+          {"FLAVOR":"staging","SUPABASE_URL":"https://example.supabase.co","SUPABASE_PUBLISHABLE_KEY":"sb_publishable_ci","ENABLE_PURCHASE":true}
+          EOF
+      - run: flutter build web --release --dart-define-from-file=env/ci.json
+      - run: bash ../../scripts/tests/secret-grep.test.sh
+      - run: bash ../../scripts/secret-grep.sh build/web
+
+  db:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.117.0
+      # db + kong + postgrest for pgTAP and api-private-check. gotrue stays: without it
+      # `supabase status` omits ANON_KEY / SERVICE_ROLE_KEY, which the check needs.
+      - run: supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - run: supabase test db
+      - run: supabase db lint --fail-on error
+      - run: pwsh scripts/api-private-check.ps1
