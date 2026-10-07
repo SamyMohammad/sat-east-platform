@@ -67,7 +67,7 @@ keep analytics visible).
 | Kind | Pool | Count | Selection |
 |------|------|-------|-----------|
 | practice | practice | on demand | filter subtopic/difficulty; unseen first, then oldest-seen |
-| homework | practice (excluding questions the user saw in practice) | 20 | blueprint per topic: ~30% E / 50% M / 20% H; covers every subtopic |
+| homework | practice (excluding questions the user saw in practice) | `settings.homework_size` (20) | blueprint per topic: ~30% E / 50% M / 20% H; covers every subtopic |
 | quiz | quiz | 12 + 3 spiral | 25% E / 50% M / 25% H; spiral = 3 from quiz pools of previously passed topics, prefer user's weak skills; never repeat a quiz question the user has seen |
 | review (after failed quiz) | practice | 8 | weighted to skills missed in the failed quiz |
 | drill (after mock) | practice | 10–15 | weakest skills in the mock |

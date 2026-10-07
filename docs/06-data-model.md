@@ -4,6 +4,25 @@ Conventions: `uuid` PKs (`gen_random_uuid()`), `created_at timestamptz default n
 snake_case, enums as Postgres enums, soft-delete via `status`/`retired` not row deletion.
 This is the **starting schema** — the first migration should implement it close to verbatim.
 
+Rules the first migration applies where the sketches below leave them open (F-2, docs/15 §1 row 2b):
+- **Foreign keys:** a FK to `profiles` for the user's own data is `on delete cascade`; a FK to
+  content or catalogue rows (`courses`, `topics`, `questions` …) is `on delete restrict`,
+  because content is retired via `status`, not deleted. Authorship references (`owner_id`,
+  `created_by`, `redeemed_by`, `unlocked_by`, `actor`) are `on delete set null`. `orders.user_id`
+  is `restrict`: an account with payment records is never hard-deleted.
+  `attempt_answers (attempt_id, question_id)` references `attempt_questions`, so only questions
+  in the frozen draw can be answered.
+- **Not null:** FKs, enums, `created_at` and every column the sketch marks `not null` or uses as a
+  key are `not null`. Optional columns (marked `null`, profile details, scores) stay nullable.
+- **`updated_at`:** every table that has it gets a `before update` trigger
+  (`private.set_updated_at()`).
+- **Sign-up:** an `after insert` trigger on `auth.users` creates the `profiles` row. `full_name`
+  comes from the sign-up metadata `full_name`, falling back to the e-mail's local part, then to 'Student' (phone sign-up). `role` is
+  always the default `student`; it is never read from client metadata.
+- **Locked until row 3:** row 2b ships tables only. RLS is on (hardening Layer 2) but there are no
+  grants or policies yet, so the API sees nothing until the RLS baseline (row 3) adds them. Only `service_role` (Edge
+  Functions) gets table grants now.
+
 ## 1. ERD (simplified)
 
 ```
@@ -231,10 +250,38 @@ audit_log(id bigserial, actor uuid, action text, entity text, entity_id uuid,
 Helper (in `public`, `security definer`, callable by `authenticated` — policies run as the caller): `is_teacher()` SQL function checking `profiles.role`; `has_access(course_id)` checks an
 active enrollment with `now() < expires_at`, or free-preview topic.
 
+Traps the RLS baseline (row 3) must close, each with a pgTAP test (from the row 2b review):
+- **`profiles.role`:** "update own" must not let a student set `role = 'teacher'` (`is_teacher()`
+  reads it). Grant `update` only on the editable columns, not the whole table.
+- **`attempt_answers.is_correct`:** must not be readable before the attempt is submitted (rule 1).
+  Keep it null until `submit_attempt`, or limit "select own" to submitted attempts.
+- **`orders.raw_payload`, `mock_forms.question_ids`:** not readable by students; use column grants.
+- **Indexes:** add an index on every `user_id` / `thread_id` FK that a "select own" policy filters on.
+
 ## 5. Indexes (minimum)
 - `attempt_answers(question_id)` for class insights
 - `attempts(user_id, kind, topic_id)`
 - `questions(topic_id, subtopic_id, pool, status, difficulty)`
-- `question_exposure(user_id)`
+- `question_exposure(user_id)` — covered by its primary key `(user_id, question_id)`
 - `orders(gateway_txn_id)` unique
 - `enrollments(user_id, course_id)` unique
+
+## 6. `settings` defaults (seed)
+
+Seeded with `on conflict (key) do nothing`, so a value the teacher has changed is never
+overwritten. Defaults come from `13` Q-11 / Q-14 and `07`; the teacher can change them later.
+
+| Key | Default | Source | Used by |
+|-----|---------|--------|---------|
+| `pass_mark` | 75 | Q-11 | quiz done (07 §2) |
+| `homework_size` | 20 | Q-11 | homework draw (07 §3) |
+| `practice_min` | 10 | Q-11 | practice done (07 §2) |
+| `cooldown_h` | 12 | Q-11 | retry after a failed quiz (`cooldown_active`) |
+| `video_done_pct` | 80 | 07 §2 | video done |
+| `save_grace_s` | 30 | 07 §1 | `save_answer` after the deadline |
+| `ai_daily_cap` | 20 | 07 §6 | AI tutor messages per day |
+| `device_limit` | 2 | Q-14 | `register-device` (07 §8) |
+| `device_changes_30d` | 2 | Q-14 | `register-device` |
+
+Other tunables (quiz/review/drill sizes and mixes, rate limits, mock blueprints) are seeded by the
+story that first reads them.
