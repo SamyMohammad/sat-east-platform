@@ -17,6 +17,8 @@ expect() { # expect <name> <exit> <content>
 
 expect clean_publishable 0 'const k="sb_publishable_ACJWlzQHlZjBrEguHvfOxg_3BJgxAaH";'
 expect anon_jwt          0 "const k=\"$(jwt '{"iss":"supabase","role":"anon"}')\";"
+expect lib_prefix_check  0 'if(!B.c.ai(a,"sb_")||B.c.ai(a,"sb_publishable_")||B.c.ai(a,"sb_secret_"))return'
+expect notices_banner    0 ' #  ---------------COPYING.ipadic-----BEGIN-------------------------------'
 expect secret_key        1 'const k="sb_secret_N7UND0UgjKTVK-Uodkm0Hg_xSvEMPvz";'
 expect service_role_word 1 'headers.role="service_role";'
 expect service_role_jwt  1 "const k=\"$(jwt '{"iss":"supabase","role":"service_role"}')\";"

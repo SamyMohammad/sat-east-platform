@@ -5,10 +5,12 @@ set -u
 dir="${1:?usage: secret-grep.sh <build-dir>}"
 [ -d "$dir" ] || { echo "secret-grep: no such dir: $dir" >&2; exit 2; }
 
+# Extended regexes. Key patterns need a key body: supabase_flutter itself contains the bare
+# prefix "sb_secret_", and Flutter's NOTICES file contains "-----BEGIN-----" licence banners.
 patterns=(
-  'sb_secret_'
+  'sb_secret_[A-Za-z0-9_-]{8,}'
   'service_role'
-  '-----BEGIN'
+  '-----BEGIN [A-Z ]*PRIVATE KEY-----'
   'PAYMOB_'
   'R2_SECRET'
   'VDOCIPHER'
@@ -17,7 +19,7 @@ patterns=(
 )
 found=0
 for p in "${patterns[@]}"; do
-  while IFS= read -r f; do echo "LEAK: $f: $p"; found=1; done < <(grep -rlF -- "$p" "$dir")
+  while IFS= read -r f; do echo "LEAK: $f: $p"; found=1; done < <(grep -rlE -e "$p" "$dir")
 done
 
 # JWTs: decode each payload and look for a service_role claim.
