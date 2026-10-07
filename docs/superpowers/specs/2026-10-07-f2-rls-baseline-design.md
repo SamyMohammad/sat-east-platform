@@ -34,6 +34,9 @@ table without RLS or a policy" fail the build.
 8. `supabase_test_helpers` vendored as a pinned SQL file run first by `supabase test db`; never in
    `migrations/`.
 9. Test `04_schema_locked` (row 2b) is replaced by the Layer-4 gate + per-table access tests.
+10. Grant model: `authenticated` gets DML on every public table (the teacher is `authenticated`);
+    RLS is the student gate; column grants (decision 5) apply to the teacher too, so
+    `orders.raw_payload` and `profiles.role` are changed only from the dashboard (user-approved).
 
 ## Files
 | File | Content |

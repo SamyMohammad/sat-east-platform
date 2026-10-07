@@ -234,8 +234,11 @@ audit_log(id bigserial, actor uuid, action text, entity text, entity_id uuid,
 ## 4. RLS policy matrix
 
 Teacher: **all** on every table (one `for all … is_teacher()` policy), except `audit_log` (select
-only; rows are written by `security definer` functions). Grants match the policies: a table with no
-student/anon row below gets no grant to that role. Agreed in row 3 (docs/15 §1, 2026-10-07).
+only; rows are written by `security definer` functions). Grants: `anon` gets select on the catalogue tables
+only. `authenticated` gets DML on every table, because the teacher is an `authenticated` user; RLS
+is the student gate. Column grants narrow `profiles` (update), `notifications` (update) and
+`orders` (select), and `audit_log` is select-only. These column limits apply to the teacher too:
+`orders.raw_payload` and `profiles.role` are changed only from the dashboard. Agreed in row 3 (docs/15 §1, 2026-10-07).
 
 | Table | Anon | Student |
 |-------|------|---------|
