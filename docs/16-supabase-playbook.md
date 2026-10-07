@@ -241,13 +241,16 @@ Abnormal volume (e.g. > N practice fetches/day) also feeds SEC-04 suspicious-act
 Staging is `sat-staging` (ref `unjtvedrjmzvhchorvgr`, eu-central-1) in org `sat-east`, owned by a
 **separate Supabase account** (`…+sat@gmail.com`). The free limit is two active projects per
 owner/admin across all their orgs, and the developer's main account already uses both. CI
-(`.github/workflows/ci.yml`) runs on every PR and push; on `main` it deploys migrations + Edge
+(`.github/workflows/ci.yml`) runs on every PR and every push to `main`; on `main` it deploys migrations + Edge
 Functions to staging and the web build to Cloudflare Pages (ADR-009). The Pages project is created
 by CI on its first deploy (wrangler run by an AI agent turns a new Pages project into a Workers
 deploy). `keep-alive.yml` reads one row through REST every day.
 
 The repo is private on GitHub Free, so branch protection is unavailable: CI is **advisory**.
 Rule: never merge a PR whose checks are not green.
+Accepted risk: the `deploy` job's `if:` is not a trust boundary. Anyone who can push to this repo
+can change `ci.yml`, and once merged it runs with the staging secrets. GitHub Free has no
+Environments approval gate on a private repo; this is fine while the developer is the only writer.
 
 CI credentials expire: `SUPABASE_ACCESS_TOKEN` (`github-ci-sat`, 90 days, created 2026-10-07 →
 rotate before 2027-01-05). `CLOUDFLARE_API_TOKEN` (`github-ci-sat-pages`, Pages: Edit only) does

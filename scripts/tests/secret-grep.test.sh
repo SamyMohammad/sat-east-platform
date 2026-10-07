@@ -25,6 +25,9 @@ expect service_role_jwt  1 "const k=\"$(jwt '{"iss":"supabase","role":"service_r
 expect private_key       1 '-----BEGIN PRIVATE KEY-----'
 expect paymob_name       1 'PAYMOB_HMAC_SECRET=abc'
 expect llm_key_name      1 'ANTHROPIC_API_KEY=x'
+# Binary asset (NUL byte) carrying a service_role JWT: grep -o must not skip it.
+mkdir -p "$tmp/binary_jwt"; printf 'x\000y %s' "$(jwt '{"role":"service_role"}')" > "$tmp/binary_jwt/AssetManifest.bin"
+bash "$grep_sh" "$tmp/binary_jwt" >/dev/null 2>&1 && { echo "FAIL binary_jwt (want 1)"; fails=$((fails+1)); } || echo "ok   binary_jwt"
 mkdir -p "$tmp/empty"; bash "$grep_sh" "$tmp/empty" >/dev/null 2>&1 && echo "ok   empty_dir" || { echo "FAIL empty_dir"; fails=$((fails+1)); }
 bash "$grep_sh" "$tmp/missing" >/dev/null 2>&1 && { echo "FAIL missing_dir (want non-zero)"; fails=$((fails+1)); } || echo "ok   missing_dir"
 

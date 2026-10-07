@@ -20,5 +20,6 @@ on every merge to `main` (staging). A `_redirects` file (`/* /index.html 200`) s
 
 ## Consequences
 - CI secrets: `CLOUDFLARE_API_TOKEN` (Pages edit only), `CLOUDFLARE_ACCOUNT_ID`.
-- The Pages project is created once by hand before the first deploy.
+- CI creates the Pages project on its first deploy (wrangler run by an AI agent turns a new Pages
+  project into a Workers deploy, so it is not created from a Claude session).
 - The custom domain (Q-01) is attached to the prod Pages project later.

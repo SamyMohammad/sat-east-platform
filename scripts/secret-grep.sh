@@ -23,13 +23,16 @@ for p in "${patterns[@]}"; do
 done
 
 # JWTs: decode each payload and look for a service_role claim.
-while IFS=: read -r f tok; do
+# -a: scan binary assets too (-o prints nothing for binary files). Split on the last ':' because
+# a JWT never contains one but a path might.
+while IFS= read -r line; do
+  f="${line%:*}"; tok="${line##*:}"
   payload="$(printf '%s' "$tok" | cut -d. -f2 | tr '_-' '/+')"
   while [ $(( ${#payload} % 4 )) -ne 0 ]; do payload="$payload="; done
   if printf '%s' "$payload" | base64 -d 2>/dev/null | grep -q '"role" *: *"service_role"'; then
     echo "LEAK: $f: service_role JWT"; found=1
   fi
-done < <(grep -rEo 'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*' "$dir")
+done < <(grep -raEo'eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]*' "$dir")
 
 [ "$found" -eq 0 ] && echo "secret-grep: clean ($dir)"
 exit "$found"
