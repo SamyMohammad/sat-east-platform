@@ -101,6 +101,12 @@ jobs:
           flutter pub get
           flutter build web --release --dart-define-from-file=env/staging.json
           bash ../../scripts/secret-grep.sh build/web
+      # Created here, not by hand: wrangler run from an AI agent turns a new Pages project into
+      # a Workers deploy (wrangler >= 4.130). CI is not an agent, so this stays on Pages (ADR-009).
+      - name: Ensure Pages project exists
+        run: |
+          npx -y wrangler@4 pages project list | grep -qw "$PAGES_PROJECT" \
+            || npx -y wrangler@4 pages project create "$PAGES_PROJECT" --production-branch=main
       - uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
