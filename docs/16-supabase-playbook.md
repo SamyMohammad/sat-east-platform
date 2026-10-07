@@ -238,6 +238,14 @@ Abnormal volume (e.g. > N practice fetches/day) also feeds SEC-04 suspicious-act
 | staging | Supabase free project | free | CI deploys migrations + EFs on merge to `main`; daily GitHub Actions cron hits the REST API to avoid the 7-day inactivity pause |
 | prod | Supabase Pro + PITR | ~$25/mo + add-ons | Created before the closed beta (week 11) |
 
+Staging is `sat-staging` in its own free Supabase org (the developer's other org already uses its
+two free slots). CI (`.github/workflows/ci.yml`) runs on every PR and push; on `main` it deploys
+migrations + Edge Functions to staging and the web build to Cloudflare Pages (ADR-009).
+`keep-alive.yml` reads one row through REST every day.
+
+The repo is private on GitHub Free, so branch protection is unavailable: CI is **advisory**.
+Rule: never merge a PR whose checks are not green.
+
 ---
 
 ## 8. Edge Function limits — keep them thin

@@ -10,5 +10,6 @@
 | [ADR-006](ADR-006-distribution-app-stores.md) | Distribution: web first, access-only store apps | Proposed |
 | [ADR-007](ADR-007-state-management-and-client-layout.md) | State management (Cubit/Bloc + get_it) and repo layout | Proposed |
 | [ADR-008](ADR-008-observability-push-appcheck.md) | Observability (Sentry + PostHog), push + App Check (Firebase, narrowly) | Proposed |
+| [ADR-009](ADR-009-web-hosting-cloudflare-pages.md) | Web hosting on Cloudflare Pages | Proposed |
 
 New decisions: copy the format of ADR-001, next number, status `Proposed` until the teacher/dev sign off.

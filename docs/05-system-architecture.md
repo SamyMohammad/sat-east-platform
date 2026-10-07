@@ -46,7 +46,7 @@ question JSON → imported via the teacher area. See 09.
 | Email | Resend (or Postmark) | — |
 | Push | Firebase Cloud Messaging | — |
 | Errors / analytics | Sentry · PostHog; Firebase only for FCM + App Check | ADR-008 |
-| Web hosting | Vercel / Cloudflare Pages / Firebase Hosting (static Flutter web build) | — |
+| Web hosting | Cloudflare Pages (static Flutter web build) | ADR-009 |
 | Distribution | Web first; Android + iOS per ADR-006 | ADR-006 |
 
 ## 3. Client architecture
@@ -130,7 +130,7 @@ submit_attempt(attempt_id) → grade server-side → write results → update ma
 | Env | Supabase project | Web URL | Payments | Video |
 |-----|------------------|---------|----------|-------|
 | dev | local (`supabase start`, Docker) | localhost | Paymob test mode | R2 dev bucket |
-| staging | `sat-staging` (free tier, keep-alive cron) | preview URL | Paymob test mode | R2 staging bucket |
+| staging | `sat-staging` (free tier, own Supabase org, keep-alive cron) | Cloudflare Pages URL | Paymob test mode | R2 staging bucket |
 | prod | `sat-prod` (Pro + PITR) | custom domain | live | live |
 
 Secrets only in Supabase Edge Function secrets / CI secrets — never in the Flutter bundle
