@@ -35,7 +35,7 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `payment-webhook` | Verify Paymob HMAC; idempotent on `gateway_txn_id`; mark order paid; create/extend enrollment; send receipt |
 | `redeem-code` | Activation code → enrollment |
 | `video-otp` | Check access; return short-lived signed R2 HLS playlist + key URL and watermark text (name, phone, short id). Upgrade: VdoCipher OTP (ADR-002) |
-| `pdf-url` | Check access; return Storage signed URL (TTL 5 min) |
+| `pdf-url` | Check access; return Storage signed URL (TTL 5 min). Client downloads once and opens from memory. Optional per-student stamp (short id, not name) streamed by the EF — see `docs/spikes/2026-10-08-pdf-viewer.md` |
 | `assemble-mock` | Build mock forms for a template + set_no (teacher) or pick next unseen form for a student |
 | `ai-tutor` | Grounded LLM answer (see §6) |
 | `import-questions` | Validate and upsert pipeline JSON (teacher) |
