@@ -17,6 +17,12 @@ Each requirement has an ID used in the backlog (03) and tests (12).
 | AUTH-06 | Password reset via email. | P0 |
 | AUTH-07 | Parent account linked to student, read-only progress view + weekly email. | P2 |
 
+**Decisions (2026-10-08, AUTH-01):**
+- Email confirmation is **on** in staging and prod (off in local dev). It needs a real SMTP sender
+  before beta.
+- Google sign-in code ships with A-1. The button stays hidden until the Google OAuth client is set
+  up (`docs/setup/auth.md`).
+
 **Acceptance (AUTH-04)**
 - Given a student with 2 registered devices, when they log in on a third, then they see their device list and must remove one before continuing; the removed device's session is invalidated within 1 minute.
 - A device change beyond the monthly allowance is blocked with a "contact your teacher" message.
