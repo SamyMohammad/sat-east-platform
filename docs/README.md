@@ -38,6 +38,8 @@ and laptop; UI is English-only.
 | ADR | [Architecture Decision Records](adr/) | Architect | When questioning a tech choice |
 | — | [SQL / Edge Function templates](../supabase/templates/README.md) | Dev | Start every new SQL file here (CLAUDE.md rule 10) + review checklist |
 | — | [Implementation plans](superpowers/plans/) | Dev | Per-story plans from `/superpowers:writing-plans` |
+| — | [Spike findings](spikes/) | Dev | Phase 0 spikes: encrypted HLS, Paymob, PDF viewer |
+| — | [Setup](setup/) | Dev | Accounts and keys: Sentry, PostHog, Firebase (F-5) |
 
 There is also a [`CLAUDE.md`](../CLAUDE.md) at the repo root with conventions for AI-assisted coding.
 

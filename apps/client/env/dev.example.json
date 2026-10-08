@@ -2,5 +2,8 @@
   "FLAVOR": "dev",
   "SUPABASE_URL": "http://127.0.0.1:54321",
   "SUPABASE_PUBLISHABLE_KEY": "<publishable key from supabase status / dashboard>",
-  "ENABLE_PURCHASE": false
+  "ENABLE_PURCHASE": false,
+  "SENTRY_DSN": "",
+  "POSTHOG_KEY": "",
+  "POSTHOG_HOST": "https://eu.i.posthog.com"
 }

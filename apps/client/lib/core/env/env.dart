@@ -17,6 +17,16 @@ abstract final class Env {
   /// Purchase UI is web-only (ADR-006); the flag lets the web build opt in.
   static const bool enablePurchase = bool.fromEnvironment('ENABLE_PURCHASE');
 
+  /// Public client keys (docs/05 §6, ADR-008). Empty → the service is off.
+  static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
+
+  static const String posthogKey = String.fromEnvironment('POSTHOG_KEY');
+
+  static const String posthogHost = String.fromEnvironment(
+    'POSTHOG_HOST',
+    defaultValue: 'https://eu.i.posthog.com',
+  );
+
   static Flavor get flavor => Flavor.values.byName(_flavor);
 
   static bool get isConfigured =>

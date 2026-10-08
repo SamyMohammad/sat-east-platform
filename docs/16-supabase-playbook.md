@@ -212,7 +212,7 @@ answer tapped → AnswerOutbox (hive_ce, survives reload) → SyncWorker → sav
 
 | Layer | Protects | How |
 |-------|----------|-----|
-| Firebase App Check | Costly / sensitive EFs: `video-otp`, `pdf-url`, `ai-tutor`, `register-device` | Client sends `X-Firebase-AppCheck`; EF verifies the JWT against Firebase JWKS (`jose`). Web uses reCAPTCHA Enterprise. **Start in monitor mode** (log missing tokens), enforce after a week of clean logs. |
+| Firebase App Check | Costly / sensitive EFs: `video-otp`, `pdf-url`, `ai-tutor`, `register-device` | Client sends `X-Firebase-AppCheck`; EF verifies the JWT against Firebase JWKS (`jose`). Web uses reCAPTCHA Enterprise. **Start in monitor mode** (log missing tokens), enforce after a week of clean logs. Code: `supabase/functions/_shared/app_check.ts` (`APP_CHECK_MODE`, `FIREBASE_PROJECT_NUMBER`). |
 | Auth captcha | Bot sign-ups / credential stuffing | Cloudflare Turnstile — supported natively by Supabase Auth |
 | Postgres rate limits | Question-bank scraping, AI cost | `private.rate_limits(key, window_start, count)` + `private.hit_rate_limit(key, max, window)`; called in `get_practice_questions`, `check_practice_answer`, `ai-tutor`; raises `rate_limited`. Limits in `settings`. |
 | Server-side truth | Everything else | A student calling the API from Postman with their own token can do nothing the app can't — every rule is checked server-side (CLAUDE.md rule 2). |

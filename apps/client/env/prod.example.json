@@ -2,5 +2,8 @@
   "FLAVOR": "prod",
   "SUPABASE_URL": "https://<project-ref>.supabase.co",
   "SUPABASE_PUBLISHABLE_KEY": "<publishable key from supabase status / dashboard>",
-  "ENABLE_PURCHASE": false
+  "ENABLE_PURCHASE": false,
+  "SENTRY_DSN": "",
+  "POSTHOG_KEY": "",
+  "POSTHOG_HOST": "https://eu.i.posthog.com"
 }

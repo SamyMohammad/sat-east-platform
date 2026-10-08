@@ -52,9 +52,20 @@ jobs:
       - run: supabase db lint --fail-on error
       - run: pwsh scripts/api-private-check.ps1
 
+  # F-5: Deno tests for shared Edge Function code (docs/12). Spikes are not run here.
+  functions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: 2.9.6
+      - run: deno test -A supabase/functions/_shared/
+      - run: deno check supabase/templates/edge-function.ts
+
   deploy:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [client, db]
+    needs: [client, db, functions]
     runs-on: ubuntu-latest
     concurrency:
       group: staging

@@ -134,7 +134,8 @@ submit_attempt(attempt_id) → grade server-side → write results → update ma
 | prod | `sat-prod` (Pro + PITR) | custom domain | live | live |
 
 Secrets only in Supabase Edge Function secrets / CI secrets — never in the Flutter bundle
-(except Supabase anon key and public Desmos/analytics keys, which are designed to be public).
+(except Supabase anon key and public Desmos/analytics keys, which are designed to be public:
+`SENTRY_DSN`, `POSTHOG_KEY`, `POSTHOG_HOST` in `env/<flavor>.json`; empty = service off).
 
 ## 7. Capacity estimate (year 1)
 
