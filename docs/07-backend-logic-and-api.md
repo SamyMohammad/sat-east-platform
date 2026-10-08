@@ -120,6 +120,9 @@ log everything for teacher review.
   create enrollment (or extend for renewal: `expires_at = greatest(expires_at, new_target + grace)`, `mock_set_no += 1`).
 - Access window (Proposed): `expires_at = max(target_test_date + grace_days(14), now() + min_days(60))`.
 - Reconciliation cron: orders `pending` > 1h → query gateway status.
+- Webhook matches the order by the **signed** gateway order id + amount + currency (never by
+  `merchant_order_id`). A declined attempt keeps the order `pending` (the gateway allows a retry).
+  Spike findings: `docs/spikes/2026-10-08-paymob.md`.
 
 ## 8. Device limit (AUTH-04)
 - App generates a random install id on first launch, stored in secure storage (web: localStorage + IndexedDB; accept weaker guarantee on web).
