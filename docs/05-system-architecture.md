@@ -42,7 +42,7 @@ question JSON → imported via the teacher area. See 09.
 | Calculator | Desmos API, commercial plan, loaded in WebView/iframe | ADR-004 |
 | AI tutor | LLM via Edge Function, grounded on stored solutions | ADR-005 |
 | Math rendering | LaTeX via `flutter_math_fork` (inline + block) | — |
-| PDF viewing | `pdfrx` (or equivalent) with watermark overlay, signed URLs | — |
+| PDF viewing | `pdfrx` 2.4.x: download once via a signed URL, open from memory (`PdfViewer.data`, never `.uri`, which caches the file on mobile), per-page watermark overlay | [spike](spikes/2026-10-08-pdf-viewer.md) |
 | Email | Resend (or Postmark) | — |
 | Push | Firebase Cloud Messaging | — |
 | Errors / analytics | Sentry · PostHog; Firebase only for FCM + App Check | ADR-008 |
