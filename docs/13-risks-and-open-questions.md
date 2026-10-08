@@ -4,7 +4,7 @@
 
 | ID | Question | Owner | Blocking? | Default if unanswered |
 |----|----------|-------|-----------|------------------------|
-| Q-01 | Brand / platform name and domain | Teacher | Before launch (wk 10) | Working name in code |
+| Q-01 | Brand / platform name and domain | Teacher | Before launch (wk 10) | **Name answered 2026-10-08: "Abdelrahman Elmenshawy"** (teacher name = brand). Domain still open |
 | Q-02 | Target launch — which SAT test date? | Teacher | Planning | Plan per 11 |
 | Q-03 | Commercial register / tax card for Paymob onboarding? | Teacher | Before M3 | Activation codes only |
 | Q-04 | Monthly operating budget (video, Desmos, LLM, Supabase, email) | Teacher | Before Phase 0 spikes | Start on smallest plans |
