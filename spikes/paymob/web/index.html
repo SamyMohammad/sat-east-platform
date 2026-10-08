@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Paymob spike</title>
+<style>
+  body { font: 16px/1.5 system-ui, sans-serif; max-width: 480px; margin: 32px auto; padding: 0 16px; }
+  label { display: block; margin: 12px 0 4px; }
+  input, select, button { font: inherit; padding: 6px 8px; width: 100%; box-sizing: border-box; }
+  button { margin-top: 16px; cursor: pointer; }
+  #status { margin-top: 24px; padding: 12px; border-radius: 6px; background: #f2f2f2; }
+</style>
+</head>
+<body>
+<!-- SPIKE ONLY (ADR-003). The real purchase UI is Flutter web behind ENABLE_PURCHASE (ADR-006). -->
+<h1>Buy SAT Math</h1>
+<form id="buy">
+  <label for="user">Student (spike identity)</label>
+  <input id="user" required value="sara">
+  <label for="currency">Currency</label>
+  <select id="currency"><option>EGP</option><option>USD</option></select>
+  <label for="coupon">Coupon (optional)</label>
+  <input id="coupon" placeholder="SPIKE10">
+  <button id="pay" type="submit">Continue to payment</button>
+</form>
+<div id="status" hidden></div>
+<script>
+  const $ = (id) => document.getElementById(id);
+  const status = (text) => { $('status').hidden = false; $('status').textContent = text; };
+  let saved = null;
+  try { saved = localStorage.getItem('spike-user'); } catch {}
+  if (saved) $('user').value = saved;
+
+  $('buy').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const user = $('user').value.trim();
+    try { localStorage.setItem('spike-user', user); } catch {}
+    status('Creating checkout…');
+    const res = await fetch('/checkout', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-spike-user': user },
+      body: JSON.stringify({ courseId: 'sat-math', currency: $('currency').value, coupon: $('coupon').value }),
+    });
+    const body = await res.json();
+    if (!res.ok) return status(`Could not start checkout (${body.error?.code ?? res.status}).`);
+    location.href = body.checkoutUrl;
+  });
+
+  const q = new URLSearchParams(location.search);
+  if (q.get('error')) status(`Payment return rejected: ${q.get('error')}`);
+  if (q.get('order')) {
+    status(q.get('gateway') === 'success' ? 'Payment received, activating your course…' : 'Payment did not go through.');
+    const poll = async (tries) => {
+      const res = await fetch(`/orders/${q.get('order')}`, { headers: { 'x-spike-user': $('user').value } });
+      const o = await res.json();
+      if (o.enrolled) return status(`Enrolled ✔ — access until ${o.expiresAt.slice(0, 10)} (${o.amountMinor / 100} ${o.currency} paid)`);
+      if (tries > 0) setTimeout(() => poll(tries - 1), 1000);
+      else status('Still waiting for the payment confirmation. Refresh in a minute.');
+    };
+    poll(30);
+  }
+</script>
+</body>
+</html>
