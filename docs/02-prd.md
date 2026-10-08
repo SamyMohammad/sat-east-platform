@@ -17,6 +17,12 @@ Each requirement has an ID used in the backlog (03) and tests (12).
 | AUTH-06 | Password reset via email. | P0 |
 | AUTH-07 | Parent account linked to student, read-only progress view + weekly email. | P2 |
 
+**Decisions (2026-10-08, AUTH-01):**
+- Email confirmation is **on** in staging and prod (off in local dev). It needs a real SMTP sender
+  before beta.
+- Google sign-in code ships with A-1. The button stays hidden until the Google OAuth client is set
+  up (`docs/setup/auth.md`).
+
 **Acceptance (AUTH-04)**
 - Given a student with 2 registered devices, when they log in on a third, then they see their device list and must remove one before continuing; the removed device's session is invalidated within 1 minute.
 - A device change beyond the monthly allowance is blocked with a "contact your teacher" message.
@@ -28,7 +34,7 @@ Each requirement has an ID used in the backlog (03) and tests (12).
 | PAY-01 | Public catalogue + course landing page (description, syllabus, free topic, price). | P0 |
 | PAY-02 | Checkout via payment gateway: cards (local + international), mobile wallets. | P0 |
 | PAY-03 | Enrolment is created **only** from a verified gateway webhook (never from the client). | P0 |
-| PAY-04 | Prices per currency (EGP / USD) chosen by student country. | P0 |
+| PAY-04 | Prices per currency (EGP / USD) chosen by student country (`settings.currency_by_country`; rule in `docs/07` §7). | P0 |
 | PAY-05 | Coupons: % or fixed, expiry, max uses, course-scoped. | P0 |
 | PAY-06 | Activation codes (teacher generates codes for cash / InstaPay / offline payments). | P0 |
 | PAY-07 | Access window = target test date + grace days, with minimum duration (Proposed; all values in config). | P0 |

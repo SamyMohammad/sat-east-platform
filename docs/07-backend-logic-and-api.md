@@ -9,6 +9,8 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 
 | Name | Params | Returns | Notes |
 |------|--------|---------|-------|
+| `get_catalogue` | country? | published courses + topic count, free topic, price in the visitor's currency | S-01; callable by `anon` (PAY-01) |
+| `get_course_page` | slug, country? | course + units → published topics (free flag) + `full` price | S-02; callable by `anon`; unknown/unpublished slug → `invalid_input` |
 | `get_course_map` | course_id | units/topics with lock state + step status | single call for the map screen |
 | `save_video_progress` | asset_id, from_s, to_s, position_s | pct | merges watched ranges; marks step at ≥ 80% |
 | `mark_notes_opened` | asset_id | ok | |
@@ -18,6 +20,10 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `save_answer` | attempt_id, question_id, answer, time_ms, marked, eliminated, client_seq | ok | upsert; ignores older `client_seq`; rejected after deadline + `settings.save_grace_s` (30 s) |
 | `submit_attempt` | attempt_id | report | grades, updates progress/mastery/unlocks, returns keys |
 | `get_attempt_review` | attempt_id | questions + keys + explanations + my answers | only if submitted |
+| `register_device` | fingerprint, platform?, label? | `ok` + device_id, or `limit_reached` + devices + changes_left | called by the `register-device` EF (§8) |
+| `remove_device` | device_id | changes_left | `device_limit` when the 30-day allowance is used (§8) |
+| `device_status` | fingerprint | `active` / `revoked` / `unknown` | polled every minute (§8) |
+| `teacher_list_devices` / `teacher_revoke_device` / `teacher_reset_devices` | user_id / device_id / user_id | devices / ok / ok | teacher only, audited (AUTH-05) |
 | `tag_error_type` | attempt_id, question_id, error_type | ok | |
 | `teacher_unlock` | user_id, topic_id | ok | teacher only, audited |
 | `teacher_matrix` | course_id, filters | rows | completion matrix (ANL-05) |
@@ -115,6 +121,11 @@ Guardrails: refuse non-math/off-course, never reveal keys of unsubmitted items (
 log everything for teacher review.
 
 ## 7. Payments (ADR-003)
+- **Currency (PAY-04):** `private.currency_for(country)` maps through `settings.currency_by_country`
+  (`{"EG":"EGP","default":"USD"}`). The country is `profiles.country` for a signed-in user, else
+  the client's hint (locale/timezone), else `default`. The hint changes only what is displayed;
+  `create-checkout` recomputes with the same helper. A course without a price in that currency
+  shows its `default`-currency price; with neither, `price` is null ("Coming soon").
 - Prices stored as minor units. `create-checkout` recomputes the amount server-side (never trusts client).
 - Webhook: verify HMAC → `insert ... on conflict (gateway_txn_id) do nothing` → if new and success:
   create enrollment (or extend for renewal: `expires_at = greatest(expires_at, new_target + grace)`, `mock_set_no += 1`).
@@ -124,10 +135,32 @@ log everything for teacher review.
   `merchant_order_id`). A declined attempt keeps the order `pending` (the gateway allows a retry).
   Spike findings: `docs/spikes/2026-10-08-paymob.md`.
 
-## 8. Device limit (AUTH-04)
-- App generates a random install id on first launch, stored in secure storage (web: localStorage + IndexedDB; accept weaker guarantee on web).
-- After login the client calls `register-device`; if `limit_reached`, show S-11.
-- Sessions on revoked devices: client checks device status on app resume and every N minutes; RPCs reject when the device header `x-device-id` is revoked (checked in `has_access`).
+## 8. Device limit (AUTH-04, AUTH-05)
+- The app makes a random install id (16–128 chars `[A-Za-z0-9_-]`) on first launch and keeps it in
+  secure storage. On web it goes in localStorage + IndexedDB, which is a weaker guarantee we accept.
+  Every request sends it as `x-device-id`.
+- After login, the client calls `register-device` (EF: App Check → RPC `register_device`). Outcomes:
+  - **known, active device** → `ok`, and `last_seen_at` is updated;
+  - **known but revoked, or new** → `ok` while there are fewer than `settings.device_limit` active
+    devices, otherwise `limit_reached`. A revoked device that comes back is re-activated, so it uses a
+    slot like any new device;
+  - **`limit_reached`** returns the active devices plus `changes_left`, and the client shows S-11.
+  Teachers have no limit.
+- `remove_device(device_id)` (S-11) revokes one of the caller's own active devices. Each removal is
+  one change. Once there have been `settings.device_changes_30d` changes in the last 30 days it
+  raises `device_limit`, and the client shows "contact your teacher".
+- **Revoked sessions:**
+  - The client calls `device_status(fingerprint)` (`active | revoked | unknown`) on app resume and
+    every minute, and signs out on `revoked`.
+  - `has_access` is false when `x-device-id` names a revoked or unknown device for the caller.
+  - A **missing** header is allowed while `settings.device_header_required` is false. That is the
+    default until the client sends the header (A-1). Then the setting flips to true.
+- **Teacher (AUTH-05):**
+  - `teacher_list_devices(user_id)` lists all devices plus the changes used;
+  - `teacher_revoke_device(device_id)` revokes one device;
+  - `teacher_reset_devices(user_id)` revokes every device and clears the change counter.
+  Each action is written to `audit_log`.
+- Registration and removal lock the caller's `profiles` row, so parallel calls cannot overshoot the limit.
 
 ## 9. Error codes
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,

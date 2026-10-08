@@ -300,7 +300,9 @@ overwritten. Defaults come from `13` Q-11 / Q-14 and `07`; the teacher can chang
 | `save_grace_s` | 30 | 07 §1 | `save_answer` after the deadline |
 | `ai_daily_cap` | 20 | 07 §6 | AI tutor messages per day |
 | `device_limit` | 2 | Q-14 | `register-device` (07 §8) |
-| `device_changes_30d` | 2 | Q-14 | `register-device` |
+| `device_changes_30d` | 2 | Q-14 | `remove_device` |
+| `currency_by_country` | `{"EG":"EGP","default":"USD"}` | PAY-04 | `get_catalogue`, `get_course_page`, `create-checkout` (07 §7) |
+| `device_header_required` | false | 07 §8 | `has_access`: missing `x-device-id` denied when true (flip after A-1) |
 
 Other tunables (quiz/review/drill sizes and mixes, rate limits, mock blueprints) are seeded by the
 story that first reads them.
