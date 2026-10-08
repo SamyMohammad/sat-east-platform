@@ -9,6 +9,8 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 
 | Name | Params | Returns | Notes |
 |------|--------|---------|-------|
+| `get_catalogue` | country? | published courses + topic count, free topic, price in the visitor's currency | S-01; callable by `anon` (PAY-01) |
+| `get_course_page` | slug, country? | course + units → published topics (free flag) + `full` price | S-02; callable by `anon`; unknown/unpublished slug → `invalid_input` |
 | `get_course_map` | course_id | units/topics with lock state + step status | single call for the map screen |
 | `save_video_progress` | asset_id, from_s, to_s, position_s | pct | merges watched ranges; marks step at ≥ 80% |
 | `mark_notes_opened` | asset_id | ok | |
@@ -119,6 +121,11 @@ Guardrails: refuse non-math/off-course, never reveal keys of unsubmitted items (
 log everything for teacher review.
 
 ## 7. Payments (ADR-003)
+- **Currency (PAY-04):** `private.currency_for(country)` maps through `settings.currency_by_country`
+  (`{"EG":"EGP","default":"USD"}`). The country is `profiles.country` for a signed-in user, else
+  the client's hint (locale/timezone), else `default`. The hint changes only what is displayed;
+  `create-checkout` recomputes with the same helper. A course without a price in that currency
+  shows its `default`-currency price; with neither, `price` is null ("Coming soon").
 - Prices stored as minor units. `create-checkout` recomputes the amount server-side (never trusts client).
 - Webhook: verify HMAC → `insert ... on conflict (gateway_txn_id) do nothing` → if new and success:
   create enrollment (or extend for renewal: `expires_at = greatest(expires_at, new_target + grace)`, `mock_set_no += 1`).
