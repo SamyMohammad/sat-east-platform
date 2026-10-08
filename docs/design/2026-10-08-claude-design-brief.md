@@ -1,162 +1,215 @@
-# Design brief: Abdelrahman Elmenshawy — design system + QuestionView
+# Claude Design prompts — Abdelrahman Elmenshawy (row 6, F-4)
 
-Brief for Claude Design, row 6 of docs/15 §1 (F-4). Sources: docs/01, 02 (PRC, GRD, MCK), 04, 08 §4 + §6, 10 (NFR-14, NFR-17).
+Three sessions, in order. Paste **Shared context** at the start of every session, then that
+session's prompt. Sources: PRODUCT.md, the shaped QuestionView brief (impeccable `shape`,
+direction "The Teacher's Booklet", 2026-10-08), docs/02, 04, 08 §4 + §6, 10.
 
-## 1. The product
-A commercial learning platform for one American-Diploma math teacher, **Abdelrahman Elmenshawy**.
-He sells two separate self-paced courses: **SAT Math** (~40 topics) and **EST Math** (~45 topics).
-Each topic is a locked sequence: **Video → Notes (PDF) → Practice → Homework → Quiz**. Passing the
-quiz (≥75%) unlocks the next topic. The final phase is a Bluebook-style adaptive mock exam with a
-Desmos calculator. Every answer feeds skill analytics ("you lose points on linear inequalities").
-One Flutter codebase: **web (primary), Android, iOS**. UI copy is **English only**.
+---
 
-## 2. Users
-- **Student (primary), 15–18, Egypt and the Gulf.** Studies on a phone in short bursts and takes
-  mocks on a laptop. Wants a clear next step, instant feedback, proof of progress and exam-day
-  confidence.
-- **Teacher (admin), works alone.** Uses a laptop. Out of scope for this brief, but the tokens must
-  also work for dense admin tables later.
+## Shared context (paste first in every session)
 
-## 3. What to design now (scope)
-1. **Design system foundations**: tokens, typography, components.
-2. **Responsive app shell**: navigation container only, no real screens.
-3. **QuestionView**: ONE shared question component used in 4 modes (practice, homework, quiz,
-   mock exam) plus a post-submit review state. This is the core of the product. Design it in depth.
+```markdown
+# Context: Abdelrahman Elmenshawy — SAT & EST Math
 
-Out of scope: landing page, course map, video player, analytics, teacher area, and the AI tutor
-chat (show only its entry button).
+## Product
+A learning platform sold under the teacher's own name, **Abdelrahman Elmenshawy**. Two
+self-paced courses: SAT Math (~40 topics) and EST Math (~45). Each topic is a locked path:
+Video → Notes → Practice → Homework → Quiz; passing the quiz (≥75%) unlocks the next topic.
+The final phase is a Bluebook-style adaptive mock exam with Desmos. Every answer feeds skill
+analytics, so the student sees exactly which skill costs points.
+What competitors cannot copy: the teacher's own method and worked solutions, a path you can't
+skip, and diagnosis instead of random drills.
+One Flutter codebase: web (primary), Android, iOS, one design language. UI copy is English only.
 
-## 4. Brand & personality
-- Brand: **Abdelrahman Elmenshawy**. The teacher's own name is the brand. Design a clean text
-  wordmark from the name (no illustrated logo yet), plus a short form "A. Elmenshawy" or a
-  monogram "AE" for small spaces (app icon, favicon, phone top bar). Keep the brand colour in one
-  swappable token.
-- Personality: **calm, focused, trustworthy, exam-serious.** A personal teacher brand: confident and
-  premium, modern and clean for teenagers, not childish or gamified. Think "a quiet study desk with
-  a teacher you trust", not "a game".
-- **Do NOT copy College Board / Bluebook branding, logos, colours or artwork.** We mirror Bluebook's
-  *functions* (timer, navigator, mark for review, eliminator), not its look.
+## Users
+Students 15–18 anywhere in the world (many in Egypt and the Gulf). Phone in short bursts,
+laptop for mock exams. They need: a clear next step, instant feedback that teaches, proof of
+progress, exam-day confidence.
 
-## 5. Design system foundations
-Deliver named tokens that map 1:1 to Flutter `ThemeData` + `ThemeExtension`:
-- **Colour**: brand primary/secondary, surfaces (background, surface, raised, sunken), text
-  (primary, secondary, disabled, on-primary), border/divider.
-  - Semantic: success (correct), error (incorrect), warning (time running out), info.
-  - Exam-specific: **marked-for-review** (distinct from warning), **eliminated choice**,
-    **selected choice**, **focus ring**.
-  - Light theme required. Also give dark theme values: students study at night.
-  - All text pairs must pass **WCAG AA**. Correct/incorrect must never rely on colour alone
-    (add an icon and a label).
-- **Typography**: one UI typeface (Latin, plus a matching Arabic fallback, because content can contain
-  Arabic). Scale: display, headline, title, body, label, caption.
-  - Specify how **LaTeX math** sits inline with body text and as a block. Math scales with the
-    user's text-size setting.
-  - Use tabular figures for the timer and scores.
-- **Spacing**: 4-pt grid. **Radius**, **elevation**, **motion** (durations and easing; subtle; respect
-  reduced motion).
-- **Components** (all states: default, hover, pressed, focused, disabled, loading, error):
-  - Button: primary, secondary, tertiary, destructive, icon.
-  - MCQ choice tile.
-  - SPR input with Answer Preview.
-  - Top exam bar with timer.
-  - Question navigator: grid of numbered cells with answered / unanswered / marked / current states.
-  - Chips/tags (difficulty E/M/H, skill tag).
-  - Banner: info / warning / offline.
-  - Dialog (submit confirm), bottom sheet, toast/snackbar, progress bar, step indicator.
-  - Empty, loading (skeleton) and error-with-retry patterns.
+## Voice
+Warm but demanding, like the teacher himself. Believes in the student, holds a high bar.
+Feedback always names the next concrete step: "Close. Check the sign in step 2 and try again."
+Never empty praise, never harsh.
 
-## 6. Responsive app shell
-Breakpoints: **phone ≤600 px** (design at 360), **tablet 600–1024** (design at 768),
-**laptop ≥1024** (design at 1280).
-- Phone: bottom navigation bar and the "AE" monogram in the top bar. Tablet: navigation rail.
-  Laptop: left sidebar with the full wordmark.
-- Destinations (placeholders): Home, Courses, Skills, Mock exams, Profile.
-- While a quiz or mock is in progress the shell's navigation is **hidden**: full-screen focus mode.
+## Visual direction — "The Teacher's Booklet"
+The app is the teacher's own printed booklet (malzama), alive on screen. We refuse the category
+default (rounded white cards + blue button that every prep app ships).
+- The world lends ONLY type, palette, density and one signature move. Layout, navigation and
+  controls stay standard and familiar (Material 3 widgets). Never a printed-paper costume:
+  no paper texture, no cream ground, no handwriting font.
+- Palette (starting values; tune for contrast, keep the roles):
+  - page white #FFFFFF (never cream) · ink #1A1D24 (never pure black)
+  - ballpoint blue #1F4FD6: primary, the blue pen students write in
+  - red pen #D2343A: incorrect + teacher notes ONLY
+  - highlighter #F6D743: marked for review
+  - green tick #1E7F4F: correct
+  - frame tint #EEF2F8: Rule / Worked-example boxes
+  - warning orange for time running low, distinct from highlighter
+  - Dark theme: same roles on a deep ink ground.
+- Type: one workhorse sans with an Arabic sibling and tabular figures (Google Fonts, e.g. a
+  Noto Sans + Noto Sans Arabic class pairing). The ONLY serif on screen is the math: equations
+  render with KaTeX fonts (flutter_math_fork, Computer Modern look; fixed, cannot change), so
+  the UI face must sit well beside it.
+- Booklet grammar: exercise numbering "4.2 · Ex 7"; explanations in boxed "Rule" and
+  "Worked example" frames on the frame tint; 1px rules are the only dividers; no shadowed
+  cards; hierarchy by scale contrast (stem large, chrome labels small).
+- Signature move — **the teacher's margin**: feedback appears as a red-pen margin note in the
+  teacher's voice, beside the question on laptop, directly under the answer on phone. Set in
+  the UI font in red, never a handwriting face.
 
-## 7. QuestionView — the core component
-One component; its **mode** decides which parts show. Same visual language everywhere, so a student
-who learns it in practice already knows the exam.
+## Hard constraints
+- Do NOT copy College Board / Bluebook branding, logos, colours or artwork. Mirror exam
+  functions only.
+- No gamification: no badges, confetti, mascots, streak fireworks.
+- Never invent scores, results, testimonials or student counts. Sample questions are original.
+- Flutter limits: no blur/backdrop-filter effects, no heavy shadows (web performance).
+  Icons: Material Symbols Rounded.
+- Accessibility: WCAG AA; status never colour-only (icon + label); touch targets ≥48 px;
+  math readable at 200% text size; full keyboard path on web.
+- Content (explanations, AI replies) may mix Arabic, English and math: support right-to-left
+  paragraphs inside an LTR screen.
+- Breakpoints: phone ≤600 (design at 360), tablet 600–1024 (768), laptop ≥1024 (1280).
+```
 
-### 7.1 Anatomy
-- Header: question number ("Question 3 of 20"), difficulty chip, mark-for-review toggle where the
-  mode allows it, timer slot.
-- Stem: Markdown + **LaTeX** (inline and block), optional figure/graph image (zoomable on phone),
-  optional table.
-- Answer area: **MCQ** (4 choices A–D, each may contain LaTeX) **or** **SPR** (student-produced
-  response).
-- Footer: Back / Next, primary action (Check / Submit / Next), navigator trigger.
-- Side tools (mode-dependent): hint, explanation, "Ask AI", reference sheet, Desmos calculator.
+---
 
-### 7.2 MCQ choice tile
-- States: default, hover, focused (keyboard), selected, **eliminated** (strike-through, dimmed,
-  restorable), correct, incorrect, "your answer" vs "correct answer" in review, disabled.
-- Answer eliminator: a small toggle per choice, enabled by an "ABC" tool switch in the top bar
-  (exam/quiz). Eliminating the selected choice clears the selection.
-- The whole tile is the tap target, at least 48×48 px. Keyboard: A–D or arrows + Enter.
+## Session 1 — Brand, tokens, components
 
-### 7.3 SPR input + Answer Preview
-- A short text box for numeric answers. Max **5 characters** (6 if negative; `.`, `/` and `-`
-  count). Allowed: digits, one `.`, one `/`, one leading `-`.
-- Live **Answer Preview** under the box: renders `7/2` as a stacked fraction, `.5` as 0.5, `-3/4` as
-  a negative fraction.
-- Inline validation hints (neutral tone, not error-red while typing):
-  - "Mixed numbers aren't allowed — enter 7/2 or 3.5"
-  - "Too many characters"
-  - "Only numbers, . and / are allowed"
-  - "Can't divide by zero"
-- A collapsible "How to enter your answer" help with these rules.
-- The client never shows whether the answer is correct before submit in homework/quiz/mock.
+```markdown
+# Session 1: brand + design system foundations
 
-### 7.4 Modes (design each one)
-| Mode | Timer | Feedback | Tools | Navigation | Primary action |
-|---|---|---|---|---|---|
-| **Practice** | none shown | immediate after "Check": correct/incorrect + explanation | Hint, Explanation, Ask AI, "Watch explanation video" | one question at a time | Check → Next question |
-| **Homework** (20 Q) | none | none until submit | none (no hints) | navigator, answers editable, autosave indicator ("Saved" / "Saving…" / "Offline — will sync") | Submit (confirm dialog listing unanswered) |
-| **Quiz** (~10–15 Q) | countdown (1.5 min/Q total), 5-min warning | none until submit | eliminator, mark for review | navigator | Submit |
-| **Mock exam** (module of 22 Q, 35 min) | countdown with **Hide/Show**, 5-min warning, auto-submit at 0 | none | eliminator, mark for review, **reference sheet**, **Desmos** (draggable/resizable panel on laptop, full-screen sheet on phone) | navigator popup + **module review page** before submit | Next → Review → Submit module |
-| **Review** (after submit) | shows time spent per Q | your answer vs correct, explanation, skill tag | Ask AI, add to mistake notebook | navigator coloured by correct/incorrect | Next / Back to report |
+Design the foundations only. No full screens yet.
 
-### 7.5 States to show
-Loading (skeleton), unanswered, answered, marked, time warning, time up (auto-submit), saving,
-save failed (retry), offline banner, reconnect/resume ("Resumed — 12:40 left"), submit
-confirmation, and the phone-in-mock warning banner ("For the best experience use a laptop or
-tablet").
+## 1. Brand
+- Text wordmark "Abdelrahman Elmenshawy" (no illustrated logo). Short form "A. Elmenshawy".
+  Monogram "AE" for app icon, favicon and the phone top bar.
+- The brand colour lives in one swappable token (ballpoint blue).
 
-### 7.6 Mixed-direction content
-Questions are English with LaTeX. Explanations and AI replies **may contain Arabic mixed with
-English and math**. Show one explanation sample with an Arabic paragraph that contains an inline
-equation, laid out right-to-left inside an otherwise LTR screen.
+## 2. Tokens (light + dark), named to map 1:1 to Flutter ThemeData + ThemeExtension
+- Colour roles: page, surface, frame tint, ink (primary/secondary/disabled), on-primary,
+  rule/divider, primary (ballpoint blue), red pen, green tick, highlighter, warning, info,
+  focus ring, selected, eliminated.
+- Type scale: display, headline, title, body (large/regular), label, caption, timer digits
+  (tabular). Show inline math in body text and a block equation, at 100% and 200% text size.
+- Spacing (4-pt), radius (small, booklet-like, not pill-round), elevation (near-flat),
+  motion (durations + easing; subtle; reduced-motion variant).
+- Deliver tokens as a table with names like `color.ink.primary`, `type.body.regular`.
 
-### 7.7 Layout per breakpoint
-- **360**: single column, question full screen, sticky bottom action bar. Tools open as bottom
-  sheets; the navigator is a sheet.
-- **768**: single column with wider margins. The navigator can sit as a side panel in homework.
-- **1280**: centred reading column (max ~720 px). The mock exam uses a top bar (section/module,
-  timer, tools) + question area + bottom bar ("Question 5 of 22" navigator, Back/Next). The Desmos
-  panel floats on the right without covering the answer area.
+## 3. Components (every state: default, hover, pressed, focused, disabled, loading, error)
+- Buttons: primary, secondary, tertiary, destructive, icon.
+- **MCQ choice tile**: default, hover, focused, selected, eliminated (strike-through, dimmed,
+  restorable), correct, incorrect, "your answer" vs "correct answer", disabled. Letter A–D as
+  a booklet-style label. Choices may contain LaTeX and wrap to two lines.
+- **SPR input** with live Answer Preview (stacked fraction) and neutral validation hints.
+- **Custom SPR keypad** (phone): 0–9 . / − ⌫, docked at the bottom.
+- **Teacher's margin note**: red-pen note, compact and expanded.
+- **Explanation frames**: "Rule" and "Worked example" boxes with block math.
+- Exam top bar with timer; **time budget bar** (fixed length, fills, cannot overflow).
+- Question navigator cell: unanswered, answered, marked (highlighter), current,
+  answered + marked; in review: correct, incorrect, unanswered.
+- Chips (difficulty E/M/H, skill tag), banners (info / warning / offline), dialog, bottom sheet,
+  snackbar, progress bar, skeleton, empty state, error with retry.
 
-## 8. Sample content (original, use as-is)
-- **MCQ:** If \(3x - 7 = 2x + 5\), what is the value of \(x\)?  A) 2  B) 12  C) −2  D) −12
-- **MCQ with block math:** Which expression is equivalent to \(\dfrac{x^2 - 9}{x + 3}\) for
+## 4. App shell (container only)
+- Phone 360: bottom navigation + "AE" in the top bar. Tablet 768: navigation rail.
+  Laptop 1280: left sidebar with the full wordmark.
+- Destinations: Home, Courses, Skills, Mock exams, Profile.
+- Focus mode (quiz/mock in progress): navigation hidden.
+
+## Deliverables
+Brand sheet · token sheet (light + dark) · type scale with math · component sheet with all
+states · shell at 360 / 768 / 1280.
+```
+
+---
+
+## Session 2 — QuestionView: practice + mock
+
+```markdown
+# Session 2: QuestionView — practice and mock exam
+
+Use the Session 1 system. QuestionView is ONE shared component; its mode decides which parts
+show. Design two modes now, each at 360 and 1280 (mock also at 768).
+
+## Anatomy
+- Header: exercise number ("4.2 · Ex 7"), "Question 3 of 20", difficulty chip, mark toggle
+  (where allowed), timer slot.
+- Stem: Markdown + LaTeX (inline + block), optional figure (zoomable on phone) or table.
+- Answer: MCQ (A–D) or SPR (input + preview; custom keypad on phone).
+- Footer: Back / Next, primary action, navigator trigger.
+
+## Content ranges to show
+- Stem from one line to a 150-word word problem; one with a figure, one with a block equation.
+- **Wide equation at 360**: wraps at operators where possible, otherwise scrolls horizontally
+  inside its own block with an edge fade; never shrinks below body size.
+
+## Practice mode
+- No timer shown. Progress: "Rep 7 of 10 — Homework unlocks at 10".
+- Check → correct: green tick + "Worked example" frame.
+- Wrong, first miss: margin note "Not quite. Look at how the sign changes in step 2." + hint
+  opens; the student tries again.
+- Wrong, second miss: correct answer marked, full worked example, margin note with the next step.
+- Actions: Hint, Ask AI (entry button only), Watch explanation video, Report this question.
+- Empty state: "No questions match these filters".
+
+## Mock exam mode (module of 22 questions, 35 min)
+- Dark-ink top bar: section + module name · time budget bar + clock with Hide/Show · tools:
+  ABC eliminator, mark for review, reference sheet, Desmos.
+- 1280: reading column ~720 px; Desmos as a draggable/resizable panel on the right that never
+  covers the answer area. 360: tools open as full-screen sheets; warning banner "For the best
+  experience use a laptop or tablet".
+- Bottom bar: "Question 5 of 22" opens the navigator popup; Back / Next.
+- Module review page before submit (answered / unanswered / marked).
+- 5-minute warning; time up → auto-submit. Timer keeps running if the student leaves; Exit
+  shows a confirm that says so. Resume banner: "Resumed — 12:40 left".
+- Keyboard on web: A–D select, E eliminator, M mark, ←/→ navigate.
+
+## Sample content (original, use as-is)
+- MCQ: If \(3x - 7 = 2x + 5\), what is the value of \(x\)?  A) 2  B) 12  C) −2  D) −12
+- MCQ, block math: Which expression is equivalent to \(\dfrac{x^2 - 9}{x + 3}\) for
   \(x \neq -3\)?  A) \(x - 3\)  B) \(x + 3\)  C) \(x - 9\)  D) \(x^2 - 3\)
-- **SPR:** A line passes through the points \((0, 1)\) and \((3, 3)\). What is the slope of the line?
-  (Show the preview rendering `2/3` as a stacked fraction.)
-- **SPR with a figure:** a right triangle with legs 6 and 8; "What is the length of the hypotenuse?"
-- **Arabic explanation sample:** «نطرح \(2x\) من الطرفين فنحصل على \(x - 7 = 5\)، ثم نضيف 7 للطرفين فيكون \(x = 12\).»
+- SPR: A line passes through \((0, 1)\) and \((3, 3)\). What is its slope? (preview `2/3`
+  as a stacked fraction)
+- SPR with figure: right triangle with legs 6 and 8; length of the hypotenuse?
+- Arabic worked example inside an LTR screen:
+  «نطرح \(2x\) من الطرفين فنحصل على \(x - 7 = 5\)، ثم نضيف 7 للطرفين فيكون \(x = 12\).»
 
-## 9. Accessibility & quality bar
-- WCAG AA contrast. Visible focus ring. Full keyboard path through the exam on web.
-- Touch targets ≥48 px. Math stays readable at 200% text size.
-- Status is never colour-only.
-- Light, fast, no decorative heavy imagery (students on 4G; first paint < 4 s).
+## Deliverables
+Practice: correct, first miss, second miss, empty — at 360 and 1280.
+Mock: question (MCQ + SPR with keypad), navigator popup, review page, 5-min warning, Desmos open,
+exit confirm — at 360, 768 and 1280.
+```
 
-## 10. Deliverables
-1. Brand: wordmark "Abdelrahman Elmenshawy", short form, "AE" monogram (app icon + favicon sizes).
-2. Token sheet (light + dark) with names ready to map to Flutter `ThemeExtension`.
-3. Type scale with math samples (inline + block).
-4. Component sheet with every state from §5 and §7.2–7.3.
-5. App shell at 360 / 768 / 1280.
-6. QuestionView frames: each mode in §7.4 × 360 and 1280 (plus 768 for homework and mock), and a
-   states sheet for §7.5.
-7. Short notes on interaction and motion (eliminator, mark for review, timer warning, Answer
-   Preview).
+---
+
+## Session 3 — QuestionView: homework, quiz, review, states
+
+```markdown
+# Session 3: QuestionView — homework, quiz, review + states sheet
+
+Same component and system as Sessions 1–2. Only what changes per mode.
+
+## Homework (20 questions)
+- No timer, no hints. Navigator always visible on 768/1280 as a side panel, a sheet on 360.
+- Answers editable until submit. Autosave status: "Saved" / "Saving…" / "Offline — will sync".
+- Submit → confirm dialog listing unanswered questions. Single submission.
+
+## Quiz (~10–15 questions)
+- Total time = 1.5 min × number of questions, shown as the time budget bar; 5-min warning.
+- Eliminator + mark for review; no feedback until submit.
+
+## Review (after submit, any mode)
+- Your answer vs correct answer, teacher's margin note, worked example, skill tag.
+- Time per question drawn as bar length; questions over 2× the average flagged.
+- Navigator coloured correct / incorrect / unanswered.
+- Actions: Ask AI, Add to mistake notebook, Report this question.
+
+## States sheet
+Loading skeleton · unanswered · answered · marked · eliminated · time warning · time up
+(auto-submit) · saving / saved / offline · save failed + retry · resumed · submit confirm ·
+phone-in-mock warning · practice empty filter.
+
+## Deliverables
+Homework at 360 / 768 / 1280 · quiz at 360 / 1280 · review at 360 / 1280 · states sheet ·
+short interaction + motion notes (eliminator, mark, timer warning, Answer Preview, margin note).
+```
