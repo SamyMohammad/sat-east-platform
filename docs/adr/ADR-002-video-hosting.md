@@ -44,8 +44,22 @@ Client code depends only on a `VideoSource` interface (`getPlayback(assetId) →
 - Cloudflare's terms for serving video from R2 must be confirmed during the spike.
 - Costs scale with storage only (egress is free) — monitor monthly.
 
+## Spike results (2026-10-08)
+Findings: [`docs/spikes/2026-10-08-encrypted-hls.md`](../spikes/2026-10-08-encrypted-hls.md).
+Web is proven. Android, iOS and real R2 are still open. Changes to the design above:
+- **Web player:** own `dart:js_interop` wrapper around a self-hosted hls.js, not
+  `video_player_web_hls`. That plugin swallows fatal errors in release builds and hides the
+  hls.js config.
+- **TTLs:** the key URL stays ≤ 5 min. Playlist URLs live for the session, because a 5 min
+  playlist token blocks ABR switching. Segment URLs are presigned for about 4 h; they are
+  encrypted, so they hold no secret.
+- **Access:** `video-otp` returns `/v/<token>/master.m3u8`. Playlists and the key resolve
+  relative to it. `api` runs with `verify_jwt = false` and checks auth per route.
+- **Client:** a stall watchdog plus a fresh `video-otp` call resumes playback at the last position.
+
 ## Action items
-1. [ ] Spike (1 day): encrypted HLS from R2 playing on web (hls.js), Android and iOS, with the
-       watermark overlay and a signed key URL from a local Edge Function.
+1. [~] Spike (1 day): encrypted HLS from R2 playing on web (hls.js), Android and iOS, with the
+       watermark overlay and a signed key URL from a local Edge Function. **Web done. Devices and
+       R2: run `spikes/video-hls/README.md` §2–3.**
 2. [ ] Teacher: accept the web-download risk in writing, or fund VdoCipher from launch.
 3. [ ] Naming convention for uploads: `SAT_T05_Linear_03_Parallel-Perpendicular.mp4`.
