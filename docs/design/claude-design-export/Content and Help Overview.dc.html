@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="padding:56px;display:flex;flex-direction:column;gap:72px;color:#1A1D24;width:max-content">
+<header style="display:flex;flex-direction:column;gap:8px;max-width:960px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">Session 5 · Content and help · S-16 S-17 S-26 S-25</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Overview · 360 / 1280</h1>
+  <div style="font-size:16px;line-height:24px;color:#4B5262;text-wrap:pretty">Video player, notes viewer, AI tutor and mistake notebook, each at phone (360 × 780 device) and laptop (1280 × 800) with loading, empty and error states. Sample data for the student Youssef in topic 2.3. The video watermark moves every 5 s; notebook filters are live.</div>
+  <nav style="display:flex;gap:20px;font-size:14px;font-weight:600"><a href="Content and Help.dc.html">Single screen</a><a href="Learning Path Overview.dc.html">Learning path overview</a><a href="QuestionView Overview.dc.html">QuestionView overview</a><a href="Components.dc.html">Components</a></nav>
+</header>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="2">
+<section data-screen-label="{{ r.label }}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid #1A1D24;padding-top:12px"><span style="font-size:14px;font-weight:600;color:#1F4FD6">{{ r.no }}</span><h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600">{{ r.title }}</h2><span style="font-size:14px;color:#4B5262">{{ r.note }}</span></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">360 × 780</span><div style="width:380px;height:800px"><dc-import name="Content and Help" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" bp="phone" hint-size="380px,800px" style="width:380px;height:800px"></dc-import></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">1280 × 800</span><div style="width:1280px;height:800px"><dc-import name="Content and Help" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" bp="laptop" hint-size="1280px,800px" style="width:1280px;height:800px"></dc-import></div></div>
+  </div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROWS = [
+  ['video', 'default', 'S-16 Video · playing', 'Chapters per subtopic, captions on, watermark moves; notes locked below 80%'],
+  ['video', 'reached', 'S-16 Video · 80% reached', 'Next: Notes opens'],
+  ['video', 'loading', 'S-16 Video · loading', ''],
+  ['video', 'buffering', 'S-16 Video · buffering', 'Buffered range equals playhead'],
+  ['video', 'offline', 'S-16 Video · offline', 'Watched time kept'],
+  ['video', 'protected', 'S-16 Video · protected error', 'Recording or mirroring detected'],
+  ['notes', 'default', 'S-17 Notes · page 3 of 6', 'Watermark on every page; no download, print or share; step done shown quietly'],
+  ['notes', 'loading', 'S-17 Notes · loading', ''],
+  ['notes', 'error', 'S-17 Notes · error', ''],
+  ['tutor', 'default', 'S-26 AI tutor · conversation', 'Pinned question; RTL Arabic reply with inline math; daily limit'],
+  ['tutor', 'thinking', 'S-26 AI tutor · writing a reply', 'Loading state'],
+  ['tutor', 'error', 'S-26 AI tutor · error', 'Failed reply is not counted'],
+  ['tutor', 'limit', 'S-26 AI tutor · daily limit reached', 'Escalation to the teacher becomes the main action'],
+  ['tutor', 'locked', 'S-26 AI tutor · off during a quiz', 'The disabled rule'],
+  ['notebook', 'default', 'S-25 Mistake notebook', 'Live filters by topic and error type; leaves after 2 correct re-attempts'],
+  ['notebook', 'filtered', 'S-25 Mistake notebook · no matches', '2.1 + Time'],
+  ['notebook', 'empty', 'S-25 Mistake notebook · empty', 'Calm, no celebration'],
+  ['notebook', 'loading', 'S-25 Mistake notebook · loading', ''],
+  ['notebook', 'error', 'S-25 Mistake notebook · error', '']
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: ROWS.map(([screen, state, title, note], i) => { const no = String(i + 1).padStart(2, '0'); return { screen, state, title, note, no, label: `${no} ${title}` }; }) };
+  }
+}
+</script>
+</body>
+</html>

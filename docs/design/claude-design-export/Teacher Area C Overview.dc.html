@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="padding:56px;display:flex;flex-direction:column;gap:72px;color:#1A1D24;width:max-content">
+<header style="display:flex;flex-direction:column;gap:8px;max-width:960px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">Session 12 · Teacher area C · T-13 to T-17</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Overview · 1280</h1>
+  <div style="font-size:16px;line-height:24px;color:#4B5262;text-wrap:pretty">Each screen pairs a list or editor with a 1px-ruled side panel. Validation sums errors in a banner with jump links, then marks each field with icon and text. Risky changes open a dialog that lists consequences before the action; destructive confirms use the ink button. Settings pair every value with a framed Effect box. Dates, codes, counts and scale values are sample content for review.</div>
+  <nav style="display:flex;gap:20px;font-size:14px;font-weight:600"><a href="Teacher Area C.dc.html">Single screen</a><a href="App Shell.dc.html">App shell</a><a href="Components.dc.html">Components</a><a href="Foundations.dc.html">Foundations</a></nav>
+</header>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+<section data-screen-label="{{ r.label }}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid #1A1D24;padding-top:12px"><span style="font-size:14px;font-weight:600;color:#1F4FD6">{{ r.no }}</span><h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600">{{ r.title }}</h2><span style="font-size:14px;color:#4B5262">{{ r.note }}</span></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <sc-for list="{{ r.states }}" as="s" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">{{ s.lab }}</span><div style="width:1280px;height:{{ r.h }};background:#FFFFFF;outline:1px solid #C9CED8"><dc-import name="Teacher Area C" screen="{{ r.screen }}" state="{{ s.state }}" hint-size="1280px,900px" style="width:1280px;height:{{ r.h }}"></dc-import></div></div>
+    </sc-for>
+  </div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROWS = [
+  ['live', 'T-13 Live sessions', 'Schedule with link check, agenda from escalations, attach recording with chapters', 940, [['default', 'Schedule'], ['error', 'Validation'], ['alt', 'Attach recording'], ['confirm', 'Cancel session · confirm']]],
+  ['mock', 'T-14 Mock templates and sets', 'Blueprint by domain and difficulty, pool check, generated set preview', 960, [['default', 'Blueprint'], ['error', 'Validation'], ['alt', 'Set preview'], ['confirm', 'Publish · confirm']]],
+  ['coupons', 'T-15 Coupons and activation codes', 'Percent or fixed, expiry, max uses, course; code batches with CSV', 900, [['default', 'Coupons'], ['error', 'Validation'], ['alt', 'Activation code batch'], ['confirm', 'Deactivate · confirm']]],
+  ['announce', 'T-16 Announcements', 'Compose to a course, phone preview with RTL paragraph, history', 1220, [['default', 'Compose'], ['error', 'Validation'], ['confirm', 'Send · confirm']]],
+  ['settings', 'T-17 Settings', 'Every value with its effect; sticky save bar', 1560, [['default', 'Unsaved changes'], ['error', 'Validation'], ['confirm', 'Pass mark · confirm']]]
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: ROWS.map(([screen, title, note, h, states], i) => { const no = String(i + 1).padStart(2, '0');
+      return { screen, title, note, no, h: h + 'px', label: `${no} ${title}`, states: states.map(([state, lab]) => ({ state, lab })) }; }) };
+  }
+}
+</script>
+</body>
+</html>

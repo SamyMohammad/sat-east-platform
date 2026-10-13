@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="padding:56px;display:flex;flex-direction:column;gap:72px;color:#1A1D24;width:max-content">
+<header style="display:flex;flex-direction:column;gap:8px;max-width:960px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">Session 6 · Results and analytics · S-21 S-24</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Overview · 360 / 1280</h1>
+  <div style="font-size:16px;line-height:24px;color:#4B5262;text-wrap:pretty">Result report and Skills, each at phone (360 × 780 device) and laptop (1280 × 800): strong result, failed result, thin data. Sample data for the student Youssef. Phone screens scroll inside the device.</div>
+  <nav style="display:flex;gap:20px;font-size:14px;font-weight:600"><a href="Results and Skills.dc.html">Single screen</a><a href="Content and Help Overview.dc.html">Content and help overview</a><a href="Learning Path Overview.dc.html">Learning path overview</a><a href="QuestionView Overview.dc.html">QuestionView overview</a></nav>
+</header>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="2">
+<section data-screen-label="{{ r.label }}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid #1A1D24;padding-top:12px"><span style="font-size:14px;font-weight:600;color:#1F4FD6">{{ r.no }}</span><h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600">{{ r.title }}</h2><span style="font-size:14px;color:#4B5262">{{ r.note }}</span></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">360 × 780</span><div style="width:380px;height:800px"><dc-import name="Results and Skills" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" bp="phone" hint-size="380px,800px" style="width:380px;height:800px"></dc-import></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">1280 × 800</span><div style="width:1280px;height:800px"><dc-import name="Results and Skills" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" bp="laptop" hint-size="1280px,800px" style="width:1280px;height:800px"></dc-import></div></div>
+  </div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROWS = [
+  ['result', 'strong', 'S-21 Quiz result · passed', 'Per-skill bars, time per question with flags, one next step'],
+  ['result', 'fail', 'S-21 Quiz result · not passed', 'Next step is the review set'],
+  ['result', 'thin', 'S-21 Homework result · thin data', 'No pass mark, no time averages yet, skills marked as early reads'],
+  ['skills', 'strong', 'S-24 Skills · progressing', 'Weak first with Practise this; labelled trend line'],
+  ['skills', 'weak', 'S-24 Skills · after a failed quiz', 'Trend dipping, more skills below 50'],
+  ['skills', 'thin', 'S-24 Skills · thin data', '"Answer 10 more questions to see a trend"']
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: ROWS.map(([screen, state, title, note], i) => { const no = String(i + 1).padStart(2, '0'); return { screen, state, title, note, no, label: `${no} ${title}` }; }) };
+  }
+}
+</script>
+</body>
+</html>

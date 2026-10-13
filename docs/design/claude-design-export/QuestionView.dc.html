@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;600&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="./booklet-math.js"></script>
+<style>button{font-family:inherit}</style>
+</helmet>
+<div style="width:100%;height:100%;box-sizing:border-box;background:#ECEEF2;display:flex;justify-content:center;align-items:flex-start;padding:{{ pad }};overflow:auto"><div style="flex:none;box-sizing:content-box;width:{{ frameW }};height:{{ frameH }};border:{{ bezel }};border-radius:{{ frameR }};overflow:hidden;background:#FFFFFF"><div ref="{{ rootRef }}" style="--page:#FFFFFF;--surface2:#F6F7F9;--frame:#EEF2F8;--ink:#1A1D24;--ink2:#4B5262;--ink3:#9AA1AD;--onp:#FFFFFF;--rule:#D8DDE6;--rule2:#1A1D24;--primary:#1F4FD6;--pc:#E9EEFB;--red:#D2343A;--redc:#FBEBEC;--green:#1E7F4F;--greenc:#E4F2EA;--hl:#F6D743;--warn:#B45309;--warnc:#FCEFE1;--info:#0E6A86;--infoc:#E3F1F5;--scrim:rgba(26,29,36,.48);--shadow:0 2px 6px rgba(26,29,36,.10);--bar:#1A1D24;--onbar:#E7E9EE;--onbar2:#A8AFBC;--barrule:#3A404D;--barp:#86A5FF;--barwarn:#F5A04D;position:relative;width:100%;height:100%;box-sizing:border-box;container-type:inline-size;background:var(--page);color:var(--ink);font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;overflow:hidden">
+
+<sc-if value="{{ lPhone }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;border-bottom:1px solid var(--rule)">
+  <div style="height:24px"></div>
+  <div style="height:56px;display:flex;align-items:center;gap:4px;padding:0 4px">
+    <button aria-label="Back to topic" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button>
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ q.topic }}</span><span style="font-size:12px;color:var(--ink2)">{{ modeLabel }}</span></div>
+    <sc-if value="{{ showSave }}"><span role="status" style="flex:none;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">{{ saveIcon }}</span>{{ saveText }}<sc-if value="{{ saveFailed }}"><button style="height:48px;padding:0 8px;border:none;background:transparent;color:var(--primary);font-size:13px;font-weight:600">Retry</button></sc-if></span></sc-if><button aria-label="More" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink2);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">more_vert</button>
+  </div>
+  <div style="padding:0 16px 12px;display:flex;flex-direction:column;gap:6px">
+    <span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ progressText }}</span>
+    <div style="display:flex;gap:3px"><sc-for list="{{ reps }}" as="r" hint-placeholder-count="10"><sc-if value="{{ r.done }}"><span style="flex:1;height:4px;background:var(--primary)"></span></sc-if><sc-if value="{{ r.cur }}"><span style="flex:1;height:4px;box-sizing:border-box;border:1px solid var(--primary);background:var(--pc)"></span></sc-if><sc-if value="{{ r.todo }}"><span style="flex:1;height:4px;background:var(--rule)"></span></sc-if></sc-for></div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ lWide }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;height:72px;display:flex;align-items:center;gap:8px;padding:0 32px 0 12px;border-bottom:1px solid var(--rule)">
+  <button aria-label="Back to topic" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button>
+  <div style="display:flex;flex-direction:column"><span style="font-size:18px;font-weight:600;white-space:nowrap">{{ q.topic }}</span><span style="font-size:12px;color:var(--ink2)">{{ modeLabel }}</span></div>
+  <div style="margin-left:auto;width:300px;display:flex;flex-direction:column;gap:6px">
+    <span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ progressText }}</span>
+    <div style="display:flex;gap:3px"><sc-for list="{{ reps }}" as="r" hint-placeholder-count="10"><sc-if value="{{ r.done }}"><span style="flex:1;height:4px;background:var(--primary)"></span></sc-if><sc-if value="{{ r.cur }}"><span style="flex:1;height:4px;box-sizing:border-box;border:1px solid var(--primary);background:var(--pc)"></span></sc-if><sc-if value="{{ r.todo }}"><span style="flex:1;height:4px;background:var(--rule)"></span></sc-if></sc-for></div>
+  </div>
+  <div style="margin-left:24px;display:flex"><sc-if value="{{ showSave }}"><span role="status" style="flex:none;display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">{{ saveIcon }}</span>{{ saveText }}<sc-if value="{{ saveFailed }}"><button style="height:48px;padding:0 8px;border:none;background:transparent;color:var(--primary);font-size:13px;font-weight:600">Retry</button></sc-if></span></sc-if></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ mPhone }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;background:var(--bar);color:var(--onbar)">
+  <div style="height:24px"></div>
+  <div style="height:56px;display:flex;align-items:center;gap:4px;padding:0 4px 0 16px">
+    <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:14px;font-weight:600;white-space:nowrap">{{ barShort }}</span><span style="font-size:11px;color:var(--onbar2)">{{ barSub }}</span></div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:0 8px">
+      <sc-if value="{{ clockNormal }}"><span style="font-size:18px;line-height:22px;font-weight:600;font-variant-numeric:tabular-nums">{{ clock }}</span></sc-if>
+      <sc-if value="{{ clockWarn }}"><span style="font-size:18px;line-height:22px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--barwarn);display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;font-variation-settings:'FILL' 1">schedule</span>{{ clock }}</span></sc-if>
+      <span style="width:96px;height:3px;background:var(--barrule);display:block"><sc-if value="{{ clockNormal }}"><span style="display:block;height:100%;width:{{ budgetPct }};background:var(--barp)"></span></sc-if><sc-if value="{{ clockWarn }}"><span style="display:block;height:100%;width:{{ budgetPct }};background:var(--barwarn)"></span></sc-if></span>
+    </div>
+    <div style="flex:1;display:flex;justify-content:flex-end">
+      <sc-if value="{{ desmosOff }}"><button aria-label="Desmos calculator" style="width:44px;height:48px;border:none;background:transparent;color:var(--onbar);font-family:'Material Symbols Rounded';font-size:22px">calculate</button></sc-if>
+      <sc-if value="{{ desmosOn }}"><button aria-label="Desmos calculator, open" style="width:44px;height:48px;border:none;border-bottom:2px solid var(--barp);background:var(--barrule);color:var(--onbar);font-family:'Material Symbols Rounded';font-size:22px">calculate</button></sc-if>
+      <button aria-label="Reference sheet" style="width:44px;height:48px;border:none;background:transparent;color:var(--onbar);font-family:'Material Symbols Rounded';font-size:22px">functions</button>
+      <button aria-label="More" style="width:44px;height:48px;border:none;background:transparent;color:var(--onbar);font-family:'Material Symbols Rounded';font-size:22px">more_vert</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ mWide }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;height:76px;background:var(--bar);color:var(--onbar);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:0 12px 0 24px">
+  <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:16px;font-weight:600;white-space:nowrap">{{ barTitle }}</span><span style="font-size:13px;font-weight:600;color:var(--barp);display:flex;align-items:center;gap:2px">Directions<span style="font-family:'Material Symbols Rounded';font-size:18px">expand_more</span></span></div>
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div style="display:flex;align-items:center;gap:10px;height:32px">
+      <sc-if value="{{ clockNormal }}"><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">{{ clock }}</span><button style="white-space:nowrap;height:32px;padding:0 10px;border:1px solid var(--barrule);border-radius:4px;background:transparent;color:var(--onbar);font-size:12px;font-weight:600">Hide</button></sc-if>
+      <sc-if value="{{ clockWarn }}"><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--barwarn);display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px;font-variation-settings:'FILL' 1">schedule</span>{{ clock }}</span></sc-if>
+      <sc-if value="{{ clockHidden }}"><span style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--onbar2)"><span style="font-family:'Material Symbols Rounded';font-size:20px">timer_off</span>Timer hidden</span><button style="white-space:nowrap;height:32px;padding:0 10px;border:1px solid var(--barrule);border-radius:4px;background:transparent;color:var(--onbar);font-size:12px;font-weight:600">Show</button></sc-if>
+    </div>
+    <span style="width:200px;height:4px;background:var(--barrule);display:block"><sc-if value="{{ barNormal }}"><span style="display:block;height:100%;width:{{ budgetPct }};background:var(--barp)"></span></sc-if><sc-if value="{{ clockWarn }}"><span style="display:block;height:100%;width:{{ budgetPct }};background:var(--barwarn)"></span></sc-if></span>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:2px">
+    <button style="white-space:nowrap;height:56px;min-width:64px;padding:0 8px;border:none;background:transparent;color:var(--onbar);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">functions</span>Reference</button>
+    <sc-if value="{{ desmosOff }}"><button style="white-space:nowrap;height:56px;min-width:64px;padding:0 8px;border:none;background:transparent;color:var(--onbar);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">calculate</span>Desmos</button></sc-if>
+    <sc-if value="{{ desmosOn }}"><button style="white-space:nowrap;height:56px;min-width:64px;padding:0 8px;border:none;border-bottom:2px solid var(--barp);border-radius:4px 4px 0 0;background:var(--barrule);color:var(--onbar);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">calculate</span>Desmos</button></sc-if>
+    <button style="white-space:nowrap;height:56px;min-width:64px;padding:0 8px;border:none;background:transparent;color:var(--onbar);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">more_horiz</span>More</button>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showDeviceBanner }}" hint-placeholder-val="{{ false }}"><div style="flex:none;display:flex;align-items:center;gap:12px;min-height:56px;padding:4px 4px 4px 16px;box-sizing:border-box;background:var(--infoc);border-bottom:1px solid var(--info)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:var(--info)">devices</span><span style="flex:1;font-size:14px;line-height:20px">For the best experience use a laptop or tablet</span><button aria-label="Dismiss" style="width:48px;height:48px;border:none;background:transparent;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:20px">close</button></div></sc-if>
+<sc-if value="{{ isWarn }}" hint-placeholder-val="{{ false }}"><div role="alert" style="flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;min-height:56px;padding:4px 8px 4px 16px;box-sizing:border-box;background:var(--warnc);border-bottom:1px solid var(--warn)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:var(--warn);font-variation-settings:'FILL' 1">schedule</span><span style="flex:1;min-width:200px;font-size:14px;line-height:20px;padding:6px 0"><b>5 minutes left.</b> Answer the rest; a guess scores better than a blank.</span><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Review marked</button></div></sc-if>
+<sc-if value="{{ isResume }}" hint-placeholder-val="{{ false }}"><div role="status" style="flex:none;display:flex;align-items:center;gap:12px;min-height:56px;padding:4px 4px 4px 16px;box-sizing:border-box;background:var(--infoc);border-bottom:1px solid var(--info)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:var(--info)">play_circle</span><span style="flex:1;font-size:14px;line-height:20px"><b style="font-variant-numeric:tabular-nums">Resumed — 12:40 left</b><br>The timer kept running while you were away.</span><button aria-label="Dismiss" style="width:48px;height:48px;border:none;background:transparent;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:20px">close</button></div></sc-if>
+
+<div style="flex:1;min-height:0;display:flex;position:relative">
+  <div style="flex:1;min-width:0;overflow:auto;scrollbar-width:{{ sbw }};padding:24px clamp(16px,2.5cqw,32px) 32px;display:flex;justify-content:center">
+    <div style="flex:0 1 720px;min-width:0;display:flex;flex-direction:column;gap:20px">
+
+      <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ false }}"><div aria-busy="true" aria-label="Loading question" style="display:flex;flex-direction:column;gap:12px"><span style="display:block;width:30%;height:12px;background:var(--surface2);border-radius:2px"></span><span style="height:8px"></span><span style="display:block;width:92%;height:20px;background:var(--surface2);border-radius:2px"></span><span style="display:block;width:76%;height:20px;background:var(--surface2);border-radius:2px"></span><span style="display:block;width:48%;height:20px;background:var(--surface2);border-radius:2px"></span><span style="height:12px"></span><span style="display:block;width:100%;height:56px;background:var(--surface2);border-radius:4px"></span><span style="display:block;width:100%;height:56px;background:var(--surface2);border-radius:4px"></span><span style="display:block;width:100%;height:56px;background:var(--surface2);border-radius:4px"></span><span style="display:block;width:100%;height:56px;background:var(--surface2);border-radius:4px"></span></div></sc-if>
+      <sc-if value="{{ isEmpty }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Filters</span>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            <span style="height:32px;box-sizing:border-box;padding:0 12px;border:1px solid var(--rule2);border-radius:2px;display:inline-flex;align-items:center;font-size:13px;font-weight:600">E · Easy</span>
+            <span style="height:32px;box-sizing:border-box;padding:0 12px 0 8px;border:1px solid var(--primary);background:var(--pc);color:var(--primary);border-radius:2px;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span>H · Hard</span>
+            <span style="height:32px;box-sizing:border-box;padding:0 12px 0 8px;border:1px solid var(--primary);background:var(--pc);color:var(--primary);border-radius:2px;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span>Word problems</span>
+            <span style="height:32px;box-sizing:border-box;padding:0 12px 0 8px;border:1px solid var(--primary);background:var(--pc);color:var(--primary);border-radius:2px;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span>Missed before</span>
+          </div>
+        </div>
+        <div style="border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule);padding:40px 0;display:flex;flex-direction:column;gap:10px;align-items:flex-start">
+          <span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;color:var(--ink2)">filter_alt_off</span>
+          <span style="font-size:20px;line-height:28px;font-weight:600">No questions match these filters</span>
+          <span style="font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">Remove a filter, or clear them all to see every rep in this topic.</span>
+          <button style="white-space:nowrap;height:48px;padding:0 20px;margin-top:6px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Clear filters</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Math · Module 2</span>
+          <h1 style="margin:0;font-size:28px;line-height:36px;font-weight:600;letter-spacing:-.01em">Check your work</h1>
+          <p style="margin:0;font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">Select a question to go back to it. Unanswered questions count as incorrect, so answer every one before you submit.</p>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule)">
+          <div style="padding:14px 12px 14px 0;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--rule)"><span style="display:flex;align-items:center;gap:6px;font-size:28px;line-height:32px;font-weight:600;font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:22px;color:var(--primary);font-variation-settings:'FILL' 1">check_box</span>19</span><span style="font-size:13px;font-weight:600;color:var(--ink2)">Answered</span></div>
+          <div style="padding:14px 12px;display:flex;flex-direction:column;gap:4px;border-right:1px solid var(--rule)"><span style="display:flex;align-items:center;gap:6px;font-size:28px;line-height:32px;font-weight:600;font-variant-numeric:tabular-nums"><span style="width:18px;height:18px;box-sizing:border-box;border:1.5px dashed var(--ink2);border-radius:2px"></span>3</span><span style="font-size:13px;font-weight:600;color:var(--ink2)">Unanswered</span></div>
+          <div style="padding:14px 12px;display:flex;flex-direction:column;gap:4px"><span style="display:flex;align-items:center;gap:6px;font-size:28px;line-height:32px;font-weight:600;font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:20px;background:var(--hl);color:var(--ink);font-variation-settings:'FILL' 1">bookmark</span>3</span><span style="font-size:13px;font-weight:600;color:var(--ink2)">Marked for review</span></div>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:12px 20px;font-size:12px;font-weight:600;color:var(--ink2)">
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:2px"></span>Unanswered</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;background:var(--primary);border-radius:2px"></span>Answered</span>
+          <span style="display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--ink);font-variation-settings:'FILL' 1">bookmark</span>Marked for review</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,48px);gap:16px 12px;padding-top:8px">
+          <sc-for list="{{ reviewCells }}" as="cell" hint-placeholder-count="22">
+            <sc-if value="{{ cell.cUn }}"><span style="width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if>
+            <sc-if value="{{ cell.cAns }}"><span style="width:48px;height:48px;box-sizing:border-box;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--onp);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if>
+            <sc-if value="{{ cell.cMk }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink)"><span style="background:var(--hl);padding:0 6px">{{ cell.n }}</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page);font-variation-settings:'FILL' 1">bookmark</span></span></sc-if>
+            <sc-if value="{{ cell.cAnsMk }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink)"><span style="background:var(--hl);padding:0 6px">{{ cell.n }}</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page);font-variation-settings:'FILL' 1">bookmark</span></span></sc-if>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isQuestion }}" hint-placeholder-val="{{ true }}">
+        <sc-if value="{{ exHeader }}">
+          <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-bottom:12px;border-bottom:1px solid var(--rule)">
+            <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);font-variant-numeric:tabular-nums">{{ q.ex }}</span>
+            <sc-if value="{{ q.diffE }}"><span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid var(--rule);border-radius:2px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap"><span style="display:flex;gap:2px;align-items:flex-end"><span style="width:3px;height:6px;background:var(--ink)"></span><span style="width:3px;height:9px;background:var(--rule)"></span><span style="width:3px;height:12px;background:var(--rule)"></span></span>E · Easy</span></sc-if>
+            <sc-if value="{{ q.diffM }}"><span style="height:28px;box-sizing:border-box;padding:0 8px;border:1px solid var(--rule);border-radius:2px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;white-space:nowrap"><span style="display:flex;gap:2px;align-items:flex-end"><span style="width:3px;height:6px;background:var(--ink)"></span><span style="width:3px;height:9px;background:var(--ink)"></span><span style="width:3px;height:12px;background:var(--rule)"></span></span>M · Medium</span></sc-if>
+            <span style="height:28px;box-sizing:border-box;padding:0 8px;background:var(--frame);border-radius:2px;display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--ink2)">sell</span>{{ q.skill }}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ examHeader }}">
+          <div style="display:flex;align-items:center;gap:8px;padding-bottom:12px;border-bottom:1px solid var(--rule)">
+            <span style="flex:none;width:32px;height:32px;background:var(--ink);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">{{ qnum }}</span>
+            <sc-if value="{{ notMarked }}"><button aria-pressed="false" style="height:40px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px">bookmark</span>Mark for review</button></sc-if>
+            <sc-if value="{{ marked }}"><button aria-pressed="true" style="height:40px;padding:0 10px;border:1px solid var(--rule2);border-radius:4px;background:var(--hl);color:var(--ink);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;font-variation-settings:'FILL' 1">bookmark</span>Marked for review</button></sc-if>
+            <span style="flex:1"></span>
+            <sc-if value="{{ q.isMcq }}">
+              <sc-if value="{{ elimOff }}"><button aria-pressed="false" aria-label="Answer eliminator" style="height:40px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);font-size:13px;font-weight:700;letter-spacing:.04em;text-decoration:line-through;text-decoration-thickness:1.5px">ABC</button></sc-if>
+              <sc-if value="{{ elimOn }}"><button aria-pressed="true" aria-label="Answer eliminator, on" style="height:40px;padding:0 10px;border:2px solid var(--primary);border-radius:4px;background:var(--pc);color:var(--primary);font-size:13px;font-weight:700;letter-spacing:.04em;text-decoration:line-through;text-decoration-thickness:1.5px">ABC</button></sc-if>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <div style="font-size:18px;line-height:28px;text-wrap:pretty" data-mix="{{ q.stem }}"></div>
+        <sc-if value="{{ q.block }}"><div style="overflow-x:auto;overflow-y:hidden;font-size:18px;padding:4px 0;min-height:64px" data-tex="{{ q.block }}" data-block="1"></div></sc-if>
+        <sc-if value="{{ q.stem2 }}"><div style="font-size:18px;line-height:28px;margin-top:-8px" data-mix="{{ q.stem2 }}"></div></sc-if>
+        <sc-if value="{{ q.figure }}">
+          <figure style="margin:0;align-self:flex-start;position:relative;border:1px solid var(--rule);border-radius:2px;padding:16px 56px 12px 16px;display:flex;flex-direction:column;gap:6px">
+            <svg width="210" height="164" viewBox="0 0 210 164" role="img" aria-label="Right triangle with legs 6 and 8"><polygon points="30,140 30,20 190,140" fill="none" stroke="#1A1D24" stroke-width="1.5"></polygon><rect x="30" y="128" width="12" height="12" fill="none" stroke="#1A1D24" stroke-width="1"></rect><text x="14" y="86" font-family="KaTeX_Main, serif" font-size="18" fill="#1A1D24">6</text><text x="104" y="160" font-family="KaTeX_Main, serif" font-size="18" fill="#1A1D24">8</text></svg>
+            <sc-if value="{{ isPhone }}"><button aria-label="Zoom figure" style="position:absolute;top:4px;right:4px;width:48px;height:48px;border:1px solid var(--rule);border-radius:4px;background:var(--page);color:var(--ink);font-family:'Material Symbols Rounded';font-size:22px">zoom_in</button></sc-if>
+          </figure>
+        </sc-if>
+
+        <sc-if value="{{ q.isMcq }}">
+          <div role="radiogroup" style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ choices }}" as="c" hint-placeholder-count="4">
+              <sc-if value="{{ c.vDefault }}"><div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 0 4px 12px;border:1px solid var(--rule);border-radius:4px;background:var(--page)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--rule2);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">{{ c.L }}</span><span style="flex:1;min-width:0;font-size:16px;line-height:24px;padding:12px 12px 12px 0" data-mix="{{ c.text }}"></span><sc-if value="{{ c.strike }}"><span aria-label="Eliminate" style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:20px">strikethrough_s</span></sc-if></div></sc-if>
+              <sc-if value="{{ c.vSel }}"><div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 0 3px 11px;border:2px solid var(--primary);border-radius:4px;background:var(--pc)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;background:var(--primary);color:var(--onp);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">{{ c.L }}</span><span style="flex:1;min-width:0;font-size:16px;line-height:24px;padding:12px 12px 12px 0" data-mix="{{ c.text }}"></span><sc-if value="{{ c.strike }}"><span aria-label="Eliminate" style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:20px">strikethrough_s</span></sc-if></div></sc-if>
+              <sc-if value="{{ c.vElim }}"><div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 0 4px 12px;border:1px dashed var(--rule);border-radius:4px;background:var(--page)"><span style="flex:1;min-width:0;position:relative;display:flex;align-items:center;gap:12px;color:var(--ink3)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">{{ c.L }}</span><span style="flex:1;min-width:0;font-size:16px;line-height:24px;padding:12px 0;opacity:.6" data-mix="{{ c.text }}"></span><span style="position:absolute;left:-4px;right:4px;top:50%;height:1.5px;background:var(--ink2)"></span></span><span style="flex:none;height:48px;padding:0 12px;display:flex;align-items:center;gap:4px;color:var(--primary);font-size:14px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px">undo</span>Undo</span></div></sc-if>
+              <sc-if value="{{ c.vCorrect }}"><div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--green);border-radius:4px;background:var(--greenc)"><span style="flex:none;width:28px;height:28px;background:var(--green);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">{{ c.L }}</span><span style="flex:1;min-width:0;font-size:16px;line-height:24px;padding:12px 0" data-mix="{{ c.text }}"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;font-variation-settings:'FILL' 1">check_circle</span>{{ c.label }}</span></div></sc-if>
+              <sc-if value="{{ c.vWrong }}"><div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;width:28px;height:28px;background:var(--red);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">{{ c.L }}</span><span style="flex:1;min-width:0;font-size:16px;line-height:24px;padding:12px 0" data-mix="{{ c.text }}"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;font-variation-settings:'FILL' 1">cancel</span>{{ c.label }}</span></div></sc-if>
+              <sc-if value="{{ c.vAnswer }}"><div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--green);border-radius:4px;background:var(--page)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:2px solid var(--green);color:var(--green);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">{{ c.L }}</span><span style="flex:1;min-width:0;font-size:16px;line-height:24px;padding:12px 0" data-mix="{{ c.text }}"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px">check_circle</span>{{ c.label }}</span></div></sc-if>
+              <sc-if value="{{ c.vDim }}"><div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">{{ c.L }}</span><span style="flex:1;min-width:0;font-size:16px;line-height:24px;padding:12px 0" data-mix="{{ c.text }}"></span></div></sc-if>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ q.isSpr }}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <label style="font-size:14px;font-weight:600">Your answer</label>
+            <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+              <sc-if value="{{ sprFocused }}"><div style="width:200px;height:56px;box-sizing:border-box;border:2px solid var(--primary);border-radius:4px;padding:0 15px;display:flex;align-items:center;font-size:20px;font-weight:500;font-variant-numeric:tabular-nums">{{ sprValue }}<span style="width:2px;height:24px;background:var(--primary);margin-left:1px"></span></div></sc-if>
+              <sc-if value="{{ sprFilled }}"><div style="width:200px;height:56px;box-sizing:border-box;border:1px solid var(--rule2);border-radius:4px;padding:0 16px;display:flex;align-items:center;font-size:20px;font-weight:500;font-variant-numeric:tabular-nums">{{ sprValue }}</div></sc-if>
+              <sc-if value="{{ sprEmpty }}"><div style="width:200px;height:56px;box-sizing:border-box;border:1px solid var(--rule2);border-radius:4px;padding:0 16px;display:flex;align-items:center;font-size:20px;color:var(--ink3)">Type answer</div></sc-if>
+              <sc-if value="{{ hasPreview }}"><div style="display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--rule);padding-left:16px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Answer preview</span><span style="font-size:20px" data-tex="{{ sprPreview }}"></span></div></sc-if>
+            </div>
+            <span style="font-size:12px;line-height:16px;color:var(--ink2)">Fraction, decimal or integer</span>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ noteInlineRed }}"><div role="status" style="border-top:1px solid var(--red);padding-top:12px;display:flex;flex-direction:column;gap:6px;color:var(--red)"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty" data-mix="{{ noteText }}"></p><sc-if value="{{ hasNoteAction }}"><button style="white-space:nowrap;align-self:flex-start;height:48px;padding:0 12px;margin-left:-12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">{{ noteAction }}</button></sc-if></div></sc-if>
+        <sc-if value="{{ noteInlineGreen }}"><div role="status" style="border-top:1px solid var(--green);padding-top:12px;display:flex;flex-direction:column;gap:6px"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green)"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">check_circle</span>Correct</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty" data-mix="{{ noteText }}"></p></div></sc-if>
+
+        <sc-if value="{{ isPractice }}">
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-left:-12px">
+            <sc-if value="{{ showHint }}"><button aria-expanded="true" style="height:48px;padding:0 12px;border:none;border-radius:4px;background:var(--pc);color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px;font-variation-settings:'FILL' 1">lightbulb</span>Hint</button></sc-if>
+            <sc-if value="{{ hideHint }}"><button aria-expanded="false" style="height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">lightbulb</span>Hint</button></sc-if>
+            <button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">forum</span>Ask AI</button>
+            <button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">play_circle</span>Watch explanation video</button>
+            <button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--ink2);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">flag</span>Report this question</button>
+          </div>
+        </sc-if>
+        <sc-if value="{{ revQ }}">
+          <div style="display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;padding:10px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+            <span style="font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap">Your time</span>
+            <span style="position:relative;flex:none;width:200px;height:8px;background:var(--surface2);display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:{{ revPct }};background:{{ revBarColor }}"></span><span style="position:absolute;left:25%;top:-4px;bottom:-4px;width:1px;background:var(--rule2)"></span><span style="position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px dashed var(--ink3)"></span></span>
+            <span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">{{ revTime }}</span>
+            <span style="font-size:12px;color:var(--ink2);white-space:nowrap">avg 1:30</span>
+            <sc-if value="{{ revFlag }}"><span style="display:flex;align-items:center;gap:4px;color:var(--warn);font-size:12px;font-weight:600;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">flag</span>Over 2× average</span></sc-if>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:4px;margin-left:-12px"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">forum</span>Ask AI</button><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">library_add</span>Add to mistake notebook</button><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--ink2);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">flag</span>Report this question</button></div>
+        </sc-if>
+
+        <sc-if value="{{ showHint }}">
+          <div style="background:var(--frame);border-radius:2px;padding:16px clamp(16px,2cqw,24px);display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--primary)">lightbulb</span><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)">Hint</span><span style="flex:1;height:1px;background:var(--rule)"></span></div>
+            <p style="margin:0;font-size:16px;line-height:24px;text-wrap:pretty" data-mix="{{ q.hint }}"></p>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showWorked }}">
+          <div style="background:var(--frame);border-radius:2px;padding:20px clamp(16px,2cqw,24px);display:flex;flex-direction:column;gap:14px">
+            <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);white-space:nowrap">Worked example · {{ q.ex }}</span><span style="flex:1;height:1px;background:var(--rule)"></span></div>
+            <div style="display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ q.steps }}" as="s" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;align-items:baseline">
+                  <span style="font-size:12px;font-weight:600;color:var(--ink2)">{{ s.n }}</span>
+                  <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                    <div style="display:flex;flex-wrap:wrap;column-gap:.35em;row-gap:8px;align-items:center;font-size:17px" data-wrap="{{ s.t }}"></div>
+                    <span style="font-size:14px;line-height:20px;color:var(--ink2)" data-mix="{{ s.note }}"></span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="border-top:1px solid var(--rule2);padding-top:12px;display:flex;align-items:baseline;gap:12px;font-size:16px"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Answer</span><span style="border:1.5px solid var(--rule2);padding:2px 10px;border-radius:2px" data-tex="{{ q.answerTex }}"></span></div>
+            <sc-if value="{{ hasArabic }}"><p dir="rtl" lang="ar" style="margin:0;border-top:1px solid var(--rule);padding-top:12px;font-family:'Noto Sans Arabic','Noto Sans',sans-serif;font-size:16px;line-height:30px;text-align:right" data-mix="{{ q.arabic }}"></p></sc-if>
+          </div>
+        </sc-if>
+      </sc-if>
+    </div>
+
+    <sc-if value="{{ noteAsideRed }}" hint-placeholder-val="{{ false }}">
+      <aside style="flex:none;width:300px;margin-left:32px;display:flex;align-self:stretch"><div style="width:1px;flex:none;background:var(--red)"></div><div role="status" style="padding:4px 0 0 24px;display:flex;flex-direction:column;gap:10px;color:var(--red)"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty" data-mix="{{ noteText }}"></p><sc-if value="{{ hasNoteAction }}"><button style="white-space:nowrap;align-self:flex-start;height:48px;padding:0 12px;margin-left:-12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">{{ noteAction }}</button></sc-if></div></aside>
+    </sc-if>
+    <sc-if value="{{ noteAsideGreen }}" hint-placeholder-val="{{ false }}">
+      <aside style="flex:none;width:300px;margin-left:32px;display:flex;align-self:stretch"><div style="width:1px;flex:none;background:var(--green)"></div><div role="status" style="padding:4px 0 0 24px;display:flex;flex-direction:column;gap:10px"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--green)"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">check_circle</span>Correct</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty" data-mix="{{ noteText }}"></p></div></aside>
+    </sc-if>
+  </div>
+
+  <sc-if value="{{ sideNav }}" hint-placeholder-val="{{ false }}">
+    <aside aria-label="Question navigator" style="flex:none;width:280px;box-sizing:border-box;border-left:1px solid var(--rule);padding:20px;display:flex;flex-direction:column;gap:14px;overflow:auto">
+      <span style="font-size:16px;font-weight:600">{{ navTitle }}</span>
+      <sc-if value="{{ legendRev }}"><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;font-weight:600;color:var(--ink2);padding-bottom:12px;border-bottom:1px solid var(--rule)"><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--green);font-variation-settings:'FILL' 1">check_circle</span>Correct</span><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--red);font-variation-settings:'FILL' 1">cancel</span>Incorrect</span><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink2)">do_not_disturb_on</span>Unanswered</span></div></sc-if><sc-if value="{{ legendExam }}"><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;font-weight:600;color:var(--ink2);padding-bottom:12px;border-bottom:1px solid var(--rule)"><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="width:16px;height:16px;box-sizing:border-box;border:2.5px solid var(--ink);border-radius:2px"></span>Current</span><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="width:16px;height:16px;background:var(--primary);border-radius:2px"></span>Answered</span><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="width:16px;height:16px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:2px"></span>Unanswered</span></div></sc-if>
+      <div style="display:grid;grid-template-columns:repeat(4,48px);gap:14px 12px"><sc-for list="{{ navCells }}" as="cell" hint-placeholder-count="20"><sc-if value="{{ cell.cCur }}"><span aria-current="true" style="position:relative;width:48px;height:48px;box-sizing:border-box;border:2.5px solid var(--ink);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">{{ cell.n }}<span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></span></sc-if><sc-if value="{{ cell.cUn }}"><span style="width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if><sc-if value="{{ cell.cAns }}"><span style="width:48px;height:48px;box-sizing:border-box;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--onp);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if><sc-if value="{{ cell.rC }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--green);background:var(--greenc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums">{{ cell.n }}<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--green);background:var(--page);border-radius:50%;font-variation-settings:'FILL' 1">check_circle</span><sc-if value="{{ cell.cur }}"><span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></sc-if></span></sc-if><sc-if value="{{ cell.rI }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--red);background:var(--redc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums">{{ cell.n }}<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--red);background:var(--page);border-radius:50%;font-variation-settings:'FILL' 1">cancel</span><sc-if value="{{ cell.cur }}"><span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></sc-if></span></sc-if><sc-if value="{{ cell.rU }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);background:var(--page);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums">{{ cell.n }}<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink2);background:var(--page);border-radius:50%">do_not_disturb_on</span><sc-if value="{{ cell.cur }}"><span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></sc-if></span></sc-if></sc-for></div>
+      <sc-if value="{{ isHw }}"><div style="margin-top:auto;border-top:1px solid var(--rule);padding-top:14px;display:flex;flex-direction:column;gap:10px"><span style="font-size:13px;line-height:18px;color:var(--ink2)">{{ hwSummary }}</span><button style="white-space:nowrap;height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Submit homework</button></div></sc-if>
+    </aside>
+  </sc-if>
+  <sc-if value="{{ desmosWide }}" hint-placeholder-val="{{ false }}">
+    <div style="flex:none;width:min(440px,46%);padding:16px 16px 16px 0;box-sizing:border-box;display:flex">
+      <div role="dialog" aria-label="Desmos graphing calculator" style="flex:1;position:relative;display:flex;flex-direction:column;border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);background:var(--page);overflow:hidden">
+        <div style="height:48px;flex:none;display:flex;align-items:center;gap:4px;padding:0 4px 0 8px;background:var(--surface2);border-bottom:1px solid var(--rule);cursor:move"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">drag_indicator</span><span style="flex:1;font-size:14px;font-weight:600">Graphing calculator</span><button aria-label="Expand" style="width:44px;height:44px;border:none;background:transparent;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:20px">open_in_full</button><button aria-label="Close calculator" style="width:44px;height:44px;border:none;background:transparent;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:20px">close</button></div>
+        <div style="flex:1;margin:12px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px;text-align:center">Desmos graphing calculator<br>(embedded)</span></div>
+        <span aria-label="Resize" style="position:absolute;left:3px;top:50%;margin-top:-20px;width:4px;height:40px;border-radius:2px;background:var(--ink3)"></span>
+      </div>
+    </div>
+  </sc-if>
+</div>
+
+<sc-if value="{{ footPPhone }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;height:72px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 16px">
+  <button style="white-space:nowrap;height:48px;padding:0 16px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Back</button>
+  <button style="white-space:nowrap;height:48px;padding:0 4px;border:none;background:transparent;color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;gap:2px;font-variant-numeric:tabular-nums">{{ footMid }}<span style="font-family:'Material Symbols Rounded';font-size:20px">expand_less</span></button>
+  <sc-if value="{{ primaryOn }}"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">{{ primaryLabel }}</button></sc-if>
+  <sc-if value="{{ primaryOff }}"><button disabled style="height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--rule);color:var(--ink3);font-size:14px;font-weight:600">{{ primaryLabel }}</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ footPWide }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;height:72px;border-top:1px solid var(--rule);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:0 32px">
+  <div><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Back</button></div>
+  <button style="white-space:nowrap;height:44px;padding:0 16px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums">{{ footMid }}<span style="font-family:'Material Symbols Rounded';font-size:20px">expand_less</span></button>
+  <div style="display:flex;justify-content:flex-end;align-items:center;gap:12px">
+    <sc-if value="{{ primaryOff }}"><span style="font-size:13px;color:var(--ink2);white-space:nowrap">Pick another answer</span><button disabled style="height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--rule);color:var(--ink3);font-size:14px;font-weight:600">{{ primaryLabel }}</button></sc-if>
+    <sc-if value="{{ primaryOn }}"><button style="white-space:nowrap;height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">{{ primaryLabel }}</button></sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ footMPhone }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;height:72px;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 16px">
+  <button style="white-space:nowrap;height:48px;padding:0 16px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Back</button>
+  <sc-if value="{{ footQuestion }}"><button style="white-space:nowrap;height:48px;padding:0 4px;border:none;background:transparent;color:var(--ink);font-size:14px;font-weight:700;display:flex;align-items:center;gap:2px;font-variant-numeric:tabular-nums;white-space:nowrap">Question {{ qnum }} of {{ qTotal }}<span style="font-family:'Material Symbols Rounded';font-size:20px">expand_less</span></button><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Next</button></sc-if>
+  <sc-if value="{{ footReview }}"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Submit module</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ keypad }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;background:var(--surface2);border-top:1px solid var(--rule);padding:8px 8px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">1</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">2</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">3</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">backspace</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">4</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">5</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">6</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">/</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">7</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">8</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">9</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">−</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">.</span>
+  <span style="grid-column:span 2;height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">0</span>
+  <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">keyboard_hide</span>
+</div>
+</sc-if>
+
+<sc-if value="{{ footMWide }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;height:72px;border-top:1px solid var(--rule);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:0 24px">
+  <div style="min-width:0">
+    <sc-if value="{{ isLaptop }}"><div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 12px;font-size:12px;color:var(--ink2)"><span style="display:flex;align-items:center;gap:4px;white-space:nowrap"><kbd style="font-family:'Noto Sans Mono',monospace;font-size:11px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:2px;padding:1px 5px;color:var(--ink)">A–D</kbd>select</span><span style="display:flex;align-items:center;gap:4px;white-space:nowrap"><kbd style="font-family:'Noto Sans Mono',monospace;font-size:11px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:2px;padding:1px 5px;color:var(--ink)">E</kbd>eliminator</span><span style="display:flex;align-items:center;gap:4px;white-space:nowrap"><kbd style="font-family:'Noto Sans Mono',monospace;font-size:11px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:2px;padding:1px 5px;color:var(--ink)">M</kbd>mark</span><span style="display:flex;align-items:center;gap:4px;white-space:nowrap"><kbd style="font-family:'Noto Sans Mono',monospace;font-size:11px;border:1px solid var(--rule);border-bottom-width:2px;border-radius:2px;padding:1px 5px;color:var(--ink)">← →</kbd>move</span></div></sc-if>
+  </div>
+  <div>
+    <sc-if value="{{ footQuestion }}"><button style="white-space:nowrap;height:44px;padding:0 16px;border:none;border-radius:4px;background:var(--ink);color:var(--page);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px;font-variant-numeric:tabular-nums;white-space:nowrap">Question {{ qnum }} of {{ qTotal }}<span style="font-family:'Material Symbols Rounded';font-size:20px">expand_less</span></button></sc-if>
+  </div>
+  <div style="display:flex;justify-content:flex-end;gap:12px">
+    <button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Back</button>
+    <sc-if value="{{ footQuestion }}"><button style="white-space:nowrap;height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Next</button></sc-if>
+    <sc-if value="{{ footReview }}"><button style="white-space:nowrap;height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Submit module</button></sc-if>
+  </div>
+</div>
+</sc-if>
+
+<sc-if value="{{ navWide }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-label="Question navigator" style="position:absolute;left:50%;bottom:84px;transform:translateX(-50%);width:456px;box-sizing:border-box;background:var(--page);border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);padding:16px 20px 20px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:16px;font-weight:600">{{ navTitle }}</span><button aria-label="Close" style="width:44px;height:44px;margin-right:-12px;border:none;background:transparent;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:20px">close</button></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px 16px;font-size:12px;font-weight:600;color:var(--ink2);padding-bottom:12px;border-bottom:1px solid var(--rule)"><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;box-sizing:border-box;border:2.5px solid var(--ink);border-radius:2px"></span>Current</span><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;background:var(--primary);border-radius:2px"></span>Answered</span><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:2px"></span>Unanswered</span><span style="display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--ink);font-variation-settings:'FILL' 1">bookmark</span>Marked for review</span></div>
+    <div style="display:grid;grid-template-columns:repeat(7,48px);gap:14px 12px;justify-content:space-between">
+      <sc-for list="{{ navCells }}" as="cell" hint-placeholder-count="22">
+        <sc-if value="{{ cell.cCur }}"><span aria-current="true" style="position:relative;width:48px;height:48px;box-sizing:border-box;border:2.5px solid var(--ink);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">{{ cell.n }}<span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></span></sc-if>
+        <sc-if value="{{ cell.cUn }}"><span style="width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if>
+        <sc-if value="{{ cell.cAns }}"><span style="width:48px;height:48px;box-sizing:border-box;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--onp);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if>
+        <sc-if value="{{ cell.cMk }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink)"><span style="background:var(--hl);padding:0 6px">{{ cell.n }}</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page);font-variation-settings:'FILL' 1">bookmark</span></span></sc-if>
+        <sc-if value="{{ cell.cAnsMk }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink)"><span style="background:var(--hl);padding:0 6px">{{ cell.n }}</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page);font-variation-settings:'FILL' 1">bookmark</span></span></sc-if>
+      </sc-for>
+    </div>
+    <button style="white-space:nowrap;align-self:center;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Go to review page</button>
+  </div>
+</sc-if>
+
+<sc-if value="{{ navPhone }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--scrim);display:flex;flex-direction:column;justify-content:flex-end">
+    <div role="dialog" aria-label="Question navigator" style="background:var(--page);border-radius:8px 8px 0 0;padding:8px 16px 24px;display:flex;flex-direction:column;gap:14px">
+      <span style="align-self:center;width:32px;height:4px;border-radius:2px;background:var(--ink3)"></span>
+      <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:18px;font-weight:600">{{ navTitle }}</span><button aria-label="Close" style="width:48px;height:48px;margin-right:-12px;border:none;background:transparent;color:var(--ink2);font-family:'Material Symbols Rounded';font-size:22px">close</button></div>
+      <sc-if value="{{ legendExam }}"><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;font-weight:600;color:var(--ink2);padding-bottom:12px;border-bottom:1px solid var(--rule)"><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;box-sizing:border-box;border:2.5px solid var(--ink);border-radius:2px"></span>Current</span><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;background:var(--primary);border-radius:2px"></span>Answered</span><span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:16px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:2px"></span>Unanswered</span><span style="display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--ink);font-variation-settings:'FILL' 1">bookmark</span>Marked for review</span></div></sc-if><sc-if value="{{ legendRev }}"><div style="display:flex;flex-wrap:wrap;gap:8px 14px;font-size:12px;font-weight:600;color:var(--ink2);padding-bottom:12px;border-bottom:1px solid var(--rule)"><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--green);font-variation-settings:'FILL' 1">check_circle</span>Correct</span><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--red);font-variation-settings:'FILL' 1">cancel</span>Incorrect</span><span style="display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink2)">do_not_disturb_on</span>Unanswered</span></div></sc-if>
+      <div style="display:grid;grid-template-columns:repeat(6,48px);gap:14px 8px;justify-content:space-between">
+        <sc-for list="{{ navCells }}" as="cell" hint-placeholder-count="22">
+          <sc-if value="{{ cell.cCur }}"><span aria-current="true" style="position:relative;width:48px;height:48px;box-sizing:border-box;border:2.5px solid var(--ink);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700">{{ cell.n }}<span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></span></sc-if>
+          <sc-if value="{{ cell.cUn }}"><span style="width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if>
+          <sc-if value="{{ cell.cAns }}"><span style="width:48px;height:48px;box-sizing:border-box;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--onp);font-variant-numeric:tabular-nums">{{ cell.n }}</span></sc-if>
+          <sc-if value="{{ cell.cMk }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink)"><span style="background:var(--hl);padding:0 6px">{{ cell.n }}</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page);font-variation-settings:'FILL' 1">bookmark</span></span></sc-if>
+          <sc-if value="{{ cell.cAnsMk }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink)"><span style="background:var(--hl);padding:0 6px">{{ cell.n }}</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page);font-variation-settings:'FILL' 1">bookmark</span></span></sc-if>
+        <sc-if value="{{ cell.rC }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--green);background:var(--greenc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums">{{ cell.n }}<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--green);background:var(--page);border-radius:50%;font-variation-settings:'FILL' 1">check_circle</span><sc-if value="{{ cell.cur }}"><span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></sc-if></span></sc-if><sc-if value="{{ cell.rI }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--red);background:var(--redc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums">{{ cell.n }}<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--red);background:var(--page);border-radius:50%;font-variation-settings:'FILL' 1">cancel</span><sc-if value="{{ cell.cur }}"><span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></sc-if></span></sc-if><sc-if value="{{ cell.rU }}"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);background:var(--page);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink2);font-variant-numeric:tabular-nums">{{ cell.n }}<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink2);background:var(--page);border-radius:50%">do_not_disturb_on</span><sc-if value="{{ cell.cur }}"><span style="position:absolute;bottom:-9px;left:50%;margin-left:-10px;width:20px;height:3px;background:var(--ink)"></span></sc-if></span></sc-if></sc-for>
+      </div>
+      <button style="white-space:nowrap;height:48px;margin-top:8px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">{{ navBtn }}</button>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ desmosPhone }}" hint-placeholder-val="{{ false }}">
+  <div role="dialog" aria-label="Desmos graphing calculator" style="position:absolute;top:80px;left:0;right:0;bottom:0;background:var(--page);display:flex;flex-direction:column">
+    <div style="height:56px;flex:none;display:flex;align-items:center;gap:4px;padding:0 4px 0 16px;border-bottom:1px solid var(--rule)"><div style="flex:1;display:flex;flex-direction:column"><span style="font-size:16px;font-weight:600">Graphing calculator</span><span style="font-size:12px;color:var(--ink2)">Question {{ qnum }} stays where you left it</span></div><button aria-label="Close calculator" style="width:48px;height:48px;border:none;background:transparent;color:var(--ink);font-family:'Material Symbols Rounded';font-size:24px">close</button></div>
+    <div style="flex:1;margin:12px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px;text-align:center">Desmos graphing calculator<br>(full-screen sheet)</span></div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ showDialog }}" hint-placeholder-val="{{ false }}">
+  <div style="position:absolute;inset:0;background:var(--scrim);display:flex;align-items:center;justify-content:center;padding:16px">
+    <sc-if value="{{ dlgExit }}"><div role="alertdialog" style="width:100%;max-width:420px;box-sizing:border-box;background:var(--page);border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:12px"><div style="font-size:20px;line-height:28px;font-weight:600">Exit the mock exam?</div><div style="font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">The timer keeps running while you're away. You have <b style="color:var(--ink);font-variant-numeric:tabular-nums">{{ clock }}</b> left, and at 0:00 the module submits automatically with the answers you've given.</div><div style="display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;padding-top:8px"><button style="white-space:nowrap;height:48px;padding:0 16px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Keep working</button><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--ink);color:var(--page);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px">logout</span>Exit</button></div></div></sc-if>
+    <sc-if value="{{ dlgSubmit }}"><div role="alertdialog" style="width:100%;max-width:440px;box-sizing:border-box;background:var(--page);border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:12px"><div style="font-size:20px;line-height:28px;font-weight:600">Submit homework?</div><div style="font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">You can submit once. After that your answers are locked and marked.</div><div style="border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink2)">do_not_disturb_on</span>3 questions unanswered</span><div style="display:flex;flex-wrap:wrap;gap:8px"><sc-for list="{{ unList }}" as="u" hint-placeholder-count="3"><button style="white-space:nowrap;height:48px;min-width:56px;padding:0 12px;border:1.5px dashed var(--ink3);border-radius:4px;background:transparent;color:var(--ink);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">Q{{ u }}</button></sc-for></div><span style="font-size:13px;color:var(--ink2)">Select one to go back to it.</span></div><div style="display:flex;justify-content:flex-end;flex-wrap:wrap;gap:8px;padding-top:8px"><button style="white-space:nowrap;height:48px;padding:0 16px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Keep working</button><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Submit homework</button></div></div></sc-if>
+    <sc-if value="{{ dlgTimeup }}"><div role="alertdialog" style="width:100%;max-width:420px;box-sizing:border-box;background:var(--page);border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:12px"><span style="font-family:'Material Symbols Rounded';font-size:28px;color:var(--warn);font-variation-settings:'FILL' 1">schedule</span><div style="font-size:20px;line-height:28px;font-weight:600">Time's up. Module 2 submitted.</div><div style="font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">Your 19 answers were saved and submitted automatically. Unanswered questions count as incorrect.</div><div style="display:flex;justify-content:flex-end;padding-top:8px"><button style="white-space:nowrap;height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Continue</button></div></div></sc-if>
+  </div>
+</sc-if>
+
+</div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:800},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;practice&quot;,&quot;homework&quot;,&quot;quiz&quot;,&quot;review&quot;,&quot;mock&quot;],&quot;default&quot;:&quot;practice&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;bp&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;tablet&quot;,&quot;laptop&quot;],&quot;default&quot;:&quot;laptop&quot;,&quot;tsType&quot;:&quot;'phone'|'tablet'|'laptop'&quot;},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;correct&quot;,&quot;miss1&quot;,&quot;miss2&quot;,&quot;empty&quot;,&quot;hw&quot;,&quot;saving&quot;,&quot;offline&quot;,&quot;failed&quot;,&quot;submit&quot;,&quot;hwnav&quot;,&quot;loading&quot;,&quot;quiz&quot;,&quot;quizwarn&quot;,&quot;quiznav&quot;,&quot;incorrect&quot;,&quot;revnav&quot;,&quot;mcq&quot;,&quot;blank&quot;,&quot;answered&quot;,&quot;marked&quot;,&quot;elim&quot;,&quot;phonewarn&quot;,&quot;spr&quot;,&quot;navigator&quot;,&quot;review&quot;,&quot;warning&quot;,&quot;desmos&quot;,&quot;exit&quot;,&quot;timeup&quot;,&quot;resume&quot;],&quot;default&quot;:&quot;miss1&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const QS = {
+  lin: { topic: '4.2 Linear equations in one variable', ex: '4.2 · Ex 7', diff: 'M', skill: 'Linear equations', type: 'mcq',
+    stem: 'If \\(3x - 7 = 2x + 5\\), what is the value of \\(x\\)?', choices: ['\\(2\\)', '\\(12\\)', '\\(-2\\)', '\\(-12\\)'], correct: 1,
+    hint: 'Get every \\(x\\) term on one side and every number on the other. A term changes sign when it crosses the equals sign.',
+    steps: [{ n: '1', t: '3x - 7 = 2x + 5', note: 'Start from the equation as given.' }, { n: '2', t: 'x - 7 = 5', note: 'Subtract \\(2x\\) from both sides.' }, { n: '3', t: 'x = 12', note: 'Add 7 to both sides. The \\(-7\\) becomes \\(+7\\) on the right.' }],
+    answerTex: 'x = 12', arabic: 'نطرح \\(2x\\) من الطرفين فنحصل على \\(x - 7 = 5\\)، ثم نضيف 7 للطرفين فيكون \\(x = 12\\).' },
+  rat: { topic: '5.3 Rational expressions', ex: '5.3 · Ex 7', diff: 'E', skill: 'Equivalent expressions', type: 'mcq',
+    stem: 'Which expression is equivalent to', block: '\\dfrac{x^2 - 9}{x + 3}', stem2: 'for \\(x \\neq -3\\)?', choices: ['\\(x - 3\\)', '\\(x + 3\\)', '\\(x - 9\\)', '\\(x^2 - 3\\)'], correct: 0,
+    steps: [{ n: '1', t: '\\dfrac{x^2 - 9}{x + 3} || = \\dfrac{(x - 3)(x + 3)}{x + 3} || = x - 3', note: 'Factor the top as a difference of squares, then cancel \\(x + 3\\). Cancelling is allowed because \\(x \\neq -3\\).' }, { n: '2', t: '\\dfrac{4^2 - 9}{4 + 3} || = \\dfrac{7}{7} || = 1 || = 4 - 3', note: 'Check with any allowed value, here \\(x = 4\\).' }],
+    answerTex: 'x - 3' },
+  word: { type: 'mcq', diff: 'M', skill: 'Linear models', stem: 'A school club is selling tickets for a charity concert. Student tickets cost $6 each and adult tickets cost $10 each. The club printed 400 tickets and must pay a fixed hall rental fee of $450 from the ticket money. On the first day, the club sold 120 student tickets and 85 adult tickets. The organizers expect that every remaining ticket will be sold, and that the remaining tickets will sell in the same ratio of student tickets to adult tickets as on the first day. Let \\(s\\) be the total number of student tickets sold and \\(a\\) be the total number of adult tickets sold by the end of the sale, so that \\(s + a = 400\\). Based on the organizers\' expectations, which of the following is closest to the amount of money, in dollars, that the club will have for the charity after paying the hall rental fee?',
+    choices: ['$2,160', '$2,613', '$3,063', '$3,513'], correct: 1 },
+  slope: { type: 'spr', diff: 'E', skill: 'Slope', stem: 'A line passes through \\((0, 1)\\) and \\((3, 3)\\). What is its slope?' },
+  tri: { type: 'spr', diff: 'E', skill: 'Pythagorean theorem', figure: true, stem: 'The right triangle shown has legs of length 6 and 8. What is the length of the hypotenuse?' }
+};
+const pad = n => String(n).padStart(2, '0');
+const fmt = s => pad(Math.floor(s / 60)) + ':' + pad(s % 60);
+const mss = s => Math.floor(s / 60) + ':' + pad(s % 60);
+const SETS = { mock: { n: 22, UN: [9, 18, 21], MK: [7, 12, 18] }, quiz: { n: 12, UN: [7, 10], MK: [5] }, homework: { n: 20, UN: [9, 14, 18], MK: [] }, review: { n: 12, I: [3, 8], U: [10] } };
+const VIEWS = {
+  practice: {
+    correct: { q: 'rat', state: 'correct', sel: 0, worked: true, note: 'green', noteText: 'Right. Factor first, then cancel. On Rep 8, try it without writing the factored form.', primary: 'Next' },
+    miss1: { q: 'lin', state: 'miss1', first: 2, hint: true, note: 'red', noteText: 'Not quite. Watch what happens to \\(-7\\) when it crosses the equals sign.', primary: 'Check', off: true },
+    miss2: { q: 'lin', state: 'miss2', first: 2, sel: 3, worked: true, note: 'red', noteText: 'The answer is 12. Twice now the \\(-7\\) kept its sign as it crossed the equals sign. Reread Rule 4.2, then do Rep 8: same move, new numbers.', noteAction: 'Open Rule 4.2', primary: 'Next' },
+    empty: { q: 'lin', empty: true }
+  },
+  mock: {
+    mcq: { q: 'lin', num: 5, left: 1634, sel: 1, elim: [3], elimOn: true, device: true },
+    blank: { q: 'lin', num: 5, left: 1634 },
+    answered: { q: 'lin', num: 5, left: 1634, sel: 1 },
+    marked: { q: 'lin', num: 5, left: 1634, sel: 1, marked: true },
+    elim: { q: 'lin', num: 5, left: 1634, elim: [0, 3], elimOn: true },
+    phonewarn: { q: 'lin', num: 1, left: 2100, device: true },
+    navigator: { q: 'lin', num: 5, left: 1634, sel: 1, elim: [3], elimOn: true, nav: true },
+    exit: { q: 'lin', num: 5, left: 1634, sel: 1, elim: [3], elimOn: true, dialog: 'exit' },
+    spr: { q: 'slope', num: 14, left: 990, spr: '2/3', focus: true },
+    desmos: { q: 'rat', num: 9, left: 1325, desmos: true },
+    warning: { q: 'tri', num: 18, left: 299, warn: true, marked: true },
+    review: { review: true, left: 401 },
+    timeup: { q: 'slope', num: 14, left: 0, spr: '2/3', dialog: 'timeup', warnClock: true },
+    resume: { q: 'word', num: 3, left: 760, sel: 1, resume: true }
+  },
+  quiz: {
+    quiz: { q: 'lin', num: 4, left: 870, sel: 1, elim: [3], elimOn: true },
+    quizwarn: { q: 'rat', num: 11, left: 281, warn: true, marked: true, sel: 0 },
+    quiznav: { q: 'lin', num: 4, left: 870, sel: 1, nav: true }
+  },
+  homework: {
+    hw: { q: 'lin', num: 6, sel: 1, save: 'saved' },
+    saving: { q: 'slope', num: 7, spr: '2/3', save: 'saving' },
+    offline: { q: 'rat', num: 8, sel: 0, save: 'offline' },
+    failed: { q: 'rat', num: 8, sel: 0, save: 'failed' },
+    submit: { q: 'lin', num: 20, sel: 1, save: 'saved', dialog: 'submit' },
+    hwnav: { q: 'lin', num: 6, sel: 1, save: 'saved', nav: true },
+    loading: { q: 'lin', num: 6, loading: true, save: 'saving' }
+  },
+  review: {
+    incorrect: { q: 'lin', num: 3, state: 'rev', sel: 3, worked: true, note: 'red', noteText: 'You moved \\(-7\\) without changing its sign. Reread Rule 4.2, then redo HW 6 before the next quiz.', time: 221 },
+    correct: { q: 'rat', num: 5, state: 'rev', sel: 0, worked: true, note: 'green', noteText: 'Right, and in under a minute. Factoring first is the fast route here.', time: 52 },
+    revnav: { q: 'lin', num: 3, state: 'rev', sel: 3, nav: true, time: 221 }
+  }
+};
+const SAVE = { saved: ['cloud_done', 'Saved'], saving: ['progress_activity', 'Saving…'], offline: ['cloud_off', 'Offline — will sync'], failed: ['error', "Couldn't save"] };
+function buildChoices(q, cfg) {
+  return (q.choices || []).map((text, i) => {
+    let v = 'Default', label = '';
+    const st = cfg.state;
+    if (st === 'correct') { if (i === q.correct) { v = 'Correct'; label = 'Correct'; } else v = 'Dim'; }
+    else if (st === 'miss1') { if (i === cfg.first) { v = 'Wrong'; label = 'Incorrect'; } }
+    else if (st === 'miss2') { if (i === q.correct) { v = 'Answer'; label = 'Correct answer'; } else if (i === cfg.first) { v = 'Wrong'; label = '1st try'; } else if (i === cfg.sel) { v = 'Wrong'; label = 'Your answer'; } else v = 'Dim'; }
+    else if (st === 'rev') { if (i === q.correct && i === cfg.sel) { v = 'Correct'; label = 'Your answer · Correct'; } else if (i === q.correct) { v = 'Answer'; label = 'Correct answer'; } else if (i === cfg.sel) { v = 'Wrong'; label = 'Your answer'; } else v = 'Dim'; }
+    else { if ((cfg.elim || []).includes(i)) v = 'Elim'; else if (i === cfg.sel) v = 'Sel'; }
+    return { L: 'ABCD'[i], text, label, strike: !!cfg.elimOn, vDefault: v === 'Default', vSel: v === 'Sel', vElim: v === 'Elim', vCorrect: v === 'Correct', vWrong: v === 'Wrong', vAnswer: v === 'Answer', vDim: v === 'Dim' };
+  });
+}
+function cells(S, cur, rev) {
+  return Array.from({ length: S.n }, (_, k) => {
+    const i = k + 1;
+    if (rev) { const r = S.I.includes(i) ? 'I' : S.U.includes(i) ? 'U' : 'C'; return { n: i, cur: i === cur, rC: r === 'C', rI: r === 'I', rU: r === 'U' }; }
+    const un = S.UN.includes(i), mk = S.MK.includes(i);
+    const v = i === cur ? 'Cur' : (mk && un) ? 'Mk' : mk ? 'AnsMk' : un ? 'Un' : 'Ans';
+    return { n: i, cCur: v === 'Cur', cUn: v === 'Un', cAns: v === 'Ans', cMk: v === 'Mk', cAnsMk: v === 'AnsMk' };
+  });
+}
+class Component extends DCLogic {
+  rootRef = React.createRef();
+  componentDidMount() {
+    this.math(); let ready = 0, ticks = 0;
+    this.iv = setInterval(() => { ticks++; if (window.katex && window.BookletMath) { this.math(); ready++; } if (ready > 15 || ticks > 200) clearInterval(this.iv); }, 400);
+  }
+  componentDidUpdate() { this.math(); }
+  componentWillUnmount() { clearInterval(this.iv); }
+  math() { if (window.katex && window.BookletMath && this.rootRef.current) window.BookletMath.render(this.rootRef.current); }
+  renderVals() {
+    const mode = VIEWS[this.props.mode] ? this.props.mode : 'practice';
+    const bp = this.props.bp ?? 'laptop';
+    const V = VIEWS[mode];
+    const cfg = V[this.props.view] || V[Object.keys(V)[0]];
+    const isPractice = mode === 'practice', isHw = mode === 'homework', isRev = mode === 'review', isQuiz = mode === 'quiz';
+    const exam = mode === 'mock' || isQuiz, light = !exam;
+    const isPhone = bp === 'phone', isWide = !isPhone, isLaptop = bp === 'laptop';
+    const S = SETS[mode] || SETS.mock;
+    const num = cfg.num || 1;
+    const raw = QS[cfg.q || 'lin'];
+    const ex = isHw ? '4.2 · HW ' + num : isRev ? '4.2 · Quiz Q' + num : raw.ex;
+    const q = Object.assign({}, raw, { ex, topic: raw.topic || '4.2 Linear equations in one variable', isMcq: raw.type === 'mcq', isSpr: raw.type === 'spr', diffE: raw.diff === 'E', diffM: raw.diff === 'M' });
+    const isEmpty = !!cfg.empty, isReview = !!cfg.review, isLoading = !!cfg.loading, isQuestion = !isEmpty && !isReview && !isLoading;
+    const keypad = exam && isPhone && !!cfg.focus;
+    const dialog = cfg.dialog || '';
+    const warnClock = !!cfg.warn || !!cfg.warnClock;
+    const clockHidden = mode === 'mock' && cfg === V.desmos && bp === 'tablet';
+    const note = (isPractice || isRev) ? cfg.note : '';
+    const total = isQuiz ? 1080 : 2100;
+    const answered = S.n - (S.UN ? S.UN.length : 0);
+    const F = { phone: ['360px', '780px', '10px solid #1A1D24', '32px'], tablet: ['768px', '1024px', '10px solid #1A1D24', '24px'], laptop: ['100%', '100%', 'none', '0'] }[bp] || ['100%', '100%', 'none', '0'];
+    const sv = SAVE[cfg.save] || SAVE.saved;
+    const reps = isPractice ? Array.from({ length: 10 }, (_, i) => ({ done: i < 6, cur: i === 6, todo: i > 6 }))
+      : isHw ? cells(S, num, false).map(c => ({ done: c.cAns || c.cAnsMk, cur: c.cCur, todo: c.cUn || c.cMk }))
+      : Array.from({ length: S.n }, (_, i) => ({ done: i < num - 1, cur: i === num - 1, todo: i >= num }));
+    const t = cfg.time || 0;
+    return {
+      sbw: isLaptop ? 'thin' : 'none', frameW: F[0], frameH: F[1], bezel: F[2], frameR: F[3], pad: this.props.pad ?? (isLaptop ? '0' : '24px'),
+      rootRef: this.rootRef, q, isPhone, isLaptop, isPractice, isMock: exam, isHw,
+      lPhone: light && isPhone, lWide: light && isWide, mPhone: exam && isPhone, mWide: exam && isWide,
+      modeLabel: isPractice ? 'Practice' : isHw ? 'Homework · 20 questions' : 'Quiz review',
+      progressText: isPractice ? 'Rep 7 of 10 — Homework unlocks at 10' : isHw ? answered + ' of 20 answered' : 'Quiz 4.2 · 9 of 12 correct',
+      reps, showSave: isHw, saveIcon: sv[0], saveText: sv[1], saveFailed: cfg.save === 'failed',
+      barTitle: isQuiz ? 'Quiz · 4.2 Linear equations' : 'Math · Module 2', barShort: isQuiz ? 'Quiz 4.2' : 'Module 2', barSub: isQuiz ? '12 questions' : 'Math',
+      exHeader: isPractice || isHw || isRev, examHeader: exam,
+      isEmpty, isReview, isQuestion, isLoading,
+      choices: buildChoices(q, cfg), qnum: num, qTotal: S.n,
+      marked: !!cfg.marked, notMarked: !cfg.marked, elimOn: !!cfg.elimOn, elimOff: !cfg.elimOn,
+      sprValue: cfg.spr || '', sprFocused: !!cfg.spr && !!cfg.focus, sprFilled: !!cfg.spr && !cfg.focus, sprEmpty: !cfg.spr,
+      hasPreview: !!cfg.spr, sprPreview: '\\dfrac{2}{3}',
+      noteText: cfg.noteText || '', noteAction: cfg.noteAction || '', hasNoteAction: !!cfg.noteAction,
+      noteInlineRed: note === 'red' && !isLaptop, noteInlineGreen: note === 'green' && !isLaptop,
+      noteAsideRed: note === 'red' && isLaptop && isQuestion, noteAsideGreen: note === 'green' && isLaptop && isQuestion,
+      showHint: !!cfg.hint, hideHint: !cfg.hint, showWorked: !!cfg.worked, hasArabic: !!cfg.worked && !!raw.arabic,
+      revQ: isRev && isQuestion, revTime: mss(t), revPct: Math.min(100, t / 360 * 100).toFixed(1) + '%', revFlag: t > 180, revBarColor: t > 180 ? 'var(--warn)' : 'var(--ink2)',
+      primaryLabel: cfg.primary || 'Next', primaryOn: !cfg.off, primaryOff: !!cfg.off,
+      footMid: isPractice ? 'Rep 7 of 10' : 'Question ' + num + ' of ' + S.n,
+      clock: fmt(cfg.left || 0), budgetPct: (((total - (cfg.left || 0)) / total) * 100).toFixed(1) + '%',
+      clockWarn: exam && warnClock, clockNormal: exam && !warnClock && !clockHidden, clockHidden, barNormal: exam && !warnClock,
+      showDeviceBanner: exam && isPhone && !!cfg.device, isWarn: exam && !!cfg.warn, isResume: exam && !!cfg.resume,
+      desmosWide: exam && isWide && !!cfg.desmos, desmosPhone: exam && isPhone && !!cfg.desmos, desmosOn: !!cfg.desmos, desmosOff: !cfg.desmos,
+      navWide: exam && isWide && !!cfg.nav, navPhone: isPhone && !!cfg.nav, sideNav: (isHw || isRev) && isWide,
+      navTitle: isQuiz ? 'Quiz 4.2 questions' : isHw ? 'Homework 4.2' : isRev ? 'Quiz 4.2 results' : 'Module 2 questions',
+      navBtn: isHw ? 'Submit homework' : isRev ? 'Back to results' : 'Go to review page',
+      legendRev: isRev, legendExam: !isRev, hwSummary: answered + ' of 20 answered · 3 unanswered. You can submit once.',
+      navCells: cells(S, num, isRev), reviewCells: cells(SETS.mock, 0, false), unList: [9, 14, 18],
+      showDialog: !!dialog, dlgExit: dialog === 'exit', dlgTimeup: dialog === 'timeup', dlgSubmit: dialog === 'submit',
+      footPPhone: light && isPhone && !isEmpty, footPWide: light && isWide && !isEmpty,
+      footMPhone: exam && isPhone && !keypad, footMWide: exam && isWide,
+      footQuestion: !isReview, footReview: isReview, keypad
+    };
+  }
+}
+</script>
+</body>
+</html>

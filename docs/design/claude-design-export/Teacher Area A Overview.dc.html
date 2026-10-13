@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="padding:56px;display:flex;flex-direction:column;gap:72px;color:#1A1D24;width:max-content">
+<header style="display:flex;flex-direction:column;gap:8px;max-width:960px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">Session 10 · Teacher area A · T-01, T-09 to T-12</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Overview · 1280, dashboard and matrix also 1440</h1>
+  <div style="font-size:16px;line-height:24px;color:#4B5262;text-wrap:pretty">Monitoring screens at admin density: 44–56 px rows, 1px rules, status as icon plus text. The matrix scrolls inside its own frame with the header rows and student column pinned. Every screen has an empty and a loading state. Names, counts and dates are sample content, marked with a Sample data tag in each top bar.</div>
+  <nav style="display:flex;gap:20px;font-size:14px;font-weight:600"><a href="Teacher Area A.dc.html">Single screen</a><a href="Teacher Area B Overview.dc.html">Teacher area B</a><a href="Teacher Area C Overview.dc.html">Teacher area C</a><a href="Components.dc.html">Components</a></nav>
+</header>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="5">
+<section data-screen-label="{{ r.label }}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid #1A1D24;padding-top:12px"><span style="font-size:14px;font-weight:600;color:#1F4FD6">{{ r.no }}</span><h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600">{{ r.title }}</h2><span style="font-size:14px;color:#4B5262">{{ r.note }}</span></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <sc-for list="{{ r.states }}" as="s" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">{{ s.lab }}</span><div style="width:{{ s.w }};height:{{ r.h }};background:#FFFFFF;outline:1px solid #C9CED8"><dc-import name="Teacher Area A" screen="{{ r.screen }}" state="{{ s.state }}" hint-size="1280px,900px" style="width:{{ s.w }};height:{{ r.h }}"></dc-import></div></div>
+    </sc-for>
+  </div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROWS = [
+  ['dash', 'T-01 Dashboard', 'KPIs for the last 7 days and four alert groups', 900, [['default', '1280'], ['default', '1440', 1440], ['empty', 'Empty · no students'], ['loading', 'Loading']]],
+  ['matrix', 'T-09 Completion matrix', 'Students × topic steps; filters for late, failing, inactive N days; sticky header and first column; export', 900, [['default', '1280'], ['default', '1440', 1440], ['empty', 'Empty · filters match nobody'], ['loading', 'Loading']]],
+  ['student', 'T-10 Student detail', 'Progress with override unlock, attempts, enrolments with extend, devices with revoke and reset, suspend', 1000, [['default', 'Detail'], ['alt', 'Extend access'], ['confirm', 'Suspend · confirm'], ['empty', 'Empty · new student'], ['loading', 'Loading']]],
+  ['insights', 'T-11 Class insights', 'Hardest questions with most-chosen wrong option; students stuck on a topic for more than N days', 1060, [['default', 'Insights'], ['empty', 'Empty · not enough answers'], ['loading', 'Loading']]],
+  ['inbox', 'T-12 AI escalations', 'Question, the student’s messages and the AI answer; reply or add to the next live session', 900, [['default', 'Open escalation'], ['alt', 'Replied · added to live session'], ['empty', 'Empty · inbox clear'], ['loading', 'Loading']]]
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: ROWS.map(([screen, title, note, h, states], i) => { const no = String(i + 1).padStart(2, '0');
+      return { screen, title, note, no, h: h + 'px', label: `${no} ${title}`, states: states.map(([state, lab, w]) => ({ state, lab, w: (w || 1280) + 'px' })) }; }) };
+  }
+}
+</script>
+</body>
+</html>

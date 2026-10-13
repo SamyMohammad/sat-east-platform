@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<style>body{margin:0;background:#FFFFFF;color:#1A1D24;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}button{font-family:inherit;cursor:pointer}a{color:#1F4FD6}a:hover{color:#15379A}.katex{font-size:1.08em}</style>
+</helmet>
+<div ref="{{ rootRef }}" style="container-type:inline-size;width:100%;background:#FFFFFF;color:#1A1D24;font-family:'Noto Sans',system-ui,sans-serif">
+<div style="--px:clamp(20px,5.6cqw,80px);--sec:clamp(72px,8.4cqw,128px);--h2:clamp(30px,3.4cqw,48px);display:flex;flex-direction:column">
+
+<!-- HEADER -->
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ false }}">
+<header style="height:56px;display:flex;align-items:center;gap:10px;padding:0 4px 0 20px;border-bottom:1px solid #D8DDE6">
+  <span style="flex:none;width:32px;height:32px;border-radius:4px;background:#1F4FD6;display:flex;align-items:center;justify-content:center;color:#FFFFFF;font-size:13px;font-weight:700;letter-spacing:-.03em">AE</span>
+  <span style="flex:1;min-width:0;font-size:15px;font-weight:700;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Abdelrahman Elmenshawy</span>
+  <button aria-label="Menu" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:#1A1D24;font-family:'Material Symbols Rounded';font-size:24px">menu</button>
+</header>
+</sc-if>
+<sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
+<header style="border-bottom:1px solid #D8DDE6">
+  <div style="max-width:1440px;box-sizing:border-box;margin:0 auto;padding:0 var(--px);height:72px;display:flex;align-items:center;gap:40px">
+    <a href="#" style="color:#1A1D24;text-decoration:none;font-size:20px;line-height:28px;font-weight:700;letter-spacing:-.02em;white-space:nowrap">Abdelrahman <span style="text-decoration:underline;text-decoration-color:#1F4FD6;text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></a>
+    <nav style="flex:1;display:flex;gap:28px;font-size:15px;font-weight:500">
+      <sc-for list="{{ nav }}" as="n" hint-placeholder-count="4"><a href="#" style="color:{{ n.c }};text-decoration:none;font-weight:{{ n.w }}">{{ n.label }}</a></sc-for>
+    </nav>
+    <div style="display:flex;align-items:center;gap:8px">
+      <a href="#" style="height:48px;padding:0 16px;display:flex;align-items:center;font-size:15px;font-weight:600;text-decoration:none;color:#1F4FD6">Sign in</a>
+      <a href="#" style="height:48px;padding:0 20px;border-radius:4px;background:#1F4FD6;color:#FFFFFF;display:flex;align-items:center;font-size:15px;font-weight:600;text-decoration:none">Try topic 1.1 free</a>
+    </div>
+  </div>
+</header>
+</sc-if>
+
+<!-- ============ LANDING ============ -->
+<sc-if value="{{ isLanding }}" hint-placeholder-val="{{ true }}">
+<main style="display:flex;flex-direction:column">
+
+<section data-screen-label="Landing hero" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:clamp(40px,6cqw,96px) var(--px) var(--sec);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:clamp(48px,5.6cqw,80px);align-items:center">
+  <div style="display:flex;flex-direction:column;gap:28px;min-width:0">
+    <span style="font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">SAT Math · EST Math</span>
+    <h1 style="margin:0;font-size:clamp(46px,5.6cqw,82px);line-height:1.04;font-weight:700;letter-spacing:-.035em">Abdelrahman<br><span style="text-decoration:underline;text-decoration-color:#1F4FD6;text-decoration-thickness:.075em;text-underline-offset:.14em">Elmenshawy</span></h1>
+    <p style="margin:0;max-width:560px;font-size:clamp(20px,1.95cqw,28px);line-height:1.38;font-weight:400;text-wrap:pretty">Every topic learned, practised, tested and diagnosed — then rehearsed under exam conditions.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px">
+      <a href="#" style="flex:{{ btnFlex }};height:52px;padding:0 24px;border-radius:4px;background:#1F4FD6;color:#FFFFFF;display:flex;align-items:center;justify-content:center;gap:8px;font-size:16px;font-weight:600;text-decoration:none"><span style="font-family:'Material Symbols Rounded';font-size:22px">play_circle</span>Start the free topic</a>
+      <a href="#courses" style="flex:{{ btnFlex }};height:52px;padding:0 24px;border-radius:4px;border:1px solid #1A1D24;box-sizing:border-box;color:#1A1D24;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;text-decoration:none">See the courses</a>
+    </div>
+    <span style="font-size:14px;line-height:20px;color:#4B5262">Topic 1.1 is free in both courses. No card needed.</span>
+  </div>
+
+  <figure style="margin:0;display:flex;flex-direction:column;gap:12px;min-width:0">
+    <div style="border:1px solid #1A1D24;display:flex;flex-direction:column">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid #D8DDE6;font-size:13px;line-height:18px">
+        <span style="font-weight:700;color:#1F4FD6;font-variant-numeric:tabular-nums">1.1 · Ex 7</span><span style="color:#4B5262">Practice</span><span style="flex:1"></span><span style="color:#4B5262;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Solving linear equations</span>
+      </div>
+      <div style="display:flex">
+        <div style="flex:1;min-width:0;padding:24px 20px;display:flex;flex-direction:column;gap:20px">
+          <p style="margin:0;font-size:20px;line-height:32px;text-wrap:pretty">If <span data-tex="3(x-2)=2x+5"></span>, what is the value of <span data-tex="x"></span>?</p>
+          <div role="radiogroup" style="display:flex;flex-direction:column;gap:8px">
+            <sc-for list="{{ choices }}" as="c" hint-placeholder-count="4">
+              <div role="radio" aria-checked="{{ c.picked }}" style="min-height:48px;box-sizing:border-box;padding:0 14px;border:{{ c.b }};border-radius:4px;display:flex;align-items:center;gap:14px;font-size:18px">
+                <span style="flex:none;width:28px;height:28px;border-radius:50%;border:1px solid {{ c.lc }};box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:{{ c.lc }}">{{ c.l }}</span>
+                <span style="flex:1" data-tex="{{ c.tex }}"></span>
+                <sc-if value="{{ c.wrong }}"><span style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:#D2343A"><span style="font-family:'Material Symbols Rounded';font-size:20px">close</span>Your answer</span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ isPhone }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px;padding-top:16px;border-top:1px solid #D8DDE6;color:#D2343A">
+              <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase"><span style="font-family:'Material Symbols Rounded';font-size:18px">edit</span>Teacher's note</span>
+              <p style="margin:0;font-size:16px;line-height:25px;text-wrap:pretty">Close. <span data-tex="3(x-2)"></span> is <span data-tex="3x-6"></span>, not <span data-tex="3x+6"></span>. Fix the sign in step 1 and try again.</p>
+              <a href="#" style="font-size:14px;font-weight:600;padding:8px 0">Show worked solution</a>
+            </div>
+          </sc-if>
+        </div>
+        <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
+          <aside style="flex:none;width:clamp(170px,15cqw,210px);box-sizing:border-box;border-left:1px solid #D8DDE6;padding:24px 20px;display:flex;flex-direction:column;gap:8px;color:#D2343A">
+            <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase"><span style="font-family:'Material Symbols Rounded';font-size:18px">edit</span>Teacher's note</span>
+            <p style="margin:0;font-size:15px;line-height:24px;text-wrap:pretty">Close. <span data-tex="3(x-2)"></span> is <span data-tex="3x-6"></span>, not <span data-tex="3x+6"></span>. Fix the sign in step 1 and try again.</p>
+            <a href="#" style="font-size:14px;font-weight:600;padding-top:4px">Show worked solution</a>
+          </aside>
+        </sc-if>
+      </div>
+    </div>
+    <figcaption style="font-size:14px;line-height:20px;color:#4B5262;text-wrap:pretty">Every wrong answer gets a note like this, in the teacher's voice, naming the next step.</figcaption>
+  </figure>
+</section>
+
+<section id="how" data-screen-label="How it works" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:0 var(--px) var(--sec);display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-top:1px solid #1A1D24;padding-top:14px;font-size:14px;font-weight:600"><span style="color:#1F4FD6;font-variant-numeric:tabular-nums">01</span><span>How it works</span></div>
+    <h2 style="margin:0;max-width:820px;font-size:var(--h2);line-height:1.15;font-weight:600;letter-spacing:-.02em;text-wrap:balance">One path through every topic. Each step opens the next.</h2>
+  </div>
+  <ol style="margin:0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,200px),1fr));gap:0 24px">
+    <sc-for list="{{ steps }}" as="s" hint-placeholder-count="5">
+      <li style="display:flex;flex-direction:column;gap:10px;padding:20px 0 24px;border-top:2px solid #1A1D24">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:14px;font-weight:700;color:#1F4FD6;font-variant-numeric:tabular-nums">{{ s.n }}</span><span style="font-family:'Material Symbols Rounded';font-size:22px;color:#1A1D24">{{ s.icon }}</span></div>
+        <span style="font-size:22px;line-height:28px;font-weight:600">{{ s.name }}</span>
+        <span style="font-size:15px;line-height:23px;color:#4B5262;text-wrap:pretty">{{ s.what }}</span>
+        <span style="display:flex;align-items:flex-start;gap:6px;font-size:14px;line-height:20px;font-weight:600;padding-top:4px"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:20px;color:#1F4FD6">{{ s.gi }}</span>{{ s.gate }}</span>
+      </li>
+    </sc-for>
+  </ol>
+  <div style="background:#EEF2F8;padding:24px clamp(20px,2.4cqw,32px);display:flex;flex-wrap:wrap;align-items:center;gap:16px 32px">
+    <div style="display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#1F4FD6">timer</span>Final phase</div>
+    <p style="margin:0;flex:1 1 320px;font-size:18px;line-height:27px;text-wrap:pretty">After the last topic, you rehearse the real thing: adaptive mock exams, timed, with the Desmos calculator built in.</p>
+  </div>
+</section>
+
+<section data-screen-label="What makes it different" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:0 var(--px) var(--sec);display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-top:1px solid #1A1D24;padding-top:14px;font-size:14px;font-weight:600"><span style="color:#1F4FD6;font-variant-numeric:tabular-nums">02</span><span>What makes it different</span></div>
+    <h2 style="margin:0;max-width:820px;font-size:var(--h2);line-height:1.15;font-weight:600;letter-spacing:-.02em;text-wrap:balance">One teacher, one booklet, and a report that shows you what to fix.</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:40px clamp(24px,3.4cqw,48px)">
+    <sc-for list="{{ diffs }}" as="d" hint-placeholder-count="3">
+      <div style="display:flex;flex-direction:column;gap:12px;padding-top:20px;border-top:1px solid #D8DDE6">
+        <span style="font-size:clamp(40px,3.6cqw,56px);line-height:1;font-weight:300;color:#1F4FD6;font-variant-numeric:tabular-nums;letter-spacing:-.03em">{{ d.n }}</span>
+        <h3 style="margin:0;font-size:22px;line-height:29px;font-weight:600">{{ d.t }}</h3>
+        <p style="margin:0;font-size:16px;line-height:25px;color:#4B5262;text-wrap:pretty">{{ d.b }}</p>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section id="courses" data-screen-label="Courses" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:0 var(--px) var(--sec);display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-top:1px solid #1A1D24;padding-top:14px;font-size:14px;font-weight:600"><span style="color:#1F4FD6;font-variant-numeric:tabular-nums">03</span><span>Courses</span></div>
+    <h2 style="margin:0;font-size:var(--h2);line-height:1.15;font-weight:600;letter-spacing:-.02em">Pick the test you're sitting.</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));border:1px solid #1A1D24">
+    <sc-for list="{{ courses }}" as="c" hint-placeholder-count="2">
+      <article style="padding:clamp(24px,3cqw,40px);display:flex;flex-direction:column;gap:24px;border-left:{{ c.bl }};border-top:{{ c.bt }}">
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <h3 style="margin:0;font-size:clamp(32px,2.8cqw,40px);line-height:1.1;font-weight:700;letter-spacing:-.025em">{{ c.name }}</h3>
+          <span style="font-size:15px;line-height:22px;color:#4B5262">{{ c.meta }}</span>
+        </div>
+        <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;border-top:1px solid #D8DDE6">
+          <sc-for list="{{ c.units }}" as="u" hint-placeholder-count="5">
+            <li style="display:grid;grid-template-columns:28px minmax(0,1fr) auto;gap:12px;padding:10px 0;border-bottom:1px solid #D8DDE6;font-size:15px;line-height:22px"><span style="font-weight:600;color:#1F4FD6;font-variant-numeric:tabular-nums">{{ u.n }}</span><span>{{ u.name }}</span><span style="color:#4B5262;font-variant-numeric:tabular-nums">{{ u.count }}</span></li>
+          </sc-for>
+        </ol>
+        <div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:16px;margin-top:auto">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;color:#4B5262">Full course</span><span style="font-size:28px;line-height:34px;font-weight:600;font-variant-numeric:tabular-nums">{{ c.price }}</span></div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;flex:{{ btnFlex }}">
+            <a href="#" style="flex:{{ btnFlex }};height:48px;padding:0 18px;border-radius:4px;border:1px solid #1A1D24;box-sizing:border-box;color:#1A1D24;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;text-decoration:none">Try 1.1 free</a>
+            <a href="#" style="flex:{{ btnFlex }};height:48px;padding:0 18px;border-radius:4px;background:#1F4FD6;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;text-decoration:none">See the syllabus</a>
+          </div>
+        </div>
+      </article>
+    </sc-for>
+  </div>
+  <span style="font-size:15px;line-height:22px;color:#4B5262;text-wrap:pretty">Sitting both? The SAT + EST bundle is EGP 4,000. Access lasts until your test date + 14 days, at least 60 days.</span>
+</section>
+
+<section data-screen-label="Results placeholder" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:0 var(--px) var(--sec);display:flex;flex-direction:column;gap:40px">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-top:1px solid #1A1D24;padding-top:14px;font-size:14px;font-weight:600"><span style="color:#1F4FD6;font-variant-numeric:tabular-nums">04</span><span>Results</span></div>
+    <h2 style="margin:0;font-size:var(--h2);line-height:1.15;font-weight:600;letter-spacing:-.02em">Student results</h2>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:16px">
+    <sc-for list="{{ slots }}" as="s" hint-placeholder-count="3">
+      <div style="min-height:200px;border:1px solid #D8DDE6;background:repeating-linear-gradient(135deg,#F3F4F7 0 10px,#FFFFFF 10px 20px);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:20px;font-family:'Noto Sans Mono',monospace;font-size:12px;line-height:18px;color:#4B5262">
+        <span style="font-weight:500;color:#1A1D24">PLACEHOLDER · REAL RESULT {{ s }}</span>
+        <span>Student name, test, score, test date. Published only with written permission.</span>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section id="teacher" data-screen-label="Teacher bio" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:0 var(--px) var(--sec);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:clamp(32px,5.6cqw,80px);align-items:start">
+  <div style="aspect-ratio:4/5;max-height:640px;border:1px solid #D8DDE6;background:repeating-linear-gradient(135deg,#F3F4F7 0 10px,#FFFFFF 10px 20px);display:flex;align-items:flex-end;padding:20px;font-family:'Noto Sans Mono',monospace;font-size:12px;line-height:18px;color:#4B5262"><span><span style="font-weight:500;color:#1A1D24">PLACEHOLDER · TEACHER PHOTO</span><br>Portrait 4:5, min 1200 × 1500, plain background</span></div>
+  <div style="display:flex;flex-direction:column;gap:24px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-top:1px solid #1A1D24;padding-top:14px;font-size:14px;font-weight:600"><span style="color:#1F4FD6;font-variant-numeric:tabular-nums">05</span><span>The teacher</span></div>
+    <h2 style="margin:0;font-size:var(--h2);line-height:1.15;font-weight:600;letter-spacing:-.02em">Abdelrahman Elmenshawy</h2>
+    <p style="margin:0;max-width:600px;font-size:clamp(18px,1.5cqw,21px);line-height:1.6;text-wrap:pretty">Abdelrahman teaches SAT and EST Math. Every lesson, booklet page and worked solution here is his, recorded and written in the order he teaches it in class.</p>
+    <div style="max-width:600px;min-height:120px;border:1px dashed #9AA1AD;padding:16px;font-family:'Noto Sans Mono',monospace;font-size:12px;line-height:18px;color:#4B5262"><span style="font-weight:500;color:#1A1D24">PLACEHOLDER · BIO FROM THE TEACHER</span><br>Background, years teaching, where he teaches. Facts only, supplied and approved by him.</div>
+    <a href="#" style="align-self:flex-start;height:48px;display:flex;align-items:center;gap:8px;font-size:16px;font-weight:600;text-decoration:none"><span style="font-family:'Material Symbols Rounded';font-size:22px">play_circle</span>Watch his free lesson, topic 1.1</a>
+  </div>
+</section>
+
+<section id="faq" data-screen-label="FAQ" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:0 var(--px) var(--sec);display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:32px clamp(32px,5.6cqw,80px);align-items:start">
+  <div style="display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:baseline;gap:14px;border-top:1px solid #1A1D24;padding-top:14px;font-size:14px;font-weight:600"><span style="color:#1F4FD6;font-variant-numeric:tabular-nums">06</span><span>Questions</span></div>
+    <h2 style="margin:0;font-size:var(--h2);line-height:1.15;font-weight:600;letter-spacing:-.02em">Before you start</h2>
+    <span style="font-size:15px;line-height:23px;color:#4B5262">Something else? <a href="#">Message us</a>.</span>
+  </div>
+  <div style="grid-column:span {{ faqSpan }};display:flex;flex-direction:column;border-top:1px solid #1A1D24">
+    <sc-for list="{{ faq }}" as="f" hint-placeholder-count="7">
+      <div style="border-bottom:1px solid #D8DDE6">
+        <button aria-expanded="{{ f.open }}" onClick="{{ f.toggle }}" style="width:100%;min-height:64px;padding:16px 0;border:none;background:transparent;color:#1A1D24;display:flex;align-items:center;gap:16px;text-align:left;font-size:18px;line-height:26px;font-weight:600"><span style="flex:1">{{ f.q }}</span><span style="flex:none;font-family:'Material Symbols Rounded';font-size:24px;font-weight:400;color:#1F4FD6">{{ f.icon }}</span></button>
+        <sc-if value="{{ f.open }}"><p style="margin:0;padding:0 40px 20px 0;font-size:16px;line-height:26px;color:#4B5262;text-wrap:pretty">{{ f.a }}</p></sc-if>
+      </div>
+    </sc-for>
+  </div>
+</section>
+</main>
+</sc-if>
+
+<!-- ============ COURSE ============ -->
+<sc-if value="{{ isCourse }}" hint-placeholder-val="{{ false }}">
+<main style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:clamp(24px,2.8cqw,40px) var(--px) var(--sec);display:flex;flex-direction:column;gap:clamp(32px,3.4cqw,48px)">
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <nav aria-label="Breadcrumb" style="display:flex;align-items:center;gap:6px;font-size:14px;color:#4B5262"><a href="#" style="text-decoration:none">Courses</a><span style="font-family:'Material Symbols Rounded';font-size:18px">chevron_right</span><span style="color:#1A1D24">{{ cp.name }}</span></nav>
+    <div role="tablist" style="display:flex;border-bottom:1px solid #D8DDE6">
+      <sc-for list="{{ cp.tabs }}" as="t" hint-placeholder-count="2"><button role="tab" aria-selected="{{ t.on }}" onClick="{{ t.go }}" style="height:48px;padding:0 20px;border:none;border-bottom:3px solid {{ t.bc }};margin-bottom:-1px;background:transparent;color:{{ t.c }};font-size:15px;font-weight:600">{{ t.label }}</button></sc-for>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ cp.cols }};gap:clamp(40px,5.6cqw,80px);align-items:start">
+    <div style="display:flex;flex-direction:column;gap:clamp(40px,4.4cqw,64px);min-width:0;order:{{ cp.mainOrder }}">
+      <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:16px">
+          <h1 style="margin:0;font-size:clamp(44px,5cqw,72px);line-height:1.05;font-weight:700;letter-spacing:-.035em">{{ cp.name }}</h1>
+          <p style="margin:0;max-width:640px;font-size:clamp(18px,1.6cqw,22px);line-height:1.5;text-wrap:pretty">{{ cp.lead }}</p>
+        </div>
+      </sc-if>
+      <section data-screen-label="Syllabus" style="display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px;border-top:1px solid #1A1D24;padding-top:14px">
+          <h2 style="margin:0;font-size:clamp(26px,2.2cqw,32px);line-height:1.2;font-weight:600;letter-spacing:-.015em">Contents</h2>
+          <span style="font-size:14px;color:#4B5262;font-variant-numeric:tabular-nums">{{ cp.count }}</span>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px;font-size:13px;line-height:18px;color:#4B5262">
+          <span style="font-weight:600;color:#1A1D24">Every topic:</span>
+          <sc-for list="{{ stepNames }}" as="s" hint-placeholder-count="5"><span style="display:flex;align-items:center;gap:8px">{{ s.name }}<sc-if value="{{ s.arrow }}"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:#9AA1AD">arrow_forward</span></sc-if></span></sc-for>
+          <span>· pass the quiz with 75% to open the next topic.</span>
+        </div>
+        <div style="display:flex;flex-direction:column;border-top:1px solid #D8DDE6">
+          <sc-for list="{{ cp.units }}" as="u" hint-placeholder-count="5">
+            <div style="border-bottom:1px solid #D8DDE6">
+              <button aria-expanded="{{ u.open }}" onClick="{{ u.toggle }}" style="width:100%;min-height:64px;padding:12px 0;border:none;background:transparent;color:#1A1D24;display:grid;grid-template-columns:auto minmax(0,1fr) auto 24px;align-items:center;gap:14px;text-align:left">
+                <span style="font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1F4FD6;white-space:nowrap">Unit {{ u.n }}</span>
+                <span style="font-size:clamp(18px,1.5cqw,21px);line-height:1.3;font-weight:600">{{ u.name }}</span>
+                <span style="font-size:14px;color:#4B5262;font-variant-numeric:tabular-nums;white-space:nowrap">{{ u.count }}</span>
+                <span style="font-family:'Material Symbols Rounded';font-size:24px;color:#4B5262">{{ u.icon }}</span>
+              </button>
+              <sc-if value="{{ u.open }}">
+                <ol style="margin:0;padding:0 0 16px;list-style:none;columns:2 300px;column-gap:48px">
+                  <sc-for list="{{ u.topics }}" as="t" hint-placeholder-count="7">
+                    <li style="break-inside:avoid;display:grid;grid-template-columns:44px minmax(0,1fr) auto;align-items:center;gap:8px;min-height:44px;font-size:16px;line-height:22px;border-top:1px solid #EEF0F4">
+                      <span style="font-weight:600;color:#4B5262;font-variant-numeric:tabular-nums">{{ t.n }}</span><span>{{ t.name }}</span>
+                      <sc-if value="{{ t.free }}"><a href="#" style="display:flex;align-items:center;gap:4px;height:32px;padding:0 10px;border-radius:4px;background:#E9EEFB;font-size:13px;font-weight:700;text-decoration:none"><span style="font-family:'Material Symbols Rounded';font-size:18px">play_circle</span>Free</a></sc-if>
+                    </li>
+                  </sc-for>
+                </ol>
+              </sc-if>
+            </div>
+          </sc-for>
+          <div style="padding:20px 0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 14px;align-items:baseline">
+            <span style="font-size:13px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#1F4FD6;white-space:nowrap">Final</span>
+            <span style="font-size:clamp(18px,1.5cqw,21px);line-height:1.3;font-weight:600">Adaptive mock exams with Desmos</span>
+            <span></span>
+            <span style="font-size:15px;line-height:22px;color:#4B5262;text-wrap:pretty">{{ cp.finalNote }}</span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <aside data-screen-label="Buy panel" style="display:flex;flex-direction:column;gap:20px;min-width:0;order:{{ cp.asideOrder }}">
+      <sc-if value="{{ isPhone }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <h1 style="margin:0;font-size:44px;line-height:1.05;font-weight:700;letter-spacing:-.035em">{{ cp.name }}</h1>
+          <p style="margin:0;font-size:18px;line-height:1.5;text-wrap:pretty">{{ cp.lead }}</p>
+        </div>
+      </sc-if>
+      <div style="border:1px solid #1A1D24;padding:clamp(20px,2cqw,28px);display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:13px;font-weight:600;color:#4B5262">{{ cp.name }} · full course</span>
+          <span style="font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums">EGP 2,400</span>
+          <span style="font-size:14px;line-height:20px;color:#4B5262">One payment. Prices in EGP for Egypt. <a href="#">Change country</a></span>
+        </div>
+        <a href="#" style="height:52px;border-radius:4px;background:#1F4FD6;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;text-decoration:none">{{ cp.buyLabel }}</a>
+        <a href="#" style="height:48px;border-radius:4px;border:1px solid #1A1D24;box-sizing:border-box;color:#1A1D24;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:600;text-decoration:none"><span style="font-family:'Material Symbols Rounded';font-size:20px">play_circle</span>Try topic 1.1 free</a>
+        <a href="#" style="align-self:center;height:44px;display:flex;align-items:center;font-size:14px;font-weight:600">Have an activation code?</a>
+        <ul style="margin:0;padding:16px 0 0;list-style:none;border-top:1px solid #D8DDE6;display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ cp.incl }}" as="i" hint-placeholder-count="5"><li style="display:flex;gap:10px;font-size:15px;line-height:22px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:22px;color:#1E7F4F">check</span><span>{{ i }}</span></li></sc-for>
+        </ul>
+        <span style="font-size:13px;line-height:19px;color:#4B5262;text-wrap:pretty">Bundle with {{ cp.other }} for EGP 4,000. Buying is on the web; in the apps, sign in or enter an activation code.</span>
+      </div>
+      <div style="background:#EEF2F8;padding:18px 20px;display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Rule · Access window</span>
+        <p style="margin:0;font-size:15px;line-height:23px;text-wrap:pretty">Access lasts until <b style="font-weight:600">your test date + 14 days</b>, and never less than <b style="font-weight:600">60 days</b> from purchase. You add your test date after you buy.</p>
+        <div style="display:flex;flex-direction:column;gap:6px;padding-top:10px;border-top:1px solid #D8DDE6">
+          <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Worked example</span>
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;font-size:14px;line-height:20px;font-variant-numeric:tabular-nums">
+            <span>Bought 12 Oct 2026, test 6 Mar 2027</span><span style="font-weight:600">until 20 Mar 2027</span>
+            <span>Bought 12 Oct 2026, test 21 Nov 2026</span><span style="font-weight:600">until 11 Dec 2026</span>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</main>
+</sc-if>
+
+<!-- ============ LEGAL ============ -->
+<sc-if value="{{ isLegal }}" hint-placeholder-val="{{ false }}">
+<main data-screen-label="Legal" style="width:100%;max-width:1440px;box-sizing:border-box;margin:0 auto;padding:clamp(24px,2.8cqw,40px) var(--px) var(--sec);display:flex;flex-direction:column;gap:clamp(28px,3cqw,40px)">
+  <div role="tablist" style="display:flex;border-bottom:1px solid #D8DDE6">
+    <sc-for list="{{ lg.tabs }}" as="t" hint-placeholder-count="3"><button role="tab" aria-selected="{{ t.on }}" onClick="{{ t.go }}" style="height:48px;padding:0 {{ lg.tabPad }};border:none;border-bottom:3px solid {{ t.bc }};margin-bottom:-1px;background:transparent;color:{{ t.c }};font-size:15px;font-weight:600;white-space:nowrap">{{ t.label }}</button></sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:{{ lg.cols }};gap:clamp(24px,6cqw,96px);align-items:start">
+    <nav aria-label="On this page" style="display:flex;flex-direction:column;min-width:0">
+      <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4B5262;padding-bottom:12px">On this page</span>
+        <ol style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;border-top:1px solid #D8DDE6">
+          <sc-for list="{{ lg.sections }}" as="s" hint-placeholder-count="6"><li><a href="#" style="display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px;padding:10px 0;font-size:14px;line-height:20px;text-decoration:none;color:{{ s.tc }};font-weight:{{ s.tw }};border-bottom:1px solid #EEF0F4"><span style="font-variant-numeric:tabular-nums;color:#4B5262">{{ s.n }}</span>{{ s.h }}</a></li></sc-for>
+        </ol>
+      </sc-if>
+      <sc-if value="{{ isPhone }}" hint-placeholder-val="{{ false }}">
+        <button aria-expanded="{{ tocOpen }}" onClick="{{ toggleToc }}" style="height:48px;padding:0 14px;border:1px solid #767D8C;border-radius:4px;background:#FFFFFF;color:#1A1D24;display:flex;align-items:center;gap:10px;font-size:15px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:#4B5262">toc</span><span style="flex:1;text-align:left">On this page</span><span style="font-family:'Material Symbols Rounded';font-size:24px;color:#4B5262">{{ tocIcon }}</span></button>
+        <sc-if value="{{ tocOpen }}"><ol style="margin:0;padding:4px 0 0;list-style:none;display:flex;flex-direction:column">
+          <sc-for list="{{ lg.sections }}" as="s" hint-placeholder-count="6"><li><a href="#" style="display:grid;grid-template-columns:24px minmax(0,1fr);gap:4px;min-height:44px;align-items:center;font-size:15px;text-decoration:none;color:#1A1D24;border-bottom:1px solid #EEF0F4"><span style="color:#4B5262">{{ s.n }}</span>{{ s.h }}</a></li></sc-for>
+        </ol></sc-if>
+      </sc-if>
+    </nav>
+    <article style="display:flex;flex-direction:column;gap:32px;max-width:700px;min-width:0">
+      <header style="display:flex;flex-direction:column;gap:12px">
+        <h1 style="margin:0;font-size:clamp(34px,3.6cqw,52px);line-height:1.1;font-weight:700;letter-spacing:-.03em">{{ lg.title }}</h1>
+        <span style="font-size:14px;line-height:20px;color:#4B5262">Last updated 12 Oct 2026 · Sample text, to be replaced after legal review</span>
+      </header>
+      <div style="background:#EEF2F8;padding:20px 22px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">In short</span>
+        <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ lg.summary }}" as="s" hint-placeholder-count="3"><li style="display:grid;grid-template-columns:16px minmax(0,1fr);gap:8px;font-size:16px;line-height:25px"><span style="color:#1F4FD6;font-weight:700">·</span><span style="text-wrap:pretty">{{ s }}</span></li></sc-for>
+        </ul>
+      </div>
+      <sc-for list="{{ lg.sections }}" as="s" hint-placeholder-count="6">
+        <section style="display:flex;flex-direction:column;gap:14px;padding-top:24px;border-top:1px solid #D8DDE6">
+          <h2 style="margin:0;display:flex;gap:12px;font-size:clamp(21px,1.8cqw,24px);line-height:1.3;font-weight:600"><span style="color:#1F4FD6;font-variant-numeric:tabular-nums">{{ s.n }}</span>{{ s.h }}</h2>
+          <sc-for list="{{ s.ps }}" as="p" hint-placeholder-count="2"><p style="margin:0;font-size:17px;line-height:28px;text-wrap:pretty">{{ p }}</p></sc-for>
+        </section>
+      </sc-for>
+      <div style="padding-top:24px;border-top:1px solid #1A1D24;font-size:16px;line-height:25px">Questions about this page? Email <a href="#">legal@elmenshawy.example</a>.</div>
+    </article>
+  </div>
+</main>
+</sc-if>
+
+<!-- CTA BAND -->
+<sc-if value="{{ showBand }}" hint-placeholder-val="{{ true }}">
+<section data-screen-label="Free topic CTA" style="background:#1F4FD6;color:#FFFFFF">
+  <div style="max-width:1440px;box-sizing:border-box;margin:0 auto;padding:clamp(56px,6.4cqw,96px) var(--px);display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:32px">
+    <div style="flex:1 1 480px;display:flex;flex-direction:column;gap:16px;min-width:0">
+      <h2 style="margin:0;font-size:clamp(32px,3.8cqw,56px);line-height:1.1;font-weight:700;letter-spacing:-.025em;text-wrap:balance">Topic 1.1 is free in both courses.</h2>
+      <p style="margin:0;max-width:560px;font-size:clamp(17px,1.4cqw,20px);line-height:1.5;text-wrap:pretty">Watch the lesson, read the notes and try the practice questions. No card needed.</p>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;flex:{{ btnFlex }}">
+      <a href="#" style="flex:{{ btnFlex }};height:52px;padding:0 24px;border-radius:4px;background:#FFFFFF;color:#1F4FD6;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;text-decoration:none">Start SAT 1.1 free</a>
+      <a href="#" style="flex:{{ btnFlex }};height:52px;padding:0 24px;border-radius:4px;border:1px solid #FFFFFF;box-sizing:border-box;color:#FFFFFF;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;text-decoration:none">Start EST 1.1 free</a>
+    </div>
+  </div>
+</section>
+</sc-if>
+
+<!-- FOOTER -->
+<footer style="border-top:1px solid #D8DDE6">
+  <div style="max-width:1440px;box-sizing:border-box;margin:0 auto;padding:40px var(--px) 32px;display:flex;flex-direction:column;gap:28px">
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:28px 48px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:20px;line-height:28px;font-weight:700;letter-spacing:-.02em">Abdelrahman <span style="text-decoration:underline;text-decoration-color:#1F4FD6;text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></span>
+        <span style="font-size:14px;font-weight:600;color:#4B5262">SAT &amp; EST Math</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(140px,auto));gap:4px 48px;font-size:15px">
+        <sc-for list="{{ footLinks }}" as="l" hint-placeholder-count="8"><a href="#" style="min-height:40px;display:flex;align-items:center;color:{{ l.c }};font-weight:{{ l.w }};text-decoration:none">{{ l.label }}</a></sc-for>
+      </div>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 24px;padding-top:20px;border-top:1px solid #D8DDE6;font-size:13px;line-height:19px;color:#4B5262">
+      <span>© 2026 Abdelrahman Elmenshawy</span>
+      <span style="max-width:640px;text-wrap:pretty">SAT is a trademark of the College Board, which is not involved with and does not endorse this site.</span>
+    </div>
+  </div>
+</footer>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;page&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;landing&quot;,&quot;course&quot;,&quot;legal&quot;],&quot;default&quot;:&quot;landing&quot;,&quot;tsType&quot;:&quot;'landing'|'course'|'legal'&quot;},&quot;bp&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auto&quot;,&quot;phone&quot;,&quot;desktop&quot;],&quot;default&quot;:&quot;auto&quot;,&quot;tsType&quot;:&quot;'auto'|'phone'|'desktop'&quot;},&quot;course&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;sat&quot;,&quot;est&quot;],&quot;default&quot;:&quot;sat&quot;,&quot;tsType&quot;:&quot;'sat'|'est'&quot;},&quot;doc&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;terms&quot;,&quot;privacy&quot;,&quot;refund&quot;],&quot;default&quot;:&quot;terms&quot;,&quot;tsType&quot;:&quot;'terms'|'privacy'|'refund'&quot;}}">
+const SAT = [
+  ['Linear equations', ['Solving linear equations', 'Linear inequalities', 'Systems of equations', 'Systems in word problems', 'Linear equations in context', 'Absolute value equations', 'Literal equations and formulas']],
+  ['Functions', ['Function notation', 'Linear functions and slope', 'Exponential functions', 'Linear vs exponential growth', 'Transformations of graphs', 'Composite functions', 'Interpreting graphs', 'Function models in context']],
+  ['Quadratics', ['Factoring quadratics', 'The quadratic formula', 'Vertex form', 'Graphs of parabolas', 'Systems with a quadratic', 'Polynomial operations', 'Rational expressions', 'Radicals and exponents']],
+  ['Geometry & trigonometry', ['Angles and parallel lines', 'Triangles and similarity', 'Right triangles', 'Trigonometric ratios', 'Arcs and sectors', 'Circle equations', 'Area and perimeter', 'Volume and surface area', 'Radians and the unit circle']],
+  ['Data & statistics', ['Ratios and rates', 'Percentages', 'Units and conversion', 'Mean, median and spread', 'Data displays', 'Scatterplots and lines of fit', 'Probability', 'Sampling and inference']]
+];
+const EST = [
+  ['Algebra foundations', ['Linear equations review', 'Inequalities', 'Absolute value', 'Systems of equations', 'Exponents and radicals', 'Polynomials', 'Factoring', 'Rational expressions']],
+  ['Functions and graphs', ['Function notation', 'Domain and range', 'Linear functions', 'Quadratic functions', 'Exponential functions', 'Transformations', 'Inverse functions', 'Composite functions']],
+  ['Advanced algebra', ['Quadratic equations', 'Complex numbers', 'Polynomial division', 'Rational equations', 'Radical equations', 'Logarithms', 'Sequences and series', 'Matrices']],
+  ['Geometry', ['Lines and angles', 'Triangles', 'Similarity and congruence', 'Right triangles', 'Polygons', 'Circles', 'Coordinate geometry', 'Solids']],
+  ['Trigonometry', ['Trigonometric ratios', 'Unit circle and radians', 'Identities', 'Trigonometric equations', 'Law of sines and cosines', 'Graphs of trig functions']],
+  ['Data and probability', ['Ratios and percentages', 'Mean, median and spread', 'Data displays', 'Counting principles', 'Probability', 'Conditional probability', 'Statistics in context']]
+];
+const COURSE = {
+  sat: { name: 'SAT Math', units: SAT, other: 'EST Math', lead: '40 topics in 5 units, taught in the order of the booklet. Then adaptive mock exams under real timing, with Desmos.', finalNote: 'Opens when you pass the 5.8 quiz. Two adaptive modules per mock, timed, with Desmos, the reference sheet and mark for review.' },
+  est: { name: 'EST Math', units: EST, other: 'SAT Math', lead: '45 topics in 6 units, taught in the order of the booklet. Then timed mock exams with Desmos.', finalNote: 'Opens when you pass the 6.7 quiz. Timed, with Desmos, the reference sheet and mark for review.' }
+};
+const STEPS = [
+  ['Video', 'play_circle', 'The lesson, recorded by Abdelrahman, explained step by step.', 'Watch 80% to open the notes', 'lock_open'],
+  ['Notes', 'menu_book', 'Booklet pages with Rule and Worked example boxes you can return to any time.', 'Read them, then practise', 'arrow_forward'],
+  ['Practice', 'edit_note', 'Questions with instant feedback. A wrong answer gets a note naming the next step.', 'Practise as much as you need', 'arrow_forward'],
+  ['Homework', 'assignment', 'A full set on the topic. Your answers save as you go.', 'Submit all of it to open the quiz', 'lock_open'],
+  ['Quiz', 'task_alt', 'A short test of the whole topic. Every answer feeds your skill report.', 'Score 75% to unlock the next topic', 'lock_open']
+];
+const DIFFS = [
+  ['The teacher’s own method', 'Every lesson, booklet page and worked solution is Abdelrahman’s, written the way he teaches it in class.'],
+  ['Diagnosis, not random drills', 'Each question is tagged to a skill. Your report shows which skill is costing you points and which topic to go back to.'],
+  ['Exam-style mocks with Desmos', 'Adaptive, timed mock exams with the tools you get on test day: Desmos calculator, reference sheet, mark for review.']
+];
+const FAQ = [
+  ['Which course do I need?', 'The one for the test you are sitting. SAT Math follows the digital SAT; EST Math follows EST I Math. If you are sitting both, the bundle includes both courses.'],
+  ['Can I skip a topic I already know?', 'No. Each topic opens when you pass the previous quiz with 75%. If you already know it, the video and practice go fast and the quiz confirms it.'],
+  ['How long does my access last?', 'Until your test date + 14 days, and never less than 60 days from purchase. You add your test date after you buy.'],
+  ['Do I need my own calculator?', 'Not for the mock exams. Desmos is built in, along with the reference sheet, just like test day.'],
+  ['Can I study on my phone?', 'Yes. Use the web, Android or iOS with one account. Take the mock exams on a laptop if you can, since that is how you will sit the real test.'],
+  ['How many devices can I use?', 'Two at a time. You can swap a device from your profile.'],
+  ['How do I pay?', 'On the website, by card or mobile wallet. You can also enter an activation code. The apps have no purchases.'],
+  ['Can I get a refund?', 'Within 7 days of buying, if you have not gone past topic 2 of the course. The refund policy has the details.']
+];
+const LEGAL = {
+  terms: { label: 'Terms', title: 'Terms of use', summary: ['One account is for one student, signed in on up to 2 devices.', 'Lessons and booklets are for your own study. Recording or sharing them ends your access.', 'Mock exam scores are practice estimates, not official scores.'], sections: [
+    ['Who we are', ['This site and the apps are run by Abdelrahman Elmenshawy to teach SAT Math and EST Math. By creating an account you agree to these terms.']],
+    ['Your account', ['An account belongs to one student. Use your real name: it appears as a watermark on your videos and notes.', 'You can be signed in on 2 devices at a time. You can remove a device from your profile.']],
+    ['Access period', ['Access to a course lasts until your test date + 14 days, and never less than 60 days from purchase. When access ends, your progress and skill report stay in your account.']],
+    ['Using the content', ['Videos, booklets, questions and worked solutions are for your personal study. You may not record, copy, resell or share them. If we find shared content traced to your watermark, we may end your access without a refund.']],
+    ['Payments', ['Prices are shown in your local currency before you pay. Payments are made on the website. Activation codes give the same access as a payment.']],
+    ['Mock exams and results', ['Mock exams are practice. Their scores estimate your level and are not official results. We do not promise any score on the real test.']],
+    ['Changes and contact', ['If we change these terms, we will tell you by email and in the app at least 14 days before the change applies.']]
+  ] },
+  privacy: { label: 'Privacy', title: 'Privacy policy', summary: ['We collect what we need to run your course: account details, devices, answers and progress.', 'Your answers are used to build your skill report. We do not sell your data.', 'You can download or delete your data from your profile.'], sections: [
+    ['What we collect', ['Your name, email, mobile number, country, test dates and the devices you sign in on. While you study, we record your answers, time on each question, video progress and quiz scores.']],
+    ['Why we collect it', ['To run your account, keep your path in order, show your skill report, and send the reminders you choose.']],
+    ['Your answers and skill data', ['Each answer is linked to a skill. Your skill report is visible to you and to the teacher, so he can see where his students need help. It is never shown to other students.']],
+    ['Who we share it with', ['Our payment provider processes payments; we never see your full card number. Our video host streams lessons. Both handle data only to provide their service.']],
+    ['How long we keep it', ['While your account is open, and for 12 months after your last access ends, so you can come back to your progress. Payment records are kept as the law requires.']],
+    ['Your rights', ['You can see, correct, download or delete your data from your profile, or by emailing us. Deleting your account removes your progress for good.']]
+  ] },
+  refund: { label: 'Refunds', title: 'Refund policy', summary: ['Full refund within 7 days of buying, if you have not gone past topic 2.', 'A failed payment is never charged; there is nothing to refund.', 'Refunds return to the original payment method within 14 days.'], sections: [
+    ['When you can get a refund', ['You can ask for a full refund within 7 days of buying a course, if you have not opened the homework or quiz of topic 3 or later.']],
+    ['When a refund is not possible', ['After 7 days, after you pass the topic 2 quiz, after access is ended for shared content, or for courses activated with a code bought from someone else.']],
+    ['Bundles', ['A bundle is refunded as one purchase. You cannot refund one course in a bundle and keep the other.']],
+    ['How to ask', ['Go to Orders in your profile and choose Request refund, or email us with your order number. Your access ends when the refund is approved.']],
+    ['How long it takes', ['We reply within 2 working days. Approved refunds return to the card or wallet you paid with within 14 days; your bank may take longer to show it.']],
+    ['Failed payments', ['If a payment fails, you are not charged. If you see a charge for a failed order, email us with the order number and we will fix it.']]
+  ] }
+};
+const tab = (on, label, go) => ({ on, label, go, bc: on ? '#1F4FD6' : 'transparent', c: on ? '#1F4FD6' : '#4B5262' });
+
+class Component extends DCLogic {
+  state = { w: typeof window !== 'undefined' ? window.innerWidth : 1440, faq: 0, units: null, course: null, doc: null, toc: false };
+  rootRef = React.createRef();
+  componentDidMount() {
+    const el = this.rootRef.current;
+    if (el && window.ResizeObserver) { this.ro = new ResizeObserver(e => { const w = Math.round(e[0].contentRect.width); if (w && w !== this.state.w) this.setState({ w }); }); this.ro.observe(el); }
+    this.tex();
+  }
+  componentDidUpdate() { this.tex(); }
+  componentWillUnmount() { this.ro && this.ro.disconnect(); clearTimeout(this.tt); }
+  tex() {
+    const el = this.rootRef.current; if (!el) return;
+    if (!window.katex) { clearTimeout(this.tt); this.tt = setTimeout(() => this.tex(), 150); return; }
+    el.querySelectorAll('[data-tex]').forEach(n => { const t = n.getAttribute('data-tex'); if (n.dataset.done !== t) { window.katex.render(t, n, { throwOnError: false }); n.dataset.done = t; } });
+  }
+  renderVals() {
+    const bp = this.props.bp ?? 'auto';
+    const isPhone = bp === 'phone' || (bp === 'auto' && this.state.w <= 600), isDesk = !isPhone;
+    const page = this.props.page ?? 'landing';
+    const ck = this.state.course ?? this.props.course ?? 'sat', C = COURSE[ck];
+    const dk = this.state.doc ?? this.props.doc ?? 'terms', D = LEGAL[dk];
+    const openUnits = this.state.units ?? (isPhone ? [0] : C.units.map((_, i) => i));
+    const navOn = { landing: '', course: 'Courses', legal: '' }[page];
+    return {
+      rootRef: this.rootRef, isPhone, isDesk,
+      isLanding: page === 'landing', isCourse: page === 'course', isLegal: page === 'legal', showBand: page !== 'legal',
+      btnFlex: isPhone ? '1 1 100%' : '0 0 auto', faqSpan: isPhone ? 1 : 2,
+      nav: ['How it works', 'Courses', 'The teacher', 'Questions'].map(label => ({ label, c: label === navOn ? '#1F4FD6' : '#1A1D24', w: label === navOn ? 600 : 500 })),
+      choices: [['A', '-1', 1], ['B', '1'], ['C', '7'], ['D', '11']].map(([l, tex, w]) => ({ l, tex, wrong: !!w, picked: w ? 'true' : 'false', b: w ? '2px solid #D2343A' : '1px solid #D8DDE6', lc: w ? '#D2343A' : '#4B5262' })),
+      steps: STEPS.map(([name, icon, what, gate, gi], i) => ({ n: i + 1, name, icon, what, gate, gi })),
+      stepNames: STEPS.map(([name], i) => ({ name, arrow: i < 4 })),
+      diffs: DIFFS.map(([t, b], i) => ({ n: '0' + (i + 1), t, b })),
+      courses: ['sat', 'est'].map((k, i) => { const c = COURSE[k]; const n = c.units.reduce((a, u) => a + u[1].length, 0);
+        return { name: c.name, meta: `${n} topics · ${c.units.length} units · mock exams with Desmos`, price: 'EGP 2,400', bl: i && !isPhone ? '1px solid #1A1D24' : 'none', bt: i && isPhone ? '1px solid #1A1D24' : 'none',
+          units: c.units.map(([name, ts], j) => ({ n: j + 1, name, count: ts.length })) }; }),
+      slots: [1, 2, 3],
+      faq: FAQ.map(([q, a], i) => ({ q, a, open: this.state.faq === i, icon: this.state.faq === i ? 'remove' : 'add', toggle: () => this.setState(s => ({ faq: s.faq === i ? -1 : i })) })),
+      cp: {
+        name: C.name, buyLabel: 'Buy ' + C.name, lead: C.lead, other: C.other, finalNote: C.finalNote,
+        count: `${C.units.reduce((a, u) => a + u[1].length, 0)} topics · ${C.units.length} units`,
+        cols: isPhone ? 'minmax(0,1fr)' : 'minmax(0,1fr) 380px', mainOrder: isPhone ? 2 : 1, asideOrder: isPhone ? 1 : 2,
+        tabs: ['sat', 'est'].map(k => tab(k === ck, COURSE[k].name, () => this.setState({ course: k, units: null }))),
+        units: C.units.map(([name, ts], i) => { const open = openUnits.includes(i);
+          return { n: i + 1, name, count: `${ts.length} topics`, open, icon: open ? 'expand_less' : 'expand_more',
+            toggle: () => this.setState(s => { const cur = s.units ?? openUnits; return { units: cur.includes(i) ? cur.filter(x => x !== i) : cur.concat(i) }; }),
+            topics: ts.map((tn, j) => ({ n: `${i + 1}.${j + 1}`, name: tn, free: i === 0 && j === 0 })) }; }),
+        incl: [`${C.units.reduce((a, u) => a + u[1].length, 0)} topics: video, notes, practice, homework, quiz`, 'Worked solutions for every question', 'Skill report from every answer', 'Mock exams with Desmos built in', 'Web, Android and iOS on 2 devices']
+      },
+      lg: {
+        title: D.title, summary: D.summary, cols: isPhone ? 'minmax(0,1fr)' : '240px minmax(0,1fr)', tabPad: isPhone ? '14px' : '20px',
+        tabs: Object.keys(LEGAL).map(k => tab(k === dk, isPhone ? LEGAL[k].label : LEGAL[k].title, () => this.setState({ doc: k }))),
+        sections: D.sections.map(([h, ps], i) => ({ n: i + 1, h, ps, tc: i ? '#1A1D24' : '#1F4FD6', tw: i ? 400 : 600 }))
+      },
+      tocOpen: this.state.toc, tocIcon: this.state.toc ? 'expand_less' : 'expand_more', toggleToc: () => this.setState(s => ({ toc: !s.toc })),
+      footLinks: ['SAT Math', 'Terms of use', 'EST Math', 'Privacy policy', 'Sign in', 'Refund policy', 'Contact', 'Get the app'].map(label => {
+        const on = page === 'legal' && label === D.title; return { label, c: on ? '#1F4FD6' : '#1A1D24', w: on ? 600 : 400 }; })
+    };
+  }
+}
+</script>
+</body>
+</html>

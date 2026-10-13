@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}button{font-family:inherit;cursor:pointer}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="width:100%;height:100%;box-sizing:border-box;background:#ECEEF2;display:flex;justify-content:center;align-items:flex-start;padding:{{ pad }};overflow:auto"><div style="flex:none;box-sizing:content-box;width:{{ frameW }};height:{{ frameH }};border:{{ bezel }};border-radius:{{ frameR }};overflow:hidden;background:#FFFFFF"><div style="--page:#FFFFFF;--surface2:#F6F7F9;--ink:#1A1D24;--ink2:#4B5262;--ink3:#9AA1AD;--onp:#FFFFFF;--rule:#D8DDE6;--rule2:#1A1D24;--primary:#1F4FD6;--pc:#E9EEFB;--red:#D2343A;--redc:#FBEBEC;--green:#1E7F4F;--greenc:#E4F2EA;--warn:#B45309;--warnc:#FCEFE1;--pad:{{ L.pad }};--h1:{{ L.h1 }};--cols2:{{ L.cols2 }};--colsT:{{ L.colsT }};--mapCols:{{ L.mapCols }};--stick:{{ L.stick }};--ord:{{ L.order }};--gapL:{{ L.gapL }};--btnAlign:{{ L.btnAlign }};width:100%;height:100%;box-sizing:border-box;background:var(--page);color:var(--ink);font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;display:grid;grid-template-areas:{{ L.areas }};grid-template-columns:{{ L.gcols }};grid-template-rows:{{ L.grows }};overflow:hidden">
+
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}"><div style="grid-area:status"></div></sc-if>
+
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}">
+<div style="grid-area:top;display:flex;align-items:center;gap:8px;padding:0 4px;border-bottom:1px solid var(--rule)">
+  <sc-if value="{{ isRoot }}"><span style="flex:none;margin-left:12px;width:32px;height:32px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--onp);font-size:13px;font-weight:700;letter-spacing:-.03em">AE</span></sc-if>
+  <sc-if value="{{ notRoot }}"><button aria-label="Back" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button></sc-if>
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:{{ topFs }};font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</span><sc-if value="{{ hasSub }}"><span style="font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sub }}</span></sc-if></div>
+  <span style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">notifications</span>
+</div>
+<nav style="grid-area:nav;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(5,1fr);background:var(--page)">
+  <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+    <sc-if value="{{ n.on }}"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="width:56px;height:32px;border-radius:4px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--primary);font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="font-size:12px;font-weight:700;white-space:nowrap">{{ n.label }}</span></div></sc-if>
+    <sc-if value="{{ n.off }}"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="font-size:12px;font-weight:500;white-space:nowrap">{{ n.label }}</span></div></sc-if>
+  </sc-for>
+</nav>
+</sc-if>
+
+<sc-if value="{{ isTablet }}" hint-placeholder-val="{{ false }}">
+<nav style="grid-area:nav;border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;padding-top:20px;gap:12px">
+  <span style="width:40px;height:40px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--onp);font-size:16px;font-weight:700;letter-spacing:-.03em;margin-bottom:20px">AE</span>
+  <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+    <sc-if value="{{ n.on }}"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:80px;padding:4px 0"><span style="width:56px;height:32px;border-radius:4px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--primary);font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="font-size:12px;font-weight:700;text-align:center;line-height:14px">{{ n.label }}</span></div></sc-if>
+    <sc-if value="{{ n.off }}"><div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:80px;padding:4px 0;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="font-size:12px;font-weight:500;text-align:center;line-height:14px">{{ n.label }}</span></div></sc-if>
+  </sc-for>
+</nav>
+</sc-if>
+
+<sc-if value="{{ isLaptop }}" hint-placeholder-val="{{ false }}">
+<nav style="grid-area:nav;border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:28px 12px 16px">
+  <div style="padding:0 12px 28px;display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:19px;line-height:26px;font-weight:700;letter-spacing:-.02em">Abdelrahman <span style="text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></div>
+    <div style="font-size:12px;font-weight:600;color:var(--ink2)">SAT &amp; EST Math</div>
+  </div>
+  <div style="border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;gap:2px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+      <sc-if value="{{ n.on }}"><div style="height:48px;border-radius:4px;background:var(--pc);display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--primary)"><span style="font-family:'Material Symbols Rounded';font-size:24px;font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="font-size:14px;font-weight:700;color:var(--ink)">{{ n.label }}</span></div></sc-if>
+      <sc-if value="{{ n.off }}"><div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="font-size:14px;font-weight:500;color:var(--ink)">{{ n.label }}</span></div></sc-if>
+    </sc-for>
+  </div>
+</nav>
+</sc-if>
+
+<sc-if value="{{ isWide }}" hint-placeholder-val="{{ false }}">
+<div style="grid-area:top;display:flex;align-items:center;gap:8px;padding:0 20px 0 {{ topPadL }};border-bottom:1px solid var(--rule);min-width:0">
+  <sc-if value="{{ notRoot }}"><button aria-label="Back" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button></sc-if>
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:{{ topFs }};font-weight:600;letter-spacing:-.01em;white-space:nowrap">{{ title }}</span><sc-if value="{{ hasSub }}"><span style="font-size:12px;color:var(--ink2)">{{ sub }}</span></sc-if></div>
+  <span style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">notifications</span>
+</div>
+</sc-if>
+
+<main ref="{{ mainRef }}" style="grid-area:main;position:relative;overflow:auto;scrollbar-width:{{ L.sb }};min-height:0;min-width:0">
+<div style="padding:var(--pad);padding-bottom:40px;box-sizing:border-box;display:flex;flex-direction:column;gap:24px">
+
+<!-- S-12 HOME -->
+<sc-if value="{{ sHome }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-direction:column;gap:4px">
+  <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">{{ h.greet }}</h1>
+  <span style="font-size:14px;line-height:20px;color:var(--ink2)">{{ h.sub }}</span>
+</div>
+<div style="display:grid;grid-template-columns:var(--cols2);gap:var(--gapL);align-items:start">
+  <div style="display:flex;flex-direction:column;gap:20px;min-width:0">
+    <sc-if value="{{ h.expiring }}"><div role="status" style="display:flex;align-items:flex-start;gap:12px;padding:12px 16px;background:var(--warnc);border-radius:4px">
+      <span style="flex:none;font-family:'Material Symbols Rounded';font-size:22px;line-height:24px;color:var(--warn)">event_upcoming</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;line-height:24px;font-weight:600">Your SAT Math access ends in 9 days, on 17 Oct 2026.</span><span style="font-size:13px;line-height:18px;color:var(--ink2)">{{ h.expNote }}</span><sc-if value="{{ web }}"><button style="align-self:flex-start;height:48px;margin:2px 0 -8px -12px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">Renew access</button></sc-if></div>
+    </div></sc-if>
+
+    <sc-if value="{{ h.hasContinue }}"><section style="border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">{{ h.card.eyebrow }}</span><span style="font-size:12px;font-weight:600;color:var(--ink2)">SAT Math</span></div>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:600;color:var(--primary)">{{ h.card.unit }}</span><h2 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em">{{ h.card.topic }}</h2></div>
+      <div aria-label="{{ h.card.stepLine }}" style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px">
+        <sc-for list="{{ h.card.steps }}" as="s" hint-placeholder-count="5">
+          <sc-if value="{{ s.d }}"><div style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;background:var(--primary)"></span><sc-if value="{{ isWide }}"><span style="display:flex;align-items:center;gap:2px;font-size:12px;font-weight:500;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:14px;color:var(--primary)">check</span>{{ s.l }}</span></sc-if></div></sc-if>
+          <sc-if value="{{ s.c }}"><div style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;box-sizing:border-box;border:1px solid var(--primary);background:var(--pc)"></span><sc-if value="{{ isWide }}"><span style="font-size:12px;font-weight:700;color:var(--primary);white-space:nowrap">{{ s.l }}</span></sc-if></div></sc-if>
+          <sc-if value="{{ s.t }}"><div style="display:flex;flex-direction:column;gap:6px"><span style="height:4px;background:var(--rule)"></span><sc-if value="{{ isWide }}"><span style="font-size:12px;font-weight:500;color:var(--ink2);white-space:nowrap">{{ s.l }}</span></sc-if></div></sc-if>
+        </sc-for>
+      </div>
+      <sc-if value="{{ isPhone }}"><span style="margin-top:-8px;font-size:13px;font-weight:600;color:var(--primary)">{{ h.card.stepLabel }}</span></sc-if>
+      <div style="display:flex;gap:12px;align-items:flex-start;border-top:1px solid var(--rule);padding-top:16px">
+        <span style="flex:none;font-family:'Material Symbols Rounded';font-size:22px;line-height:24px;color:var(--ink2)">{{ h.card.icon }}</span>
+        <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;line-height:24px;font-weight:600;text-wrap:pretty">{{ h.card.next }}</span><span style="font-size:14px;line-height:20px;color:var(--ink2)">{{ h.card.nextSub }}</span></div>
+      </div>
+      <button style="align-self:var(--btnAlign);height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap">{{ h.card.btn }}<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button>
+    </section></sc-if>
+
+    <sc-if value="{{ h.firstrun }}"><div role="note" style="border-top:1px solid var(--red);padding-top:12px;display:flex;flex-direction:column;gap:6px;color:var(--red)"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty">Start at 1.1 even if it looks easy. The quiz at the end of each topic shows us both where you really stand, and passing it opens the next one.</p></div></sc-if>
+
+    <sc-if value="{{ h.expired }}"><section style="border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:14px">
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:18px">lock</span>Access ended</span>
+      <h2 style="margin:0;font-size:22px;line-height:28px;font-weight:600;letter-spacing:-.01em;text-wrap:pretty">Your SAT Math access ended on 2 Oct 2026</h2>
+      <p style="margin:0;font-size:15px;line-height:24px;color:var(--ink2);text-wrap:pretty">Your progress is saved: 9 of 40 topics passed, and you stopped at 2.3 Homework with 8 of 20 answered. {{ h.expBody }}</p>
+      <sc-if value="{{ web }}"><div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center"><button style="height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;white-space:nowrap">Renew access</button><button style="height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">View course</button></div></sc-if>
+    </section></sc-if>
+  </div>
+
+  <div style="display:flex;flex-direction:column;min-width:0">
+    <sc-if value="{{ h.showLive }}"><div style="border-top:1px solid var(--rule2);padding:16px 0;display:flex;flex-direction:column;gap:10px">
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:18px">videocam</span>Live session</span>
+      <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;line-height:24px;font-weight:600">{{ h.liveTitle }}</span><span style="font-size:14px;line-height:20px;font-variant-numeric:tabular-nums">Thu 15 Oct · 7:00 pm</span><span style="font-size:13px;line-height:18px;color:var(--ink2)">Your local time (Cairo, GMT+3). The link opens 10 min before.</span></div>
+      <button style="align-self:flex-start;height:48px;padding:0 16px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:20px">event</span>Add to calendar</button>
+    </div></sc-if>
+    <sc-if value="{{ h.showStreak }}"><div style="border-top:1px solid var(--rule);padding:16px 0;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Study days</span>
+      <span style="font-size:15px;line-height:22px;font-weight:600">4 days in a row</span>
+      <div style="display:flex;gap:6px">
+        <sc-for list="{{ days }}" as="d" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+            <sc-if value="{{ d.on }}"><span aria-label="{{ d.aria }}" style="width:32px;height:32px;border-radius:4px;background:var(--ink);color:var(--page);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:18px">check</span></sc-if>
+            <sc-if value="{{ d.off }}"><span aria-label="{{ d.aria }}" style="width:32px;height:32px;box-sizing:border-box;border-radius:4px;border:1px solid var(--rule)"></span></sc-if>
+            <sc-if value="{{ d.today }}"><span style="font-size:11px;font-weight:700;text-decoration:underline;text-underline-offset:3px">{{ d.l }}</span></sc-if>
+            <sc-if value="{{ d.notToday }}"><span style="font-size:11px;font-weight:500;color:var(--ink2)">{{ d.l }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+      <span style="font-size:13px;line-height:18px;color:var(--ink2)">One step a day keeps it going.</span>
+    </div></sc-if>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 0 8px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">SAT Math</span>
+      <span style="font-size:15px;line-height:22px;font-weight:600;font-variant-numeric:tabular-nums">{{ h.coursePassed }}</span>
+      <span role="progressbar" aria-label="{{ h.coursePassed }}" style="height:4px;background:var(--rule);display:block"><span style="display:block;height:100%;width:{{ h.coursePct }};background:var(--primary)"></span></span>
+      <span style="font-size:13px;line-height:18px;color:var(--ink2)">{{ h.courseNote }}</span>
+      <button style="align-self:flex-start;height:48px;margin-left:-12px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap">Open contents<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+<!-- S-13 MY COURSES -->
+<sc-if value="{{ sCourses }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:var(--colsT);gap:var(--gapL);align-items:start">
+  <section style="border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Enrolled</span><span style="font-size:12px;color:var(--ink2)">5 units · 40 topics · mock exams</span></div>
+    <h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600;letter-spacing:-.01em">SAT Math</h2>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">9 of 40 topics passed</span><span role="progressbar" aria-label="9 of 40 topics passed" style="height:4px;background:var(--rule);display:block"><span style="display:block;height:100%;width:22.5%;background:var(--primary)"></span></span></div>
+    <div style="display:flex;flex-direction:column;border-top:1px solid var(--rule)">
+      <div style="display:flex;gap:10px;align-items:center;min-height:44px;border-bottom:1px solid var(--rule);font-size:14px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">bookmark</span><span>Now on <b style="font-weight:600">2.3 Exponential functions</b> · Homework</span></div>
+      <div style="display:flex;gap:10px;align-items:center;min-height:44px;border-bottom:1px solid var(--rule);font-size:14px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">event_available</span><span>Access until 30 Jun 2027</span></div>
+    </div>
+    <button style="align-self:var(--btnAlign);height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap">Continue<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button>
+  </section>
+  <section style="border:1px solid var(--rule);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Not enrolled</span><span style="font-size:12px;color:var(--ink2)">6 units · 45 topics · mock exams</span></div>
+    <h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600;letter-spacing:-.01em">EST Math</h2>
+    <p style="margin:0;font-size:15px;line-height:24px;color:var(--ink2);text-wrap:pretty">Topic 1.1 Linear equations review is free: video, notes and practice. Homework, quizzes and mocks open with enrolment.</p>
+    <sc-if value="{{ web }}"><div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;border-top:1px solid var(--rule);padding-top:14px"><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">EGP 2,400</span><span style="font-size:14px;color:var(--ink2)">12 months access</span><span style="font-family:'Noto Sans Mono',monospace;font-size:11px;color:var(--ink2)">sample price</span></div></sc-if>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center">
+      <sc-if value="{{ web }}"><button style="height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--pc);color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">Buy course</button></sc-if>
+      <button style="height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">Start free topic</button>
+      <button style="height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">View course</button>
+    </div>
+  </section>
+</div>
+</sc-if>
+
+<!-- S-14 COURSE MAP -->
+<sc-if value="{{ sMap }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:12px">
+  <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Contents</span>
+  <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">SAT Math</h1>
+  <span style="font-size:14px;line-height:20px;color:var(--ink2);font-variant-numeric:tabular-nums">9 of 40 topics passed · Unit 2 in progress</span>
+  <div style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;font-weight:600;color:var(--ink2)">
+    <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--green);font-variation-settings:'FILL' 1">check_circle</span>Passed, quiz score</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--primary)">edit</span>In progress</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px">lock</span>Locked</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="display:flex;gap:2px"><span style="width:6px;height:4px;background:var(--ink2)"></span><span style="width:6px;height:4px;background:var(--ink2)"></span><span style="width:6px;height:4px;background:var(--rule)"></span><span style="width:6px;height:4px;background:var(--rule)"></span><span style="width:6px;height:4px;background:var(--rule)"></span></span>Steps: video, notes, practice, homework, quiz</span>
+  </div>
+</div>
+<div style="column-count:var(--mapCols);column-gap:48px">
+  <sc-for list="{{ units }}" as="u" hint-placeholder-count="5">
+    <section data-unit="{{ u.id }}" style="break-inside:avoid;margin-bottom:28px">
+      <div style="position:var(--stick);top:0;z-index:1;background:var(--page);display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:12px 0 8px;border-bottom:1.5px solid var(--rule2)"><h2 style="margin:0;font-size:16px;line-height:24px;font-weight:700">{{ u.title }}</h2><span style="flex:none;font-size:12px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ u.count }}</span></div>
+      <sc-for list="{{ u.topics }}" as="t" hint-placeholder-count="8">
+        <sc-if value="{{ t.vP }}"><div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule)">
+          <span style="flex:none;width:30px;font-size:14px;line-height:24px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink2)">{{ t.n }}</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:baseline"><span style="font-size:15px;line-height:24px;font-weight:500">{{ t.name }}</span><span style="flex:1;min-width:12px;margin:0 8px;border-bottom:1.5px dotted var(--ink3)"></span><span style="flex:none;display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--green);font-variation-settings:'FILL' 1;align-self:center">check_circle</span>{{ t.score }}</span></div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span aria-label="{{ t.segLabel }}" style="display:flex;gap:2px"><span style="width:10px;height:4px;background:var(--green)"></span><span style="width:10px;height:4px;background:var(--green)"></span><span style="width:10px;height:4px;background:var(--green)"></span><span style="width:10px;height:4px;background:var(--green)"></span><span style="width:10px;height:4px;background:var(--green)"></span></span><sc-if value="{{ t.free }}"><span style="height:20px;padding:0 6px;border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;font-size:11px;font-weight:600;color:var(--ink2)">Free preview</span></sc-if></div>
+          </div>
+        </div></sc-if>
+        <sc-if value="{{ t.vC }}"><div aria-current="step" style="display:flex;gap:12px;padding:10px 12px;margin:0 -12px;background:var(--pc);border-bottom:1px solid var(--rule);color:var(--primary)">
+          <span style="flex:none;width:30px;font-size:14px;line-height:24px;font-weight:700;font-variant-numeric:tabular-nums">{{ t.n }}</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:baseline"><span style="font-size:15px;line-height:24px;font-weight:700">{{ t.name }}</span><span style="flex:1;min-width:12px;margin:0 8px;border-bottom:1.5px dotted var(--primary)"></span><span style="flex:none;display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:18px;align-self:center">edit</span>In progress</span></div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span aria-label="{{ t.segLabel }}" style="display:flex;gap:2px"><span style="width:10px;height:4px;background:var(--primary)"></span><span style="width:10px;height:4px;background:var(--primary)"></span><span style="width:10px;height:4px;background:var(--primary)"></span><span style="width:10px;height:4px;box-sizing:border-box;border:1px solid var(--primary);background:var(--page)"></span><span style="width:10px;height:4px;background:var(--rule)"></span></span><span style="font-size:13px;font-weight:600;color:var(--ink)">Step 4 of 5 · Homework, 8 of 20 answered</span></div>
+          </div>
+        </div></sc-if>
+        <sc-if value="{{ t.vO }}"><div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule)">
+          <span style="flex:none;width:30px;font-size:14px;line-height:24px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink2)">{{ t.n }}</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:baseline"><span style="font-size:15px;line-height:24px;font-weight:500">{{ t.name }}</span><span style="flex:1;min-width:12px;margin:0 8px;border-bottom:1.5px dotted var(--ink3)"></span><span style="flex:none;font-size:13px;font-weight:600;color:var(--ink2)">Not started</span></div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap"><span aria-label="0 of 5 steps done" style="display:flex;gap:2px"><span style="width:10px;height:4px;background:var(--rule)"></span><span style="width:10px;height:4px;background:var(--rule)"></span><span style="width:10px;height:4px;background:var(--rule)"></span><span style="width:10px;height:4px;background:var(--rule)"></span><span style="width:10px;height:4px;background:var(--rule)"></span></span><span style="height:20px;padding:0 6px;border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;gap:4px;font-size:11px;font-weight:600;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:13px">lock_open</span>Opened early by your teacher</span></div>
+          </div>
+        </div></sc-if>
+        <sc-if value="{{ t.vL }}"><div style="display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule);color:var(--ink2)">
+          <span style="flex:none;width:30px;font-size:14px;line-height:24px;font-weight:500;font-variant-numeric:tabular-nums">{{ t.n }}</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:baseline"><span style="font-size:15px;line-height:24px;font-weight:400">{{ t.name }}</span><span style="flex:1;min-width:12px;margin:0 8px;border-bottom:1.5px dotted var(--rule)"></span><span aria-label="Locked" style="flex:none;font-family:'Material Symbols Rounded';font-size:18px;align-self:center;color:var(--ink2)">lock</span></div>
+            <sc-if value="{{ t.hasUnlock }}"><span style="font-size:13px;line-height:18px;font-weight:500">{{ t.unlockMsg }}</span></sc-if>
+          </div>
+        </div></sc-if>
+      </sc-for>
+    </section>
+  </sc-for>
+</div>
+<section style="border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:10px">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Phase 2</span><span style="display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:16px">lock</span>Locked</span></div>
+  <h2 style="margin:0;font-size:20px;line-height:28px;font-weight:600">Mock exams</h2>
+  <p style="margin:0;font-size:15px;line-height:24px;color:var(--ink2);text-wrap:pretty">Full adaptive mocks with Desmos, timed like test day. They open when you pass all 40 topics, or on 4 Feb 2027 (30 days before your test on 6 Mar 2027), whichever comes first.</p>
+  <span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">31 topics to go · 119 days left</span>
+</section>
+</sc-if>
+
+<!-- S-15 TOPIC PAGE -->
+<sc-if value="{{ sTopic }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:10px">
+  <span style="font-size:13px;font-weight:600;color:var(--primary)">{{ tp.crumb }}</span>
+  <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">{{ tp.title }}</h1>
+  <div style="display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;font-size:14px;color:var(--ink2)"><span style="display:flex;align-items:center;gap:6px;font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:18px">schedule</span>{{ tp.time }}</span><sc-if value="{{ tp.free }}"><span style="height:24px;padding:0 8px;border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;font-size:12px;font-weight:600">Free preview</span></sc-if></div>
+</div>
+<div style="display:grid;grid-template-columns:var(--cols2);gap:var(--gapL);align-items:start">
+  <ol aria-label="Topic steps" style="list-style:none;margin:0;padding:0;border-top:1.5px solid var(--rule2);min-width:0">
+    <sc-for list="{{ tp.steps }}" as="s" hint-placeholder-count="5">
+      <sc-if value="{{ s.d }}"><li style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--rule)">
+        <span aria-label="Done" style="flex:none;width:32px;height:32px;border-radius:50%;background:var(--green);color:var(--onp);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:20px">check</span>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;line-height:24px;font-weight:600">{{ s.n }} · {{ s.name }}<span style="font-weight:400;color:var(--ink2)"> · {{ s.what }}</span></span><span style="font-size:14px;line-height:20px;font-variant-numeric:tabular-nums">{{ s.rule }}</span><sc-if value="{{ s.hasTag }}"><span style="align-self:flex-start;margin-top:4px;height:24px;padding:0 8px;border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:14px">ink_pen</span>{{ s.tag }}</span></sc-if></div>
+        <button style="flex:none;height:48px;margin:-8px -12px -8px 0;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">{{ s.action }}</button>
+      </li></sc-if>
+      <sc-if value="{{ s.c }}"><li aria-current="step" style="display:flex;gap:14px;align-items:flex-start;padding:14px 12px;margin:0 -12px;background:var(--pc);border-bottom:1px solid var(--rule)">
+        <span style="flex:none;width:32px;height:32px;box-sizing:border-box;border-radius:50%;border:2px solid var(--primary);background:var(--page);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700">{{ s.n }}</span>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;line-height:24px;font-weight:700;color:var(--primary)">{{ s.n }} · {{ s.name }}<span style="font-weight:400;color:var(--ink2)"> · {{ s.what }}</span></span><span style="font-size:14px;line-height:20px;font-weight:600;font-variant-numeric:tabular-nums">{{ s.rule }}</span><sc-if value="{{ s.hasBar }}"><span style="margin-top:6px;height:4px;background:var(--page);display:block"><span style="display:block;height:100%;width:{{ s.pct }};background:var(--primary)"></span></span></sc-if></div>
+        <span style="flex:none;font-size:12px;font-weight:700;color:var(--primary);line-height:24px">In progress</span>
+      </li></sc-if>
+      <sc-if value="{{ s.l }}"><li style="display:flex;gap:14px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--rule);color:var(--ink2)">
+        <span aria-label="Locked" style="flex:none;width:32px;height:32px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:18px">lock</span>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;line-height:24px;font-weight:600">{{ s.n }} · {{ s.name }}<span style="font-weight:400"> · {{ s.what }}</span></span><span style="font-size:14px;line-height:20px;font-weight:500">{{ s.rule }}</span></div>
+      </li></sc-if>
+    </sc-for>
+  </ol>
+  <aside style="order:var(--ord);display:flex;flex-direction:column;gap:20px;min-width:0">
+    <section style="border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Next step</span>
+      <span style="font-size:17px;line-height:24px;font-weight:600;text-wrap:pretty">{{ tp.next }}</span>
+      <span style="font-size:14px;line-height:20px;color:var(--ink2);text-wrap:pretty">{{ tp.nextSub }}</span>
+      <button style="align-self:stretch;height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap">{{ tp.btn }}<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button>
+    </section>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Skills covered</span>
+      <div style="display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ tp.skills }}" as="k" hint-placeholder-count="4"><span style="height:28px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;font-size:13px;font-weight:500">{{ k }}</span></sc-for></div>
+    </div>
+  </aside>
+</div>
+</sc-if>
+
+<!-- S-18 PRACTICE SETUP -->
+<sc-if value="{{ sPractice }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:24px;max-width:640px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <span style="font-size:13px;font-weight:600;color:var(--primary)">2.3 · Step 3 of 5</span>
+    <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Practice</h1>
+    <span style="font-size:14px;line-height:20px;color:var(--ink2);text-wrap:pretty">Untimed, with feedback after every answer. Practice is not scored.</span>
+  </div>
+  <fieldset style="border:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between"><legend style="padding:0;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Subtopic</legend><button onClick="{{ p.selectAll }}" style="height:48px;margin-right:-12px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Select all</button></div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <sc-for list="{{ p.subs }}" as="c" hint-placeholder-count="4">
+        <sc-if value="{{ c.on }}"><button aria-pressed="true" onClick="{{ c.toggle }}" style="height:48px;padding:0 14px 0 10px;border:1px solid var(--primary);border-radius:4px;background:var(--pc);color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--primary)">check</span>{{ c.label }}</button></sc-if>
+        <sc-if value="{{ c.off }}"><button aria-pressed="false" onClick="{{ c.toggle }}" style="height:48px;padding:0 14px;border:1px solid var(--ink3);border-radius:4px;background:var(--page);color:var(--ink);font-size:14px;font-weight:500">{{ c.label }}</button></sc-if>
+      </sc-for>
+    </div>
+  </fieldset>
+  <fieldset style="border:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px">
+    <legend style="padding:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Difficulty</legend>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      <sc-for list="{{ p.difs }}" as="c" hint-placeholder-count="3">
+        <sc-if value="{{ c.on }}"><button aria-pressed="true" onClick="{{ c.toggle }}" style="height:48px;padding:0 14px 0 10px;border:1px solid var(--primary);border-radius:4px;background:var(--pc);color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="width:22px;height:22px;border-radius:3px;background:var(--primary);color:var(--onp);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ c.k }}</span>{{ c.label }}</button></sc-if>
+        <sc-if value="{{ c.off }}"><button aria-pressed="false" onClick="{{ c.toggle }}" style="height:48px;padding:0 14px 0 10px;border:1px solid var(--ink3);border-radius:4px;background:var(--page);color:var(--ink);font-size:14px;font-weight:500;display:flex;align-items:center;gap:8px"><span style="width:22px;height:22px;box-sizing:border-box;border-radius:3px;border:1px solid var(--ink2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">{{ c.k }}</span>{{ c.label }}</button></sc-if>
+      </sc-for>
+    </div>
+  </fieldset>
+  <sc-if value="{{ p.has }}"><div role="status" style="border-top:1.5px solid var(--rule2);border-bottom:1px solid var(--rule);padding:16px 0;display:flex;flex-direction:column;gap:4px">
+    <span style="display:flex;align-items:baseline;gap:10px"><span style="font-size:40px;line-height:48px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.02em">{{ p.count }}</span><span style="font-size:16px;font-weight:600">questions match</span></span>
+    <span style="font-size:14px;line-height:20px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ p.breakdown }}</span>
+    <span style="font-size:14px;line-height:20px;color:var(--ink2)">A set is 10 questions. Ones you have not seen come first.</span>
+  </div></sc-if>
+  <sc-if value="{{ p.empty }}"><div role="status" style="border:1px dashed var(--ink3);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:8px">
+    <span style="font-family:'Material Symbols Rounded';font-size:28px;color:var(--ink2)">filter_alt_off</span>
+    <span style="font-size:17px;line-height:24px;font-weight:600">No questions match these filters</span>
+    <span style="font-size:14px;line-height:20px;color:var(--ink2);text-wrap:pretty">{{ p.emptyHint }}</span>
+    <button onClick="{{ p.reset }}" style="align-self:flex-start;margin-top:4px;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">restart_alt</span>Reset filters</button>
+  </div></sc-if>
+  <sc-if value="{{ isWide }}"><div>
+    <sc-if value="{{ p.has }}"><button style="height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;white-space:nowrap">{{ p.startLabel }}<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button></sc-if>
+    <sc-if value="{{ p.empty }}"><button disabled="" style="height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--surface2);color:var(--ink2);font-size:14px;font-weight:600;cursor:not-allowed;white-space:nowrap">Start practice</button></sc-if>
+  </div></sc-if>
+</div>
+</sc-if>
+
+<!-- S-23 QUIZ FAILED -->
+<sc-if value="{{ sFailed }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:var(--cols2);gap:var(--gapL);align-items:start">
+  <div style="display:flex;flex-direction:column;gap:24px;min-width:0">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:13px;font-weight:600;color:var(--primary)">Quiz 2.3 · Exponential functions</span>
+      <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Not passed yet</h1>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;border-top:1.5px solid var(--rule2);padding-top:16px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums">13/20</span><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums">65%</span><span style="font-size:14px;color:var(--ink2);font-variant-numeric:tabular-nums">Pass mark 75% (15 of 20)</span></div>
+      <div style="position:relative;height:8px;margin-top:18px;background:var(--rule)" role="img" aria-label="Score 65%, pass mark 75%"><span style="display:block;width:65%;height:100%;background:var(--ink)"></span><span style="position:absolute;left:75%;top:-6px;bottom:-6px;width:2px;background:var(--green)"></span><span style="position:absolute;left:75%;top:-24px;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--green);white-space:nowrap">75%</span></div>
+      <span style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--red)">cancel</span>2 more correct answers to pass</span>
+    </div>
+    <sc-if value="{{ notLaptop }}"><div role="note" style="border-top:1px solid var(--red);padding-top:12px;display:flex;flex-direction:column;gap:6px;color:var(--red)"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty">{{ noteText }}</p></div></sc-if>
+    <div style="display:flex;flex-direction:column">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);padding-bottom:8px;border-bottom:1px solid var(--rule2)">Skills that cost points</span>
+      <sc-for list="{{ missed }}" as="m" hint-placeholder-count="3">
+        <div style="display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid var(--rule)">
+          <span style="flex:1;min-width:0;font-size:15px;line-height:22px;font-weight:500">{{ m.name }}</span>
+          <span aria-hidden="true" style="flex:none;display:flex;gap:2px"><sc-for list="{{ m.cells }}" as="x" hint-placeholder-count="6"><sc-if value="{{ x.miss }}"><span style="width:8px;height:12px;background:var(--red)"></span></sc-if><sc-if value="{{ x.ok }}"><span style="width:8px;height:12px;box-sizing:border-box;border:1px solid var(--ink3)"></span></sc-if></sc-for></span>
+          <span style="flex:none;width:92px;text-align:right;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">{{ m.label }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <section style="border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Review set</span><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">3 of 8 done</span></div>
+      <span style="font-size:17px;line-height:24px;font-weight:600">8 questions on the three skills above</span>
+      <div aria-hidden="true" style="display:flex;gap:3px"><span style="flex:1;height:4px;background:var(--primary)"></span><span style="flex:1;height:4px;background:var(--primary)"></span><span style="flex:1;height:4px;background:var(--primary)"></span><span style="flex:1;height:4px;box-sizing:border-box;border:1px solid var(--primary);background:var(--pc)"></span><span style="flex:1;height:4px;background:var(--rule)"></span><span style="flex:1;height:4px;background:var(--rule)"></span><span style="flex:1;height:4px;background:var(--rule)"></span><span style="flex:1;height:4px;background:var(--rule)"></span></div>
+      <span style="font-size:14px;line-height:20px;color:var(--ink2)">Feedback after each answer, like practice. About 12 min left.</span>
+      <button style="align-self:var(--btnAlign);height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap">Continue review set<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button>
+    </section>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;justify-content:space-between;border-top:1px solid var(--rule);padding-top:16px">
+      <span role="timer" style="display:flex;align-items:flex-start;gap:8px;font-size:14px;line-height:20px;font-weight:600;font-variant-numeric:tabular-nums;flex:1;min-width:200px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">lock_clock</span>{{ retakeText }}</span>
+      <button disabled="" style="height:48px;padding:0 20px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);color:var(--ink2);font-size:14px;font-weight:600;cursor:not-allowed;white-space:nowrap">Retake quiz</button>
+    </div>
+  </div>
+  <sc-if value="{{ isLaptop }}"><aside style="display:flex;align-self:stretch;min-height:320px"><div style="width:1px;flex:none;background:var(--red)"></div><div role="note" style="padding:4px 0 0 24px;display:flex;flex-direction:column;gap:10px;color:var(--red)"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty">{{ noteText }}</p></div></aside></sc-if>
+</div>
+</sc-if>
+
+<div style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2)">Sample data · names, dates and scores are illustrative</div>
+</div>
+</main>
+
+<sc-if value="{{ actPractice }}" hint-placeholder-val="{{ false }}">
+<div style="grid-area:act;border-top:1px solid var(--rule);padding:12px 16px;display:flex;align-items:center;gap:12px;background:var(--page)">
+  <sc-if value="{{ p.has }}"><button style="flex:1;height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;white-space:nowrap">{{ p.startLabel }}</button></sc-if>
+  <sc-if value="{{ p.empty }}"><button disabled="" style="flex:1;height:48px;border:none;border-radius:4px;background:var(--surface2);color:var(--ink2);font-size:14px;font-weight:600;white-space:nowrap">Start practice</button></sc-if>
+</div>
+</sc-if>
+
+</div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;420px&quot;,&quot;height&quot;:&quot;860px&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;courses&quot;,&quot;map&quot;,&quot;topic&quot;,&quot;practice&quot;,&quot;failed&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;expiring&quot;,&quot;firstrun&quot;,&quot;expired&quot;,&quot;preview&quot;,&quot;empty&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;bp&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;tablet&quot;,&quot;laptop&quot;],&quot;default&quot;:&quot;phone&quot;,&quot;tsType&quot;:&quot;'phone'|'tablet'|'laptop'&quot;},&quot;build&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;web&quot;,&quot;app&quot;],&quot;default&quot;:&quot;web&quot;,&quot;tsType&quot;:&quot;'web'|'app'&quot;},&quot;pad&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;}}">
+const UNITS = [
+  ['Linear equations', ['Solving linear equations', 'Linear inequalities', 'Systems of equations', 'Systems in word problems', 'Linear equations in context', 'Absolute value equations', 'Literal equations and formulas']],
+  ['Functions', ['Function notation', 'Linear functions and slope', 'Exponential functions', 'Linear vs exponential growth', 'Transformations of graphs', 'Composite functions', 'Interpreting graphs', 'Function models in context']],
+  ['Quadratics', ['Factoring quadratics', 'The quadratic formula', 'Vertex form', 'Graphs of parabolas', 'Systems with a quadratic', 'Polynomial operations', 'Rational expressions', 'Radicals and exponents']],
+  ['Geometry & trigonometry', ['Angles and parallel lines', 'Triangles and similarity', 'Right triangles', 'Trigonometric ratios', 'Arcs and sectors', 'Circle equations', 'Area and perimeter', 'Volume and surface area', 'Radians and the unit circle']],
+  ['Data & statistics', ['Ratios and rates', 'Percentages', 'Units and conversion', 'Mean, median and spread', 'Data displays', 'Scatterplots and lines of fit', 'Probability', 'Sampling and inference']]
+];
+const PASS = { '1.1': 90, '1.2': 85, '1.3': 80, '1.4': 95, '1.5': 75, '1.6': 85, '1.7': 90, '2.1': 80, '2.2': 85 };
+const SUBS = [['Growth and decay', [6, 5, 3]], ['Writing f(x) = a·bˣ', [5, 4, 2]], ['Percent change as a factor', [4, 5, 3]], ['Exponential graphs', [3, 2, 0]]];
+const DIFS = [['E', 'Easy'], ['M', 'Medium'], ['H', 'Hard']];
+const LAY = {
+  phone: { pad: '16px', h1: '24px', cols2: 'minmax(0,1fr)', colsT: 'minmax(0,1fr)', mapCols: '1', stick: 'sticky', order: '-1', gapL: '24px', btnAlign: 'stretch', areas: "'status' 'top' 'main' 'act' 'nav'", gcols: 'minmax(0,1fr)', grows: '24px 56px minmax(0,1fr) auto 80px', sb: 'none' },
+  tablet: { pad: '24px', h1: '28px', cols2: 'minmax(0,1fr)', colsT: 'minmax(0,1fr)', mapCols: '1', stick: 'sticky', order: '-1', gapL: '24px', btnAlign: 'flex-start', areas: "'nav top' 'nav main' 'nav act'", gcols: '80px minmax(0,1fr)', grows: '64px minmax(0,1fr) auto', sb: 'none' },
+  laptop: { pad: '32px', h1: '32px', cols2: 'minmax(0,1fr) 320px', colsT: 'repeat(2,minmax(0,1fr))', mapCols: '2', stick: 'static', order: '0', gapL: '40px', btnAlign: 'flex-start', areas: "'nav top' 'nav main' 'nav act'", gcols: '256px minmax(0,1fr)', grows: '72px minmax(0,1fr) auto', sb: 'thin' }
+};
+const steps5 = (done, cur) => ['Video', 'Notes', 'Practice', 'Homework', 'Quiz'].map((l, i) => ({ l, d: i < done, c: i === cur, t: i >= done && i !== cur }));
+
+class Component extends DCLogic {
+  state = { secs: 702, sub: null, dif: null };
+  mainRef = React.createRef();
+  componentDidMount() {
+    this.tick = setInterval(() => { if (this.props.screen === 'failed') this.setState(s => ({ secs: Math.max(0, s.secs - 1) })); }, 1000);
+    this.scrollMap();
+  }
+  componentDidUpdate(pp) {
+    if (pp.screen !== this.props.screen || pp.bp !== this.props.bp) this.scrollMap();
+    if (pp.state !== this.props.state) this.setState({ sub: null, dif: null });
+  }
+  componentWillUnmount() { clearInterval(this.tick); }
+  scrollMap() {
+    setTimeout(() => {
+      const m = this.mainRef.current; if (!m) return;
+      if ((this.props.screen ?? 'home') === 'map' && (this.props.bp ?? 'phone') === 'phone') {
+        const el = m.querySelector('[data-unit="2"]'); if (el) m.scrollTop = el.offsetTop + 120;
+      } else m.scrollTop = 0;
+    }, 120);
+  }
+  renderVals() {
+    const bp = this.props.bp ?? 'phone', screen = this.props.screen ?? 'home', st = this.props.state ?? 'default';
+    const web = (this.props.build ?? 'web') === 'web';
+    const isPhone = bp === 'phone', isTablet = bp === 'tablet', isLaptop = bp === 'laptop';
+    const F = { phone: ['360px', '780px', '10px solid #1A1D24', '32px'], tablet: ['768px', '1024px', '10px solid #1A1D24', '24px'], laptop: ['100%', '100%', 'none', '0'] }[bp];
+    const L = LAY[bp];
+    const isRoot = screen === 'home' || screen === 'courses';
+    const preview = screen === 'topic' && st === 'preview';
+    const T = {
+      home: ['Home', ''], courses: ['My courses', ''], map: ['SAT Math', 'Contents'],
+      topic: preview ? ['1.1 Linear equations review', 'EST Math · Unit 1'] : ['2.3 Exponential functions', 'SAT Math · Unit 2'],
+      practice: ['Practice setup', '2.3 Exponential functions'], failed: ['Quiz result', '2.3 Exponential functions']
+    }[screen];
+    const navActive = screen === 'home' ? 0 : 1;
+    const nav = [['home', 'Home'], ['menu_book', 'Courses'], ['insights', 'Skills'], ['timer', 'Mock exams'], ['person', 'Profile']].map(([icon, label], i) => ({ icon, label: isTablet && i === 3 ? 'Mock exams' : label, on: i === navActive, off: i !== navActive }));
+
+    const firstrun = st === 'firstrun', expired = st === 'expired';
+    const h = {
+      greet: firstrun ? 'Welcome, Youssef' : 'Hi, Youssef',
+      sub: firstrun ? 'SAT Math · your path starts at topic 1.1' : expired ? 'SAT Math' : 'SAT Math · Unit 2 of 5, Functions',
+      expiring: st === 'expiring', expired, firstrun, hasContinue: !expired,
+      expNote: web ? 'Renew before then to keep going without a break. Your progress stays saved either way.' : 'Your progress stays saved after access ends.',
+      expBody: web ? 'Renew to continue from exactly there.' : 'Renewal is not available in the app.',
+      card: firstrun
+        ? { eyebrow: 'Start here', unit: 'Unit 1 · Linear equations', topic: '1.1 Solving linear equations', stepLine: 'Step 1 of 5, Video', stepLabel: 'Step 1 of 5 · Video', icon: 'play_circle', next: 'Video 1.1 — 14 min lesson, then two pages of notes', nextSub: 'Have paper and a pencil ready.', btn: 'Start topic 1.1', steps: steps5(0, 0) }
+        : { eyebrow: 'Continue where you left off', unit: 'Unit 2 · Functions', topic: '2.3 Exponential functions', stepLine: 'Step 4 of 5, Homework', stepLabel: 'Step 4 of 5 · Homework · Quiz next', icon: 'assignment', next: 'Homework 2.3 — 20 questions, about 30 min', nextSub: '8 answered, 12 to go. Your answers are saved.', btn: 'Continue homework', steps: steps5(3, 3) },
+      showLive: !expired, showStreak: !firstrun && !expired,
+      liveTitle: firstrun ? 'Welcome session: how the course works' : 'Functions Q&A with Abdelrahman',
+      coursePassed: firstrun ? '0 of 40 topics passed' : '9 of 40 topics passed', coursePct: firstrun ? '0%' : '22.5%',
+      courseNote: firstrun ? 'Each topic opens when you pass the quiz before it.' : expired ? 'Your scores and skill report stay saved.' : 'Unit 3 Quadratics opens after 2.8.'
+    };
+    const days = [['Sa', 1], ['Su', 0], ['Mo', 1], ['Tu', 1], ['We', 1], ['Th', 1, 1], ['Fr', 0]].map(([l, on, today]) => ({ l, on: !!on, off: !on, today: !!today, notToday: !today, aria: `${l}${today ? ' (today)' : ''}: ${on ? 'studied' : 'no study'}` }));
+
+    const units = UNITS.map(([name, ts], ui) => {
+      const topics = ts.map((tn, ti) => {
+        const n = `${ui + 1}.${ti + 1}`, passed = n in PASS, cur = n === '2.3', open = n === '3.1';
+        return { n, name: tn, vP: passed, vC: cur, vO: open, vL: !passed && !cur && !open, score: passed ? `Quiz ${PASS[n]}%` : '', free: n === '1.1', hasUnlock: n === '2.4', unlockMsg: 'Pass the 2.3 quiz to unlock', segLabel: passed ? '5 of 5 steps done' : cur ? '3 of 5 steps done, homework in progress' : '0 of 5 steps done' };
+      });
+      const pc = topics.filter(t => t.vP).length;
+      return { id: String(ui + 1), title: `Unit ${ui + 1} · ${name}`, count: pc ? `${pc} of ${ts.length} passed` : `${ts.length} topics`, topics };
+    });
+
+    const S = (n, name, what, rule, kind, extra = {}) => ({ n, name, what, rule, d: kind === 'd', c: kind === 'c', l: kind === 'l', hasTag: !!extra.tag, tag: extra.tag || '', action: extra.action || '', hasBar: !!extra.pct, pct: extra.pct || '0%' });
+    const tp = preview ? {
+      crumb: 'EST Math · Unit 1 · Algebra foundations', title: '1.1 Linear equations review', time: 'About 1 h 20 min', free: true,
+      next: 'Video 1.1 — 12 min lesson', nextSub: 'Watch at least 80% to open the notes. Homework and quiz open when you enrol in EST Math.', btn: 'Watch video',
+      skills: ['One-variable equations', 'Equations with fractions', 'Checking a solution'],
+      steps: [S(1, 'Video', '12 min', 'Watched 0% · needs 80%', 'c', { pct: '1%' }), S(2, 'Notes', 'Booklet pages 1–4', 'Watch 80% of the video to unlock', 'l'), S(3, 'Practice', '10 questions', 'Open the notes to unlock', 'l'), S(4, 'Homework', '20 questions · scored', 'Enrol in EST Math to unlock', 'l'), S(5, 'Quiz', '20 questions · 30 min', 'Enrol in EST Math to unlock', 'l')]
+    } : {
+      crumb: 'SAT Math · Unit 2 · Functions', title: '2.3 Exponential functions', time: 'About 2 h 10 min · about 50 min left', free: false,
+      next: 'Homework 2.3 — 12 questions left, about 18 min', nextSub: 'Your 8 answers are saved. Submit all 20 to open the quiz.', btn: 'Continue homework',
+      skills: ['Growth and decay', 'Writing f(x) = a·bˣ', 'Percent change as a factor', 'Exponential graphs'],
+      steps: [S(1, 'Video', '22 min', 'Watched 94% · needs 80%', 'd', { action: 'Rewatch' }), S(2, 'Notes', 'Booklet pages 41–46', 'Opened · needs one full read', 'd', { action: 'Open' }), S(3, 'Practice', 'feedback after every answer', 'Practised 7 of 7', 'd', { action: 'More', tag: 'Lowered from 10 to 7 by your teacher' }), S(4, 'Homework', '20 questions · scored', '8 of 20 answered · submit all 20', 'c', { pct: '40%' }), S(5, 'Quiz', '20 questions · 30 min', 'Pass mark 75% · submit the homework to unlock', 'l')]
+    };
+
+    const empty0 = st === 'empty';
+    const sub = this.state.sub ?? (empty0 ? [3] : [0, 1, 2]);
+    const dif = this.state.dif ?? (empty0 ? [2] : [0, 1, 2]);
+    const per = [0, 1, 2].map(d => dif.includes(d) ? sub.reduce((a, s) => a + SUBS[s][1][d], 0) : 0);
+    const count = per.reduce((a, b) => a + b, 0);
+    const tog = (key, cur, i) => () => this.setState({ [key]: cur.includes(i) ? cur.filter(x => x !== i) : [...cur, i].sort() });
+    const p = {
+      subs: SUBS.map(([label], i) => ({ label, on: sub.includes(i), off: !sub.includes(i), toggle: tog('sub', sub, i) })),
+      difs: DIFS.map(([k, label], i) => ({ k, label, on: dif.includes(i), off: !dif.includes(i), toggle: tog('dif', dif, i) })),
+      count: String(count), has: count > 0, empty: count === 0,
+      breakdown: DIFS.map(([, l], i) => `${l} ${per[i]}`).join(' · '),
+      startLabel: `Start practice · ${Math.min(10, count)} questions`,
+      emptyHint: !sub.length || !dif.length ? 'Pick at least one subtopic and one difficulty.' : 'There are no questions at this level for the subtopics you picked. Add another difficulty or subtopic.',
+      selectAll: () => this.setState({ sub: [0, 1, 2, 3] }),
+      reset: () => this.setState({ sub: [0, 1, 2, 3], dif: [0, 1, 2] })
+    };
+
+    const mm = String(Math.floor(this.state.secs / 60)).padStart(2, '0'), ss = String(this.state.secs % 60).padStart(2, '0');
+    const mk = (name, miss, of) => ({ name, label: `${miss} of ${of} missed`, cells: Array.from({ length: of }, (_, i) => ({ miss: i < miss, ok: i >= miss })) });
+
+    return {
+      frameW: F[0], frameH: F[1], bezel: F[2], frameR: F[3], pad: this.props.pad ?? (isLaptop ? '0' : '24px'),
+      L, mainRef: this.mainRef, isPhone, isTablet, isLaptop, isWide: !isPhone, notLaptop: !isLaptop, web,
+      isRoot, notRoot: !isRoot, title: T[0], sub: T[1], hasSub: !!T[1],
+      topFs: isRoot ? (isPhone ? '20px' : isTablet ? '22px' : '28px') : (isPhone ? '16px' : '18px'),
+      topPadL: isRoot ? (isLaptop ? '32px' : '24px') : '12px',
+      nav, sHome: screen === 'home', sCourses: screen === 'courses', sMap: screen === 'map', sTopic: screen === 'topic', sPractice: screen === 'practice', sFailed: screen === 'failed',
+      h, days, units, tp, p, actPractice: screen === 'practice' && isPhone,
+      missed: [mk('Percent change as a factor', 4, 6), mk('Exponential graphs', 2, 5), mk('Growth vs decay', 1, 5)],
+      retakeText: `Retake opens in ${mm}:${ss} — finish the review set first`,
+      noteText: 'Two more right answers and you pass. Most of your points went on percent change as a factor, so do the 8 review questions slowly and read every explanation. Then retake, and show me 15.'
+    };
+  }
+}
+</script>
+</body>
+</html>
