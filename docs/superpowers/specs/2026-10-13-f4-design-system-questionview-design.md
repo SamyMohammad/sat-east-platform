@@ -95,3 +95,14 @@ Definition of done: `dart format`, `flutter analyze --fatal-infos`, `flutter tes
 ## Open decisions (do not block the plan)
 - Quiz pass mark in `Teacher Area A` mock text says 70%; spec value is `settings.pass_mark = 75`. Code reads settings.
 - Stuck/inactive rules in teacher dashboards are design assumptions; confirm before those screens are built.
+
+## Spike result (2026-10-13)
+Verdict: PASS (accepted by the user with items 9–11 deferred). Flutter 3.44.1, flutter_math_fork 0.7.4.
+1. Compatibility: resolves; adds flutter_svg 2.3.0 and small transitive packages.
+2. Glyphs: fractions, roots, italics render on web (CanvasKit); 20 KaTeX TTFs bundled (~0.5 MB).
+3. Baseline: inline `Math.tex` in a baseline `WidgetSpan` sits on the text line, no exception.
+4. Arabic: math inside an Arabic sentence renders; paragraph RTL is `MathText`'s job.
+5. Fallback: invalid TeX uses `onErrorFallback`, no error screen.
+6. Text scaling: `Math.tex` follows `textScaler` by itself (17.4×28.1 at 1×, 34.7×56.2 at 2×).
+7. Size: release `main.dart.js` 2.49 → 2.91 MB (+0.4 MB). `--wasm` build succeeds.
+Deferred: 360 px visual check (covered by the Task 5 widget test at 360 / 2×), frame-time measurement (measure on the staging gallery), Android run.
