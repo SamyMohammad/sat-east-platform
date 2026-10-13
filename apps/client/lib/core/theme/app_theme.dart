@@ -12,6 +12,7 @@ abstract final class AppTheme {
   static ThemeData _build(ColorScheme scheme, BookletColors booklet) {
     final text = BookletType.textTheme().apply(
       fontFamily: BookletFonts.sans,
+      fontFamilyFallback: const [BookletFonts.arabic],
       bodyColor: scheme.onSurface,
       displayColor: scheme.onSurface,
     );
@@ -31,6 +32,7 @@ abstract final class AppTheme {
 
     return ThemeData(
       colorScheme: scheme,
+      visualDensity: VisualDensity.standard,
       fontFamily: BookletFonts.sans,
       fontFamilyFallback: const [BookletFonts.arabic],
       textTheme: text,
@@ -91,17 +93,19 @@ abstract final class AppTheme {
         ),
       ),
       dialogTheme: DialogThemeData(
-        backgroundColor: scheme.surface,
+        backgroundColor: scheme.surfaceContainerLow,
         surfaceTintColor: scheme.surfaceTint,
         elevation: overlayElevation,
         shadowColor: booklet.overlayShadow,
         barrierColor: booklet.scrim,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(radiusMd),
+        titleTextStyle: text.titleLarge,
+        shape: RoundedRectangleBorder(
+          borderRadius: const BorderRadius.all(radiusMd),
+          side: BorderSide(color: scheme.outlineVariant),
         ),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: scheme.surface,
+        backgroundColor: scheme.surfaceContainerLow,
         surfaceTintColor: scheme.surfaceTint,
         elevation: overlayElevation,
         modalElevation: overlayElevation,

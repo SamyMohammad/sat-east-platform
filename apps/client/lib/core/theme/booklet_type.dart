@@ -73,5 +73,6 @@ abstract final class BookletType {
     fontSize: 16,
     height: 28 / 16,
     fontWeight: FontWeight.w400,
+    letterSpacing: 0, // tracking breaks Arabic letter joins
   );
 }

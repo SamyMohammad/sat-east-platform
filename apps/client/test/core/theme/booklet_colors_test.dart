@@ -40,18 +40,51 @@ void main() {
     }
   });
 
-  test('F-4: lerp at 0 and 1 returns the endpoints', () {
-    const l = BookletColors.light;
-    const d = BookletColors.dark;
-    expect(l.lerp(d, 0).greenTick, l.greenTick);
-    expect(l.lerp(d, 1).greenTick, d.greenTick);
-    expect(l.lerp(d, 1).examBarWarning, d.examBarWarning);
-  });
-
   test('F-4: copyWith replaces only the given field', () {
     const red = Color(0xFFFF0000);
     final c = BookletColors.light.copyWith(info: red);
     expect(c.info, red);
     expect(c.warning, BookletColors.light.warning);
+  });
+
+  test('F-4: scheme scrim is translucent (ink 48% light, black 60% dark)', () {
+    expect(BookletSchemes.light.scrim, const Color(0x7A1A1D24));
+    expect(BookletSchemes.dark.scrim, const Color(0x99000000));
+  });
+
+  test('F-4: nav indicator and tonal roles use the selected tint', () {
+    expect(
+      BookletSchemes.light.secondaryContainer,
+      BookletSchemes.light.primaryContainer,
+    );
+    expect(
+      BookletSchemes.dark.secondaryContainer,
+      BookletSchemes.dark.primaryContainer,
+    );
+    expect(
+      BookletSchemes.light.tertiaryContainer,
+      BookletSchemes.light.primaryContainer,
+    );
+    expect(
+      BookletSchemes.light.onSecondaryContainer,
+      BookletSchemes.light.onSurface,
+    );
+  });
+
+  test('F-4: booklet colors have value equality', () {
+    expect(BookletColors.light.copyWith(), BookletColors.light);
+    expect(
+      BookletColors.light.copyWith().hashCode,
+      BookletColors.light.hashCode,
+    );
+    expect(BookletColors.light, isNot(BookletColors.dark));
+  });
+
+  test('F-4: lerp at 0 and 1 returns the endpoints for every field', () {
+    expect(
+      BookletColors.light.lerp(BookletColors.dark, 0),
+      BookletColors.light,
+    );
+    expect(BookletColors.light.lerp(BookletColors.dark, 1), BookletColors.dark);
   });
 }

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show listEquals;
 import 'package:flutter/material.dart';
 
 /// Material roles, hex from Foundations.dc.html (light + dark columns).
@@ -28,8 +29,15 @@ abstract final class BookletSchemes {
     onInverseSurface: Color(0xFFFFFFFF),
     inversePrimary: Color(0xFF86A5FF),
     shadow: Color(0xFF1A1D24),
-    scrim: Color(0xFF1A1D24),
+    scrim: Color(0x7A1A1D24), // ink @ 48%
     surfaceTint: Color(0x00000000),
+    // Booklet has one accent; tonal/indicator roles reuse the selected tint (App Shell active pill).
+    secondaryContainer: Color(0xFFE9EEFB),
+    onSecondaryContainer: Color(0xFF1A1D24),
+    tertiary: Color(0xFF4B5262),
+    onTertiary: Color(0xFFFFFFFF),
+    tertiaryContainer: Color(0xFFE9EEFB),
+    onTertiaryContainer: Color(0xFF1A1D24),
   );
 
   static const ColorScheme dark = ColorScheme(
@@ -58,8 +66,15 @@ abstract final class BookletSchemes {
     onInverseSurface: Color(0xFF11141A),
     inversePrimary: Color(0xFF1F4FD6),
     shadow: Color(0xFF000000),
-    scrim: Color(0xFF000000),
+    scrim: Color(0x99000000), // black @ 60%
     surfaceTint: Color(0x00000000),
+    // Booklet has one accent; tonal/indicator roles reuse the selected tint (App Shell active pill).
+    secondaryContainer: Color(0xFF1C2850),
+    onSecondaryContainer: Color(0xFFE7E9EE),
+    tertiary: Color(0xFFA8AFBC),
+    onTertiary: Color(0xFF11141A),
+    tertiaryContainer: Color(0xFF1C2850),
+    onTertiaryContainer: Color(0xFFE7E9EE),
   );
 }
 
@@ -154,6 +169,38 @@ class BookletColors extends ThemeExtension<BookletColors> {
   final Color scrim;
   final Color overlayShadow;
 
+  List<Color> get _fields => [
+    frameTint,
+    inkDisabled,
+    primaryHover,
+    greenTick,
+    greenTickContainer,
+    highlighter,
+    onHighlighter,
+    warning,
+    warningContainer,
+    info,
+    infoContainer,
+    examBar,
+    onExamBar,
+    onExamBarVariant,
+    examBarRule,
+    examBarPrimary,
+    examBarWarning,
+    scrim,
+    overlayShadow,
+  ];
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other.runtimeType != runtimeType) return false;
+    return other is BookletColors && listEquals(_fields, other._fields);
+  }
+
+  @override
+  int get hashCode => Object.hashAll(_fields);
+
   @override
   BookletColors copyWith({
     Color? frameTint,
@@ -229,5 +276,13 @@ class BookletColors extends ThemeExtension<BookletColors> {
 
 extension BookletThemeContext on BuildContext {
   /// Booklet roles of the current theme. Set by `AppTheme`.
-  BookletColors get booklet => Theme.of(this).extension<BookletColors>()!;
+  BookletColors get booklet {
+    final ext = Theme.of(this).extension<BookletColors>();
+    if (ext == null) {
+      throw FlutterError(
+        'BookletColors missing: wrap the tree in AppTheme.light()/dark()',
+      );
+    }
+    return ext;
+  }
 }
