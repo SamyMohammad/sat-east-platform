@@ -23,9 +23,34 @@ abstract final class BookletRadius {
 /// Fixed sizes shared by many widgets.
 abstract final class BookletSize {
   static const double touchTarget = 48;
+
+  /// Choice tile min height, SPR field height, keypad key height.
+  static const double largeControl = 56;
+  static const double choiceBadge = 28;
+  static const double sprInputWidth = 200;
+  static const double iconSmall = 20;
+  static const double iconStatus = 18;
   static const double readingColumn = 640;
   static const double questionColumn = 720;
   static const double blockMathMinHeight = 64;
+}
+
+/// Line widths (Components.dc.html borders, outlines, strike).
+abstract final class BookletStroke {
+  static const double thin = 1;
+  static const double badge = 1.5;
+  static const double strong = 2;
+  static const double strike = 1.5;
+  static const double focusRing = 2;
+  static const double focusGap = 2;
+  static const double dash = 4;
+  static const double dashGap = 3;
+}
+
+/// Opacity roles.
+abstract final class BookletOpacity {
+  /// Text of a crossed-out choice.
+  static const double eliminated = 0.6;
 }
 
 /// App shell layouts: bottom nav, rail, sidebar (App Shell.dc.html).
