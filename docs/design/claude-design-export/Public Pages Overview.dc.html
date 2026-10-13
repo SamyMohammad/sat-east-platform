@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="padding:56px;display:flex;flex-direction:column;gap:72px;color:#1A1D24;width:max-content">
+<header style="display:flex;flex-direction:column;gap:8px;max-width:960px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">Session 9 · Public pages · S-01 S-02 S-04</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Overview · 360 / 1440 · legal 360 / 1280</h1>
+  <div style="font-size:16px;line-height:24px;color:#4B5262;text-wrap:pretty">Full-length pages. Brand expression comes from scale: the name set large with the pen underline, the red-pen note on a live sample question, and one ballpoint-blue band. Results, teacher photo and bio are labelled placeholder slots. Prices, dates and legal text are sample content for review. Public copy says "exam-style" and never names Bluebook.</div>
+  <nav style="display:flex;gap:20px;font-size:14px;font-weight:600"><a href="Public Pages.dc.html">Single page</a><a href="Account and Commerce Overview.dc.html">Account and commerce</a><a href="Foundations.dc.html">Foundations</a></nav>
+</header>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="3">
+<section data-screen-label="{{ r.label }}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid #1A1D24;padding-top:12px"><span style="font-size:14px;font-weight:600;color:#1F4FD6">{{ r.no }}</span><h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600">{{ r.title }}</h2><span style="font-size:14px;color:#4B5262">{{ r.note }}</span></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">360</span><div style="width:360px;background:#FFFFFF;outline:1px solid #C9CED8"><dc-import name="Public Pages" page="{{ r.page }}" doc="{{ r.doc }}" bp="phone" hint-size="360px,3000px" style="width:360px"></dc-import></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">{{ r.wl }}</span><div style="width:{{ r.w }};background:#FFFFFF;outline:1px solid #C9CED8"><dc-import name="Public Pages" page="{{ r.page }}" doc="{{ r.doc }}" bp="desktop" hint-size="1440px,3000px" style="width:{{ r.w }}"></dc-import></div></div>
+  </div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROWS = [
+  ['landing', 'terms', 'S-01 Landing', 'Hero, path, difference, courses, results slots, teacher, FAQ, free-topic CTA', 1440],
+  ['course', 'terms', 'S-02 Course page · SAT Math', 'Syllabus by unit, price in EGP, access rule, buy on web; units collapse on phone', 1440],
+  ['legal', 'terms', 'S-04 Legal · Terms of use', 'Tabs for the three documents, contents list, 700 px reading measure', 1280],
+  ['legal', 'refund', 'S-04 Legal · Refund policy', '', 1280]
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: ROWS.map(([page, doc, title, note, w], i) => { const no = String(i + 1).padStart(2, '0');
+      return { page, doc, title, note, no, label: `${no} ${title}`, w: w + 'px', wl: String(w) }; }) };
+  }
+}
+</script>
+</body>
+</html>

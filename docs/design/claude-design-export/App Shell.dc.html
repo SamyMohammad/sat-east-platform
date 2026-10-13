@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<style>
+body{margin:0;background:#F6F7F9;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1F4FD6}a:hover{color:#15379A}
+</style>
+</helmet>
+<div style="--page:#FFFFFF;--surface:#FFFFFF;--surface2:#F6F7F9;--frame:#EEF2F8;--ink:#1A1D24;--ink2:#4B5262;--ink3:#9AA1AD;--onp:#FFFFFF;--rule:#D8DDE6;--rule2:#1A1D24;--primary:#1F4FD6;--desk:#ECEEF2;--pcAmt:10%">
+<div style="{{ themeVars }}">
+<div style="--pc:color-mix(in srgb,var(--primary) var(--pcAmt),var(--page));background:var(--desk);color:var(--ink);min-height:100vh;padding:48px;box-sizing:border-box;display:flex;flex-direction:column;gap:56px">
+
+<header style="display:flex;flex-direction:column;gap:8px;max-width:900px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)">Session 1 · App shell · container only</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Shell at 360 / 768 / 1280</h1>
+  <div style="font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">Standard Material 3 navigation patterns in booklet type and colour. Focus mode hides all navigation while a quiz or mock is running. <a href="Components.dc.html" style="color:var(--primary);font-weight:600">Components</a> · <a href="Foundations.dc.html" style="color:var(--primary);font-weight:600">Foundations</a></div>
+</header>
+
+<section style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+
+  <!-- PHONE -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:12px;align-items:baseline"><span style="font-size:14px;font-weight:700">Phone · 360</span><span style="font-size:13px;color:var(--ink2)">Bottom navigation · AE in top bar</span></div>
+    <div data-screen-label="Phone 360" style="width:360px;height:760px;background:var(--page);border:1px solid var(--rule);display:flex;flex-direction:column;overflow:hidden">
+      <div style="height:24px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;gap:12px;padding:0 4px 0 16px;border-bottom:1px solid var(--rule)">
+        <span style="width:32px;height:32px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--onp);font-size:13px;font-weight:700;letter-spacing:-.03em">AE</span>
+        <span style="flex:1;font-size:20px;font-weight:600">Home</span>
+        <span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">notifications</span>
+      </div>
+      <div style="flex:1;margin:16px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px">page content · margin 16</span></div>
+      <nav style="height:80px;flex:none;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(5,1fr);background:var(--page)">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="width:56px;height:32px;border-radius:4px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--primary);font-variation-settings:'FILL' 1">home</span><span style="font-size:12px;font-weight:700">Home</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">menu_book</span><span style="font-size:12px;font-weight:500">Courses</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">insights</span><span style="font-size:12px;font-weight:500">Skills</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">timer</span><span style="font-size:12px;font-weight:500;white-space:nowrap">Mock exams</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">person</span><span style="font-size:12px;font-weight:500">Profile</span></div>
+      </nav>
+    </div>
+  </div>
+
+  <!-- PHONE FOCUS -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:12px;align-items:baseline"><span style="font-size:14px;font-weight:700">Phone · focus mode</span><span style="font-size:13px;color:var(--ink2)">Quiz / mock in progress</span></div>
+    <div data-screen-label="Phone focus" style="width:360px;height:760px;background:var(--page);border:1px solid var(--rule);display:flex;flex-direction:column;overflow:hidden">
+      <div style="height:24px;flex:none"></div>
+      <div style="height:56px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 4px;border-bottom:1px solid var(--rule)">
+        <span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">close</span>
+        <span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">11:42</span>
+        <span style="display:flex"><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">calculate</span><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">more_vert</span></span>
+      </div>
+      <div style="height:4px;flex:none;background:var(--rule)"><div style="width:30%;height:100%;background:var(--primary)"></div></div>
+      <div style="flex:1;margin:16px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px">question · answer · margin note</span></div>
+      <div style="height:72px;flex:none;border-top:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;padding:0 16px">
+        <span style="height:48px;padding:0 16px;border:1px solid var(--primary);border-radius:4px;display:flex;align-items:center;color:var(--primary);font-size:14px;font-weight:600">Back</span>
+        <span style="height:48px;padding:0 8px;display:flex;align-items:center;gap:2px;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">3 of 10<span style="font-family:'Material Symbols Rounded';font-size:20px">expand_less</span></span>
+        <span style="height:48px;padding:0 20px;border-radius:4px;background:var(--primary);display:flex;align-items:center;color:var(--onp);font-size:14px;font-weight:600">Next</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLET -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:12px;align-items:baseline"><span style="font-size:14px;font-weight:700">Tablet · 768</span><span style="font-size:13px;color:var(--ink2)">Navigation rail 80 · monogram at top</span></div>
+    <div data-screen-label="Tablet 768" style="width:768px;height:1024px;background:var(--page);border:1px solid var(--rule);display:flex;overflow:hidden">
+      <nav style="width:80px;flex:none;border-right:1px solid var(--rule);display:flex;flex-direction:column;align-items:center;padding-top:20px;gap:12px">
+        <span style="width:40px;height:40px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--onp);font-size:16px;font-weight:700;letter-spacing:-.03em;margin-bottom:20px">AE</span>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:80px;padding:4px 0"><span style="width:56px;height:32px;border-radius:4px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--primary);font-variation-settings:'FILL' 1">home</span><span style="font-size:12px;font-weight:700">Home</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:80px;padding:4px 0;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">menu_book</span><span style="font-size:12px;font-weight:500">Courses</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:80px;padding:4px 0;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">insights</span><span style="font-size:12px;font-weight:500">Skills</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:80px;padding:4px 0;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">timer</span><span style="font-size:12px;font-weight:500;text-align:center;line-height:14px">Mock<br>exams</span></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px;width:80px;padding:4px 0;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">person</span><span style="font-size:12px;font-weight:500">Profile</span></div>
+      </nav>
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <div style="height:64px;flex:none;display:flex;align-items:center;padding:0 12px 0 24px;border-bottom:1px solid var(--rule)"><span style="flex:1;font-size:22px;font-weight:600">Home</span><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">notifications</span></div>
+        <div style="flex:1;margin:24px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px">page content · margin 24 · max 640 reading column</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAPTOP -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:12px;align-items:baseline"><span style="font-size:14px;font-weight:700">Laptop · 1280</span><span style="font-size:13px;color:var(--ink2)">Left sidebar 256 · full wordmark</span></div>
+    <div data-screen-label="Laptop 1280" style="width:1280px;height:800px;background:var(--page);border:1px solid var(--rule);display:flex;overflow:hidden">
+      <nav style="width:256px;flex:none;border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:28px 12px 16px">
+        <div style="padding:0 12px 28px;display:flex;flex-direction:column;gap:10px">
+          <div style="font-size:19px;line-height:26px;font-weight:700;letter-spacing:-.02em">Abdelrahman <span style="text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></div>
+          <div style="font-size:12px;font-weight:600;color:var(--ink2)">SAT &amp; EST Math</div>
+        </div>
+        <div style="border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;gap:2px">
+          <div style="height:48px;border-radius:4px;background:var(--pc);display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--primary)"><span style="font-family:'Material Symbols Rounded';font-size:24px;font-variation-settings:'FILL' 1">home</span><span style="font-size:14px;font-weight:700;color:var(--ink)">Home</span></div>
+          <div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">menu_book</span><span style="font-size:14px;font-weight:500;color:var(--ink)">Courses</span></div>
+          <div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2);background:var(--surface2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">insights</span><span style="font-size:14px;font-weight:500;color:var(--ink)">Skills</span><span style="margin-left:auto;font-size:11px;color:var(--ink2)">hover</span></div>
+          <div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">timer</span><span style="font-size:14px;font-weight:500;color:var(--ink)">Mock exams</span></div>
+          <div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2);outline:2px solid var(--primary);outline-offset:-2px"><span style="font-family:'Material Symbols Rounded';font-size:24px">person</span><span style="font-size:14px;font-weight:500;color:var(--ink)">Profile</span><span style="margin-left:auto;font-size:11px;color:var(--ink2)">focus</span></div>
+        </div>
+      </nav>
+      <div style="flex:1;display:flex;flex-direction:column;min-width:0">
+        <div style="height:72px;flex:none;display:flex;align-items:center;padding:0 20px 0 32px;border-bottom:1px solid var(--rule)"><span style="flex:1;font-size:28px;font-weight:600;letter-spacing:-.01em">Home</span><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">notifications</span></div>
+        <div style="flex:1;margin:32px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px">page content · margin 32 · 12-col grid, gutter 24</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LAPTOP FOCUS -->
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <div style="display:flex;gap:12px;align-items:baseline"><span style="font-size:14px;font-weight:700">Laptop · focus mode</span><span style="font-size:13px;color:var(--ink2)">Mock exam · sidebar hidden · margin column on the right</span></div>
+    <div data-screen-label="Laptop focus" style="width:1280px;height:800px;background:var(--page);border:1px solid var(--rule);display:flex;flex-direction:column;overflow:hidden">
+      <div style="height:64px;flex:none;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px 0 24px;border-bottom:1px solid var(--rule)">
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:32px;height:32px;border-radius:4px;border:1.5px solid var(--rule2);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">AE</span><span style="font-size:16px;font-weight:600">Mock 1 · Module 2 · Math</span></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">31:58</span><span style="height:32px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;font-size:12px;font-weight:600">Hide</span></div>
+        <div style="display:flex;justify-content:flex-end;gap:4px">
+          <span style="height:48px;padding:0 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">calculate</span>Desmos</span>
+          <span style="height:48px;padding:0 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">functions</span>Reference</span>
+          <span style="height:48px;padding:0 12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">more_horiz</span>More</span>
+        </div>
+      </div>
+      <div style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 1px 320px;min-height:0">
+        <div style="margin:32px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px">question + choices · max 720</span></div>
+        <div style="background:var(--rule)"></div>
+        <div style="margin:32px 24px;display:flex;align-items:center;justify-content:center;background:repeating-linear-gradient(135deg,var(--surface2) 0 8px,var(--page) 8px 16px);border:1px dashed var(--rule)"><span style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2);background:var(--page);padding:4px 8px;text-align:center">margin column 320<br>teacher's note in review</span></div>
+      </div>
+      <div style="height:72px;flex:none;border-top:1px solid var(--rule);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 24px">
+        <span style="font-size:14px;color:var(--ink2)">Your answers save as you go</span>
+        <span style="height:44px;padding:0 16px;background:var(--ink);color:var(--page);border-radius:4px;display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums">Question 7 of 22<span style="font-family:'Material Symbols Rounded';font-size:20px">expand_less</span></span>
+        <span style="display:flex;justify-content:flex-end;gap:12px"><span style="height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;display:flex;align-items:center;color:var(--primary);font-size:14px;font-weight:600">Back</span><span style="height:48px;padding:0 24px;border-radius:4px;background:var(--primary);display:flex;align-items:center;color:var(--onp);font-size:14px;font-weight:600">Next</span></span>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+<section style="max-width:900px;display:flex;flex-direction:column;font-size:14px;line-height:20px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);padding-bottom:10px;border-bottom:1px solid var(--rule2)">Shell rules</div>
+  <div style="display:grid;grid-template-columns:160px 1fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--rule)"><span style="font-weight:600">Breakpoints</span><span>≤600 bottom nav · 600–1024 rail · ≥1024 sidebar (NavigationBar / NavigationRail / NavigationDrawer, permanent)</span></div>
+  <div style="display:grid;grid-template-columns:160px 1fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--rule)"><span style="font-weight:600">Active destination</span><span>primary.container indicator, radius.sm, filled icon, bold label. Shape and weight change, not only colour.</span></div>
+  <div style="display:grid;grid-template-columns:160px 1fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--rule)"><span style="font-weight:600">Focus mode</span><span>All navigation removed. Exit only through the close action and a confirmation dialog. Tablet follows the laptop layout with the margin column stacked under the question.</span></div>
+  <div style="display:grid;grid-template-columns:160px 1fr;gap:16px;padding:10px 0;border-bottom:1px solid var(--rule)"><span style="font-weight:600">Keyboard (web)</span><span>Skip link to content; Tab order: navigation → top bar → content. In focus mode: ←/→ previous/next, A–D select, Shift+A–D eliminate, M mark.</span></div>
+</section>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Light&quot;,&quot;Dark&quot;],&quot;default&quot;:&quot;Light&quot;,&quot;tsType&quot;:&quot;'Light'|'Dark'&quot;},&quot;brand&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#1F4FD6&quot;,&quot;#23367A&quot;,&quot;#0B6E73&quot;,&quot;#5B3FC4&quot;],&quot;default&quot;:&quot;#1F4FD6&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const BRAND = { '#1F4FD6': '#86A5FF', '#23367A': '#9DAEEB', '#0B6E73': '#5CC7CC', '#5B3FC4': '#B4A3FF' };
+class Component extends DCLogic {
+  renderVals() {
+    const brand = this.props.brand ?? '#1F4FD6';
+    const dark = (this.props.theme ?? 'Light') === 'Dark';
+    const themeVars = dark ? {
+      '--page': '#11141A', '--surface': '#181C24', '--surface2': '#1D222C', '--frame': '#1E2533', '--ink': '#E7E9EE', '--ink2': '#A8AFBC', '--ink3': '#5E6573',
+      '--onp': '#0B1026', '--rule': '#2B313D', '--rule2': '#E7E9EE', '--primary': BRAND[brand] || '#86A5FF', '--desk': '#0A0C10', '--pcAmt': '22%'
+    } : { '--primary': brand };
+    return { themeVars };
+  }
+}
+</script>
+</body>
+</html>

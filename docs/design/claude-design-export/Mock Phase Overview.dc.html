@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="padding:56px;display:flex;flex-direction:column;gap:72px;color:#1A1D24;width:max-content">
+<header style="display:flex;flex-direction:column;gap:8px;max-width:960px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">Session 7 · Mock phase · S-27 S-28 S-30 S-31</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Overview · 360 / 1280</h1>
+  <div style="font-size:16px;line-height:24px;color:#4B5262;text-wrap:pretty">The screens around the exam (the exam screen itself is Session 2), each at phone (360 × 780 device) and laptop (1280 × 800). All scores, dates and times are sample data. The score report is shown at four scroll positions.</div>
+  <nav style="display:flex;gap:20px;font-size:14px;font-weight:600"><a href="Mock Phase.dc.html">Single screen</a><a href="Results and Skills Overview.dc.html">Results and skills overview</a><a href="Content and Help Overview.dc.html">Content and help overview</a><a href="QuestionView Overview.dc.html">QuestionView overview</a></nav>
+</header>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="2">
+<section data-screen-label="{{ r.label }}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid #1A1D24;padding-top:12px"><span style="font-size:14px;font-weight:600;color:#1F4FD6">{{ r.no }}</span><h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600">{{ r.title }}</h2><span style="font-size:14px;color:#4B5262">{{ r.note }}</span></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">360 × 780</span><div style="width:380px;height:800px"><dc-import name="Mock Phase" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" scroll="{{ r.scroll }}" bp="phone" hint-size="380px,800px" style="width:380px;height:800px"></dc-import></div></div>
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">1280 × 800</span><div style="width:1280px;height:800px"><dc-import name="Mock Phase" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" scroll="{{ r.scroll }}" bp="laptop" hint-size="1280px,800px" style="width:1280px;height:800px"></dc-import></div></div>
+  </div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROWS = [
+  ['hub', 'locked', '', 'S-27 Mock hub · locked', 'Unlock rule with the countdown; official score can still be logged'],
+  ['hub', 'default', '', 'S-27 Mock hub · open', 'Taken / available, final-month plan, score history with official score'],
+  ['pre', 'default', '', 'S-28 Pre-exam', 'Rules, duration, tools, device tip'],
+  ['pre', 'confirm', '', 'S-28 Pre-exam · "the timer starts now"', 'Bottom sheet on phone, dialog on laptop'],
+  ['break', 'default', '', 'S-30 Module break', 'Exam mode, no app navigation; suggested break counts down; no score'],
+  ['report', 'default', '', 'S-31 Score report · top', 'Estimated range with the official-model note, drill set'],
+  ['report', 'default', 'acc', 'S-31 Score report · accuracy', 'Per module, per domain, per skill'],
+  ['report', 'default', 'time', 'S-31 Score report · time and marked', 'Over-2× flags labelled by question'],
+  ['report', 'default', 'wrong', 'S-31 Score report · wrong answers', 'Worked explanations in the booklet frame']
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: ROWS.map(([screen, state, scroll, title, note], i) => { const no = String(i + 1).padStart(2, '0'); return { screen, state, scroll, title, note, no, label: `${no} ${title}` }; }) };
+  }
+}
+</script>
+</body>
+</html>

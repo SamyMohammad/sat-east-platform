@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="padding:56px;display:flex;flex-direction:column;gap:72px;color:#1A1D24;width:max-content">
+<header style="display:flex;flex-direction:column;gap:8px;max-width:960px">
+  <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4B5262">Session 8 · Account and commerce · S-03 S-10 S-11 S-33 S-34 S-35 S-32</div>
+  <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Overview · 360 / 1280</h1>
+  <div style="font-size:16px;line-height:24px;color:#4B5262;text-wrap:pretty">Each screen at phone (360 × 780) and laptop (1280 × 800), with error and empty states. Checkout, orders and receipts exist in the web build only; the mobile apps show no prices, buy buttons or purchase links, only sign-in and "Enter activation code" (rows 19–21, phone app only). All names, prices and dates are sample data.</div>
+  <nav style="display:flex;gap:20px;font-size:14px;font-weight:600"><a href="Account and Commerce.dc.html">Single screen</a><a href="Mock Phase Overview.dc.html">Mock phase overview</a><a href="App Shell.dc.html">App shell</a><a href="Components.dc.html">Components</a></nav>
+</header>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="2">
+<section data-screen-label="{{ r.label }}" style="display:flex;flex-direction:column;gap:16px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid #1A1D24;padding-top:12px"><span style="font-size:14px;font-weight:600;color:#1F4FD6">{{ r.no }}</span><h2 style="margin:0;font-size:24px;line-height:32px;font-weight:600">{{ r.title }}</h2><span style="font-size:14px;color:#4B5262">{{ r.note }}</span></div>
+  <div style="display:flex;gap:48px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">{{ r.phoneLabel }}</span><div style="width:380px;height:800px"><dc-import name="Account and Commerce" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" scroll="{{ r.scroll }}" bp="phone" hint-size="380px,800px" style="width:380px;height:800px"></dc-import></div></div>
+    <sc-if value="{{ r.lap }}"><div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:#4B5262">{{ r.lapLabel }}</span><div style="width:1280px;height:800px"><dc-import name="Account and Commerce" pad="0" screen="{{ r.screen }}" state="{{ r.state }}" scroll="{{ r.scroll }}" bp="laptop" hint-size="1280px,800px" style="width:1280px;height:800px"></dc-import></div></div></sc-if>
+    <sc-if value="{{ r.noLap }}"><div style="width:420px;display:flex;flex-direction:column;gap:8px;padding-top:28px;font-size:14px;line-height:21px;color:#4B5262;text-wrap:pretty"><span style="font-size:12px;font-weight:600;letter-spacing:.06em">1280 · NOT APPLICABLE</span>The apps run on phone and tablet only. On the web, this state is the checkout (rows 11–15).</div></sc-if>
+  </div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ROWS = [
+  ['auth', 'default', 'S-03 Sign in', 'Google or email; reset link'],
+  ['auth', 'error', 'S-03 Sign in · wrong password', 'Alert names the fix; field marked'],
+  ['auth', 'signup', 'S-03 Create account · email taken', 'Inline error with a way out; password rules as you type'],
+  ['auth', 'sent', 'S-03 Reset link sent', 'Resend after a cooldown'],
+  ['onboard', 'default', 'S-10 Onboarding · about you', 'Name is used in the watermark, and the field says so'],
+  ['onboard', 'default', 'S-10 Onboarding · test dates', 'Per-course test and date; access date computed live', 'dates'],
+  ['onboard', 'error', 'S-10 Onboarding · errors', 'Summary at top links to each field'],
+  ['devices', 'default', 'S-11 Devices', '2 devices, last used, changes left'],
+  ['devices', 'limit', 'S-11 Device limit at sign-in', 'Third device: pick one to remove'],
+  ['devices', 'none', 'S-11 Device limit · no changes left', 'Remove disabled until the 1st; support route'],
+  ['checkout', 'default', 'S-33 Checkout · EGP', 'Web only. Course, bundle, coupon, card or wallet, activation code', '', 'web'],
+  ['checkout', 'coupon', 'S-33 Checkout · coupon applied', 'Discount shown as its own line', '', 'web'],
+  ['checkout', 'usd', 'S-33 Checkout · USD, coupon expired', 'Country outside Egypt; invalid coupon error', '', 'web'],
+  ['checkout', 'failed', 'S-33 Checkout · payment failed', 'Declined card; no charge; next step named', '', 'web'],
+  ['checkout', 'code', 'S-33 Activation code', 'Alternative to paying; sheet on phone, dialog on laptop', '', 'web'],
+  ['orders', 'default', 'S-33 Orders', 'Paid, failed and redeemed orders', '', 'web'],
+  ['orders', 'empty', 'S-33 Orders · empty', '', '', 'web'],
+  ['receipt', 'default', 'S-33 Receipt', 'Download or email', '', 'web'],
+  ['gate', 'signedout', 'S-33 App · signed out', 'Mobile app: sign-in and activation code only, no prices', '', 'app'],
+  ['gate', 'default', 'S-33 App · signed in, not enrolled', 'Mobile app: no prices, no buy button, no link out', '', 'app'],
+  ['gate', 'codeBad', 'S-33 App · code already used', 'Mobile app: error in the code sheet', '', 'app'],
+  ['profile', 'default', 'S-34 Profile and settings', 'Fields, test dates, devices, password, theme, text size'],
+  ['profile', 'dark', 'S-34 Profile · dark theme', 'Same roles on the ink ground'],
+  ['notif', 'default', 'S-35 Notifications', 'Topic unlocked, live reminder, teacher reply, announcement; unread by dot, weight and label'],
+  ['notif', 'empty', 'S-35 Notifications · empty', ''],
+  ['live', 'default', 'S-32 Live sessions', 'Local time, join link opens 10 min before, recordings'],
+  ['live', 'empty', 'S-32 Live sessions · empty', '']
+];
+class Component extends DCLogic {
+  renderVals() {
+    return { rows: ROWS.map(([screen, state, title, note, scroll, build], i) => {
+      const no = String(i + 1).padStart(2, '0'); const app = build === 'app', web = build === 'web';
+      return { screen, state, title, note, scroll: scroll || '', no, label: `${no} ${title}`, lap: !app, noLap: app,
+        phoneLabel: app ? '360 × 780 · APP' : web ? '360 × 780 · MOBILE WEB' : '360 × 780', lapLabel: web ? '1280 × 800 · WEB' : '1280 × 800' };
+    }) };
+  }
+}
+</script>
+</body>
+</html>

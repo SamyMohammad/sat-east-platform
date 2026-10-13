@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}button{font-family:inherit;cursor:pointer}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div style="width:100%;height:100%;box-sizing:border-box;background:#ECEEF2;display:flex;justify-content:center;align-items:flex-start;padding:{{ pad }};overflow:auto"><div style="flex:none;box-sizing:content-box;width:{{ frameW }};height:{{ frameH }};border:{{ bezel }};border-radius:{{ frameR }};overflow:hidden;background:#FFFFFF"><div style="--page:#FFFFFF;--surface2:#F3F4F7;--ink:#1A1D24;--ink2:#4B5262;--ink3:#9AA1AD;--onp:#FFFFFF;--rule:#D8DDE6;--rule2:#1A1D24;--primary:#1F4FD6;--pc:#E9EEFB;--frame:#EEF2F8;--red:#D2343A;--green:#1E7F4F;--warn:#B45309;--warnc:#FCEFE1;--pad:{{ L.pad }};--h1:{{ L.h1 }};--cols2:{{ L.cols2 }};--gapL:{{ L.gapL }};--btnAlign:{{ L.btnAlign }};--tCols:{{ L.tCols }};--domCols:{{ L.domCols }};--topCols:{{ L.topCols }};width:100%;height:100%;box-sizing:border-box;background:var(--page);color:var(--ink);font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;display:grid;grid-template-areas:{{ L.areas }};grid-template-columns:{{ L.gcols }};grid-template-rows:{{ L.grows }};overflow:hidden">
+
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}"><div style="grid-area:status"></div></sc-if>
+
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}">
+<div style="grid-area:top;display:flex;align-items:center;gap:8px;padding:0 4px;border-bottom:1px solid var(--rule)">
+  <sc-if value="{{ isRoot }}"><span style="flex:none;margin-left:12px;width:32px;height:32px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--onp);font-size:13px;font-weight:700;letter-spacing:-.03em">AE</span></sc-if>
+  <sc-if value="{{ notRoot }}"><button aria-label="Back" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button></sc-if>
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:{{ topFs }};font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</span><sc-if value="{{ hasSub }}"><span style="font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ sub }}</span></sc-if></div>
+</div>
+<nav style="grid-area:nav;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(5,1fr);background:var(--page)">
+  <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+    <sc-if value="{{ n.on }}"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="width:56px;height:32px;border-radius:4px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--primary);font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="font-size:12px;font-weight:700;white-space:nowrap">{{ n.label }}</span></div></sc-if>
+    <sc-if value="{{ n.off }}"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="font-size:12px;font-weight:500;white-space:nowrap">{{ n.label }}</span></div></sc-if>
+  </sc-for>
+</nav>
+</sc-if>
+
+<sc-if value="{{ isLaptop }}" hint-placeholder-val="{{ false }}">
+<nav style="grid-area:nav;border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:28px 12px 16px">
+  <div style="padding:0 12px 28px;display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:19px;line-height:26px;font-weight:700;letter-spacing:-.02em">Abdelrahman <span style="text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></div>
+    <div style="font-size:12px;font-weight:600;color:var(--ink2)">SAT &amp; EST Math</div>
+  </div>
+  <div style="border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;gap:2px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+      <sc-if value="{{ n.on }}"><div style="height:48px;border-radius:4px;background:var(--pc);display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--primary)"><span style="font-family:'Material Symbols Rounded';font-size:24px;font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="font-size:14px;font-weight:700;color:var(--ink)">{{ n.label }}</span></div></sc-if>
+      <sc-if value="{{ n.off }}"><div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="font-size:14px;font-weight:500;color:var(--ink)">{{ n.label }}</span></div></sc-if>
+    </sc-for>
+  </div>
+</nav>
+<div style="grid-area:top;display:flex;align-items:center;gap:8px;padding:0 20px 0 {{ topPadL }};border-bottom:1px solid var(--rule);min-width:0">
+  <sc-if value="{{ notRoot }}"><button aria-label="Back" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button></sc-if>
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:{{ topFs }};font-weight:600;letter-spacing:-.01em;white-space:nowrap">{{ title }}</span><sc-if value="{{ hasSub }}"><span style="font-size:12px;color:var(--ink2)">{{ sub }}</span></sc-if></div>
+</div>
+</sc-if>
+
+<main style="grid-area:main;overflow:auto;scrollbar-width:{{ L.sb }};min-height:0;min-width:0">
+<div style="padding:var(--pad);padding-bottom:40px;box-sizing:border-box;display:flex;flex-direction:column;gap:28px">
+
+<!-- S-21 RESULT REPORT -->
+<sc-if value="{{ sResult }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:var(--cols2);gap:var(--gapL);align-items:start">
+  <div style="display:flex;flex-direction:column;gap:24px;min-width:0">
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:13px;font-weight:600;color:var(--primary)">{{ r.crumb }}</span>
+      <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">{{ r.h1 }}</h1>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:14px;border-top:1.5px solid var(--rule2);padding-top:16px">
+      <div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ r.score }}</span><span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums">{{ r.pct }}</span><span style="font-size:14px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ r.markText }}</span></div>
+      <sc-if value="{{ r.hasMark }}"><div role="img" aria-label="{{ r.barAria }}" style="position:relative;height:8px;margin-top:18px;background:var(--rule)"><span style="display:block;width:{{ r.pct }};height:100%;background:var(--ink)"></span><span style="position:absolute;left:75%;top:-6px;bottom:-6px;width:2px;background:var(--green)"></span><span style="position:absolute;left:75%;top:-24px;transform:translateX(-50%);font-size:11px;font-weight:700;color:var(--green);white-space:nowrap">Pass 75%</span></div></sc-if>
+      <span style="display:flex;align-items:flex-start;gap:6px;font-size:15px;line-height:22px;font-weight:600;text-wrap:pretty"><span style="flex:none;font-family:'Material Symbols Rounded';font-size:20px;line-height:22px;color:{{ r.verdictColor }};font-variation-settings:'FILL' 1">{{ r.verdictIcon }}</span>{{ r.verdict }}</span>
+    </div>
+
+    <sc-if value="{{ isPhone }}"><div role="note" style="border-top:1px solid var(--red);padding-top:12px;display:flex;flex-direction:column;gap:6px;color:var(--red)"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty">{{ r.note }}</p></div></sc-if>
+
+    <div style="display:flex;flex-wrap:wrap;gap:8px 12px">
+      <button style="flex:var(--btnAlign);height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap">{{ r.next }}<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button>
+      <button style="flex:var(--btnAlign);height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:20px">fact_check</span>Review answers</button>
+    </div>
+
+    <section aria-label="Score by skill" style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1px solid var(--rule2)"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">By skill</span><span style="font-size:12px;color:var(--ink2)">{{ r.skillHint }}</span></div>
+      <sc-for list="{{ r.skills }}" as="k" hint-placeholder-count="4">
+        <div style="display:flex;flex-direction:column;gap:8px;padding:12px 0;border-bottom:1px solid var(--rule)">
+          <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px"><span style="font-size:15px;line-height:22px;font-weight:500">{{ k.name }}</span><span style="flex:none;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">{{ k.label }}</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><span role="img" aria-label="{{ k.aria }}" style="flex:1;position:relative;height:8px;background:var(--rule);display:block"><span style="display:block;height:100%;width:{{ k.w }};background:var(--ink)"></span><span style="position:absolute;left:75%;top:-3px;bottom:-3px;width:1.5px;background:var(--green)"></span></span><span style="flex:none;width:{{ tagW }};display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:16px">{{ k.tagIcon }}</span>{{ k.tag }}</span></div>
+        </div>
+      </sc-for>
+    </section>
+
+    <section aria-label="Time per question" style="display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1px solid var(--rule2)"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Time per question</span><span style="font-size:12px;font-weight:600;font-variant-numeric:tabular-nums">{{ r.totalTime }}</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12px;font-weight:600;color:var(--ink2)">
+        <span style="display:flex;align-items:center;gap:6px"><span style="width:16px;height:8px;background:var(--ink3)"></span>Your time</span>
+        <sc-if value="{{ r.hasAvg }}"><span style="display:flex;align-items:center;gap:6px"><span style="width:2px;height:14px;background:var(--ink)"></span>Average for that question</span><span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--warn)">flag</span>Over 2× average</span><span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--warn)">hourglass_bottom</span>Slow but correct</span></sc-if>
+      </div>
+      <sc-if value="{{ r.noAvg }}"><span style="font-size:13px;line-height:18px;color:var(--ink2);text-wrap:pretty">These questions are new, so there is no average to compare with yet. Flags for slow answers appear once there is one.</span></sc-if>
+      <sc-if value="{{ r.hasAvg }}"><span style="font-size:14px;line-height:20px;font-weight:600">{{ r.flagSummary }}</span></sc-if>
+      <div role="table" aria-label="Time per question" style="display:flex;flex-direction:column">
+        <sc-for list="{{ r.times }}" as="q" hint-placeholder-count="20">
+          <div role="row" style="display:grid;grid-template-columns:var(--tCols);align-items:center;gap:8px;min-height:30px;border-bottom:1px solid var(--surface2)">
+            <span role="cell" style="font-size:12px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ q.n }}</span>
+            <sc-if value="{{ q.ok }}"><span role="cell" aria-label="Correct" style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--green)">check</span></sc-if>
+            <sc-if value="{{ q.bad }}"><span role="cell" aria-label="Incorrect" style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--red)">close</span></sc-if>
+            <span role="cell" style="position:relative;height:14px;display:block"><span style="position:absolute;left:0;top:3px;height:8px;width:{{ q.w }};background:{{ q.fill }}"></span><sc-if value="{{ r.hasAvg }}"><span style="position:absolute;left:{{ q.a }};top:0;bottom:0;width:2px;background:var(--ink)"></span></sc-if></span>
+            <span role="cell" style="font-size:12px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums">{{ q.t }}</span>
+            <span role="cell" style="display:flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--warn);white-space:nowrap"><sc-if value="{{ q.flag }}"><span style="font-family:'Material Symbols Rounded';font-size:16px">{{ q.fIcon }}</span>{{ q.fLabel }}</sc-if></span>
+          </div>
+        </sc-for>
+      </div>
+    </section>
+  </div>
+
+  <sc-if value="{{ isLaptop }}"><aside style="display:flex;align-self:stretch;min-height:320px"><div style="width:1px;flex:none;background:var(--red)"></div><div role="note" style="position:sticky;top:0;align-self:flex-start;padding:4px 0 0 24px;display:flex;flex-direction:column;gap:10px;color:var(--red)"><span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span><p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty">{{ r.note }}</p></div></aside></sc-if>
+</div>
+</sc-if>
+
+<!-- S-24 SKILLS -->
+<sc-if value="{{ sSkills }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:13px;font-weight:600;color:var(--primary)">SAT Math</span>
+  <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Skills</h1>
+  <span style="font-size:14px;line-height:20px;color:var(--ink2);text-wrap:pretty">Mastery from 0 to 100, built from every answer you give. Weak skills come first.</span>
+  <div style="display:flex;flex-wrap:wrap;gap:6px 16px;margin-top:6px;font-size:12px;font-weight:600;color:var(--ink2)"><span>0–49 Weak</span><span>50–74 Building</span><span>75–100 Strong</span><span style="display:flex;align-items:center;gap:6px"><span style="width:1.5px;height:12px;background:var(--green)"></span>75 = quiz pass level</span></div>
+</div>
+
+<div style="display:grid;grid-template-columns:var(--topCols);gap:var(--gapL);align-items:start">
+  <section aria-label="Work on these first" style="display:flex;flex-direction:column;min-width:0">
+    <div style="padding-bottom:8px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Work on these first</div>
+    <sc-if value="{{ s.hasFocus }}"><sc-for list="{{ s.focus }}" as="k" hint-placeholder-count="3">
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)">
+        <span style="flex:none;width:44px;font-size:24px;line-height:28px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums">{{ k.m }}</span>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;line-height:22px;font-weight:600">{{ k.name }}</span><span style="font-size:12px;color:var(--ink2)">{{ k.band }} · {{ k.from }}</span></div>
+        <button style="flex:none;height:48px;padding:0 14px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">Practise this</button>
+      </div>
+    </sc-for></sc-if>
+    <sc-if value="{{ s.noFocus }}"><p style="margin:0;padding:14px 0;font-size:15px;line-height:22px;color:var(--ink2);text-wrap:pretty;border-bottom:1px solid var(--rule)">Not enough answers to name a weak skill yet. Finish Homework 1.1 and this list fills in.</p></sc-if>
+  </section>
+
+  <section aria-label="Mastery over time" style="display:flex;flex-direction:column;gap:12px;min-width:0">
+    <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1.5px solid var(--rule2)"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Over time</span><span style="font-size:12px;color:var(--ink2)">average of practised skills, weekly</span></div>
+    <sc-if value="{{ s.hasTrend }}">
+      <span style="font-size:15px;line-height:22px;font-weight:600">{{ s.trendLine }}</span>
+      <div role="img" aria-label="{{ s.trendAria }}" style="position:relative;height:180px;margin:14px 16px 0 28px">
+        <span style="position:absolute;left:0;right:0;top:0;height:1px;background:var(--rule)"></span>
+        <span style="position:absolute;left:0;right:0;top:50%;height:1px;background:var(--rule)"></span>
+        <span style="position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--rule2)"></span>
+        <span style="position:absolute;left:0;right:0;top:25%;border-top:1.5px dashed var(--green)"></span>
+        <span style="position:absolute;left:-28px;top:-7px;font-size:11px;color:var(--ink2)">100</span>
+        <span style="position:absolute;left:-28px;top:25%;margin-top:-8px;font-size:11px;font-weight:700;color:var(--green)">75</span>
+        <span style="position:absolute;left:-28px;top:50%;margin-top:-8px;font-size:11px;color:var(--ink2)">50</span>
+        <span style="position:absolute;left:-28px;bottom:-7px;font-size:11px;color:var(--ink2)">0</span>
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" style="position:absolute;inset:0;width:100%;height:100%;overflow:visible"><polyline points="{{ s.pts }}" fill="none" stroke="#1F4FD6" stroke-width="2" vector-effect="non-scaling-stroke"></polyline></svg>
+        <sc-for list="{{ s.dots }}" as="d" hint-placeholder-count="8">
+          <span style="position:absolute;left:{{ d.x }};top:{{ d.y }};width:8px;height:8px;margin:-4px 0 0 -4px;border-radius:50%;background:var(--page);border:2px solid var(--primary);box-sizing:border-box"></span>
+          <span style="position:absolute;left:{{ d.x }};top:{{ d.y }};transform:translate(-50%,-22px);font-size:11px;font-weight:{{ d.fw }};font-variant-numeric:tabular-nums">{{ d.v }}</span>
+        </sc-for>
+      </div>
+      <div style="position:relative;height:16px;margin:0 16px 0 28px"><sc-for list="{{ s.xl }}" as="x" hint-placeholder-count="4"><span style="position:absolute;left:{{ x.x }};transform:translateX(-50%);font-size:11px;color:var(--ink2);white-space:nowrap">{{ x.l }}</span></sc-for></div>
+    </sc-if>
+    <sc-if value="{{ s.noTrend }}"><div role="status" style="border:1px dashed var(--ink3);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:10px">
+      <span style="font-family:'Material Symbols Rounded';font-size:28px;color:var(--ink2)">show_chart</span>
+      <span style="font-size:17px;line-height:24px;font-weight:600">Answer 10 more questions to see a trend</span>
+      <span style="font-size:14px;line-height:20px;color:var(--ink2);text-wrap:pretty">You have 6 answers so far. A line drawn from fewer would mostly show luck.</span>
+      <span aria-label="6 of 16 answers" style="display:flex;gap:3px"><sc-for list="{{ s.cells }}" as="x" hint-placeholder-count="16"><sc-if value="{{ x.on }}"><span style="flex:1;height:8px;background:var(--ink)"></span></sc-if><sc-if value="{{ x.off }}"><span style="flex:1;height:8px;box-sizing:border-box;border:1px solid var(--ink3)"></span></sc-if></sc-for></span>
+    </div></sc-if>
+  </section>
+</div>
+
+<div style="display:grid;grid-template-columns:var(--domCols);gap:28px var(--gapL);align-items:start">
+  <sc-for list="{{ s.domains }}" as="g" hint-placeholder-count="4">
+    <section style="display:flex;flex-direction:column;min-width:0">
+      <div style="display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 0 8px;border-bottom:1.5px solid var(--rule2)"><h2 style="margin:0;font-size:16px;line-height:24px;font-weight:700">{{ g.name }}</h2><span style="flex:none;font-size:12px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ g.count }}</span></div>
+      <sc-for list="{{ g.skills }}" as="k" hint-placeholder-count="4">
+        <sc-if value="{{ k.has }}"><div style="display:flex;flex-direction:column;gap:6px;padding:10px 0;border-bottom:1px solid var(--rule)">
+          <div style="display:flex;align-items:baseline;gap:10px"><span style="flex:1;min-width:0;font-size:15px;line-height:22px;font-weight:500">{{ k.name }}</span><span style="flex:none;font-size:12px;font-weight:600;color:var(--ink2)">{{ k.band }}</span><span style="flex:none;width:28px;text-align:right;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums">{{ k.m }}</span></div>
+          <span role="img" aria-label="{{ k.aria }}" style="position:relative;height:6px;background:var(--rule);display:block"><span style="display:block;height:100%;width:{{ k.w }};background:var(--ink)"></span><span style="position:absolute;left:75%;top:-3px;bottom:-3px;width:1.5px;background:var(--green)"></span></span>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:20px"><span style="font-size:12px;color:var(--ink2)">{{ k.from }}</span><sc-if value="{{ k.act }}"><button style="height:48px;margin:-14px -12px -14px 0;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:13px;font-weight:600;white-space:nowrap">Practise this</button></sc-if></div>
+        </div></sc-if>
+        <sc-if value="{{ k.none }}"><div style="display:flex;align-items:baseline;gap:10px;padding:10px 0;border-bottom:1px solid var(--rule);color:var(--ink2)"><span style="flex:1;min-width:0;font-size:15px;line-height:22px">{{ k.name }}</span><span style="flex:none;font-size:12px;font-weight:600">{{ k.from }}</span></div></sc-if>
+      </sc-for>
+    </section>
+  </sc-for>
+</div>
+</sc-if>
+
+<div style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2)">Sample data · names, dates and scores are illustrative</div>
+</div>
+</main>
+
+</div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;420px&quot;,&quot;height&quot;:&quot;860px&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;result&quot;,&quot;skills&quot;],&quot;default&quot;:&quot;result&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;strong&quot;,&quot;fail&quot;,&quot;thin&quot;],&quot;default&quot;:&quot;strong&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;bp&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;laptop&quot;],&quot;default&quot;:&quot;phone&quot;,&quot;tsType&quot;:&quot;'phone'|'laptop'&quot;},&quot;pad&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;}}">
+const fmt = s => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+// [your secs, avg secs, correct]
+const T_PASS = [[52,60,1],[71,75,1],[48,55,1],[95,90,1],[80,70,1],[66,80,1],[190,80,1],[58,65,1],[102,95,0],[60,70,1],[85,90,1],[74,85,1],[64,60,1],[170,70,0],[90,100,1],[55,60,1],[78,80,1],[69,75,1],[88,95,1],[61,70,1]];
+const T_FAIL = [[62,60,1],[80,75,1],[150,55,0],[95,90,1],[71,70,0],[66,80,1],[205,80,0],[58,65,1],[110,95,0],[60,70,1],[92,90,1],[180,85,1],[64,60,1],[160,70,0],[90,100,1],[55,60,0],[78,80,1],[66,75,1],[40,95,0],[52,70,1]];
+const T_THIN = [[45,0,1],[60,0,1],[130,0,0],[50,0,1],[95,0,0],[70,0,1],[110,0,0],[40,0,1],[65,0,1],[80,0,1]];
+const RES = {
+  pass: { crumb: 'Quiz 2.3 · Exponential functions', h1: 'Passed', score: '18/20', pct: '90%', mark: 1, verdict: 'Passed, 3 above the pass mark. Topic 2.4 Linear vs exponential growth is open.', vi: 'check_circle', vc: '#1E7F4F', next: 'Start 2.4', skills: [['Percent change as a factor', 5, 6], ['Growth and decay', 4, 5], ['Writing f(x) = a·bˣ', 4, 4], ['Exponential graphs', 5, 5]], times: T_PASS, total: '24:10 of 30:00',
+    note: '18 is strong. Q7 took you over 3 minutes and you still got it right, so the idea is there. Now make it fast: write the factor (1 − r) before anything else.' },
+  fail: { crumb: 'Quiz 2.3 · Exponential functions', h1: 'Not passed yet', score: '13/20', pct: '65%', mark: 1, verdict: '2 more correct answers to pass. A review set on your weakest skills is ready.', vi: 'cancel', vc: '#D2343A', next: 'Start review set · 8 questions', skills: [['Percent change as a factor', 2, 6], ['Exponential graphs', 3, 5], ['Growth and decay', 4, 5], ['Writing f(x) = a·bˣ', 4, 4]], times: T_FAIL, total: '29:14 of 30:00',
+    note: 'Most of your points went on percent change as a factor: 4 of the 6 missed. Before each one, write what stays, 1 − r, then build the function. Do the review set slowly and read every explanation.' },
+  thin: { crumb: 'Homework 1.1 · Solving linear equations', h1: 'Homework submitted', score: '7/10', pct: '70%', mark: 0, verdict: 'Homework is scored but has no pass mark. Quiz 1.1 is open.', vi: 'check_circle', vc: '#1E7F4F', next: 'Start Quiz 1.1', skills: [['Equations with fractions', 2, 4], ['Checking a solution', 2, 3], ['One-variable equations', 3, 3]], times: T_THIN, total: '12:35 · untimed',
+    note: 'Good start. Fractions cost you two of the three you missed. Clear the denominators first, then solve. Then the quiz.' }
+};
+const DOM = [
+  ['Algebra', [['Solving linear equations', 92, 38], ['Linear inequalities', 85, 22], ['Systems of equations', 78, 26], ['Systems in word problems', 64, 18], ['Absolute value equations', 58, 14], ['Literal equations and formulas', 88, 16], ['Linear functions and slope', 71, 30]]],
+  ['Advanced math', [['Function notation', 80, 24], ['Growth and decay', 69, 20], ['Writing f(x) = a·bˣ', 74, 17], ['Percent change as a factor', 41, 21], ['Exponential graphs', 63, 15], ['Quadratics', null, 'Opens with Unit 3'], ['Polynomials and radicals', null, 'Opens with Unit 3']]],
+  ['Problem solving & data', [['Equations in context', 82, 19], ['Percentages', 55, 12], ['Ratios and rates', null, 'Opens with Unit 5'], ['Statistics and probability', null, 'Opens with Unit 5']]],
+  ['Geometry & trigonometry', [['Triangles and angles', null, 'Opens with Unit 4'], ['Circles', null, 'Opens with Unit 4'], ['Area and volume', null, 'Opens with Unit 4'], ['Trigonometry', null, 'Opens with Unit 4']]]
+];
+const WEAK = { 'Systems in word problems': 49, 'Percent change as a factor': 32, 'Exponential graphs': 46, 'Growth and decay': 52, 'Writing f(x) = a·bˣ': 61, 'Percentages': 44, 'Linear functions and slope': 60, 'Absolute value equations': 47 };
+const TREND = { strong: [38, 44, 49, 55, 58, 61, 63, 66, 68], weak: [40, 45, 50, 52, 54, 53, 51, 49, 47] };
+const WEEKS = ['17 Aug', '24 Aug', '31 Aug', '7 Sep', '14 Sep', '21 Sep', '28 Sep', '5 Oct', '12 Oct'];
+const LAY = {
+  phone: { pad: '16px', h1: '24px', cols2: 'minmax(0,1fr)', gapL: '24px', btnAlign: '1 1 100%', tCols: '28px 18px minmax(0,1fr) 36px 34px', domCols: 'minmax(0,1fr)', topCols: 'minmax(0,1fr)', areas: "'status' 'top' 'main' 'nav'", gcols: 'minmax(0,1fr)', grows: '24px 56px minmax(0,1fr) 80px', sb: 'none' },
+  laptop: { pad: '32px', h1: '32px', cols2: 'minmax(0,1fr) 280px', gapL: '40px', btnAlign: '0 0 auto', tCols: '32px 20px minmax(0,1fr) 40px 130px', domCols: 'repeat(2,minmax(0,1fr))', topCols: 'repeat(2,minmax(0,1fr))', areas: "'nav top' 'nav main'", gcols: '256px minmax(0,1fr)', grows: '72px minmax(0,1fr)', sb: 'thin' }
+};
+const band = m => m < 50 ? 'Weak' : m < 75 ? 'Building' : 'Strong';
+
+class Component extends DCLogic {
+  renderVals() {
+    const isPhone = this.props.bp !== 'laptop', isLaptop = !isPhone;
+    const screen = this.props.screen ?? 'result', st = this.props.state ?? 'strong';
+    const L = LAY[isPhone ? 'phone' : 'laptop'];
+    const F = isPhone ? ['360px', '780px', '10px solid #1A1D24', '32px'] : ['1280px', '800px', 'none', '0'];
+    const isRoot = screen === 'skills';
+    const rk = st === 'fail' || st === 'weak' ? 'fail' : st === 'thin' ? 'thin' : 'pass';
+    const R = RES[rk];
+    const nav = [['home', 'Home'], ['menu_book', 'Courses'], ['insights', 'Skills'], ['timer', 'Mock exams'], ['person', 'Profile']].map(([icon, label], i) => ({ icon, label, on: i === (isRoot ? 2 : 1), off: i !== (isRoot ? 2 : 1) }));
+
+    const hasAvg = rk !== 'thin';
+    const max = 240;
+    let slow = 0, slowOk = 0;
+    const times = R.times.map(([y, a, ok], i) => {
+      const over = hasAvg && y > 2 * a; if (over) { slow++; if (ok) slowOk++; }
+      const fl = over ? (ok ? ['hourglass_bottom', isPhone ? '' : 'Slow but correct'] : ['flag', isPhone ? '2×' : 'Over 2× average']) : null;
+      return { n: 'Q' + (i + 1), ok: !!ok, bad: !ok, w: Math.min(100, y / max * 100) + '%', a: (a / max * 100) + '%', t: fmt(y), fill: over ? '#B45309' : '#9AA1AD', flag: !!fl, fIcon: fl ? fl[0] : '', fLabel: fl ? fl[1] : '' };
+    });
+    const r = {
+      crumb: R.crumb, h1: R.h1, score: R.score, pct: R.pct, hasMark: !!R.mark, markText: R.mark ? 'Pass mark 75% (15 of 20)' : 'No pass mark on homework',
+      barAria: `Score ${R.pct}, pass mark 75%`, verdict: R.verdict, verdictIcon: R.vi, verdictColor: R.vc, next: R.next, note: R.note,
+      skillHint: rk === 'thin' ? 'early read · 3–4 questions each' : 'weakest first · 75% line',
+      skills: R.skills.map(([name, c, of]) => {
+        const p = Math.round(c / of * 100), thin = of < 5 && rk === 'thin';
+        return { name, label: `${c} of ${of} · ${p}%`, w: p + '%', aria: `${name}: ${c} of ${of} correct, ${p}%`, tag: thin ? 'Few questions' : p < 75 ? 'Below 75%' : 'At or above 75%', tagIcon: thin ? 'info' : p < 75 ? 'trending_down' : 'check' };
+      }),
+      totalTime: R.total, hasAvg, noAvg: !hasAvg, times,
+      flagSummary: slow ? `${slow} over 2× the average${slowOk ? `, ${slowOk} of them slow but correct` : ''}` : 'No question took over 2× the average'
+    };
+
+    const thin = st === 'thin', weak = st === 'weak' || st === 'fail';
+    const val = (n, m) => thin ? (n === 'Solving linear equations' ? 70 : null) : weak && n in WEAK ? WEAK[n] : m;
+    const all = [];
+    const domains = DOM.map(([name, sk]) => {
+      const skills = sk.map(([n, m, from]) => {
+        const v = m === null ? null : val(n, m);
+        const o = v === null
+          ? { name: n, has: false, none: true, from: m === null ? from : 'No answers yet' }
+          : { name: n, has: true, none: false, m: String(v), w: v + '%', band: band(v), from: thin ? 'from 6 answers · early read' : `from ${from} answers`, act: v < 75, aria: `${n}: mastery ${v} of 100, ${band(v)}` };
+        if (o.has) all.push({ ...o, v });
+        return o;
+      }).sort((a, b) => (a.has ? +a.m : 999) - (b.has ? +b.m : 999));
+      const c = skills.filter(x => x.has).length;
+      return { name, skills, count: c ? `${c} of ${sk.length} with data` : 'Not started' };
+    });
+    const focus = thin ? [] : all.sort((a, b) => a.v - b.v).slice(0, 3);
+    const tr = TREND[weak ? 'weak' : 'strong'];
+    const xs = i => (i / (tr.length - 1)) * 100;
+    const s = {
+      domains, focus, hasFocus: focus.length > 0, noFocus: !focus.length, hasTrend: !thin, noTrend: thin,
+      pts: tr.map((v, i) => `${xs(i)},${100 - v}`).join(' '),
+      dots: tr.map((v, i) => ({ x: xs(i) + '%', y: (100 - v) + '%', v: String(v), fw: i === tr.length - 1 ? '700' : '500' })),
+      xl: [0, 3, 6, 8].map(i => ({ x: xs(i) + '%', l: WEEKS[i] })),
+      trendLine: weak ? 'Down from 54 to 47 over the last 4 weeks' : 'Up from 38 to 68 in 8 weeks',
+      trendAria: 'Weekly average mastery: ' + tr.map((v, i) => `${WEEKS[i]} ${v}`).join(', '),
+      cells: Array.from({ length: 16 }, (_, i) => ({ on: i < 6, off: i >= 6 }))
+    };
+
+    const T = screen === 'skills' ? ['Skills', ''] : rk === 'thin' ? ['Homework result', '1.1 Solving linear equations'] : ['Quiz result', '2.3 Exponential functions'];
+    return {
+      frameW: F[0], frameH: F[1], bezel: F[2], frameR: F[3], pad: this.props.pad ?? (isPhone ? '24px' : '0'),
+      L, isPhone, isLaptop, isRoot, notRoot: !isRoot, nav, title: T[0], sub: T[1], hasSub: !!T[1],
+      topFs: isRoot ? (isPhone ? '20px' : '28px') : (isPhone ? '16px' : '18px'), topPadL: isRoot ? '32px' : '12px',
+      sResult: screen === 'result', sSkills: screen === 'skills', r, s, tagW: isPhone ? '104px' : '130px'
+    };
+  }
+}
+</script>
+</body>
+</html>

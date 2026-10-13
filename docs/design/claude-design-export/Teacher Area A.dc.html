@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Arabic:wght@400;600&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script src="./booklet-math.js"></script>
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}button{font-family:inherit;cursor:pointer}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div ref="{{ rootRef }}" style="--page:#FFFFFF;--surface2:#F3F4F7;--ink:#1A1D24;--ink2:#4B5262;--ink3:#9AA1AD;--onp:#FFFFFF;--rule:#D8DDE6;--rule2:#1A1D24;--fb:#767D8C;--primary:#1F4FD6;--pc:#E9EEFB;--frame:#EEF2F8;--hl:#F6D743;--red:#D2343A;--redc:#FBEBEC;--green:#1E7F4F;--greenc:#E7F3EC;--warn:#B45309;--warnc:#FDF1E3;--scrim:rgba(14,17,22,.5);position:relative;width:100%;height:100%;min-height:800px;box-sizing:border-box;background:var(--page);color:var(--ink);font-family:'Noto Sans',system-ui,sans-serif;display:grid;grid-template-columns:256px minmax(0,1fr);grid-template-rows:72px minmax(0,1fr);grid-template-areas:'nav top' 'nav main';overflow:hidden">
+
+<nav aria-label="Teacher area" style="grid-area:nav;border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:28px 12px 16px;min-height:0">
+  <div style="padding:0 12px 24px;display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:19px;line-height:26px;font-weight:700;letter-spacing:-.02em">Abdelrahman <span style="text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:16px">school</span>Teacher area</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="10">
+      <sc-if value="{{ n.sep }}"><div style="height:1px;background:var(--rule);margin:8px 12px"></div></sc-if>
+      <sc-if value="{{ n.on }}"><div style="height:48px;border-radius:4px;background:var(--pc);display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--primary)"><span style="font-family:'Material Symbols Rounded';font-size:24px;font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="flex:1;font-size:14px;font-weight:700;color:var(--ink)">{{ n.label }}</span><sc-if value="{{ n.badge }}"><span style="min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:var(--primary);color:var(--onp);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ n.badge }}</span></sc-if></div></sc-if>
+      <sc-if value="{{ n.off }}"><div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="flex:1;font-size:14px;font-weight:500;color:var(--ink)">{{ n.label }}</span><sc-if value="{{ n.badge }}"><span style="min-width:20px;height:20px;padding:0 6px;box-sizing:border-box;border-radius:10px;background:var(--primary);color:var(--onp);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">{{ n.badge }}</span></sc-if></div></sc-if>
+    </sc-for>
+  </div>
+</nav>
+
+<div style="grid-area:top;display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--rule);min-width:0">
+  <h1 style="margin:0;font-size:28px;font-weight:600;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</h1>
+  <span title="Names, counts and dates on this screen are sample content" style="flex:none;height:26px;padding:0 10px;border:1px dashed var(--fb);border-radius:13px;font-size:12px;font-weight:600;color:var(--ink2);display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:16px">science</span>Sample data</span>
+  <span style="flex:1"></span>
+  <sc-for list="{{ acts }}" as="a" hint-placeholder-count="1">
+    <sc-if value="{{ a.prim }}"><button style="height:48px;padding:0 20px 0 {{ a.pl }};border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;white-space:nowrap"><sc-if value="{{ a.ic }}"><span style="font-family:'Material Symbols Rounded';font-size:20px">{{ a.ic }}</span></sc-if>{{ a.l }}</button></sc-if>
+    <sc-if value="{{ a.sec }}"><button style="height:48px;padding:0 18px 0 {{ a.pl }};border:1px solid var(--rule2);border-radius:4px;background:transparent;color:{{ a.c }};font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;white-space:nowrap"><sc-if value="{{ a.ic }}"><span style="font-family:'Material Symbols Rounded';font-size:20px">{{ a.ic }}</span></sc-if>{{ a.l }}</button></sc-if>
+  </sc-for>
+</div>
+
+<main style="grid-area:main;position:relative;overflow:auto;min-height:0;min-width:0">
+<div style="padding:32px;display:flex;flex-direction:column;gap:24px;box-sizing:border-box;height:{{ innerH }}">
+
+<sc-if value="{{ hasSub }}"><div role="tablist" style="flex:none;display:flex;gap:28px;border-bottom:1px solid var(--rule);margin-top:-8px"><sc-for list="{{ sub }}" as="t" hint-placeholder-count="2"><span role="tab" aria-selected="{{ t.on }}" style="height:44px;display:flex;align-items:center;font-size:14px;font-weight:{{ t.fw }};color:{{ t.c }};border-bottom:3px solid {{ t.bd }};margin-bottom:-1px;box-sizing:border-box;padding-top:3px">{{ t.n }}</span></sc-for></div></sc-if>
+<sc-if value="{{ hasCrumb }}"><nav aria-label="Breadcrumb" style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--ink2);margin-top:-8px"><a href="#" style="color:var(--ink2)">Students</a><span style="font-family:'Material Symbols Rounded';font-size:16px">chevron_right</span><span style="color:var(--ink);font-weight:600">Nour Hassan</span><span style="margin-left:8px;display:flex;align-items:center;gap:4px;font-weight:600;color:{{ crumbSc }}"><span style="font-family:'Material Symbols Rounded';font-size:16px;font-variation-settings:'FILL' 1">{{ crumbSi }}</span>{{ crumbSt }}</span></nav></sc-if>
+
+<!-- shared toolbar: segmented + selects + right note -->
+<sc-if value="{{ hasBar }}">
+<div style="flex:none;display:flex;flex-wrap:wrap;align-items:center;gap:12px">
+  <sc-if value="{{ bar.hasSeg }}"><div role="radiogroup" aria-label="Course" style="display:flex;border:1px solid var(--fb);border-radius:4px;overflow:hidden"><sc-for list="{{ bar.seg }}" as="g" hint-placeholder-count="3"><span role="radio" aria-checked="{{ g.on }}" style="height:40px;padding:0 14px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:{{ g.fw }};background:{{ g.bg }};border-left:{{ g.bl }};white-space:nowrap"><sc-if value="{{ g.on }}"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span></sc-if>{{ g.n }}</span></sc-for></div></sc-if>
+  <sc-if value="{{ bar.hasSearch }}"><div style="width:240px;height:40px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;display:flex;align-items:center;gap:8px;padding:0 12px;font-size:14px;color:{{ bar.qc }}"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">search</span>{{ bar.q }}</div></sc-if>
+  <sc-for list="{{ bar.sels }}" as="s" hint-placeholder-count="1"><div style="height:40px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;display:flex;align-items:center;gap:8px;padding:0 8px 0 12px;font-size:14px;white-space:nowrap"><span style="font-size:12px;color:var(--ink2)">{{ s.l }}</span><span style="font-weight:600">{{ s.v }}</span><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">expand_more</span></div></sc-for>
+  <sc-for list="{{ bar.chips }}" as="c" hint-placeholder-count="3"><span role="checkbox" aria-checked="{{ c.on }}" style="height:40px;box-sizing:border-box;border:1px solid {{ c.bd }};background:{{ c.bg }};border-radius:20px;display:flex;align-items:center;gap:6px;padding:0 14px 0 {{ c.pl }};font-size:14px;font-weight:{{ c.fw }};white-space:nowrap"><sc-if value="{{ c.on }}"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--primary)">check</span></sc-if>{{ c.l }}<sc-if value="{{ c.days }}"><span style="height:26px;padding:0 4px 0 8px;border:1px solid var(--fb);border-radius:4px;background:var(--page);display:flex;align-items:center;gap:2px;font-weight:600">{{ c.days }}<span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--ink2)">expand_more</span></span>days</sc-if><span style="color:var(--ink2);font-weight:500;font-variant-numeric:tabular-nums">{{ c.n }}</span></span></sc-for>
+  <span style="flex:1"></span>
+  <span style="font-size:13px;color:var(--ink2);white-space:nowrap;font-variant-numeric:tabular-nums">{{ bar.note }}</span>
+  <sc-if value="{{ bar.pager }}"><div style="display:flex;gap:2px;margin-right:-8px"><button aria-label="Previous page" style="width:40px;height:40px;border:none;border-radius:4px;background:transparent;color:var(--ink3);font-family:'Material Symbols Rounded';font-size:22px">chevron_left</button><button aria-label="Next page" style="width:40px;height:40px;border:none;border-radius:4px;background:transparent;color:var(--ink);font-family:'Material Symbols Rounded';font-size:22px">chevron_right</button></div></sc-if>
+</div>
+</sc-if>
+
+<!-- T-01 DASHBOARD -->
+<sc-if value="{{ sD }}" hint-placeholder-val="{{ true }}">
+<section aria-label="Key numbers" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1.5px solid var(--rule2);border-bottom:1px solid var(--rule)">
+  <sc-for list="{{ dsh.kpis }}" as="k" hint-placeholder-count="4">
+    <div style="padding:16px 20px 18px {{ k.pl }};border-left:{{ k.bl }};display:flex;flex-direction:column;gap:4px;min-width:0">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">{{ k.l }}</span>
+      <span style="font-size:40px;line-height:50px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;white-space:nowrap">{{ k.v }}</span>
+      <span style="font-size:13px;line-height:19px;color:var(--ink2);text-wrap:pretty">{{ k.sub }}</span>
+      <sc-if value="{{ k.dIc }}"><span style="display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:{{ k.dc }};margin-top:4px"><span style="font-family:'Material Symbols Rounded';font-size:18px">{{ k.dIc }}</span>{{ k.d }}</span></sc-if>
+    </div>
+  </sc-for>
+</section>
+<sc-if value="{{ dsh.hasAlerts }}">
+<section aria-labelledby="alh" style="display:flex;flex-direction:column;gap:12px">
+  <div style="display:flex;align-items:baseline;gap:12px"><h2 id="alh" style="margin:0;font-size:20px;line-height:28px;font-weight:600">Needs attention</h2><span style="font-size:13px;color:var(--ink2)">Updated 12 Oct, 09:40 · refreshes every 15 minutes</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:24px 40px">
+    <sc-for list="{{ dsh.alerts }}" as="g" hint-placeholder-count="4">
+      <div style="display:flex;flex-direction:column;min-width:0">
+        <div style="display:flex;align-items:center;gap:10px;height:44px;border-bottom:1.5px solid var(--rule2)"><span style="font-family:'Material Symbols Rounded';font-size:22px;color:{{ g.icc }}">{{ g.ic }}</span><h3 style="margin:0;font-size:15px;font-weight:600">{{ g.t }}</h3><span style="font-size:15px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">{{ g.n }}</span><span style="flex:1"></span><a href="#" style="font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px;text-decoration:none">{{ g.link }}<span style="font-family:'Material Symbols Rounded';font-size:18px">arrow_forward</span></a></div>
+        <span style="font-size:12px;line-height:18px;color:var(--ink2);padding:8px 0 4px">{{ g.rule }}</span>
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+          <div style="display:grid;grid-template-columns:minmax(0,1fr) auto 20px;align-items:center;gap:12px;min-height:56px;padding:6px 0;box-sizing:border-box;border-bottom:1px solid var(--rule)" style-hover="background:var(--surface2)">
+            <div style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:600;font-family:{{ r.ff }}">{{ r.a }}</span><span style="font-size:13px;line-height:18px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.b }}</span></div>
+            <span style="font-size:13px;font-weight:600;color:{{ r.mc }};white-space:nowrap;font-variant-numeric:tabular-nums">{{ r.m }}</span>
+            <span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink3)">chevron_right</span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+</section>
+</sc-if>
+</sc-if>
+
+<!-- T-09 COMPLETION MATRIX -->
+<sc-if value="{{ sM }}" hint-placeholder-val="{{ false }}">
+<div style="flex:none;display:flex;flex-wrap:wrap;gap:6px 18px;font-size:12px;color:var(--ink2);margin-top:-8px">
+  <span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:3px;background:var(--primary)"></span>Video watched</span>
+  <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--green)">check</span>Notes opened</span>
+  <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--ink3)">lock</span>Notes locked, video under 80%</span>
+  <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--warn)">schedule</span>Homework late</span>
+  <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--red)">error</span>Homework missing</span>
+  <span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--red)">close</span>Quiz below 70% pass mark</span>
+  <span>— not due or not started</span>
+</div>
+<sc-if value="{{ m.has }}">
+<div role="grid" aria-label="Completion by student and topic step" aria-rowcount="414" style="flex:1;min-height:0;overflow:auto;border:1px solid var(--rule);border-radius:4px">
+  <div style="width:max-content;min-width:100%">
+    <div role="row" style="position:sticky;top:0;z-index:3;display:grid;grid-template-columns:232px repeat(4,64px 52px 80px 76px);height:52px;background:var(--page);border-bottom:1px solid var(--rule)">
+      <div role="columnheader" style="position:sticky;left:0;z-index:4;background:var(--page);border-right:1px solid var(--rule);grid-row:span 1;display:flex;align-items:flex-end;padding:0 12px 8px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);gap:4px">Student<span style="font-family:'Material Symbols Rounded';font-size:16px">arrow_upward</span></div>
+      <sc-for list="{{ m.topics }}" as="t" hint-placeholder-count="4"><div role="columnheader" style="grid-column:span 4;border-left:1px solid var(--rule);padding:8px 10px 0;display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.code }} {{ t.name }}</span><span style="font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ t.avg }}</span></div></sc-for>
+    </div>
+    <div role="row" style="position:sticky;top:52px;z-index:3;display:grid;grid-template-columns:232px repeat(4,64px 52px 80px 76px);height:32px;background:var(--surface2);border-bottom:1.5px solid var(--rule2)">
+      <div style="position:sticky;left:0;z-index:4;background:var(--surface2);border-right:1px solid var(--rule);display:flex;align-items:center;padding:0 12px;font-size:12px;color:var(--ink2)">Last active</div>
+      <sc-for list="{{ m.steps }}" as="s" hint-placeholder-count="16"><div role="columnheader" style="display:flex;align-items:center;padding:0 8px;font-size:12px;font-weight:600;color:var(--ink2);border-left:{{ s.bl }}">{{ s.n }}</div></sc-for>
+    </div>
+    <sc-for list="{{ m.rows }}" as="r" hint-placeholder-count="14">
+      <div role="row" style="display:grid;grid-template-columns:232px repeat(4,64px 52px 80px 76px);height:48px;border-bottom:1px solid var(--rule);background:{{ r.bg }}">
+        <div role="rowheader" style="position:sticky;left:0;z-index:1;background:{{ r.hbg }};border-right:1px solid var(--rule);display:flex;align-items:center;gap:8px;padding:0 12px;min-width:0">
+          <div style="flex:1;display:flex;flex-direction:column;min-width:0"><a href="#" style="font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.name }}</a><span style="font-size:12px;color:{{ r.lc }};font-weight:{{ r.lw }};display:flex;align-items:center;gap:3px"><sc-if value="{{ r.idle }}"><span style="font-family:'Material Symbols Rounded';font-size:14px">bedtime</span></sc-if>{{ r.last }}</span></div>
+        </div>
+        <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="16">
+          <div role="gridcell" style="display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 8px;background:{{ c.bg }};border-left:{{ c.bl }};font-size:13px;font-variant-numeric:tabular-nums">
+            <span style="display:flex;align-items:center;gap:3px;color:{{ c.c }};font-weight:{{ c.fw }};white-space:nowrap"><sc-if value="{{ c.ic }}"><span aria-hidden="true" style="font-family:'Material Symbols Rounded';font-size:16px">{{ c.ic }}</span></sc-if>{{ c.t }}</span>
+            <sc-if value="{{ c.bar }}"><span style="height:3px;background:var(--rule);display:block;width:44px"><span style="display:block;height:3px;width:{{ c.w }};background:var(--primary)"></span></span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </sc-for>
+  </div>
+</div>
+</sc-if>
+</sc-if>
+
+<!-- T-10 STUDENT DETAIL -->
+<sc-if value="{{ sS }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-wrap:wrap;gap:8px 32px;padding-bottom:16px;border-bottom:1px solid var(--rule);margin-top:-4px">
+  <sc-for list="{{ s.facts }}" as="f" hint-placeholder-count="5"><div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:var(--ink2)">{{ f.l }}</span><span style="font-size:14px;font-weight:500;font-variant-numeric:tabular-nums">{{ f.v }}</span></div></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:40px;align-items:start">
+  <div style="display:flex;flex-direction:column;gap:32px;min-width:0">
+    <section style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:8px"><h2 style="margin:0;font-size:18px;font-weight:600">Progress · SAT Math</h2><span style="font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ s.progNote }}</span></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 64px 72px 80px 128px;align-items:center;height:32px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);gap:8px"><span>Topic</span><span>Video</span><span>Notes</span><span>Homework</span><span>Quiz</span><span></span></div>
+      <sc-for list="{{ s.prog }}" as="p" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) 72px 64px 72px 80px 128px;align-items:center;gap:8px;min-height:52px;border-bottom:1px solid var(--rule);font-size:14px;font-variant-numeric:tabular-nums">
+          <div style="display:flex;flex-direction:column;min-width:0"><span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ p.code }} {{ p.name }}</span><span style="font-size:12px;font-weight:600;color:{{ p.sc }};display:flex;align-items:center;gap:3px"><span style="font-family:'Material Symbols Rounded';font-size:15px;font-variation-settings:'FILL' 1">{{ p.si }}</span>{{ p.st }}</span></div>
+          <span style="color:{{ p.vc }}">{{ p.v }}</span>
+          <span style="font-family:'Material Symbols Rounded';font-size:20px;color:{{ p.nc }}">{{ p.n }}</span>
+          <span style="color:{{ p.hc }}">{{ p.hw }}</span>
+          <span style="color:{{ p.qc }};font-weight:{{ p.qw }}">{{ p.q }}</span>
+          <div style="display:flex;justify-content:flex-end"><sc-if value="{{ p.unlock }}"><button style="height:36px;padding:0 12px 0 8px;border:1px solid var(--rule2);border-radius:4px;background:transparent;font-size:13px;font-weight:600;display:flex;align-items:center;gap:4px;white-space:nowrap"><span style="font-family:'Material Symbols Rounded';font-size:18px">lock_open</span>Override unlock</button></sc-if></div>
+        </div>
+      </sc-for>
+    </section>
+    <section style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:8px"><h2 style="margin:0;font-size:18px;font-weight:600">Attempts</h2><span style="font-size:13px;color:var(--ink2)">{{ s.attNote }}</span></div>
+      <sc-if value="{{ s.hasAtt }}">
+      <div style="display:grid;grid-template-columns:120px minmax(0,1fr) 72px 72px 96px 64px;align-items:center;height:32px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);gap:8px"><span>Date</span><span>Item</span><span>Score</span><span>Time</span><span>Result</span><span></span></div>
+      <sc-for list="{{ s.att }}" as="a" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:120px minmax(0,1fr) 72px 72px 96px 64px;align-items:center;gap:8px;height:44px;border-bottom:1px solid var(--rule);font-size:14px;font-variant-numeric:tabular-nums">
+          <span style="color:var(--ink2);font-size:13px">{{ a.d }}</span><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ a.i }}</span><span style="font-weight:600">{{ a.s }}</span><span style="color:var(--ink2)">{{ a.t }}</span>
+          <span style="display:flex;align-items:center;gap:3px;font-size:13px;font-weight:600;color:{{ a.rc }}"><span style="font-family:'Material Symbols Rounded';font-size:16px">{{ a.ri }}</span>{{ a.r }}</span>
+          <a href="#" style="font-size:13px;font-weight:600;text-align:right">Review</a>
+        </div>
+      </sc-for>
+      </sc-if>
+      <sc-if value="{{ s.noAtt }}"><div style="display:flex;align-items:center;gap:12px;padding:20px 0;border-top:1.5px solid var(--rule2);font-size:14px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">history</span>No homework, quiz or mock attempts yet. They appear here as Nour submits them.</div></sc-if>
+    </section>
+  </div>
+  <aside style="display:flex;flex-direction:column;gap:28px">
+    <section style="display:flex;flex-direction:column">
+      <h2 style="margin:0;font-size:16px;font-weight:600;padding-bottom:8px;border-bottom:1.5px solid var(--rule2)">Enrolments</h2>
+      <sc-for list="{{ s.enr }}" as="e" hint-placeholder-count="2">
+        <div style="display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)">
+          <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:600">{{ e.c }}</span><span style="font-size:12px;font-weight:600;color:{{ e.sc }};display:flex;align-items:center;gap:3px"><span style="font-family:'Material Symbols Rounded';font-size:15px;font-variation-settings:'FILL' 1">{{ e.si }}</span>{{ e.st }}</span><span style="font-size:13px;line-height:18px;color:var(--ink2);text-wrap:pretty">{{ e.d }}</span></div>
+          <button style="height:36px;padding:0 12px;border:1px solid var(--rule2);border-radius:4px;background:transparent;font-size:13px;font-weight:600;white-space:nowrap">Extend</button>
+        </div>
+      </sc-for>
+    </section>
+    <section style="display:flex;flex-direction:column">
+      <div style="display:flex;align-items:baseline;gap:8px;padding-bottom:8px;border-bottom:1.5px solid var(--rule2)"><h2 style="margin:0;font-size:16px;font-weight:600">Devices</h2><span style="font-size:13px;color:var(--ink2)">{{ s.devNote }}</span></div>
+      <sc-for list="{{ s.dev }}" as="v" hint-placeholder-count="2">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--rule)">
+          <span style="font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">{{ v.ic }}</span>
+          <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:600">{{ v.n }}</span><span style="font-size:13px;color:var(--ink2)">{{ v.m }}</span></div>
+          <button style="height:36px;padding:0 12px;border:1px solid var(--rule2);border-radius:4px;background:transparent;font-size:13px;font-weight:600;color:var(--red)">Revoke</button>
+        </div>
+      </sc-for>
+      <sc-if value="{{ s.noDev }}"><span style="padding:12px 0;font-size:14px;color:var(--ink2);border-bottom:1px solid var(--rule)">Not signed in on any device yet.</span></sc-if>
+      <div style="display:flex;align-items:center;gap:12px;padding:12px 0">
+        <span style="flex:1;font-size:13px;line-height:18px;color:var(--ink2);text-wrap:pretty">{{ s.chg }}</span>
+        <button style="height:36px;padding:0 12px;border:1px solid var(--rule2);border-radius:4px;background:transparent;font-size:13px;font-weight:600;white-space:nowrap">Reset limit</button>
+      </div>
+    </section>
+  </aside>
+</div>
+</sc-if>
+
+<!-- T-11 CLASS INSIGHTS -->
+<sc-if value="{{ sI }}" hint-placeholder-val="{{ false }}">
+<section aria-labelledby="hqh" style="display:flex;flex-direction:column">
+  <div style="display:flex;align-items:baseline;gap:12px;padding-bottom:8px"><h2 id="hqh" style="margin:0;font-size:20px;line-height:28px;font-weight:600">Hardest questions</h2><span style="font-size:13px;color:var(--ink2)">Lowest first-attempt correct rate · questions with 20+ attempts</span></div>
+  <div style="display:grid;grid-template-columns:72px minmax(0,1fr) 56px 72px 112px 200px 24px;align-items:center;gap:12px;height:32px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)"><span>ID</span><span>Question</span><span>Topic</span><span>Attempts</span><span style="display:flex;align-items:center;gap:2px">Correct<span style="font-family:'Material Symbols Rounded';font-size:16px">arrow_upward</span></span><span>Most-chosen wrong</span><span></span></div>
+  <sc-for list="{{ ins.hard }}" as="h" hint-placeholder-count="6">
+    <div style="display:flex;flex-direction:column;border-bottom:1px solid var(--rule);background:{{ h.bg }}">
+      <div style="display:grid;grid-template-columns:72px minmax(0,1fr) 56px 72px 112px 200px 24px;align-items:center;gap:12px;min-height:56px;font-size:14px;font-variant-numeric:tabular-nums">
+        <span style="font-family:'Noto Sans Mono',monospace;font-size:13px;color:var(--ink2)">{{ h.id }}</span>
+        <span data-mix="{{ h.stem }}" style="line-height:21px;text-wrap:pretty;padding:6px 0"></span>
+        <span style="color:var(--ink2)">{{ h.topic }}</span>
+        <span>{{ h.n }}</span>
+        <div style="display:flex;align-items:center;gap:8px"><span style="width:36px;font-weight:600;color:{{ h.pc }}">{{ h.pct }}</span><span style="flex:1;height:6px;background:var(--rule)"><span style="display:block;height:6px;width:{{ h.pct }};background:{{ h.pc }}"></span></span></div>
+        <div style="display:flex;flex-direction:column;min-width:0"><span style="display:flex;align-items:baseline;gap:6px"><b style="font-weight:600">{{ h.wl }}</b><span data-mix="{{ h.wv }}"></span><span style="color:var(--red);font-weight:600">{{ h.wp }}</span></span><span style="font-size:12px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ h.wt }}</span></div>
+        <span style="font-family:'Material Symbols Rounded';font-size:22px;color:var(--ink2)">{{ h.chev }}</span>
+      </div>
+      <sc-if value="{{ h.open }}">
+      <div style="display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;padding:4px 0 18px">
+        <span></span>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);padding-bottom:4px">Choices · first attempts</span>
+          <sc-for list="{{ h.dist }}" as="o" hint-placeholder-count="4">
+            <div style="display:grid;grid-template-columns:28px 64px minmax(0,320px) 44px minmax(0,1fr);align-items:center;gap:12px;min-height:32px;font-size:14px;font-variant-numeric:tabular-nums">
+              <span style="width:28px;height:28px;box-sizing:border-box;border:1.5px solid {{ o.bd }};border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:{{ o.lb }};color:{{ o.lc }}">{{ o.l }}</span>
+              <span data-mix="{{ o.v }}"></span>
+              <span style="height:12px;background:var(--surface2)"><span style="display:block;height:12px;width:{{ o.p }};background:{{ o.c }}"></span></span>
+              <span style="font-weight:600">{{ o.p }}</span>
+              <span style="font-size:13px;color:{{ o.tc }};font-weight:{{ o.tw }};display:flex;align-items:center;gap:4px"><sc-if value="{{ o.ok }}"><span style="font-family:'Material Symbols Rounded';font-size:16px">check</span></sc-if>{{ o.t }}</span>
+            </div>
+          </sc-for>
+          <div style="display:flex;gap:8px;padding-top:10px"><button style="height:40px;padding:0 14px 0 10px;border:1px solid var(--rule2);border-radius:4px;background:transparent;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:18px">edit</span>Open in editor</button><button style="height:40px;padding:0 14px 0 10px;border:1px solid var(--rule2);border-radius:4px;background:transparent;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:18px">videocam</span>Add to next live session</button></div>
+        </div>
+      </div>
+      </sc-if>
+    </div>
+  </sc-for>
+</section>
+<section aria-labelledby="sth" style="display:flex;flex-direction:column">
+  <div style="display:flex;align-items:center;gap:8px;padding-bottom:8px;flex-wrap:wrap"><h2 id="sth" style="margin:0;font-size:20px;line-height:28px;font-weight:600">Stuck on a topic for more than</h2><span style="height:36px;box-sizing:border-box;padding:0 6px 0 10px;border:1px solid var(--fb);border-radius:4px;display:flex;align-items:center;gap:2px;font-size:18px;font-weight:600">7<span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">expand_more</span></span><h2 style="margin:0;font-size:20px;line-height:28px;font-weight:600">days</h2><span style="font-size:13px;color:var(--ink2);margin-left:4px">Current topic unchanged, not completed</span></div>
+  <div style="display:grid;grid-template-columns:minmax(0,1.1fr) 64px 72px minmax(0,1fr) minmax(0,1fr) 120px;align-items:center;gap:12px;height:32px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)"><span>Topic</span><span>Stuck</span><span>Median</span><span>Main blocker</span><span>Students</span><span></span></div>
+  <sc-for list="{{ ins.stuck }}" as="k" hint-placeholder-count="3">
+    <div style="display:grid;grid-template-columns:minmax(0,1.1fr) 64px 72px minmax(0,1fr) minmax(0,1fr) 120px;align-items:center;gap:12px;min-height:60px;padding:6px 0;box-sizing:border-box;border-bottom:1px solid var(--rule);font-size:14px;font-variant-numeric:tabular-nums">
+      <span style="font-weight:600">{{ k.t }}</span>
+      <span style="font-size:18px;font-weight:600">{{ k.n }}</span>
+      <span>{{ k.med }}</span>
+      <span style="font-size:13px;line-height:19px;text-wrap:pretty">{{ k.why }}</span>
+      <span style="font-size:13px;line-height:19px;color:var(--ink2);text-wrap:pretty">{{ k.who }}</span>
+      <a href="#" style="font-size:13px;font-weight:600;text-align:right">View in matrix</a>
+    </div>
+  </sc-for>
+</section>
+</sc-if>
+
+<!-- T-12 ESCALATIONS -->
+<sc-if value="{{ sE }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;min-height:0;display:grid;grid-template-columns:320px minmax(0,1fr);border:1px solid var(--rule);border-radius:4px;overflow:hidden">
+  <div role="listbox" aria-label="Escalations" style="border-right:1px solid var(--rule);overflow:auto;min-height:0">
+    <sc-for list="{{ ex.list }}" as="i" hint-placeholder-count="6">
+      <div role="option" aria-selected="{{ i.on }}" style="display:flex;flex-direction:column;gap:4px;padding:12px 16px 12px 13px;border-bottom:1px solid var(--rule);border-left:3px solid {{ i.bl }};background:{{ i.bg }}">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="flex:1;font-size:14px;font-weight:{{ i.fw }}">{{ i.n }}</span><span style="font-size:12px;color:var(--ink2);white-space:nowrap">{{ i.t }}</span></div>
+        <span style="font-size:12px;color:var(--ink2)">{{ i.topic }}</span>
+        <span style="font-size:13px;line-height:19px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">{{ i.ex }}</span>
+        <span style="font-size:12px;font-weight:600;color:{{ i.rc }};display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px">{{ i.ri }}</span>{{ i.r }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:flex;flex-direction:column;min-height:0;min-width:0">
+    <div style="flex:none;display:flex;align-items:center;gap:12px;padding:12px 20px;border-bottom:1px solid var(--rule)">
+      <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:16px;font-weight:600">Salma Adel <span style="font-weight:400;color:var(--ink2);font-size:13px">· SAT Math · 4.2.2 Equations with fractions</span></span><span style="font-size:13px;color:var(--warn);font-weight:600;display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;font-variation-settings:'FILL' 1">flag</span>Escalated 11:20 · Salma asked again after two AI answers</span></div>
+      <a href="#" style="font-size:13px;font-weight:600;white-space:nowrap">Open student</a>
+    </div>
+    <div style="flex:1;min-height:0;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:16px">
+      <div style="background:var(--frame);border-radius:2px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;gap:10px;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)"><span>Question</span><span style="font-family:'Noto Sans Mono',monospace;letter-spacing:0;text-transform:none">SM-1196</span><span style="letter-spacing:0;text-transform:none;font-weight:500">Homework 4.2.2 · Ex 6</span></div>
+        <p data-mix="If \(\dfrac{2x}{3} - 1 = \dfrac{x}{2} + 4\), what is the value of \(x\)?" style="margin:0;font-size:17px;line-height:27px"></p>
+        <div style="display:flex;flex-wrap:wrap;gap:6px 20px;font-size:14px"><span style="display:flex;align-items:center;gap:4px;color:var(--red);font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px">close</span>Salma answered 15</span><span style="display:flex;align-items:center;gap:4px;color:var(--green);font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span>Correct answer 30</span></div>
+      </div>
+      <sc-for list="{{ ex.msgs }}" as="g" hint-placeholder-count="3">
+        <div style="display:flex;flex-direction:column;gap:6px;align-self:{{ g.al }};max-width:640px;width:100%">
+          <span style="font-size:12px;font-weight:600;color:var(--ink2);display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px">{{ g.ic }}</span>{{ g.who }} · {{ g.t }}</span>
+          <div data-mix="{{ g.b }}" style="padding:12px 14px;border-radius:8px;background:{{ g.bg }};border:1px solid {{ g.bd }};font-size:15px;line-height:24px;text-wrap:pretty"></div>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ ex.compose }}">
+    <div style="flex:none;border-top:1px solid var(--rule);padding:14px 20px;display:flex;flex-direction:column;gap:10px">
+      <div style="height:72px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:10px 12px;font-size:14px;color:var(--ink2)">Reply to Salma. Use \( \) for maths.</div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <button style="height:44px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Send reply</button>
+        <button style="height:44px;padding:0 16px 0 12px;border:1px solid var(--rule2);border-radius:4px;background:transparent;font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">videocam</span>Add to next live session</button>
+        <span style="font-size:13px;color:var(--ink2)">Thu 15 Oct, 19:00 · 4 on the agenda</span>
+        <span style="flex:1"></span>
+        <button style="height:44px;padding:0 10px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Resolve without reply</button>
+      </div>
+    </div>
+    </sc-if>
+    <sc-if value="{{ ex.done }}">
+    <div role="status" style="flex:none;border-top:1px solid var(--rule);padding:14px 20px;display:flex;flex-direction:column;gap:8px;font-size:14px">
+      <span style="display:flex;align-items:center;gap:8px;color:var(--green);font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;font-variation-settings:'FILL' 1">check_circle</span>Reply sent 11:48. Salma gets a notification.</span>
+      <span style="display:flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">videocam</span>On the agenda for Thu 15 Oct, 19:00 · 5 questions<a href="#" style="font-weight:600;margin-left:4px">Remove</a></span>
+    </div>
+    </sc-if>
+  </div>
+</div>
+</sc-if>
+
+<!-- shared empty -->
+<sc-if value="{{ emp.on }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:64px 24px;max-width:520px;margin:0 auto">
+  <span style="font-family:'Material Symbols Rounded';font-size:40px;color:var(--ink2)">{{ emp.ic }}</span>
+  <h2 style="margin:0;font-size:20px;line-height:28px;font-weight:600;text-wrap:pretty">{{ emp.t }}</h2>
+  <p style="margin:0;font-size:15px;line-height:23px;color:var(--ink2);text-wrap:pretty">{{ emp.b }}</p>
+  <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;justify-content:center"><sc-for list="{{ emp.acts }}" as="a" hint-placeholder-count="1"><button style="height:44px;padding:0 18px;border:1px solid {{ a.bd }};border-radius:4px;background:{{ a.bg }};color:{{ a.c }};font-size:14px;font-weight:600">{{ a.l }}</button></sc-for></div>
+</div>
+</sc-if>
+
+<!-- shared loading -->
+<sc-if value="{{ ld }}" hint-placeholder-val="{{ false }}">
+<div role="status" aria-live="polite" style="display:flex;flex-direction:column;gap:20px">
+  <span style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:18px">progress_activity</span>{{ sk.label }}</span>
+  <sc-if value="{{ sk.kpi }}"><div aria-hidden="true" style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border-top:1.5px solid var(--rule);border-bottom:1px solid var(--rule)"><sc-for list="{{ sk.kpis }}" as="k" hint-placeholder-count="4"><div style="padding:18px 20px 20px {{ k.pl }};border-left:{{ k.bl }};display:flex;flex-direction:column;gap:12px"><span style="width:60%;height:10px;background:var(--surface2);border-radius:2px"></span><span style="width:45%;height:32px;background:var(--surface2);border-radius:2px"></span><span style="width:80%;height:10px;background:var(--surface2);border-radius:2px"></span></div></sc-for></div></sc-if>
+  <div aria-hidden="true" style="display:flex;flex-direction:column;border-top:1.5px solid var(--rule)">
+    <sc-for list="{{ sk.rows }}" as="r" hint-placeholder-count="10"><div style="height:{{ sk.h }};display:flex;align-items:center;gap:24px;border-bottom:1px solid var(--rule)"><sc-for list="{{ r.bars }}" as="b" hint-placeholder-count="4"><span style="flex:{{ b.f }};display:flex;flex-direction:column;gap:6px"><span style="width:{{ b.w }};height:11px;background:var(--surface2);border-radius:2px"></span><sc-if value="{{ b.two }}"><span style="width:50%;height:9px;background:var(--surface2);border-radius:2px"></span></sc-if></span></sc-for></div></sc-for>
+  </div>
+</div>
+</sc-if>
+
+</div>
+</main>
+
+<sc-if value="{{ dlg }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:5;background:var(--scrim);display:flex;align-items:center;justify-content:center">
+  <div role="dialog" aria-modal="true" aria-labelledby="dlgt" style="width:520px;box-sizing:border-box;background:var(--page);border-radius:8px;padding:24px;display:flex;flex-direction:column;gap:14px">
+    <span style="font-family:'Material Symbols Rounded';font-size:28px">{{ d.icon }}</span>
+    <h2 id="dlgt" style="margin:0;font-size:22px;line-height:30px;font-weight:600;text-wrap:pretty">{{ d.title }}</h2>
+    <p style="margin:0;font-size:15px;line-height:23px;color:var(--ink2);text-wrap:pretty">{{ d.body }}</p>
+    <div style="display:flex;flex-direction:column;border-top:1px solid var(--rule)">
+      <sc-for list="{{ d.items }}" as="i" hint-placeholder-count="3"><div style="display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px;line-height:20px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">{{ i.ic }}</span><span style="text-wrap:pretty">{{ i.t }}</span></div></sc-for>
+    </div>
+    <sc-for list="{{ d.fields }}" as="f" hint-placeholder-count="1"><label style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">{{ f.l }}</span><span style="min-height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:12px 14px;font-size:15px;color:{{ f.c }};display:flex;align-items:center;gap:8px"><span style="flex:1">{{ f.v }}</span><sc-if value="{{ f.ic }}"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">{{ f.ic }}</span></sc-if></span><sc-if value="{{ f.help }}"><span style="font-size:12px;color:var(--ink2)">{{ f.help }}</span></sc-if></label></sc-for>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+      <button style="height:48px;padding:0 18px;border:1px solid var(--rule2);border-radius:4px;background:transparent;color:var(--ink);font-size:14px;font-weight:600">Cancel</button>
+      <button style="height:48px;padding:0 22px;border:none;border-radius:4px;background:{{ d.okBg }};color:var(--onp);font-size:14px;font-weight:600">{{ d.ok }}</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;1280px&quot;,&quot;height&quot;:&quot;900px&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dash&quot;,&quot;matrix&quot;,&quot;student&quot;,&quot;insights&quot;,&quot;inbox&quot;],&quot;default&quot;:&quot;dash&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;empty&quot;,&quot;loading&quot;,&quot;alt&quot;,&quot;confirm&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;'default'|'empty'|'loading'|'alt'|'confirm'&quot;}}">
+const NAV = [
+  ['space_dashboard', 'Dashboard', 'dash'], ['group', 'Students', 'stu'], ['forum', 'Escalations', 'esc', 0, '6'],
+  ['video_library', 'Content', '', 1], ['quiz', 'Question bank', ''], ['timer', 'Mock sets', ''], ['videocam', 'Live sessions', ''],
+  ['sell', 'Coupons and codes', '', 1], ['campaign', 'Announcements', ''], ['settings', 'Settings', '']
+];
+const AREA = { dash: 'dash', matrix: 'stu', student: 'stu', insights: 'stu', inbox: 'esc' };
+const seg = (opts, on) => opts.map((n, i) => ({ n, on: i === on, bg: i === on ? 'var(--pc)' : 'transparent', bl: i ? '1px solid var(--fb)' : 'none', fw: i === on ? '700' : '500' }));
+const tabs = (opts, on) => opts.map((n, i) => ({ n, on: i === on, fw: i === on ? '700' : '500', c: i === on ? 'var(--ink)' : 'var(--ink2)', bd: i === on ? 'var(--primary)' : 'transparent' }));
+const act = (l, ic, prim, red) => ({ l, ic, prim: !!prim, sec: !prim, c: red ? 'var(--red)' : 'var(--ink)', pl: ic ? '14px' : (prim ? '20px' : '18px') });
+const chip = (l, n, on, days) => ({ l, n, on, days: days || '', bg: on ? 'var(--pc)' : 'transparent', bd: on ? 'var(--primary)' : 'var(--fb)', fw: on ? '600' : '500', pl: on ? '10px' : '14px' });
+const kcols = (n) => Array.from({ length: n }, (_, i) => ({ pl: i ? '20px' : '0px', bl: i ? '1px solid var(--rule)' : 'none' }));
+const hash = (a, b) => ((a * 37 + b * 101 + 13) * 7919) % 100;
+
+const TOPICS = [['4.1', 'Solving linear equations', 'Avg quiz 81% · 94% done'], ['4.2', 'Linear equations in one variable', 'Avg quiz 72% · 77% done'], ['4.3', 'Linear inequalities', 'Avg quiz 61% · 48% done'], ['5.1', 'Systems by substitution', 'Avg quiz 74% · 19% done']];
+const STU = [
+  ['Ahmed Tarek', 3, 'ALFN'], ['Farida Nabil', 0, 'AAAW'], ['Habiba Samir', 1, 'AALP'], ['Hassan Wael', 8, 'LMNN'],
+  ['Jana Ashraf', 1, 'AAWN'], ['Karim Mostafa', 12, 'MPNN'], ['Laila Mansour', 0, 'AAAL'], ['Mariam Farouk', 0, 'AAAA'],
+  ['Mostafa Gamal', 2, 'AFFN'], ['Nour Hassan', 0, 'AAFN'], ['Omar Khaled', 7, 'ALPN'], ['Rana Khalil', 0, 'AAAA'],
+  ['Salma Adel', 0, 'AAWN'], ['Seif Emad', 4, 'AAMN'], ['Youssef Ibrahim', 2, 'AFMN'], ['Ziad Hany', 6, 'APNN']
+];
+const lastTxt = d => d === 0 ? 'Today' : d === 1 ? 'Yesterday' : `${d} days ago`;
+
+function cells(code, i, j) {
+  const h = hash(i, j), bl = '1px solid var(--rule)', none = { t: '—', c: 'var(--ink3)', fw: '400', ic: '', bg: 'transparent', bl: '' };
+  const vid = v => ({ ...none, t: v ? v + '%' : '—', c: v ? (v < 80 ? 'var(--ink2)' : 'var(--ink)') : 'var(--ink3)', bar: v > 0, w: v + '%', bl });
+  const notes = ok => ({ ...none, t: '', ic: ok ? 'check' : 'lock', c: ok ? 'var(--green)' : 'var(--ink3)' });
+  const hw = (k) => k === 'ok' ? { ...none, t: (7 + h % 4) + '/10', c: 'var(--ink)' } : k === 'late' ? { ...none, t: (5 + h % 4) + '/10', ic: 'schedule', c: 'var(--warn)', fw: '600' } : k === 'miss' ? { ...none, t: 'Missing', ic: 'error', c: 'var(--red)', fw: '600', bg: 'var(--redc)' } : none;
+  const quiz = (k) => k === 'pass' ? { ...none, t: (72 + h % 26) + '%', c: 'var(--ink)' } : k === 'fail' ? { ...none, t: (38 + h % 28) + '%', ic: 'close', c: 'var(--red)', fw: '600', bg: 'var(--redc)' } : none;
+  const M = {
+    A: [vid(100), notes(1), hw('ok'), quiz('pass')], L: [vid(100), notes(1), hw('late'), quiz('pass')], F: [vid(100), notes(1), hw('ok'), quiz('fail')],
+    M: [vid(100), notes(1), hw('miss'), none], P: [vid(40 + h % 35), notes(0), none, none], W: [vid(85 + h % 15), notes(1), none, none], N: [vid(0), { ...none }, none, none]
+  };
+  return M[code].map((c, k) => ({ ...c, bl: k === 0 ? bl : 'none', bar: !!c.bar, w: c.w || '0%' }));
+}
+
+const HARD = [
+  ['SM-1160', 'If \\(7 - 2(x + 3) = -11\\), what is the value of \\(x\\)?', '4.2.1', 186, 24, 'B', '\\(1\\)', '41%', 'Dropped the sign when distributing −2'],
+  ['SM-1208', 'Which inequality is equivalent to \\(-3x + 5 > 11\\)?', '4.3.1', 142, 31, 'A', '\\(x > -2\\)', '52%', 'Did not flip the sign when dividing by −3'],
+  ['SM-1185', 'If \\(3(x - 4) + 2x = 21\\), what is the value of \\(x\\)?', '4.2.1', 203, 38, 'A', '\\(\\tfrac{9}{5}\\)', '29%', 'Subtracted 12 instead of adding'],
+  ['SM-1172', 'Which value of \\(k\\) makes \\(4(x + k) = 4x + 12\\) true for all \\(x\\)?', '4.2.3', 97, 41, 'D', '\\(12\\)', '34%', 'Did not divide by 4'],
+  ['SM-1196', 'If \\(\\tfrac{2x}{3} - 1 = \\tfrac{x}{2} + 4\\), what is \\(x\\)?', '4.2.2', 158, 44, 'SPR', '\\(15\\)', '26%', 'Multiplied only the \\(x\\) terms by 6'],
+  ['SM-1151', '\\(ax + 3 = 2x - 5\\) has no solution. What is \\(a\\)?', '4.2.3', 121, 49, 'SPR', '\\(-2\\)', '22%', 'Sign error moving \\(2x\\) across']
+];
+const DIST = [['A', '\\(-1\\)', 12, 'Subtracted 7 from −11 only'], ['B', '\\(1\\)', 41, 'Dropped the sign when distributing −2'], ['C', '\\(6\\)', 24, '', 1], ['D', '\\(9\\)', 23, 'Ignored the +3 inside the brackets']];
+
+class Component extends DCLogic {
+  rootRef = React.createRef();
+  componentDidMount() { let n = 0; this.iv = setInterval(() => { n++; this.math(); if (n > 30) clearInterval(this.iv); }, 300); }
+  componentDidUpdate() { this.math(); }
+  componentWillUnmount() { clearInterval(this.iv); }
+  math() { if (window.katex && window.BookletMath && this.rootRef.current) window.BookletMath.render(this.rootRef.current); }
+
+  dash(empty) {
+    const K = empty
+      ? [['Active students', '—', 'No students enrolled yet'], ['Homework submission', '—', 'No homework due yet'], ['Quiz pass rate', '—', 'No quiz attempts yet'], ['Sales', 'EGP 0', 'No orders in the last 7 days']]
+      : [['Active students', '412', 'of 468 enrolled · opened a lesson in the last 7 days', 'trending_up', '+18 vs previous 7 days', 1],
+         ['Homework submission', '78%', '1,146 of 1,470 due · 71% on time', 'trending_down', '−4 pts vs previous 7 days', 0],
+         ['Quiz pass rate', '64%', 'Pass mark 70% · 2,031 attempts', 'trending_up', '+2 pts vs previous 7 days', 1],
+         ['Sales', 'EGP 91,800', '41 orders · 6 activation codes redeemed', 'trending_up', '+12% vs previous 7 days', 1]];
+    const kpis = K.map(([l, v, sub, dIc, d, good], i) => ({ l, v, sub, dIc: dIc || '', d: d || '', dc: good ? 'var(--green)' : 'var(--red)', ...kcols(4)[i] }));
+    const sans = "'Noto Sans',system-ui,sans-serif", mono = "'Noto Sans Mono',monospace";
+    const row = (a, b, m, mc, ff) => ({ a, b, m, mc: mc || 'var(--ink2)', ff: ff || sans });
+    const alerts = [
+      { ic: 'block', icc: 'var(--red)', t: 'Stuck on a topic', n: '7', link: 'Class insights', rule: 'Same topic for 7+ days, or 3 failed quiz attempts on it',
+        rows: [row('Nour Hassan', '4.3 Linear inequalities · quiz failed 3 times', '9 days', 'var(--red)'), row('Mostafa Gamal', '4.2 Linear equations in one variable · 2 failed quizzes', '8 days', 'var(--red)'), row('Ahmed Tarek', '4.3 Linear inequalities · notes not opened', '7 days', 'var(--red)')] },
+      { ic: 'bedtime', icc: 'var(--warn)', t: 'Inactive 5+ days', n: '29', link: 'Open in matrix', rule: 'No lesson, homework or quiz activity',
+        rows: [row('Karim Mostafa', 'On 4.2 · homework 4.1 missing · access ends 22 Nov', '12 days'), row('Hassan Wael', 'On 4.1 · homework 4.2 missing', '8 days'), row('Omar Khaled', 'On 4.3 · video 4.3 at 52%', '7 days')] },
+      { ic: 'report', icc: 'var(--ink2)', t: 'Reported questions', n: '3', link: 'Review queue', rule: 'Reported by students from practice, homework or quizzes',
+        rows: [row('SM-1160', '“The answer should be 6 but it marked me wrong”', '4 reports', 'var(--ink)', mono), row('SM-1151', '“The choices are cut off on my phone”', '1 report', '', mono), row('SM-1203', '“There is no figure but the question mentions one”', '1 report', '', mono)] },
+      { ic: 'smart_toy', icc: 'var(--primary)', t: 'AI escalations', n: '6 open', link: 'Open inbox', rule: 'The AI tutor hands over when a student asks for you or stays confused',
+        rows: [row('Salma Adel', '4.2.2 · “I still don’t get why the 1 becomes 6”', '28 min'), row('Youssef Ibrahim', '4.2.3 · “Why is it no solution and not zero?”', '2 h'), row('Jana Ashraf', '4.1.2 · Asked for the teacher', '5 h')] }
+    ];
+    return { kpis, alerts, hasAlerts: !empty };
+  }
+
+  matrix(empty) {
+    const rows = STU.map(([name, d, prof], i) => ({
+      name, last: lastTxt(d), idle: d >= 5, lc: d >= 5 ? 'var(--warn)' : 'var(--ink2)', lw: d >= 5 ? '600' : '400',
+      bg: 'var(--page)', hbg: 'var(--page)',
+      cells: prof.split('').flatMap((c, j) => cells(c, i, j))
+    }));
+    return { has: !empty, rows, topics: TOPICS.map(([code, name, avg]) => ({ code, name, avg })),
+      steps: TOPICS.flatMap(() => ['Video', 'Notes', 'Homework', 'Quiz']).map((n, k) => ({ n, bl: k % 4 === 0 ? '1px solid var(--rule)' : 'none' })) };
+  }
+
+  student(empty) {
+    const facts = [['Email', 'nour.hassan@gmail.com'], ['Phone', '+20 10 •••• 4417'], ['Joined', '2 Aug 2026'], ['Test date', 'SAT · 8 Nov 2026'], ['Last active', empty ? 'Today, 10:02' : 'Today, 18:40']].map(([l, v]) => ({ l, v }));
+    const S = { done: ['check_circle', 'Complete', 'var(--green)'], stuck: ['block', 'Stuck · 9 days · 3 failed quizzes', 'var(--red)'], prog: ['pending', 'In progress', 'var(--primary)'], lock: ['lock', 'Locked · needs 4.3 quiz at 70%', 'var(--ink2)'], lock2: ['lock', 'Locked · needs 5.1', 'var(--ink2)'], new: ['radio_button_unchecked', 'Not started', 'var(--ink2)'], newl: ['lock', 'Locked · needs previous topic', 'var(--ink2)'] };
+    const P = empty
+      ? [['4.1', 'Solving linear equations', 'new', '12%', 0, '—', '—'], ['4.2', 'Linear equations in one variable', 'newl', '—', 0, '—', '—'], ['4.3', 'Linear inequalities', 'newl', '—', 0, '—', '—'], ['5.1', 'Systems by substitution', 'newl', '—', 0, '—', '—']]
+      : [['Unit 3', 'Algebra foundations · 4 topics', 'done', '100%', 1, '36/40', '88%'], ['4.1', 'Solving linear equations', 'done', '100%', 1, '9/10', '90%'], ['4.2', 'Linear equations in one variable', 'done', '100%', 1, '9/10', '85%'], ['4.3', 'Linear inequalities', 'stuck', '100%', 1, '6/10', '54%', 1], ['5.1', 'Systems by substitution', 'lock', '—', 0, '—', '—', 0, 1], ['5.2', 'Systems by elimination', 'lock2', '—', 0, '—', '—']];
+    const prog = P.map(([code, name, s, v, n, hw, q, fail, unlock]) => ({ code, name, si: S[s][0], st: S[s][1], sc: S[s][2], v, vc: v === '—' ? 'var(--ink3)' : 'var(--ink)', n: n ? 'check' : (v === '—' || v === '12%' ? 'lock' : 'remove'), nc: n ? 'var(--green)' : 'var(--ink3)', hw, hc: hw === '—' ? 'var(--ink3)' : 'var(--ink)', q: fail ? '54% · ✕' : q, qc: fail ? 'var(--red)' : q === '—' ? 'var(--ink3)' : 'var(--ink)', qw: fail ? '600' : '400', unlock: !!unlock || (empty && code === '4.2') }));
+    const R = { f: ['close', 'Below 70%', 'var(--red)'], p: ['check', 'Pass', 'var(--green)'], o: ['check', 'On time', 'var(--green)'] };
+    const att = [['12 Oct, 18:40', 'Quiz 4.3 · attempt 3', '54%', '14:10', 'f'], ['9 Oct, 20:05', 'Quiz 4.3 · attempt 2', '46%', '16:32', 'f'], ['6 Oct, 19:12', 'Quiz 4.3 · attempt 1', '38%', '17:55', 'f'], ['4 Oct, 21:30', 'Homework 4.3', '6/10', '41:08', 'o'], ['29 Sep, 17:20', 'Quiz 4.2 · attempt 1', '85%', '12:47', 'p'], ['27 Sep, 22:02', 'Homework 4.2', '9/10', '38:15', 'o']]
+      .map(([d, i, s, t, r]) => ({ d, i, s, t, ri: R[r][0], r: R[r][1], rc: R[r][2] }));
+    const enr = [
+      { c: 'SAT Math', si: 'check_circle', st: 'Active', sc: 'var(--green)', d: 'Access until 22 Nov 2026 (test date + 14 days) · Paid EGP 2,040 on 2 Aug' },
+      { c: 'EST Math', si: 'history', st: 'Expired 1 Sep 2026', sc: 'var(--ink2)', d: 'Activation code ALNOUR-7Q2K · 60 days' }
+    ];
+    const dev = empty ? [{ ic: 'smartphone', n: 'Samsung Galaxy A54', m: 'Android app · today, 10:02' }] : [{ ic: 'smartphone', n: 'Samsung Galaxy A54', m: 'Android app · today, 18:40' }, { ic: 'computer', n: 'Chrome on Windows', m: 'Web · 9 Oct, 20:05' }];
+    return { facts, prog, progNote: empty ? '0 of 18 topics complete' : '6 of 18 topics complete', att, hasAtt: !empty, noAtt: empty, attNote: empty ? '' : '23 in total · latest first', enr: empty ? enr.slice(0, 1) : enr,
+      dev, noDev: false, devNote: `${dev.length} of 2 devices`, chg: empty ? 'Device changes this month: 0 of 2 used.' : 'Device changes this month: 2 of 2 used. Reset lets her add a new device before 1 Nov.' };
+  }
+
+  insights() {
+    const hard = HARD.map(([id, stem, topic, n, p, wl, wv, wp, wt], i) => ({ id, stem, topic, n, pct: p + '%', pc: p < 35 ? 'var(--red)' : 'var(--ink)', wl, wv, wp, wt, open: i === 0, chev: i === 0 ? 'expand_less' : 'expand_more', bg: i === 0 ? 'var(--surface2)' : 'transparent',
+      dist: i === 0 ? DIST.map(([l, v, pp, t, ok]) => ({ l, v, p: pp + '%', ok: !!ok, t: ok ? 'Correct' : t, c: ok ? 'var(--green)' : pp === 41 ? 'var(--red)' : 'var(--fb)', tc: ok ? 'var(--green)' : 'var(--ink2)', tw: ok ? '600' : '400', bd: ok ? 'var(--green)' : 'var(--fb)', lb: ok ? 'var(--green)' : 'var(--page)', lc: ok ? 'var(--onp)' : 'var(--ink)' })) : [] }));
+    const stuck = [
+      ['4.3 Linear inequalities', 11, '9 days', 'Quiz 4.3 below 70%: 8 students · 3+ attempts: 4', 'Nour Hassan, Ahmed Tarek, Omar Khaled and 8 more'],
+      ['4.2 Linear equations in one variable', 6, '8 days', 'Homework 4.2 missing: 4 · video under 80%: 2', 'Mostafa Gamal, Karim Mostafa and 4 more'],
+      ['4.1 Solving linear equations', 2, '12 days', 'Video under 80%, notes still locked', 'Hassan Wael, Ziad Hany']
+    ].map(([t, n, med, why, who]) => ({ t, n, med, why, who }));
+    return { hard, stuck };
+  }
+
+  inbox(st) {
+    const done = st === 'alt';
+    const L = [
+      ['Salma Adel', '28 min', '4.2.2 Equations with fractions', 'I still don’t get it. Why does the 1 become 6?', 'replay', 'Asked again after 2 AI answers'],
+      ['Youssef Ibrahim', '2 h', '4.2.3 No solution and infinite solutions', 'Why is it no solution and not zero? The x’s cancel so x = 0?', 'replay', 'Asked again after 2 AI answers'],
+      ['Jana Ashraf', '5 h', '4.1.2 Variables on both sides', 'Can the teacher explain this one in the live session please', 'person', 'Asked for the teacher'],
+      ['Ahmed Tarek', '1 d', '4.3.1 Inequalities with negatives', 'The AI said flip the sign but my book doesn’t flip it here', 'help', 'AI not confident in its answer'],
+      ['Rana Khalil', '1 d', '4.2.1 Distributing and combining', 'I think question 7 has the wrong answer key', 'report', 'Possible answer-key issue'],
+      ['Seif Emad', '2 d', '4.1.1 One-step and two-step equations', 'How do I know which side to move the x to?', 'person', 'Asked for the teacher']
+    ];
+    const list = L.map(([n, t, topic, ex, ri, r], i) => {
+      const on = i === 0, rep = on && done;
+      return { n, t, topic, ex, on, ri: rep ? 'check_circle' : ri, r: rep ? 'Replied · in Thu live session' : r, rc: rep ? 'var(--green)' : (i === 4 ? 'var(--ink2)' : 'var(--warn)'), fw: on ? '700' : '600', bg: on ? 'var(--pc)' : 'transparent', bl: on ? 'var(--primary)' : 'transparent' };
+    });
+    const stu = { ic: 'person', al: 'flex-start', bg: 'var(--surface2)', bd: 'var(--surface2)' }, ai = { ic: 'smart_toy', al: 'flex-start', bg: 'var(--page)', bd: 'var(--rule)' };
+    const msgs = [
+      { ...stu, who: 'Salma Adel', t: '11:02', b: 'I multiplied by 6 like the video but I got 15. Why do we multiply the −1 and the 4 too? They don’t have fractions.' },
+      { ...ai, who: 'AI tutor', t: '11:02', b: 'Multiplying by 6 clears the fractions, but it has to apply to every term on both sides, or the two sides stop being equal: \\(6 \\cdot \\tfrac{2x}{3} - 6 \\cdot 1 = 6 \\cdot \\tfrac{x}{2} + 6 \\cdot 4\\). That gives \\(4x - 6 = 3x + 24\\), so \\(x = 30\\).' },
+      { ...stu, who: 'Salma Adel', t: '11:19', b: 'I still don’t get it. Why does the 1 become 6?' }
+    ];
+    if (done) msgs.push({ ic: 'school', al: 'flex-end', bg: 'var(--pc)', bd: 'var(--pc)', who: 'You', t: '11:48', b: 'Think of the equation as a balance. If you multiply only the fractions by 6, one side grows more than the other. So every term gets multiplied: the −1 becomes −6 and the 4 becomes 24. I’ll go through this one in Thursday’s live session too.' });
+    return { list, msgs, compose: !done, done };
+  }
+
+  dialog(scr, st) {
+    if (scr !== 'student') return null;
+    if (st === 'confirm') return { icon: 'person_off', title: 'Suspend Nour Hassan?', body: 'She can’t open SAT Math until you reinstate her. Progress, attempts and payments are kept.', okBg: 'var(--red)', ok: 'Suspend account',
+      items: [{ ic: 'logout', t: 'Signs her out of 2 devices now' }, { ic: 'event', t: 'The access end date, 22 Nov 2026, does not move while suspended' }, { ic: 'mail', t: 'She gets an email and an in-app notice with the reason below' }],
+      fields: [{ l: 'Reason (shown to the student)', v: 'Account shared with another student', c: 'var(--ink)', ic: '', help: '' }] };
+    if (st === 'alt') return { icon: 'event_upcoming', title: 'Extend SAT Math access', body: 'Access currently ends 22 Nov 2026, 14 days after her test date.', okBg: 'var(--primary)', ok: 'Extend to 6 Dec 2026',
+      items: [{ ic: 'add_circle', t: 'Adds 14 days. No charge to the student.' }, { ic: 'history', t: 'Recorded in the enrolment history with your name' }],
+      fields: [{ l: 'New end date', v: 'Sun 6 Dec 2026', c: 'var(--ink)', ic: 'calendar_month', help: '' }, { l: 'Note (internal)', v: 'Test moved to the December sitting', c: 'var(--ink)', ic: '', help: '' }] };
+    return null;
+  }
+
+  renderVals() {
+    const scr = AREA[this.props.screen] ? this.props.screen : 'dash';
+    const st = this.props.state ?? 'default';
+    const ld = st === 'loading', empty = st === 'empty', area = AREA[scr];
+    const nav = NAV.map(([icon, label, key, sep, badge]) => ({ icon, label, sep: !!sep, on: key === area, off: key !== area, badge: badge || '' }));
+    const sub = (scr === 'matrix' || scr === 'insights') ? tabs(['Completion matrix', 'Class insights', 'All students · 468'], scr === 'matrix' ? 0 : 1)
+      : scr === 'inbox' ? tabs([empty ? 'Open · 0' : (st === 'alt' ? 'Open · 5' : 'Open · 6'), 'Replied · 14', 'In live session · 4'], 0) : [];
+    const BARS = {
+      dash: { hasSeg: true, seg: seg(['All courses', 'SAT Math', 'EST Math'], 0), sels: [{ l: 'Period', v: 'Last 7 days' }], chips: [], note: empty ? '' : 'Compared with 29 Sep – 5 Oct' },
+      matrix: { hasSeg: false, hasSearch: true, q: empty ? 'Youssef' : 'Search students', qc: empty ? 'var(--ink)' : 'var(--ink2)', sels: [{ l: 'Course', v: 'SAT Math · Units 4–5' }],
+        chips: [chip('Late homework', '37', empty), chip('Failing a quiz', '52', empty), chip('Inactive', empty ? '0' : '29', empty, empty ? '30' : '5')], note: empty ? '0 of 468' : '1–16 of 468', pager: !empty },
+      insights: { hasSeg: true, seg: seg(['SAT Math', 'EST Math'], 0), sels: [{ l: 'Unit', v: 'All units' }, { l: 'Period', v: 'Last 30 days' }], chips: [], note: empty ? '' : '412 active students · 9,870 answers' },
+    };
+    const bar = BARS[scr] || null;
+    const TITLE = { dash: 'Dashboard', matrix: 'Students', insights: 'Students', student: 'Nour Hassan', inbox: 'AI escalations' };
+    const ACTS = { dash: [], matrix: [act('Export CSV', 'download')], insights: [act('Export CSV', 'download')], student: [act('Message', 'chat'), act('Suspend account', 'person_off', 0, 1)], inbox: [] };
+    const EMP = {
+      dash: ['group_add', 'No students yet', 'Numbers and alerts start once students enrol and open their first lesson. Share the course page or create activation codes to get started.', [['Create activation codes', 1], ['Copy course link']]],
+      matrix: ['filter_alt_off', 'No students match these filters', 'Filters combine, so a student has to be late, failing a quiz and inactive for 30+ days, and match “Youssef”. Remove a filter to widen the list.', [['Clear filters', 1]]],
+      insights: ['monitoring', 'Not enough answers yet', 'Insights need at least 20 first attempts per question. SAT Math has 6 so far, from 2 students on 4.1.', [['Open completion matrix']]],
+      inbox: ['inbox', 'No open escalations', 'When the AI tutor can’t settle a question, or a student asks for you, it lands here with the full conversation.', [['See replied · 14']]]
+    };
+    const e = empty && EMP[scr] && !ld ? EMP[scr] : null;
+    const SKH = { dash: '64px', matrix: '48px', student: '52px', insights: '56px', inbox: '76px' };
+    const SKL = { dash: 'Loading class numbers…', matrix: 'Loading 468 students…', student: 'Loading Nour Hassan…', insights: 'Calculating insights…', inbox: 'Loading escalations…' };
+    const SKB = { dash: [[2, '70%', 1], [1, '50%'], [0.3, '60%']], matrix: [[1.4, '70%', 1], [1, '60%'], [1, '50%'], [1, '60%'], [1, '40%'], [1, '55%']], student: [[2, '60%', 1], [1, '40%'], [1, '40%'], [1, '50%']], insights: [[0.4, '80%'], [3, '70%'], [0.6, '60%'], [1, '50%'], [1.4, '70%', 1]], inbox: [[1, '40%', 1], [3, '80%', 1], [0.5, '60%']] };
+    const d = ld ? null : this.dialog(scr, st);
+    const show = !ld;
+    return {
+      rootRef: this.rootRef, nav, title: TITLE[scr], acts: ld ? [] : ACTS[scr], innerH: (scr === 'matrix' || scr === 'inbox') && show && !empty ? '100%' : 'auto',
+      hasSub: sub.length > 0, sub, hasCrumb: scr === 'student', crumbSi: 'check_circle', crumbSt: 'Active', crumbSc: 'var(--green)',
+      hasBar: !!bar && show, bar: bar || { seg: [], sels: [], chips: [] },
+      sD: scr === 'dash' && show, sM: scr === 'matrix' && show, sS: scr === 'student' && show, sI: scr === 'insights' && show && !empty, sE: scr === 'inbox' && show && !empty,
+      dsh: scr === 'dash' ? this.dash(empty) : { kpis: [], alerts: [] },
+      m: scr === 'matrix' ? this.matrix(empty) : { rows: [], topics: [], steps: [] },
+      s: scr === 'student' ? this.student(empty) : { facts: [], prog: [], att: [], enr: [], dev: [] },
+      ins: scr === 'insights' && !empty ? this.insights() : { hard: [], stuck: [] },
+      ex: scr === 'inbox' && !empty ? this.inbox(st) : { list: [], msgs: [] },
+      emp: e ? { on: true, ic: e[0], t: e[1], b: e[2], acts: e[3].map(([l, p]) => ({ l, bg: p ? 'var(--primary)' : 'transparent', c: p ? 'var(--onp)' : 'var(--ink)', bd: p ? 'var(--primary)' : 'var(--rule2)' })) } : { on: false, acts: [] },
+      ld, sk: { label: SKL[scr], kpi: scr === 'dash', kpis: kcols(4), h: SKH[scr], rows: Array.from({ length: scr === 'dash' ? 6 : 10 }, (_, i) => ({ bars: SKB[scr].map(([f, w, two]) => ({ f, w: i % 2 && w !== '80%' ? (parseInt(w) - 15) + '%' : w, two: !!two })) })) },
+      dlg: !!d, d: d || { items: [], fields: [] }
+    };
+  }
+}
+</script>
+</body>
+</html>

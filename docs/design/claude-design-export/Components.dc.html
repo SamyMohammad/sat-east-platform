@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<style>
+body{margin:0;background:#FFFFFF;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#1F4FD6}a:hover{color:#15379A}
+button{font-family:inherit}
+</style>
+</helmet>
+<div style="--page:#FFFFFF;--surface:#FFFFFF;--surface2:#F6F7F9;--frame:#EEF2F8;--ink:#1A1D24;--ink2:#4B5262;--ink3:#9AA1AD;--onp:#FFFFFF;--rule:#D8DDE6;--rule2:#1A1D24;--primary:#1F4FD6;--red:#D2343A;--redc:#FBEBEC;--green:#1E7F4F;--greenc:#E4F2EA;--hl:#F6D743;--onhl:#1A1D24;--warn:#B45309;--warnc:#FCEFE1;--info:#0E6A86;--infoc:#E3F1F5;--inv:#1A1D24;--oninv:#FFFFFF;--pinv:#86A5FF;--scrim:rgba(26,29,36,.48);--shadow:0 2px 6px rgba(26,29,36,.10);--pcAmt:10%">
+<div style="{{ themeVars }}">
+<div style="--pc:color-mix(in srgb,var(--primary) var(--pcAmt),var(--page));--ph:color-mix(in srgb,var(--primary) 88%,var(--ink));--pp:color-mix(in srgb,var(--primary) 76%,var(--ink));--focus:var(--primary);background:var(--page);color:var(--ink);min-height:100vh">
+<div style="max-width:1320px;margin:0 auto;padding:48px 32px 120px;display:flex;flex-direction:column;gap:72px">
+
+<header style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:24px;padding-bottom:24px;border-bottom:1px solid var(--rule2)">
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)">Session 1 · Component sheet</div>
+    <h1 style="margin:0;font-size:40px;line-height:48px;font-weight:600;letter-spacing:-.02em">Components and states</h1>
+    <div style="font-size:16px;line-height:24px;color:var(--ink2);max-width:640px;text-wrap:pretty">Every colour here reads a token. Switch theme and brand colour in Tweaks.</div>
+  </div>
+  <nav style="display:flex;flex-wrap:wrap;gap:20px;font-size:14px;font-weight:600"><a href="Foundations.dc.html" style="color:var(--primary)">← Foundations</a><a href="Components Dark.dc.html" style="color:var(--primary)">Dark theme</a><a href="App Shell.dc.html" style="color:var(--primary)">Shell →</a></nav>
+</header>
+
+<!-- 1 BUTTONS -->
+<section style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px"><span style="font-size:14px;font-weight:600;color:var(--primary)">1</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">Buttons</h2><span style="font-size:14px;color:var(--ink2)">48 px tall · radius.sm · type.label</span></div>
+  <div style="overflow-x:auto;overflow-y:hidden;padding:4px"><div style="min-width:1240px;display:grid;grid-template-columns:110px repeat(7,minmax(0,1fr));gap:0;font-size:12px">
+    <span></span>
+    <span style="padding:0 0 12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Default</span><span style="padding:0 0 12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Hover</span><span style="padding:0 0 12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Pressed</span><span style="padding:0 0 12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Focused</span><span style="padding:0 0 12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Disabled</span><span style="padding:0 0 12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Loading</span><span style="padding:0 0 12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Error</span>
+
+    <span style="border-top:1px solid var(--rule);padding:22px 0;font-size:14px;font-weight:600">Primary</span>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;letter-spacing:.01em;cursor:pointer">Check answer</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--ph);color:var(--onp);font-size:14px;font-weight:600;letter-spacing:.01em">Check answer</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--pp);color:var(--onp);font-size:14px;font-weight:600;letter-spacing:.01em">Check answer</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;letter-spacing:.01em;outline:2px solid var(--focus);outline-offset:2px">Check answer</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--rule);color:var(--ink3);font-size:14px;font-weight:600;letter-spacing:.01em">Check answer</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;letter-spacing:.01em;display:inline-flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border:2px solid currentColor;border-right-color:var(--rule);border-radius:50%"></span>Checking</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0;display:flex;flex-direction:column;gap:6px;align-items:flex-start"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;letter-spacing:.01em;display:inline-flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">refresh</span>Retry</button><span style="display:flex;gap:4px;align-items:center;color:var(--ink)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">error</span>Not sent. Retry.</span></div>
+
+    <span style="border-top:1px solid var(--rule);padding:22px 0;font-size:14px;font-weight:600">Secondary</span>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;cursor:pointer">Watch again</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:var(--pc);color:var(--primary);font-size:14px;font-weight:600">Watch again</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--pp);border-radius:4px;background:color-mix(in srgb,var(--primary) 20%,var(--page));color:var(--pp);font-size:14px;font-weight:600">Watch again</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;outline:2px solid var(--focus);outline-offset:2px">Watch again</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink3);font-size:14px;font-weight:600">Watch again</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border:2px solid currentColor;border-right-color:var(--rule);border-radius:50%"></span>Loading</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0;display:flex;flex-direction:column;gap:6px;align-items:flex-start"><button style="white-space:nowrap;height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Watch again</button><span style="display:flex;gap:4px;align-items:center;color:var(--ink)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">error</span>Video unavailable</span></div>
+
+    <span style="border-top:1px solid var(--rule);padding:22px 0;font-size:14px;font-weight:600">Tertiary</span>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;cursor:pointer">Show solution</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:var(--pc);color:var(--primary);font-size:14px;font-weight:600">Show solution</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:color-mix(in srgb,var(--primary) 20%,var(--page));color:var(--pp);font-size:14px;font-weight:600">Show solution</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;outline:2px solid var(--focus);outline-offset:2px">Show solution</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--ink3);font-size:14px;font-weight:600">Show solution</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border:2px solid currentColor;border-right-color:var(--rule);border-radius:50%"></span>Loading</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0;display:flex;flex-direction:column;gap:6px;align-items:flex-start"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Show solution</button><span style="display:flex;gap:4px;align-items:center;color:var(--ink)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">error</span>Couldn't load</span></div>
+
+    <span style="border-top:1px solid var(--rule);padding:22px 0;font-size:14px;font-weight:600;display:flex;flex-direction:column;gap:2px">Destructive<span style="font-weight:400;font-size:12px;color:var(--ink2)">ink fill, always confirmed</span></span>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--ink);color:var(--page);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">logout</span>Leave quiz</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:color-mix(in srgb,var(--ink) 84%,var(--page));color:var(--page);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">logout</span>Leave quiz</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:color-mix(in srgb,var(--ink) 72%,var(--page));color:var(--page);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">logout</span>Leave quiz</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--ink);color:var(--page);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px;outline:2px solid var(--focus);outline-offset:2px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">logout</span>Leave quiz</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--rule);color:var(--ink3);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">logout</span>Leave quiz</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--ink);color:var(--page);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:10px"><span style="width:14px;height:14px;border:2px solid currentColor;border-right-color:var(--rule);border-radius:50%"></span>Leaving</button></div>
+    <div style="border-top:1px solid var(--rule);padding:16px 12px 16px 0;display:flex;flex-direction:column;gap:6px;align-items:flex-start"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--ink);color:var(--page);font-size:14px;font-weight:600;display:inline-flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">logout</span>Leave quiz</button><span style="display:flex;gap:4px;align-items:center;color:var(--ink)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">error</span>Couldn't end attempt</span></div>
+
+    <span style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:22px 0;font-size:14px;font-weight:600">Icon</span>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 12px 16px 0"><button aria-label="Reference" style="width:48px;height:48px;border:none;border-radius:4px;background:transparent;color:var(--ink2);display:flex;align-items:center;justify-content:center;cursor:pointer"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">functions</span></button></div>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;width:48px;height:48px;border:none;border-radius:4px;background:var(--surface2);color:var(--ink);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">functions</span></button></div>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;width:48px;height:48px;border:none;border-radius:4px;background:var(--rule);color:var(--ink);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">functions</span></button></div>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;width:48px;height:48px;border:none;border-radius:4px;background:transparent;color:var(--ink2);display:flex;align-items:center;justify-content:center;outline:2px solid var(--focus);outline-offset:2px"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">functions</span></button></div>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;width:48px;height:48px;border:none;border-radius:4px;background:transparent;color:var(--ink3);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">functions</span></button></div>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 12px 16px 0"><button style="white-space:nowrap;width:48px;height:48px;border:none;border-radius:4px;background:transparent;color:var(--ink2);display:flex;align-items:center;justify-content:center"><span style="width:18px;height:18px;border:2px solid currentColor;border-right-color:var(--rule);border-radius:50%"></span></button></div>
+    <div style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:16px 12px 16px 0;display:flex;gap:8px;align-items:center"><button style="white-space:nowrap;position:relative;width:48px;height:48px;border:none;border-radius:4px;background:transparent;color:var(--ink2);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">calculate</span><span style="position:absolute;top:8px;right:8px;font-family:'Material Symbols Rounded';font-size:14px;line-height:1;color:var(--ink);background:var(--page);border-radius:50%">error</span></button><span style="color:var(--ink)">Desmos offline</span></div>
+  </div></div>
+</section>
+
+<!-- 2 MCQ -->
+<section style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600;color:var(--primary)">2</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">MCQ choice tile</h2><span style="font-size:14px;color:var(--ink2)">min 56 px · whole tile is the target · eliminate is a separate 48 px target</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,380px),1fr));gap:28px 24px">
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Default</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 0 4px 12px;border:1px solid var(--rule);border-radius:4px;background:var(--page);cursor:pointer"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--rule2);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">A</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0" data-tex="x = -3"></span><span style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">strikethrough_s</span></span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Hover</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 0 4px 12px;border:1px solid var(--ink3);border-radius:4px;background:var(--surface2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--rule2);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">B</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0" data-tex="\frac{3}{4}"></span><span style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">strikethrough_s</span></span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Focused (keyboard)</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 0 4px 12px;border:1px solid var(--rule);border-radius:4px;background:var(--page);outline:2px solid var(--focus);outline-offset:2px"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--rule2);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">C</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0" data-tex="2\sqrt{5}"></span><span style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">strikethrough_s</span></span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Selected</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 0 3px 11px;border:2px solid var(--primary);border-radius:4px;background:var(--pc)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--primary);background:var(--primary);color:var(--onp);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">B</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0" data-tex="\frac{3}{4}"></span><span style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">strikethrough_s</span></span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Eliminated · restorable</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 0 4px 12px;border:1px dashed var(--rule);border-radius:4px;background:var(--page)"><span style="flex:1;position:relative;display:flex;align-items:center;gap:12px;color:var(--ink3)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">D</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0;opacity:.6" data-tex="x = 9"></span><span style="position:absolute;left:-4px;right:4px;top:50%;height:1.5px;background:var(--ink2)"></span></span><span style="flex:none;height:48px;padding:0 12px;display:flex;align-items:center;gap:4px;color:var(--primary);font-size:14px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">undo</span>Undo</span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Disabled (submitted)</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px 4px 12px;border:1px solid var(--rule);border-radius:4px;background:var(--page);color:var(--ink3)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">A</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0" data-tex="x = -3"></span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Two-line choice</span>
+      <div style="display:flex;align-items:flex-start;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 0 4px 12px;border:1px solid var(--rule);border-radius:4px;background:var(--page)"><span style="flex:none;margin-top:10px;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--rule2);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">C</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0;text-wrap:pretty">The line rises 3 units for each unit to the right, so its slope is <span style="white-space:nowrap"><span style="white-space:nowrap"><span data-tex="3"></span>.</span></span></span><span style="flex:none;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">strikethrough_s</span></span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Practice · correct</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--green);border-radius:4px;background:var(--greenc)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;background:var(--green);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">B</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0" data-tex="\frac{3}{4}"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">check_circle</span>Correct</span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Practice · incorrect</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;background:var(--red);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">A</span><span style="flex:1;font-size:16px;line-height:24px;padding:12px 0" data-tex="x = -3"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">cancel</span>Incorrect</span></div></div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:24px 48px;padding-top:8px">
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Review · your answer was wrong</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">A</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = -3"></span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;background:var(--red);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">B</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = 15"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">cancel</span>Your answer</span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--green);border-radius:4px;background:var(--page)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:2px solid var(--green);color:var(--green);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px">C</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = 3"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">check_circle</span>Correct answer</span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">D</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = \frac{3}{5}"></span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Review · your answer was right</span>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">A</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = -3"></span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">B</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = 15"></span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--green);border-radius:4px;background:var(--greenc)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;background:var(--green);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">C</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = 3"></span><span style="flex:none;display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">check_circle</span>Your answer · Correct</span></div>
+      <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">D</span><span style="flex:1;font-size:16px;padding:12px 0" data-tex="x = \frac{3}{5}"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 SPR + KEYPAD -->
+<section style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600;color:var(--primary)">3</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">Student-produced response</h2><span style="font-size:14px;color:var(--ink2)">Hints are neutral (info), never red. Red is only for a marked wrong answer.</span></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));gap:32px 24px">
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Empty</span>
+      <label style="font-size:14px;font-weight:600">Your answer</label>
+      <div style="width:200px;height:56px;box-sizing:border-box;border:1px solid var(--rule2);border-radius:4px;padding:0 16px;display:flex;align-items:center;font-size:20px;color:var(--ink3)">Type answer</div>
+      <span style="font-size:12px;color:var(--ink2)">Fraction, decimal or integer</span></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Focused · typing</span>
+      <label style="font-size:14px;font-weight:600">Your answer</label>
+      <div style="width:200px;height:56px;box-sizing:border-box;border:2px solid var(--primary);border-radius:4px;padding:0 15px;display:flex;align-items:center;font-size:20px;font-weight:500;font-variant-numeric:tabular-nums">3/<span style="width:2px;height:24px;background:var(--primary);margin-left:1px"></span></div>
+      <span style="font-size:12px;color:var(--ink2)">Answer preview appears when it's a number</span></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Filled · live preview</span>
+      <label style="font-size:14px;font-weight:600">Your answer</label>
+      <div style="display:flex;align-items:center;gap:16px"><div style="width:120px;height:56px;box-sizing:border-box;border:1px solid var(--rule2);border-radius:4px;padding:0 16px;display:flex;align-items:center;font-size:20px;font-weight:500;font-variant-numeric:tabular-nums">-3/4</div>
+      <div style="display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--rule);padding-left:16px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Answer preview</span><span style="font-size:20px" data-tex="-\dfrac{3}{4}"></span></div></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Hint · format</span>
+      <label style="font-size:14px;font-weight:600">Your answer</label>
+      <div style="width:200px;height:56px;box-sizing:border-box;border:1px solid var(--info);border-radius:4px;padding:0 16px;display:flex;align-items:center;font-size:20px;font-weight:500">1 1/2</div>
+      <span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--info)"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">info</span><span style="color:var(--ink)">Mixed numbers aren't accepted. Enter <b>3/2</b> or <b>1.5</b>.</span></span></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Hint · length</span>
+      <label style="font-size:14px;font-weight:600">Your answer</label>
+      <div style="width:200px;height:56px;box-sizing:border-box;border:1px solid var(--info);border-radius:4px;padding:0 16px;display:flex;align-items:center;font-size:20px;font-weight:500;font-variant-numeric:tabular-nums">0.66667</div>
+      <span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--info)"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">info</span><span style="color:var(--ink)">Up to 5 characters (6 with a minus sign). Try <b>.6666</b> or <b>2/3</b>.</span></span></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Disabled</span>
+      <label style="font-size:14px;font-weight:600;color:var(--ink3)">Your answer</label>
+      <div style="width:200px;height:56px;box-sizing:border-box;border:1px solid var(--rule);background:var(--surface2);border-radius:4px;padding:0 16px;display:flex;align-items:center;font-size:20px;color:var(--ink3)">12</div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Review · correct</span>
+      <label style="font-size:14px;font-weight:600">Your answer</label>
+      <div style="width:200px;height:56px;box-sizing:border-box;border:2px solid var(--green);background:var(--greenc);border-radius:4px;padding:0 15px;display:flex;align-items:center;justify-content:space-between;font-size:20px;font-weight:500">12<span style="display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">check_circle</span>Correct</span></div></div>
+
+    <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Review · incorrect</span>
+      <label style="font-size:14px;font-weight:600">Your answer</label>
+      <div style="width:200px;height:56px;box-sizing:border-box;border:2px solid var(--red);background:var(--redc);border-radius:4px;padding:0 15px;display:flex;align-items:center;justify-content:space-between;font-size:20px;font-weight:500">15<span style="display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">cancel</span>Incorrect</span></div>
+      <span style="display:flex;gap:6px;align-items:center;font-size:14px"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--green)">check_circle</span>Correct answer: <b style="font-variant-numeric:tabular-nums">3</b></span></div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-end;padding-top:16px">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">3.1 · SPR keypad · phone, docked</span>
+      <div style="width:360px;border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--page)">
+        <div style="padding:16px;display:flex;align-items:center;gap:16px"><div style="flex:1;height:56px;box-sizing:border-box;border:2px solid var(--primary);border-radius:4px;padding:0 15px;display:flex;align-items:center;font-size:20px;font-weight:500;font-variant-numeric:tabular-nums">-3/4<span style="width:2px;height:24px;background:var(--primary);margin-left:1px"></span></div><div style="display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--rule);padding-left:16px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Preview</span><span style="font-size:18px" data-tex="-\dfrac{3}{4}"></span></div></div>
+        <div style="background:var(--surface2);border-top:1px solid var(--rule);padding:8px 8px 16px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">1</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">2</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">3</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">backspace</span></span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">4</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">5</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">6</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">/</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">7</span>
+          <span style="height:56px;border:1px solid var(--primary);border-radius:4px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500;color:var(--primary)">8</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">9</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">−</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">.</span>
+          <span style="grid-column:span 2;height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--page);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:500">0</span>
+          <span style="height:56px;border:1px solid var(--rule);border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">keyboard_hide</span></span>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:20px;max-width:360px">
+      <div style="border-top:1px solid var(--rule2);padding-top:10px;font-weight:600">Keypad rules</div>
+      <div style="border-top:1px solid var(--rule);padding-top:10px">Keys 56 px, gap 8. Digits on page white; operators and actions on surface.variant.</div>
+      <div style="border-top:1px solid var(--rule);padding-top:10px">Pressed: primary.container fill and primary edge (shown on 8). No ripple splash.</div>
+      <div style="border-top:1px solid var(--rule);padding-top:10px">Minus is a toggle and only goes first. A second "/" or "." is ignored and the hint explains why.</div>
+      <div style="border-top:1px solid var(--rule);padding-top:10px">Laptop and tablet use the hardware keyboard; the keypad does not appear.</div>
+    </div>
+  </div>
+</section>
+
+<!-- 4 MARGIN NOTE -->
+<section style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600;color:var(--primary)">4</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">The teacher's margin</h2><span style="font-size:14px;color:var(--ink2)">Signature move. Red-pen note, UI font, teacher's voice.</span></div>
+
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">4.1 · Laptop · beside the question · compact</span>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) 1px minmax(240px,300px);gap:0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+      <div style="padding:24px 32px 24px 0;display:flex;flex-direction:column;gap:16px;min-width:0">
+        <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2);font-variant-numeric:tabular-nums">3.1 · Ex 7</span>
+        <div style="font-size:18px;line-height:28px">Solve for <span style="white-space:nowrap"><span data-tex="x"></span>:</span> <span data-tex="3(x - 2) = -2x + 9"></span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;max-width:420px">
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">A</span><span data-tex="x = -3"></span></div>
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:3px 11px;border:2px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;background:var(--red);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">B</span><span style="flex:1" data-tex="x = 15"></span><span style="display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">cancel</span>Incorrect</span></div>
+          <div style="display:flex;align-items:center;gap:12px;min-height:56px;box-sizing:border-box;padding:4px 12px;border:1px solid var(--rule);border-radius:4px;color:var(--ink2)"><span style="flex:none;width:28px;height:28px;box-sizing:border-box;border:1.5px solid var(--ink3);border-radius:2px;display:flex;align-items:center;justify-content:center;font-weight:600;font-size:14px">C</span><span data-tex="x = 3"></span></div>
+        </div>
+      </div>
+      <div style="background:var(--red)"></div>
+      <aside style="padding:24px 0 24px 24px;display:flex;flex-direction:column;gap:10px;color:var(--red)">
+        <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span>
+        <p style="margin:0;font-size:16px;line-height:24px;font-weight:500;text-wrap:pretty">Close. Check the sign in step 2 and try again.</p>
+        <div style="display:flex;gap:8px;margin-left:-12px"><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Try again</button><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px">Show step 2<span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">expand_more</span></button></div>
+      </aside>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:min(100%,520px)">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">4.2 · Margin note · expanded</span>
+      <div style="display:grid;grid-template-columns:1px minmax(0,1fr);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+        <div style="background:var(--red)"></div>
+        <aside style="padding:20px 0 20px 24px;display:flex;flex-direction:column;gap:14px;color:var(--red)">
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;letter-spacing:.04em"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span>
+          <p style="margin:0;font-size:16px;line-height:24px;font-weight:500">Close. Check the sign in step 2 and try again.</p>
+          <div style="display:grid;grid-template-columns:28px minmax(0,1fr);gap:10px 8px;align-items:baseline;color:var(--ink);font-size:16px">
+            <span style="font-size:12px;font-weight:600;color:var(--ink2)">1</span><span style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span data-tex="3x - 6 = -2x + 9"></span><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--green)">check</span></span>
+            <span style="font-size:12px;font-weight:600;color:var(--red)">2</span><span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;gap:8px;align-items:baseline;flex-wrap:wrap"><span style="text-decoration:line-through;text-decoration-color:var(--red);text-decoration-thickness:2px" data-tex="3x - 2x = 9 + 6"></span><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--red)">close</span></span><span style="color:var(--red);font-size:15px;line-height:22px;font-weight:500">Moving <span data-tex="-2x"></span> to the left makes it <span style="white-space:nowrap"><span data-tex="+2x"></span>:</span> <span data-tex="3x + 2x = 15"></span></span></span>
+          </div>
+          <div style="display:flex;gap:8px;margin-left:-12px;flex-wrap:wrap"><button style="white-space:nowrap;height:48px;padding:0 20px;margin-left:12px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Try again</button><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Full solution</button></div>
+        </aside>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">4.3 · Phone · under the answer</span>
+      <div style="width:360px;box-sizing:border-box;border:1px solid var(--rule);border-radius:4px;padding:16px;display:flex;flex-direction:column;gap:12px;background:var(--page)">
+        <span style="font-size:12px;font-weight:600;letter-spacing:.06em;color:var(--ink2)">3.1 · EX 7</span>
+        <div style="font-size:18px;line-height:28px">Solve for <span style="white-space:nowrap"><span data-tex="x"></span>:</span> <span data-tex="3(x - 2) = -2x + 9"></span></div>
+        <div style="height:56px;box-sizing:border-box;border:2px solid var(--red);background:var(--redc);border-radius:4px;padding:0 15px;display:flex;align-items:center;justify-content:space-between;font-size:20px;font-weight:500">15<span style="display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">cancel</span>Incorrect</span></div>
+        <div style="border-top:1px solid var(--red);padding-top:12px;display:flex;flex-direction:column;gap:6px;color:var(--red)">
+          <span style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">ink_pen</span>A. Elmenshawy</span>
+          <p style="margin:0;font-size:16px;line-height:24px;font-weight:500">Close. Check the sign in step 2 and try again.</p>
+          <button style="white-space:nowrap;align-self:flex-start;height:48px;padding:0 12px;margin-left:-12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px">Show step 2<span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">expand_more</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 5 FRAMES -->
+<section style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px"><span style="font-size:14px;font-weight:600;color:var(--primary)">5</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">Explanation frames</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,460px),1fr));gap:24px;align-items:start">
+    <div style="background:var(--frame);border-radius:2px;padding:20px 24px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--primary)">Rule 5.3</span><span style="flex:1;height:1px;background:var(--rule)"></span></div>
+      <div style="font-size:20px;line-height:28px;font-weight:600">The quadratic formula</div>
+      <div style="font-size:18px;overflow-x:auto" data-tex="x = \frac{-b \pm \sqrt{b^2 - 4ac} }{2a}" data-block="1"></div>
+      <div style="font-size:16px;line-height:24px;text-wrap:pretty">Works for any <span data-tex="ax^2 + bx + c = 0"></span> with <span style="white-space:nowrap"><span data-tex="a \neq 0"></span>.</span> The discriminant <span data-tex="b^2 - 4ac"></span> tells you how many real solutions to expect before you solve.</div>
+    </div>
+    <div style="background:var(--frame);border-radius:2px;padding:20px 24px;display:flex;flex-direction:column;gap:14px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink)">Worked example · 3.1 · Ex 2</span><span style="flex:1;height:1px;background:var(--rule)"></span></div>
+      <div style="font-size:18px;line-height:28px">Solve <span style="white-space:nowrap"><span data-tex="3(x - 2) = -2x + 9"></span>.</span></div>
+      <div style="display:grid;grid-template-columns:24px minmax(0,auto) minmax(0,1fr);gap:10px 16px;align-items:baseline;font-size:16px;line-height:24px">
+        <span style="font-size:12px;font-weight:600;color:var(--ink2)">1</span><span data-tex="3x - 6 = -2x + 9"></span><span style="color:var(--ink2);font-size:14px">Distribute the 3.</span>
+        <span style="font-size:12px;font-weight:600;color:var(--ink2)">2</span><span data-tex="3x + 2x = 9 + 6"></span><span style="color:var(--ink2);font-size:14px">Move terms; signs flip.</span>
+        <span style="font-size:12px;font-weight:600;color:var(--ink2)">3</span><span data-tex="5x = 15"></span><span style="color:var(--ink2);font-size:14px">Combine.</span>
+      </div>
+      <div style="border-top:1px solid var(--rule2);padding-top:12px;display:flex;align-items:baseline;gap:12px;font-size:16px"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase">Answer</span><span style="border:1.5px solid var(--rule2);padding:2px 10px;border-radius:2px" data-tex="x = 3"></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6 EXAM BAR -->
+<section style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600;color:var(--primary)">6</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">Exam top bar and time budget</h2></div>
+
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">6.1 · Laptop · timer visible</span>
+    <div style="border:1px solid var(--rule);overflow-x:auto;overflow-y:hidden">
+      <div style="min-width:900px;height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 16px 0 24px;border-bottom:1px solid var(--rule)">
+        <div style="display:flex;flex-direction:column"><span style="font-size:16px;font-weight:600">Mock 1 · Module 2 · Math</span><button style="white-space:nowrap;align-self:flex-start;padding:0;border:none;background:none;color:var(--primary);font-size:13px;font-weight:600;display:flex;align-items:center;gap:2px">Directions<span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">expand_more</span></button></div>
+        <div style="display:flex;align-items:center;gap:12px"><span style="font-size:20px;line-height:24px;font-weight:600;font-variant-numeric:tabular-nums">31:58</span><button style="white-space:nowrap;height:32px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);font-size:12px;font-weight:600">Hide</button></div>
+        <div style="display:flex;justify-content:flex-end;gap:4px">
+          <button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">calculate</span>Desmos</button>
+          <button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">functions</span>Reference</button>
+          <button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:11px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">more_horiz</span>More</button>
+        </div>
+      </div>
+      <div style="min-width:900px;height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;gap:24px">
+        <div style="display:flex;align-items:center;gap:12px"><span style="flex:none;width:28px;height:28px;background:var(--ink);color:var(--page);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">7</span><button style="white-space:nowrap;height:40px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">bookmark</span>Mark for review</button></div>
+        <div style="display:flex;align-items:center;gap:12px;font-size:12px;color:var(--ink2)"><span style="font-weight:600">Module time</span><span style="width:200px;height:6px;background:var(--rule);overflow:hidden;display:block"><span style="display:block;width:9%;height:100%;background:var(--primary)"></span></span><span style="font-variant-numeric:tabular-nums;color:var(--ink);font-weight:600">3:02 of 35:00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));gap:24px">
+    <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Timer hidden</span><div style="display:flex;align-items:center;gap:10px;height:48px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:var(--ink2)">timer_off</span><span style="font-size:14px;color:var(--ink2)">Timer hidden</span><button style="white-space:nowrap;height:32px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink);font-size:12px;font-weight:600">Show</button></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Last 5 minutes · forced visible</span><div style="display:flex;align-items:center;gap:10px;height:48px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);color:var(--warn)"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">schedule</span><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">04:07</span><span style="font-size:12px;font-weight:600">5 min left</span></div></div>
+    <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Phone · compact bar 56</span><div style="width:360px;max-width:100%;height:56px;box-sizing:border-box;display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 16px;border:1px solid var(--rule)"><span style="font-size:14px;font-weight:600">Module 2</span><span style="font-size:20px;font-weight:600;font-variant-numeric:tabular-nums">31:58</span><span style="display:flex"><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px">calculate</span><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px">more_vert</span></span></div></div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">6.2 · Module time bar · mock only · fixed 200 px, fills to 35:00, never overflows</span>
+    <div style="display:flex;flex-wrap:wrap;gap:32px 48px">
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="width:200px;height:6px;background:var(--rule);display:block"><span style="display:block;width:9%;height:100%;background:var(--primary)"></span></span><span style="display:flex;gap:6px;align-items:center;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:var(--ink2)">timer</span>3:02 of 35:00</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="width:200px;height:6px;background:var(--rule);display:block"><span style="display:block;width:86%;height:100%;background:var(--warn)"></span></span><span style="display:flex;gap:6px;align-items:center;font-size:12px;font-weight:600;color:var(--warn);font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">hourglass_bottom</span>30:07 of 35:00 · 4:53 left</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="width:200px;height:6px;background:var(--warn);display:block"></span><span style="display:flex;gap:6px;align-items:center;font-size:12px;font-weight:600;color:var(--warn);font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">schedule</span>35:00 · time's up, module submitted</span></div>
+    </div>
+    <span style="font-size:14px;line-height:20px;color:var(--ink2);max-width:640px">No per-question pacing during a mock. The bar tracks the module clock only, as in the real exam.</span>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">6.3 · Review after submit · time per question</span>
+    <div style="overflow-x:auto;overflow-y:hidden"><div style="min-width:640px;display:flex;flex-direction:column">
+      <div style="display:grid;grid-template-columns:40px 96px 240px 52px minmax(0,1fr);gap:12px;align-items:end;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:11px;font-weight:600;color:var(--ink2)"><span>Q</span><span>Result</span><span style="position:relative;height:16px;display:block"><span style="position:absolute;left:25%;transform:translateX(-50%);white-space:nowrap">avg 1:35</span><span style="position:absolute;left:50%;transform:translateX(-20%);white-space:nowrap">2×</span></span><span>Time</span><span></span></div>
+      <div style="display:grid;grid-template-columns:40px 96px 240px 52px minmax(0,1fr);gap:12px;align-items:center;height:40px;border-bottom:1px solid var(--rule)"><span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">Q1</span><span style="display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">check_circle</span>Correct</span><span style="position:relative;width:240px;height:8px;background:var(--surface2);display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:14%;background:var(--ink2)"></span><span style="position:absolute;left:25%;top:-4px;bottom:-4px;width:1px;background:var(--rule2)"></span><span style="position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px dashed var(--ink3)"></span></span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">0:52</span><span></span></div>
+      <div style="display:grid;grid-template-columns:40px 96px 240px 52px minmax(0,1fr);gap:12px;align-items:center;height:40px;border-bottom:1px solid var(--rule)"><span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">Q2</span><span style="display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">check_circle</span>Correct</span><span style="position:relative;width:240px;height:8px;background:var(--surface2);display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:21%;background:var(--ink2)"></span><span style="position:absolute;left:25%;top:-4px;bottom:-4px;width:1px;background:var(--rule2)"></span><span style="position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px dashed var(--ink3)"></span></span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">1:20</span><span></span></div>
+      <div style="display:grid;grid-template-columns:40px 96px 240px 52px minmax(0,1fr);gap:12px;align-items:center;height:40px;border-bottom:1px solid var(--rule)"><span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">Q3</span><span style="display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">cancel</span>Incorrect</span><span style="position:relative;width:240px;height:8px;background:var(--surface2);display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:58%;background:var(--warn)"></span><span style="position:absolute;left:25%;top:-4px;bottom:-4px;width:1px;background:var(--rule2)"></span><span style="position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px dashed var(--ink3)"></span></span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">3:41</span><span style="display:flex;align-items:center;gap:4px;color:var(--warn);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">flag</span>Over 2× average</span></div>
+      <div style="display:grid;grid-template-columns:40px 96px 240px 52px minmax(0,1fr);gap:12px;align-items:center;height:40px;border-bottom:1px solid var(--rule)"><span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">Q4</span><span style="display:flex;align-items:center;gap:4px;color:var(--green);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">check_circle</span>Correct</span><span style="position:relative;width:240px;height:8px;background:var(--surface2);display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:17%;background:var(--ink2)"></span><span style="position:absolute;left:25%;top:-4px;bottom:-4px;width:1px;background:var(--rule2)"></span><span style="position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px dashed var(--ink3)"></span></span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">1:05</span><span></span></div>
+      <div style="display:grid;grid-template-columns:40px 96px 240px 52px minmax(0,1fr);gap:12px;align-items:center;height:40px;border-bottom:1px solid var(--rule)"><span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">Q5</span><span style="display:flex;align-items:center;gap:4px;color:var(--ink2);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">do_not_disturb_on</span>Blank</span><span style="position:relative;width:240px;height:8px;background:var(--surface2);display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:3%;background:var(--ink2)"></span><span style="position:absolute;left:25%;top:-4px;bottom:-4px;width:1px;background:var(--rule2)"></span><span style="position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px dashed var(--ink3)"></span></span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">0:12</span><span></span></div>
+      <div style="display:grid;grid-template-columns:40px 96px 240px 52px minmax(0,1fr);gap:12px;align-items:center;height:40px;border-bottom:1px solid var(--rule)"><span style="font-size:14px;font-weight:700;font-variant-numeric:tabular-nums">Q6</span><span style="display:flex;align-items:center;gap:4px;color:var(--red);font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">cancel</span>Incorrect</span><span style="position:relative;width:240px;height:8px;background:var(--surface2);display:block"><span style="position:absolute;left:0;top:0;bottom:0;width:34%;background:var(--ink2)"></span><span style="position:absolute;left:25%;top:-4px;bottom:-4px;width:1px;background:var(--rule2)"></span><span style="position:absolute;left:50%;top:-4px;bottom:-4px;border-left:1px dashed var(--ink3)"></span></span><span style="font-size:13px;font-weight:600;font-variant-numeric:tabular-nums">2:10</span><span></span></div>
+    </div></div>
+    <span style="font-size:14px;line-height:20px;color:var(--ink2);max-width:640px">Bar length is time spent, scaled to 4× the module average (35:00 ÷ 22). Solid tick = average, dashed = 2×. Anything past 2× is flagged with an icon and label.</span>
+  </div>
+</section>
+
+<!-- 7 NAVIGATOR -->
+<section style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px;flex-wrap:wrap"><span style="font-size:14px;font-weight:600;color:var(--primary)">7</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">Question navigator cell</h2><span style="font-size:14px;color:var(--ink2)">48 × 48 · each state differs by shape, not only colour</span></div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px">
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">During exam</span>
+      <div style="display:flex;flex-wrap:wrap;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums">3</span><span style="font-size:12px;text-align:center">Unanswered</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--primary);background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--onp)">4</span><span style="font-size:12px;text-align:center">Answered</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--onhl)"><span style="background:var(--hl);padding:0 6px">5</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page)">bookmark</span></span><span style="font-size:12px;text-align:center">Marked</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--primary);background:var(--primary);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--onhl)"><span style="background:var(--hl);padding:0 6px">6</span><span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink);background:var(--page)">bookmark</span></span><span style="font-size:12px;text-align:center">Answered + marked</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:2.5px solid var(--ink);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink)">7<span style="position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:20px;height:3px;background:var(--ink)"></span></span><span style="font-size:12px;text-align:center;padding-top:4px">Current</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink2);outline:2px solid var(--focus);outline-offset:2px">8</span><span style="font-size:12px;text-align:center">Focused</span></div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">In review</span>
+      <div style="display:flex;flex-wrap:wrap;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--green);background:var(--greenc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink)">1<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--green);background:var(--page);border-radius:50%">check_circle</span></span><span style="font-size:12px;text-align:center">Correct</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px solid var(--red);background:var(--redc);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:var(--ink)">2<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--red);background:var(--page);border-radius:50%">cancel</span></span><span style="font-size:12px;text-align:center">Incorrect</span></div>
+        <div style="display:flex;flex-direction:column;gap:8px;align-items:center;width:84px"><span style="position:relative;width:48px;height:48px;box-sizing:border-box;border:1.5px dashed var(--ink3);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:600;color:var(--ink2)">3<span style="position:absolute;top:-8px;right:-8px;font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:var(--ink2);background:var(--page);border-radius:50%">do_not_disturb_on</span></span><span style="font-size:12px;text-align:center">Unanswered</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 8 CHIPS / BANNERS / FEEDBACK -->
+<section style="display:flex;flex-direction:column;gap:32px">
+  <div style="display:flex;align-items:baseline;gap:16px;border-top:1px solid var(--rule2);padding-top:16px"><span style="font-size:14px;font-weight:600;color:var(--primary)">8</span><h2 style="margin:0;font-size:28px;line-height:36px;font-weight:600">Chips, banners, overlays, status</h2></div>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.1 · Chips · 32 visual, 48 hit area</span>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center">
+      <span style="height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--rule);border-radius:2px;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="display:flex;gap:2px;align-items:flex-end"><span style="width:3px;height:6px;background:var(--ink)"></span><span style="width:3px;height:9px;background:var(--rule)"></span><span style="width:3px;height:12px;background:var(--rule)"></span></span>E · Easy</span>
+      <span style="height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--rule);border-radius:2px;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="display:flex;gap:2px;align-items:flex-end"><span style="width:3px;height:6px;background:var(--ink)"></span><span style="width:3px;height:9px;background:var(--ink)"></span><span style="width:3px;height:12px;background:var(--rule)"></span></span>M · Medium</span>
+      <span style="height:32px;box-sizing:border-box;padding:0 10px;border:1px solid var(--rule);border-radius:2px;display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="display:flex;gap:2px;align-items:flex-end"><span style="width:3px;height:6px;background:var(--ink)"></span><span style="width:3px;height:9px;background:var(--ink)"></span><span style="width:3px;height:12px;background:var(--ink)"></span></span>H · Hard</span>
+      <span style="width:1px;height:24px;background:var(--rule)"></span>
+      <span style="height:32px;box-sizing:border-box;padding:0 10px;background:var(--frame);border-radius:2px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:var(--ink2)">sell</span>Linear equations</span>
+      <span style="height:32px;box-sizing:border-box;padding:0 10px;background:var(--frame);border-radius:2px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:500;outline:2px solid var(--focus);outline-offset:2px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:var(--ink2)">sell</span>Focused</span>
+      <span style="width:1px;height:24px;background:var(--rule)"></span>
+      <span style="height:32px;box-sizing:border-box;padding:0 12px;border:1px solid var(--rule2);border-radius:2px;display:inline-flex;align-items:center;font-size:13px;font-weight:600;cursor:pointer">Filter · default</span>
+      <span style="height:32px;box-sizing:border-box;padding:0 12px;border:1px solid var(--rule2);background:var(--surface2);border-radius:2px;display:inline-flex;align-items:center;font-size:13px;font-weight:600">Hover</span>
+      <span style="height:32px;box-sizing:border-box;padding:0 12px 0 8px;border:1px solid var(--primary);background:var(--pc);color:var(--primary);border-radius:2px;display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">check</span>Selected</span>
+      <span style="height:32px;box-sizing:border-box;padding:0 12px;border:1px solid var(--rule);color:var(--ink3);border-radius:2px;display:inline-flex;align-items:center;font-size:13px;font-weight:600">Disabled</span>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:12px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.2 · Banners · full width, ruled</span>
+    <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 8px 8px 16px;box-sizing:border-box;background:var(--infoc);border-top:1px solid var(--info);border-bottom:1px solid var(--rule)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:var(--info)">info</span><span style="flex:1;font-size:14px;line-height:20px">Desmos is available on every question in this module.</span><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Got it</button></div>
+    <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 8px 8px 16px;box-sizing:border-box;background:var(--warnc);border-top:1px solid var(--warn);border-bottom:1px solid var(--rule)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:var(--warn);font-variation-settings:'FILL' 1">schedule</span><span style="flex:1;font-size:14px;line-height:20px"><b>5 minutes left.</b> Answer the rest; a guess scores better than a blank.</span><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Review marked</button></div>
+    <div style="display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 8px 8px 16px;box-sizing:border-box;background:var(--surface2);border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule)"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:var(--ink)">cloud_off</span><span style="flex:1;font-size:14px;line-height:20px"><b>You're offline.</b> Answers are kept on this device and sync when you reconnect.</span><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Retry</button></div>
+  </div>
+
+  <div style="display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.3 · Dialog</span>
+      <div style="width:520px;max-width:100%;height:300px;background:var(--scrim);display:flex;align-items:center;justify-content:center;border-radius:2px">
+        <div role="dialog" style="width:400px;max-width:calc(100% - 32px);box-sizing:border-box;background:var(--surface);border:1px solid var(--rule);border-radius:8px;box-shadow:var(--shadow);padding:24px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:20px;line-height:28px;font-weight:600">Leave the quiz?</div>
+          <div style="font-size:16px;line-height:24px;color:var(--ink2)">You've answered 6 of 10. Leaving ends this attempt and it counts toward your score.</div>
+          <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:8px"><button style="white-space:nowrap;height:48px;padding:0 16px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Keep going</button><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--ink);color:var(--page);font-size:14px;font-weight:600">Leave quiz</button></div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.4 · Bottom sheet · phone</span>
+      <div style="width:360px;height:420px;background:var(--scrim);display:flex;flex-direction:column;justify-content:flex-end;border-radius:2px;overflow:hidden">
+        <div style="background:var(--surface);border-radius:8px 8px 0 0;box-shadow:var(--shadow);padding:8px 16px 16px;display:flex;flex-direction:column">
+          <span style="align-self:center;width:32px;height:4px;border-radius:2px;background:var(--ink3);margin-bottom:12px"></span>
+          <div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:20px;font-weight:600">Reference</span><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px;margin-right:-12px">close</span></div>
+          <div style="display:grid;grid-template-columns:1fr auto;gap:0;font-size:14px">
+            <span style="padding:14px 0;border-top:1px solid var(--rule)">Area of a circle</span><span style="padding:14px 0;border-top:1px solid var(--rule);font-size:16px" data-tex="A = \pi r^2"></span>
+            <span style="padding:14px 0;border-top:1px solid var(--rule)">Pythagorean theorem</span><span style="padding:14px 0;border-top:1px solid var(--rule);font-size:16px" data-tex="a^2 + b^2 = c^2"></span>
+            <span style="padding:14px 0;border-top:1px solid var(--rule)">Volume of a cylinder</span><span style="padding:14px 0;border-top:1px solid var(--rule);font-size:16px" data-tex="V = \pi r^2 h"></span>
+            <span style="padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">Degrees in a circle</span><span style="padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);font-size:16px" data-tex="360^\circ"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:24px;flex:1;min-width:300px">
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.5 · Snackbar</span>
+        <div style="max-width:420px;min-height:48px;box-sizing:border-box;background:var(--inv);color:var(--oninv);border-radius:4px;box-shadow:var(--shadow);padding:4px 4px 4px 16px;display:flex;align-items:center;gap:8px;font-size:14px"><span style="flex:1">Choice D crossed out.</span><button style="white-space:nowrap;height:40px;padding:0 12px;border:none;background:transparent;color:var(--pinv);font-size:14px;font-weight:600">Undo</button></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.6 · Progress bar</span>
+        <div style="max-width:420px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums"><span>Topic 4 of 40</span><span style="color:var(--ink2)">10%</span></div><span style="height:4px;background:var(--rule);display:block"><span style="display:block;width:10%;height:100%;background:var(--primary)"></span></span></div>
+        <div style="max-width:420px;display:flex;flex-direction:column;gap:6px;padding-top:8px"><div style="display:flex;justify-content:space-between;font-size:12px;font-weight:600"><span>Saving answers</span><span style="color:var(--ink2)">Indeterminate</span></div><span style="height:4px;background:var(--rule);display:block;position:relative;overflow:hidden"><span style="position:absolute;left:30%;width:28%;height:100%;background:var(--primary)"></span></span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.7 · Skeleton · static, no shimmer</span>
+        <div style="max-width:420px;display:flex;flex-direction:column;gap:10px"><span style="width:30%;height:12px;background:var(--surface2);border-radius:2px;display:block"></span><span style="width:85%;height:20px;background:var(--surface2);border-radius:2px;display:block"></span><span style="width:60%;height:20px;background:var(--surface2);border-radius:2px;display:block"></span><span style="height:56px;background:var(--surface2);border-radius:4px;display:block;margin-top:6px"></span><span style="height:56px;background:var(--surface2);border-radius:4px;display:block"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:24px">
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.8 · Empty state</span>
+      <div style="border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule);padding:32px 0;display:flex;flex-direction:column;gap:10px;align-items:flex-start;max-width:440px">
+        <span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;color:var(--ink2)">quiz</span>
+        <span style="font-size:20px;line-height:28px;font-weight:600">No mock exams yet</span>
+        <span style="font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">Mock exams open after your last topic quiz, or 30 days before your test date. Keep going on your path.</span>
+        <button style="white-space:nowrap;height:48px;padding:0 20px;margin-top:6px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Continue path</button>
+      </div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px">
+      <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">8.9 · Error with retry</span>
+      <div style="border-top:1px solid var(--rule2);border-bottom:1px solid var(--rule);padding:32px 0;display:flex;flex-direction:column;gap:10px;align-items:flex-start;max-width:440px">
+        <span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;color:var(--ink)">wifi_off</span>
+        <span style="font-size:20px;line-height:28px;font-weight:600">This topic didn't load</span>
+        <span style="font-size:16px;line-height:24px;color:var(--ink2);text-wrap:pretty">Check your connection and try again. Your progress is saved.</span>
+        <div style="display:flex;gap:8px;margin-top:6px"><button style="white-space:nowrap;height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">refresh</span>Retry</button><button style="white-space:nowrap;height:48px;padding:0 12px;border:none;border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Go home</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Light&quot;,&quot;Dark&quot;],&quot;default&quot;:&quot;Light&quot;,&quot;tsType&quot;:&quot;'Light'|'Dark'&quot;},&quot;brand&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;options&quot;:[&quot;#1F4FD6&quot;,&quot;#23367A&quot;,&quot;#0B6E73&quot;,&quot;#5B3FC4&quot;],&quot;default&quot;:&quot;#1F4FD6&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const BRAND = { '#1F4FD6': '#86A5FF', '#23367A': '#9DAEEB', '#0B6E73': '#5CC7CC', '#5B3FC4': '#B4A3FF' };
+class Component extends DCLogic {
+  componentDidMount() { this.tex(); this.iv = setInterval(() => this.tex(), 400); setTimeout(() => clearInterval(this.iv), 15000); }
+  componentDidUpdate() { this.tex(); }
+  componentWillUnmount() { clearInterval(this.iv); }
+  tex() {
+    if (!window.katex) return;
+    document.querySelectorAll('[data-tex]').forEach(el => {
+      const t = el.getAttribute('data-tex');
+      if (el.getAttribute('data-done') === t) return;
+      try { window.katex.render(t, el, { displayMode: el.hasAttribute('data-block'), throwOnError: false }); el.setAttribute('data-done', t); } catch (e) {}
+    });
+  }
+  renderVals() {
+    const brand = this.props.brand ?? '#1F4FD6';
+    const dark = (this.props.theme ?? 'Light') === 'Dark';
+    const light = BRAND[brand] || '#86A5FF';
+    const themeVars = dark ? {
+      '--page': '#11141A', '--surface': '#181C24', '--surface2': '#1D222C', '--frame': '#1E2533', '--ink': '#E7E9EE', '--ink2': '#A8AFBC', '--ink3': '#5E6573',
+      '--onp': '#0B1026', '--rule': '#2B313D', '--rule2': '#E7E9EE', '--primary': light, '--red': '#FF7A7E', '--redc': '#3A1D21', '--green': '#5BC48C', '--greenc': '#16301F',
+      '--hl': '#E9C935', '--warn': '#F5A04D', '--warnc': '#3A2614', '--info': '#5BC0DC', '--infoc': '#13303A', '--inv': '#E7E9EE', '--oninv': '#11141A', '--pinv': brand,
+      '--scrim': 'rgba(0,0,0,.6)', '--shadow': 'none', '--pcAmt': '22%'
+    } : { '--primary': brand, '--pinv': light };
+    return { themeVars };
+  }
+}
+</script>
+</body>
+</html>

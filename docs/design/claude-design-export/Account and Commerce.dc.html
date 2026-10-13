@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Sans+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0">
+<style>body{margin:0;background:#ECEEF2;font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased}button{font-family:inherit;cursor:pointer}a{color:#1F4FD6}a:hover{color:#15379A}</style>
+</helmet>
+<div ref="{{ rootRef }}" style="width:100%;height:100%;box-sizing:border-box;background:#ECEEF2;display:flex;justify-content:center;align-items:flex-start;padding:{{ pad }};overflow:auto"><div style="flex:none;box-sizing:content-box;width:{{ frameW }};height:{{ frameH }};border:{{ bezel }};border-radius:{{ frameR }};overflow:hidden;background:#FFFFFF"><div style="--page:#FFFFFF;--surface2:#F3F4F7;--ink:#1A1D24;--ink2:#4B5262;--ink3:#9AA1AD;--onp:#FFFFFF;--rule:#D8DDE6;--rule2:#1A1D24;--fb:#767D8C;--primary:#1F4FD6;--pc:#E9EEFB;--frame:#EEF2F8;--hl:#F6D743;--red:#D2343A;--redc:#FBEBEC;--green:#1E7F4F;--warn:#B45309;--scrim:rgba(14,17,22,.5);width:100%;height:100%"><div style="{{ themeVars }}"><div style="--pad:{{ L.pad }};--h1:{{ L.h1 }};--cols2:{{ L.cols2 }};--gapL:{{ L.gapL }};--btnFlex:{{ L.btnFlex }};--fcols:{{ L.fcols }};position:relative;width:100%;height:100%;box-sizing:border-box;background:var(--page);color:var(--ink);font-family:'Noto Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;display:grid;grid-template-areas:{{ L.areas }};grid-template-columns:{{ L.gcols }};grid-template-rows:{{ L.grows }};overflow:hidden">
+
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}"><div style="grid-area:status"></div></sc-if>
+
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}">
+<div style="grid-area:top;display:flex;align-items:center;gap:8px;padding:0 4px;border-bottom:1px solid var(--rule)">
+  <sc-if value="{{ showBrand }}"><span style="flex:none;margin-left:12px;width:32px;height:32px;border-radius:4px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:var(--onp);font-size:13px;font-weight:700;letter-spacing:-.03em">AE</span></sc-if>
+  <sc-if value="{{ hasBack }}"><button aria-label="Back" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button></sc-if>
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:{{ topFs }};font-weight:{{ topFw }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ title }}</span></div>
+  <sc-if value="{{ topAct }}"><button style="flex:none;height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">{{ topAct }}</button></sc-if>
+  <sc-if value="{{ hasBell }}"><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">notifications</span></sc-if>
+</div>
+<sc-if value="{{ hasNav }}"><nav style="grid-area:nav;border-top:1px solid var(--rule);display:grid;grid-template-columns:repeat(5,1fr);background:var(--page)">
+  <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+    <sc-if value="{{ n.on }}"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="width:56px;height:32px;border-radius:4px;background:var(--pc);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--primary);font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="font-size:12px;font-weight:700;white-space:nowrap">{{ n.label }}</span></div></sc-if>
+    <sc-if value="{{ n.off }}"><div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink2)"><span style="width:56px;height:32px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="font-size:12px;font-weight:500;white-space:nowrap">{{ n.label }}</span></div></sc-if>
+  </sc-for>
+</nav></sc-if>
+</sc-if>
+
+<sc-if value="{{ isLaptop }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ hasNav }}"><nav style="grid-area:nav;border-right:1px solid var(--rule);display:flex;flex-direction:column;padding:28px 12px 16px">
+  <div style="padding:0 12px 28px;display:flex;flex-direction:column;gap:10px">
+    <div style="font-size:19px;line-height:26px;font-weight:700;letter-spacing:-.02em">Abdelrahman <span style="text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></div>
+    <div style="font-size:12px;font-weight:600;color:var(--ink2)">SAT &amp; EST Math</div>
+  </div>
+  <div style="border-top:1px solid var(--rule);padding-top:12px;display:flex;flex-direction:column;gap:2px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="5">
+      <sc-if value="{{ n.on }}"><div style="height:48px;border-radius:4px;background:var(--pc);display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--primary)"><span style="font-family:'Material Symbols Rounded';font-size:24px;font-variation-settings:'FILL' 1">{{ n.icon }}</span><span style="font-size:14px;font-weight:700;color:var(--ink)">{{ n.label }}</span></div></sc-if>
+      <sc-if value="{{ n.off }}"><div style="height:48px;border-radius:4px;display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:24px">{{ n.icon }}</span><span style="font-size:14px;font-weight:500;color:var(--ink)">{{ n.label }}</span></div></sc-if>
+    </sc-for>
+  </div>
+</nav></sc-if>
+<div style="grid-area:top;display:flex;align-items:center;gap:8px;padding:0 20px 0 {{ topPadL }};border-bottom:1px solid var(--rule);min-width:0">
+  <sc-if value="{{ showBrand }}"><div style="flex:1;display:flex;align-items:baseline;gap:14px"><span style="font-size:19px;font-weight:700;letter-spacing:-.02em">Abdelrahman <span style="text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:3px;text-underline-offset:5px">Elmenshawy</span></span><span style="font-size:12px;font-weight:600;color:var(--ink2)">SAT &amp; EST Math</span></div></sc-if>
+  <sc-if value="{{ hasBack }}"><button aria-label="Back" style="flex:none;width:48px;height:48px;border:none;background:transparent;color:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px">arrow_back</button></sc-if>
+  <sc-if value="{{ noBrand }}"><div style="flex:1;min-width:0"><span style="font-size:{{ topFs }};font-weight:600;letter-spacing:-.01em;white-space:nowrap">{{ title }}</span></div></sc-if>
+  <sc-if value="{{ topAct }}"><button style="flex:none;height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;white-space:nowrap">{{ topAct }}</button></sc-if>
+  <sc-if value="{{ hasBell }}"><span style="width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">notifications</span></sc-if>
+</div>
+</sc-if>
+
+<main ref="{{ mainRef }}" style="grid-area:main;position:relative;overflow:auto;scrollbar-width:{{ L.sb }};min-height:0;min-width:0">
+<div style="padding:var(--pad);padding-bottom:40px;box-sizing:border-box;display:flex;flex-direction:column;gap:28px">
+
+<!-- S-03 AUTH -->
+<sc-if value="{{ sAuth }}" hint-placeholder-val="{{ true }}">
+<div style="width:100%;max-width:400px;align-self:center;display:flex;flex-direction:column;gap:20px;padding-top:{{ authTop }}">
+  <sc-if value="{{ auth.signin }}">
+    <div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Sign in</h1><span style="font-size:15px;line-height:22px;color:var(--ink2)">Your path is where you left it.</span></div>
+    <button style="height:48px;border:1px solid var(--rule2);border-radius:4px;background:transparent;color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px"><span style="width:20px;height:20px;border:1px solid var(--rule);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">G</span>Continue with Google</button>
+    <div style="display:flex;align-items:center;gap:12px;font-size:12px;font-weight:600;color:var(--ink2)"><span style="flex:1;height:1px;background:var(--rule)"></span>or with email<span style="flex:1;height:1px;background:var(--rule)"></span></div>
+    <sc-if value="{{ auth.err }}"><div role="alert" style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;font-family:'Material Symbols Rounded';font-size:20px;line-height:22px;color:var(--red);font-variation-settings:'FILL' 1">error</span><span style="font-size:14px;line-height:22px;text-wrap:pretty">That email and password don't match. Check both for typos, or reset your password.</span></div></sc-if>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Email</span><span style="height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 14px;display:flex;align-items:center;font-size:16px">youssef.adel@gmail.com</span></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Password</span><span style="height:48px;box-sizing:border-box;border:{{ auth.pwBorder }};border-radius:4px;padding:0 2px 0 14px;display:flex;align-items:center;font-size:16px;letter-spacing:.12em"><span style="flex:1">••••••••••</span><span aria-label="Show password" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px;letter-spacing:0;color:var(--ink2)">visibility</span></span></div>
+    <button style="align-self:flex-end;height:48px;margin:-12px -12px -8px 0;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Forgot password?</button>
+    <button style="height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Sign in</button>
+    <div style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;color:var(--ink2)">New here?<button style="height:48px;padding:0 8px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Create an account</button></div>
+  </sc-if>
+  <sc-if value="{{ auth.signup }}">
+    <div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Create your account</h1><span style="font-size:15px;line-height:22px;color:var(--ink2);text-wrap:pretty">Use the email you check most. Receipts and reset links go there.</span></div>
+    <button style="height:48px;border:1px solid var(--rule2);border-radius:4px;background:transparent;color:var(--ink);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px"><span style="width:20px;height:20px;border:1px solid var(--rule);border-radius:2px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700">G</span>Sign up with Google</button>
+    <div style="display:flex;align-items:center;gap:12px;font-size:12px;font-weight:600;color:var(--ink2)"><span style="flex:1;height:1px;background:var(--rule)"></span>or with email<span style="flex:1;height:1px;background:var(--rule)"></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Email</span><span style="height:48px;box-sizing:border-box;border:2px solid var(--red);border-radius:4px;padding:0 13px;display:flex;align-items:center;font-size:16px">youssef.adel@gmail.com</span><span role="alert" style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--red)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:18px;font-variation-settings:'FILL' 1">error</span><span>This email already has an account. <b style="text-decoration:underline">Sign in instead</b></span></span></div>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Password</span><span style="height:48px;box-sizing:border-box;border:2px solid var(--primary);border-radius:4px;padding:0 1px 0 13px;display:flex;align-items:center;font-size:16px;letter-spacing:.12em"><span style="flex:1">•••••••</span><span aria-label="Show password" style="width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px;letter-spacing:0;color:var(--ink2)">visibility</span></span>
+      <div style="display:flex;flex-direction:column;gap:4px;padding-top:2px"><sc-for list="{{ pwRules }}" as="r" hint-placeholder-count="3"><span style="display:flex;align-items:center;gap:6px;font-size:13px;line-height:18px;color:{{ r.c }}"><span style="font-family:'Material Symbols Rounded';font-size:16px">{{ r.icon }}</span>{{ r.t }}<span style="color:var(--ink2)">{{ r.st }}</span></span></sc-for></div>
+    </div>
+    <span style="font-size:13px;line-height:19px;color:var(--ink2);text-wrap:pretty">By creating an account you agree to the <a href="#" style="color:var(--primary);font-weight:600">Terms</a> and <a href="#" style="color:var(--primary);font-weight:600">Privacy policy</a>.</span>
+    <button style="height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Create account</button>
+    <div style="display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;color:var(--ink2)">Already have an account?<button style="height:48px;padding:0 8px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Sign in</button></div>
+  </sc-if>
+  <sc-if value="{{ auth.sent }}">
+    <span style="font-family:'Material Symbols Rounded';font-size:40px;color:var(--ink)">mark_email_read</span>
+    <div style="display:flex;flex-direction:column;gap:8px"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Check your inbox</h1><span style="font-size:15px;line-height:23px;color:var(--ink2);text-wrap:pretty">We sent a reset link to <b style="color:var(--ink);font-weight:600">youssef.adel@gmail.com</b>. Open it on any device to choose a new password.</span></div>
+    <div style="display:flex;flex-direction:column;border-top:1px solid var(--rule)">
+      <div style="display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--rule);font-size:14px;line-height:20px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">schedule</span>The link works for 1 hour.</div>
+      <div style="display:flex;gap:10px;padding:12px 0;border-bottom:1px solid var(--rule);font-size:14px;line-height:20px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">report</span>Not there after a minute? Check your spam folder.</div>
+    </div>
+    <button disabled="" style="height:48px;border:1px solid var(--rule);border-radius:4px;background:transparent;color:var(--ink2);font-size:14px;font-weight:600;font-variant-numeric:tabular-nums;cursor:default">Resend link in 0:42</button>
+    <div style="display:flex;justify-content:space-between;gap:8px;margin:-8px -12px 0"><button style="height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Use a different email</button><button style="height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Back to sign in</button></div>
+  </sc-if>
+</div>
+</sc-if>
+
+<!-- S-10 ONBOARDING -->
+<sc-if value="{{ sOnb }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px">
+  <span style="font-size:13px;font-weight:600;color:var(--primary)">One-time setup</span>
+  <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Tell us about you</h1>
+  <span style="font-size:15px;line-height:22px;color:var(--ink2);text-wrap:pretty">Your test dates set how long your access lasts.</span>
+</div>
+<sc-if value="{{ onb.err }}"><div role="alert" style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;font-family:'Material Symbols Rounded';font-size:20px;line-height:22px;color:var(--red);font-variation-settings:'FILL' 1">error</span><div style="display:flex;flex-direction:column;gap:4px;font-size:14px;line-height:21px"><b style="font-weight:600">2 things to fix before you start</b><a href="#" style="color:var(--ink);text-decoration:underline">Phone number is too short</a><a href="#" style="color:var(--ink);text-decoration:underline">EST test date has passed</a></div></div></sc-if>
+<div style="display:grid;grid-template-columns:var(--cols2);gap:28px var(--gapL);align-items:start">
+  <div style="display:flex;flex-direction:column;gap:28px;min-width:0">
+    <section aria-label="About you" style="display:flex;flex-direction:column;gap:18px">
+      <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">About you</h2>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Full name</span><span style="height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 14px;display:flex;align-items:center;font-size:16px">Youssef Adel Hassan</span><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:18px">branding_watermark</span><span style="text-wrap:pretty">Your name is shown as a faint watermark on your videos and notes. Use your real name.</span></span></div>
+      <div style="display:grid;grid-template-columns:var(--fcols);gap:18px 16px">
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Mobile number</span><div style="display:flex;gap:8px"><span style="flex:none;height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 6px 0 12px;display:flex;align-items:center;gap:2px;font-size:16px;font-variant-numeric:tabular-nums">+20<span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">arrow_drop_down</span></span><span style="flex:1;min-width:0;height:48px;box-sizing:border-box;border:{{ onb.phB }};border-radius:4px;padding:0 13px;display:flex;align-items:center;font-size:16px;font-variant-numeric:tabular-nums">{{ onb.phone }}</span></div><sc-if value="{{ onb.err }}"><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--red)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:18px;font-variation-settings:'FILL' 1">error</span><span style="text-wrap:pretty">Too short. Egyptian mobile numbers have 10 digits after +20.</span></span></sc-if></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Country</span><span style="height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 6px 0 14px;display:flex;align-items:center;font-size:16px"><span style="flex:1">Egypt</span><span style="font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">arrow_drop_down</span></span><span style="font-size:13px;line-height:18px;color:var(--ink2)">Sets your time zone for live sessions.</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">School</span><span style="height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 14px;display:flex;align-items:center;font-size:16px">Al Nour International School</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Grade</span><div role="radiogroup" aria-label="Grade" style="display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--fb);border-radius:4px;overflow:hidden"><sc-for list="{{ grades }}" as="g" hint-placeholder-count="4"><span role="radio" aria-checked="{{ g.on }}" style="height:46px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:600;background:{{ g.bg }};border-left:{{ g.bl }}"><sc-if value="{{ g.on }}"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span></sc-if>{{ g.n }}</span></sc-for></div></div>
+      </div>
+    </section>
+    <section data-sec="dates" aria-label="Your tests" style="display:flex;flex-direction:column;gap:18px">
+      <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Your tests</h2>
+      <sc-for list="{{ onb.tests }}" as="t" hint-placeholder-count="2">
+        <div style="display:flex;flex-direction:column;gap:12px;padding-bottom:18px;border-bottom:1px solid var(--rule)">
+          <span style="font-size:17px;line-height:24px;font-weight:600">{{ t.course }}</span>
+          <div style="display:grid;grid-template-columns:var(--fcols);gap:14px 16px">
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Target test</span><span style="height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 6px 0 14px;display:flex;align-items:center;font-size:16px"><span style="flex:1">{{ t.test }}</span><span style="font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">arrow_drop_down</span></span></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Test date</span><span style="height:48px;box-sizing:border-box;border:{{ t.border }};border-radius:4px;padding:0 4px 0 13px;display:flex;align-items:center;font-size:16px;font-variant-numeric:tabular-nums"><span style="flex:1">{{ t.date }}</span><span style="width:40px;display:flex;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px;color:var(--ink2)">calendar_month</span></span>
+              <sc-if value="{{ t.bad }}"><span style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--red)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:18px;font-variation-settings:'FILL' 1">error</span><span style="text-wrap:pretty">This date has passed. Pick your next EST date.</span></span></sc-if>
+            </div>
+          </div>
+          <sc-if value="{{ t.ok }}"><span style="display:flex;align-items:center;gap:8px;font-size:14px;line-height:20px"><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">event_available</span><span><b style="font-weight:600">Access until {{ t.until }}</b><span style="color:var(--ink2)"> · {{ t.why }}</span></span></span></sc-if>
+        </div>
+      </sc-for>
+      <button style="align-self:flex-start;height:48px;margin-left:-12px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px">I don't know my test date yet</button>
+    </section>
+    <sc-if value="{{ isLaptop }}"><button style="align-self:flex-start;height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px">Start learning<span style="font-family:'Material Symbols Rounded';font-size:20px">arrow_forward</span></button></sc-if>
+  </div>
+  <aside style="display:flex;flex-direction:column;gap:16px;min-width:0">
+    <div style="background:var(--frame);border-radius:2px;padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap">Rule · Access</span><span style="flex:1;height:1px;background:var(--rule)"></span></div>
+      <p style="margin:0;font-size:15px;line-height:23px;text-wrap:pretty">Access to each course lasts until <b style="font-weight:600">your test date + 14 days</b>, and never less than <b style="font-weight:600">60 days</b> from today.</p>
+      <div style="display:flex;flex-direction:column;border-top:1px solid var(--rule);font-size:14px;line-height:20px;font-variant-numeric:tabular-nums">
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:8px 0;border-bottom:1px solid var(--rule)"><span>Test 6 Mar 2027</span><span style="font-weight:600">until 20 Mar 2027</span></div>
+        <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:12px;padding:8px 0"><span>Test 21 Nov 2026</span><span style="font-weight:600">until 11 Dec 2026</span></div>
+      </div>
+      <span style="font-size:13px;line-height:19px;color:var(--ink2);text-wrap:pretty">The second date uses the 60-day minimum. You can change a test date later in Profile.</span>
+    </div>
+  </aside>
+</div>
+</sc-if>
+
+<!-- S-11 DEVICES -->
+<sc-if value="{{ sDev }}" hint-placeholder-val="{{ false }}">
+<div style="width:100%;max-width:{{ devMax }};display:flex;flex-direction:column;gap:24px;align-self:{{ devAlign }};padding-top:{{ devTop }}">
+  <sc-if value="{{ dev.manage }}"><div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Devices</h1><span style="font-size:15px;line-height:22px;color:var(--ink2)">You can use 2 devices.</span></div></sc-if>
+  <sc-if value="{{ dev.gate }}"><div style="display:flex;flex-direction:column;gap:10px"><span style="font-family:'Material Symbols Rounded';font-size:36px">devices</span><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em;text-wrap:pretty">You're already using 2 devices</h1><span style="font-size:15px;line-height:22px;color:var(--ink2);text-wrap:pretty">You can use 2 devices. To continue on this Samsung Galaxy A54, remove one of them.</span></div></sc-if>
+  <sc-if value="{{ dev.none }}"><div role="alert" style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;font-family:'Material Symbols Rounded';font-size:20px;line-height:22px;color:var(--red);font-variation-settings:'FILL' 1">block</span><span style="font-size:14px;line-height:21px;text-wrap:pretty"><b style="font-weight:600">No changes left this month.</b> Your next change opens on 1 Nov. Until then, keep using Chrome on Windows or iPhone 13.</span></div></sc-if>
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding-bottom:8px;border-bottom:1.5px solid var(--rule2)"><span style="font-size:16px;font-weight:700">2 of 2 in use</span><span style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--ink2)">swap_horiz</span>{{ dev.left }}</span></div>
+  <div role="{{ dev.listRole }}" aria-label="Your devices" style="display:flex;flex-direction:column;margin-top:-24px">
+    <sc-for list="{{ dev.list }}" as="d" hint-placeholder-count="2">
+      <div style="display:flex;align-items:center;gap:14px;min-height:72px;border-bottom:1px solid var(--rule);color:{{ d.c }}">
+        <sc-if value="{{ d.radio }}"><span role="radio" aria-checked="{{ d.sel }}" style="flex:none;width:20px;height:20px;box-sizing:border-box;border-radius:50%;border:2px solid {{ d.rc }};display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:{{ d.dot }}"></span></span></sc-if>
+        <span style="flex:none;width:40px;height:40px;border:1px solid var(--rule);border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px">{{ d.icon }}</span>
+        <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;line-height:22px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap">{{ d.name }}<sc-if value="{{ d.here }}"><span style="height:22px;padding:0 6px;border:1px solid var(--rule2);border-radius:2px;display:inline-flex;align-items:center;font-size:11px;font-weight:700">This device</span></sc-if></span><span style="font-size:13px;color:var(--ink2)">{{ d.meta }}</span></div>
+        <sc-if value="{{ d.rm }}"><button style="flex:none;height:48px;padding:0 16px;border:1px solid var(--rule2);border-radius:4px;background:transparent;color:var(--ink);font-size:14px;font-weight:600">Remove</button></sc-if>
+      </div>
+    </sc-for>
+  </div>
+  <span style="font-size:14px;line-height:21px;color:var(--ink2);text-wrap:pretty">{{ dev.note }}</span>
+  <sc-if value="{{ dev.cta }}"><div style="display:flex;flex-direction:column;gap:4px;align-items:{{ devBtnAlign }}"><sc-if value="{{ isLaptop }}"><button style="height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Remove iPhone 13 and continue</button></sc-if><button style="height:48px;padding:0 12px;margin-left:-12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Sign out instead</button></div></sc-if>
+  <sc-if value="{{ dev.none }}"><div style="display:flex;flex-wrap:wrap;gap:8px 12px"><button style="flex:var(--btnFlex);height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">support_agent</span>Contact support</button><button style="flex:var(--btnFlex);height:48px;padding:0 16px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Sign out</button></div></sc-if>
+</div>
+</sc-if>
+
+<!-- S-33 CHECKOUT (web) -->
+<sc-if value="{{ sCo }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px">
+  <span style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--primary)"><span style="font-family:'Material Symbols Rounded';font-size:18px">language</span>Web checkout</span>
+  <h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Choose your course</h1>
+</div>
+<sc-if value="{{ co.failed }}"><div role="alert" style="display:flex;gap:10px;align-items:flex-start;padding:12px 14px;border:1px solid var(--red);border-radius:4px;background:var(--redc)"><span style="flex:none;font-family:'Material Symbols Rounded';font-size:20px;line-height:22px;color:var(--red);font-variation-settings:'FILL' 1">credit_card_off</span><span style="font-size:14px;line-height:21px;text-wrap:pretty"><b style="font-weight:600">Payment didn't go through.</b> Your bank declined the card and no money was taken. Try another card or pay with a wallet.</span></div></sc-if>
+<div style="display:grid;grid-template-columns:var(--cols2);gap:28px var(--gapL);align-items:start">
+  <div style="display:flex;flex-direction:column;gap:28px;min-width:0">
+    <section aria-label="Course" style="display:flex;flex-direction:column">
+      <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Course</h2>
+      <div role="radiogroup" aria-label="Course" style="display:flex;flex-direction:column">
+        <sc-for list="{{ co.courses }}" as="c" hint-placeholder-count="3">
+          <div role="radio" aria-checked="{{ c.sel }}" style="display:flex;align-items:flex-start;gap:14px;padding:14px 12px;margin:0 -12px;border-bottom:1px solid var(--rule);background:{{ c.bg }}">
+            <span style="flex:none;margin-top:2px;width:20px;height:20px;box-sizing:border-box;border-radius:50%;border:2px solid {{ c.rc }};display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:{{ c.dot }}"></span></span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;line-height:24px;font-weight:600;display:flex;align-items:center;gap:8px;flex-wrap:wrap">{{ c.name }}<sc-if value="{{ c.save }}"><span style="height:22px;padding:0 6px;border:1px solid var(--rule2);border-radius:2px;display:inline-flex;align-items:center;font-size:11px;font-weight:700;font-variant-numeric:tabular-nums">{{ c.save }}</span></sc-if></span><span style="font-size:13px;line-height:19px;color:var(--ink2)">{{ c.meta }}</span></div>
+            <span style="flex:none;font-size:16px;line-height:24px;font-weight:600;font-variant-numeric:tabular-nums">{{ c.price }}</span>
+          </div>
+        </sc-for>
+      </div>
+      <span style="padding-top:10px;font-size:13px;line-height:19px;color:var(--ink2);text-wrap:pretty">Access lasts until your test date + 14 days, at least 60 days. {{ co.curNote }} <a href="#" style="color:var(--primary);font-weight:600">Change country</a></span>
+    </section>
+
+    <section aria-label="Coupon" style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:13px;font-weight:600">Coupon code</span>
+      <div style="display:flex;gap:8px"><span style="flex:1;min-width:0;height:48px;box-sizing:border-box;border:{{ co.cpB }};border-radius:4px;padding:0 13px;display:flex;align-items:center;font-size:16px;font-family:'Noto Sans Mono',monospace;color:{{ co.cpC }}">{{ co.cpVal }}</span><button style="flex:none;height:48px;padding:0 18px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">{{ co.cpBtn }}</button></div>
+      <sc-if value="{{ co.cpOk }}"><span style="display:flex;gap:6px;align-items:center;font-size:13px;line-height:18px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--green);font-variation-settings:'FILL' 1">check_circle</span>SPRING15 applied · 15% off</span></sc-if>
+      <sc-if value="{{ co.cpBad }}"><span role="alert" style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--red)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:18px;font-variation-settings:'FILL' 1">error</span><span style="text-wrap:pretty">This code expired on 30 Sep. Check for a newer code, or pay the full price.</span></span></sc-if>
+    </section>
+
+    <section aria-label="Pay with" style="display:flex;flex-direction:column">
+      <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Pay with</h2>
+      <div role="radio" aria-checked="true" style="display:flex;flex-direction:column;gap:14px;padding:14px 0 18px;border-bottom:1px solid var(--rule)">
+        <div style="display:flex;align-items:center;gap:14px"><span style="flex:none;width:20px;height:20px;box-sizing:border-box;border-radius:50%;border:2px solid var(--primary);display:flex;align-items:center;justify-content:center"><span style="width:10px;height:10px;border-radius:50%;background:var(--primary)"></span></span><span style="font-family:'Material Symbols Rounded';font-size:22px">credit_card</span><span style="flex:1;font-size:16px;font-weight:600">Card</span><span style="font-size:12px;color:var(--ink2)">{{ co.cards }}</span></div>
+        <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px 12px;padding-left:34px">
+          <div style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Card number</span><span style="height:48px;box-sizing:border-box;border:{{ co.cardB }};border-radius:4px;padding:0 13px;display:flex;align-items:center;font-size:16px;font-variant-numeric:tabular-nums;letter-spacing:.04em">4417 1234 5678 9113</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Expiry</span><span style="height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 14px;display:flex;align-items:center;font-size:16px;font-variant-numeric:tabular-nums">08 / 28</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">CVC</span><span style="height:48px;box-sizing:border-box;border:1px solid var(--fb);border-radius:4px;padding:0 14px;display:flex;align-items:center;font-size:16px;letter-spacing:.12em">•••</span></div>
+        </div>
+      </div>
+      <div role="radio" aria-checked="false" style="display:flex;align-items:center;gap:14px;min-height:56px;border-bottom:1px solid var(--rule)"><span style="flex:none;width:20px;height:20px;box-sizing:border-box;border-radius:50%;border:2px solid var(--ink2)"></span><span style="font-family:'Material Symbols Rounded';font-size:22px">account_balance_wallet</span><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;font-weight:600">{{ co.wallet }}</span><span style="font-size:12px;color:var(--ink2)">{{ co.walletMeta }}</span></div></div>
+      <span style="display:flex;gap:6px;align-items:center;padding-top:10px;font-size:13px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:16px">lock</span>Paid through a secure payment provider. We never store your card number.</span>
+    </section>
+
+    <section aria-label="Activation code" style="display:flex;align-items:center;gap:12px;padding:14px 0;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
+      <span style="font-family:'Material Symbols Rounded';font-size:24px;color:var(--ink2)">key</span>
+      <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:15px;line-height:22px;font-weight:600">Have an activation code?</span><span style="font-size:13px;line-height:18px;color:var(--ink2)">Use it instead of paying.</span></div>
+      <button style="flex:none;height:48px;padding:0 16px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Enter code</button>
+    </section>
+
+    <sc-if value="{{ isPhone }}"><section aria-label="Summary" style="display:flex;flex-direction:column;font-size:14px;line-height:20px;font-variant-numeric:tabular-nums">
+      <sc-for list="{{ co.lines }}" as="l" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--rule)"><span>{{ l.k }}</span><span style="font-weight:600">{{ l.v }}</span></div></sc-for>
+    </section></sc-if>
+  </div>
+
+  <sc-if value="{{ isLaptop }}"><aside style="position:sticky;top:0;border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:14px">
+    <span style="font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Summary</span>
+    <div style="display:flex;flex-direction:column;font-size:14px;line-height:20px;font-variant-numeric:tabular-nums">
+      <sc-for list="{{ co.lines }}" as="l" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--rule)"><span>{{ l.k }}</span><span style="font-weight:600;white-space:nowrap">{{ l.v }}</span></div></sc-for>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding-top:12px"><span style="font-weight:600">Total</span><span style="font-size:24px;font-weight:600">{{ co.total }}</span></div>
+    </div>
+    <span style="font-size:13px;line-height:19px;color:var(--ink2)">SAT Math access until 20 Mar 2027.</span>
+    <button style="height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;font-variant-numeric:tabular-nums"><span style="font-family:'Material Symbols Rounded';font-size:20px">lock</span>Pay {{ co.total }}</button>
+  </aside></sc-if>
+</div>
+</sc-if>
+
+<!-- S-33 ORDERS -->
+<sc-if value="{{ sOrd }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Orders and receipts</h1><span style="font-size:15px;line-height:22px;color:var(--ink2)">Web purchases and redeemed activation codes.</span></div>
+<sc-if value="{{ ordEmpty }}"><div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:28px 0;border-top:1.5px solid var(--rule2);border-bottom:1px solid var(--rule)"><span style="font-family:'Material Symbols Rounded';font-size:32px;color:var(--ink2)">receipt_long</span><span style="font-size:17px;line-height:24px;font-weight:600">No orders yet</span><span style="font-size:14px;line-height:21px;color:var(--ink2);text-wrap:pretty;max-width:440px">After you buy a course or redeem an activation code, the order and its receipt appear here.</span><button style="height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Choose a course</button></div></sc-if>
+<sc-if value="{{ ordList }}"><div role="table" aria-label="Orders" style="display:flex;flex-direction:column;max-width:880px">
+  <sc-if value="{{ isLaptop }}"><div role="row" style="display:grid;grid-template-columns:120px 120px minmax(0,1fr) 160px 200px 120px;gap:16px;padding-bottom:8px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)"><span>Order</span><span>Date</span><span>Course</span><span>Amount</span><span>Status</span><span></span></div></sc-if>
+  <sc-if value="{{ isPhone }}"><div style="border-top:1.5px solid var(--rule2)"></div></sc-if>
+  <sc-for list="{{ orders }}" as="o" hint-placeholder-count="3">
+    <div role="row" style="display:grid;grid-template-columns:{{ ordCols }};gap:4px 16px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule);font-size:14px;line-height:20px;font-variant-numeric:tabular-nums">
+      <span style="font-family:'Noto Sans Mono',monospace;font-size:13px;color:var(--ink2);grid-area:{{ o.ga1 }}">{{ o.no }}</span>
+      <span style="grid-area:{{ o.ga2 }};color:var(--ink2)">{{ o.date }}</span>
+      <span style="grid-area:{{ o.ga3 }};font-size:15px;font-weight:600">{{ o.item }}</span>
+      <span style="grid-area:{{ o.ga4 }};font-weight:600">{{ o.amt }}</span>
+      <span style="grid-area:{{ o.ga5 }};display:flex;align-items:center;gap:6px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:{{ o.sc }};font-variation-settings:'FILL' 1">{{ o.si }}</span>{{ o.status }}</span>
+      <span style="grid-area:{{ o.ga6 }};display:flex;justify-content:flex-end"><sc-if value="{{ o.receipt }}"><button style="height:48px;padding:0 12px;margin-right:-12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:4px">Receipt<span style="font-family:'Material Symbols Rounded';font-size:18px">chevron_right</span></button></sc-if><sc-if value="{{ o.retry }}"><button style="height:48px;padding:0 12px;margin-right:-12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600">Try again</button></sc-if></span>
+    </div>
+  </sc-for>
+</div></sc-if>
+</sc-if>
+
+<!-- S-33 RECEIPT -->
+<sc-if value="{{ sRec }}" hint-placeholder-val="{{ false }}">
+<article style="width:100%;max-width:600px;display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600;color:var(--ink2);font-family:'Noto Sans Mono',monospace">AE-104812</span><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Receipt</h1><span style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;color:var(--green);font-variation-settings:'FILL' 1">check_circle</span>Paid · 12 Oct 2026, 14:32</span></div>
+  <div style="display:grid;grid-template-columns:var(--fcols);gap:14px 24px;padding:14px 0;border-top:1.5px solid var(--rule2);border-bottom:1px solid var(--rule);font-size:14px;line-height:20px">
+    <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Sold by</span><span>Abdelrahman Elmenshawy</span></div>
+    <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Billed to</span><span>Youssef Adel Hassan<br>youssef.adel@gmail.com</span></div>
+    <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Paid with</span><span style="font-variant-numeric:tabular-nums">Visa •••• 9113</span></div>
+    <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">Access</span><span>Until Sat 20 Mar 2027</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;font-size:15px;line-height:22px;font-variant-numeric:tabular-nums">
+    <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule)"><span>SAT Math · full course</span><span>EGP 2,400</span></div>
+    <div style="display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--rule)"><span>Coupon SPRING15 · 15%</span><span>−EGP 360</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:14px 0;border-bottom:1.5px solid var(--rule2)"><span style="font-weight:600">Total paid</span><span style="font-size:24px;font-weight:600">EGP 2,040</span></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px 12px"><button style="flex:var(--btnFlex);height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">download</span>Download PDF</button><button style="flex:var(--btnFlex);height:48px;padding:0 20px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">mail</span>Email me a copy</button></div>
+  <span style="font-size:13px;line-height:19px;color:var(--ink2)">A copy was sent to youssef.adel@gmail.com when you paid.</span>
+</article>
+</sc-if>
+
+<!-- S-33 APP: NOT ENROLLED -->
+<sc-if value="{{ sGate }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ gate.out }}"><div style="flex:1;min-height:560px;display:flex;flex-direction:column;justify-content:space-between;gap:32px;padding-top:56px">
+  <div style="display:flex;flex-direction:column;gap:14px">
+    <div style="font-size:30px;line-height:38px;font-weight:700;letter-spacing:-.02em">Abdelrahman<br><span style="text-decoration:underline;text-decoration-color:var(--primary);text-decoration-thickness:4px;text-underline-offset:7px">Elmenshawy</span></div>
+    <span style="font-size:15px;font-weight:600;color:var(--ink2)">SAT &amp; EST Math</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <button style="height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Sign in</button>
+    <button style="height:48px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">key</span>Enter activation code</button>
+    <span style="font-size:13px;line-height:19px;color:var(--ink2);text-align:center;text-wrap:pretty">You'll sign in or create an account first, then add your code.</span>
+  </div>
+</div></sc-if>
+<sc-if value="{{ gate.home }}">
+  <div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Hi Youssef</h1><span style="font-size:15px;line-height:22px;color:var(--ink2);text-wrap:pretty">You're signed in, but no course is open on your account yet.</span></div>
+  <section aria-label="Courses" style="display:flex;flex-direction:column">
+    <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Courses</h2>
+    <sc-for list="{{ gate.courses }}" as="c" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:14px;min-height:72px;border-bottom:1px solid var(--rule)"><span style="flex:none;width:40px;height:40px;border-radius:4px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">lock</span><div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="font-size:16px;line-height:24px;font-weight:600">{{ c.name }}</span><span style="font-size:13px;color:var(--ink2)">{{ c.meta }}</span></div><span style="flex:none;font-size:12px;font-weight:600;color:var(--ink2)">Not enrolled</span></div></sc-for>
+  </section>
+  <section style="border:1.5px solid var(--rule2);border-radius:4px;padding:20px;display:flex;flex-direction:column;gap:12px">
+    <span style="font-size:17px;line-height:24px;font-weight:600">Have an activation code?</span>
+    <span style="font-size:14px;line-height:21px;color:var(--ink2);text-wrap:pretty">Enter it once and the course opens on this phone and your other device.</span>
+    <button style="height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">key</span>Enter activation code</button>
+  </section>
+  <span style="font-size:13px;line-height:19px;color:var(--ink2)">Signed in as youssef.adel@gmail.com · <a href="#" style="color:var(--primary);font-weight:600">Switch account</a></span>
+</sc-if>
+</sc-if>
+
+<!-- S-34 PROFILE -->
+<sc-if value="{{ sProf }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;align-items:center;gap:16px"><span style="flex:none;width:56px;height:56px;border-radius:50%;background:var(--ink);color:var(--page);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600">YA</span><div style="display:flex;flex-direction:column;min-width:0"><span style="font-size:20px;line-height:28px;font-weight:600">Youssef Adel Hassan</span><span style="font-size:14px;color:var(--ink2)">youssef.adel@gmail.com</span></div></div>
+<div style="display:grid;grid-template-columns:var(--cols2);gap:28px var(--gapL);align-items:start">
+  <div style="display:flex;flex-direction:column;gap:28px;min-width:0">
+    <sc-for list="{{ profGroupsL }}" as="g" hint-placeholder-count="2">
+      <section style="display:flex;flex-direction:column">
+        <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">{{ g.title }}</h2>
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:12px;min-height:60px;padding:8px 0;box-sizing:border-box;border-bottom:1px solid var(--rule)"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;font-weight:600;color:var(--ink2)">{{ r.k }}</span><span style="font-size:15px;line-height:22px">{{ r.v }}</span><sc-if value="{{ r.note }}"><span style="font-size:12px;line-height:17px;color:var(--ink2)">{{ r.note }}</span></sc-if></div><span aria-label="Edit {{ r.k }}" style="flex:none;width:48px;height:48px;margin-right:-12px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">{{ r.icon }}</span></div></sc-for>
+      </section>
+    </sc-for>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:28px;min-width:0">
+    <section aria-label="Display" style="display:flex;flex-direction:column;gap:14px">
+      <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Display</h2>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Theme</span><div role="radiogroup" aria-label="Theme" style="display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--fb);border-radius:4px;overflow:hidden"><sc-for list="{{ themes }}" as="t" hint-placeholder-count="2"><span role="radio" aria-checked="{{ t.on }}" style="height:46px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600;background:{{ t.bg }};border-left:{{ t.bl }}"><span style="font-family:'Material Symbols Rounded';font-size:18px">{{ t.icon }}</span>{{ t.n }}</span></sc-for></div></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Text size</span><div role="radiogroup" aria-label="Text size" style="display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--fb);border-radius:4px;overflow:hidden"><sc-for list="{{ sizes }}" as="t" hint-placeholder-count="3"><span role="radio" aria-checked="{{ t.on }}" style="height:46px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:600;background:{{ t.bg }};border-left:{{ t.bl }}"><sc-if value="{{ t.on }}"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span></sc-if>{{ t.n }}</span></sc-for></div>
+        <div style="margin-top:6px;padding:12px 14px;background:var(--frame);border-radius:2px;display:flex;flex-direction:column;gap:4px"><span style="font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Preview</span><span style="font-size:13px;font-weight:600;color:var(--ink2)">4.2 · Ex 7</span><span style="font-size:20px;line-height:30px">Solve for <i style="font-family:'Times New Roman',serif;font-size:22px">x</i>: 3<i style="font-family:'Times New Roman',serif;font-size:22px">x</i> − 7 = 11</span></div>
+        <span style="font-size:12px;line-height:17px;color:var(--ink2)">Also follows your device text size. Math scales with it.</span>
+      </div>
+    </section>
+    <section aria-label="Account" style="display:flex;flex-direction:column">
+      <h2 style="margin:0;padding-bottom:8px;border-bottom:1px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Account</h2>
+      <sc-for list="{{ acctRows }}" as="r" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:14px;min-height:56px;border-bottom:1px solid var(--rule)"><span style="font-family:'Material Symbols Rounded';font-size:22px;color:var(--ink2)">{{ r.icon }}</span><span style="flex:1;font-size:15px;font-weight:500">{{ r.k }}</span><span style="font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ r.v }}</span><span style="font-family:'Material Symbols Rounded';font-size:20px;color:var(--ink2)">chevron_right</span></div></sc-for>
+      <button style="align-self:flex-start;margin:12px 0 0 -12px;height:48px;padding:0 12px;border:none;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">logout</span>Sign out</button>
+    </section>
+  </div>
+</div>
+</sc-if>
+
+<!-- S-35 NOTIFICATIONS -->
+<sc-if value="{{ sNot }}" hint-placeholder-val="{{ false }}">
+<div style="width:100%;max-width:720px;display:flex;flex-direction:column;gap:20px">
+  <sc-if value="{{ isLaptop }}"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Notifications</h1></sc-if>
+  <div role="tablist" style="display:flex;gap:8px"><span role="tab" aria-selected="true" style="height:36px;padding:0 14px;border-radius:4px;background:var(--pc);border:1px solid var(--primary);display:flex;align-items:center;gap:4px;font-size:14px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px">check</span>All</span><span role="tab" aria-selected="false" style="height:36px;padding:0 14px;border-radius:4px;border:1px solid var(--fb);display:flex;align-items:center;font-size:14px;font-weight:500;font-variant-numeric:tabular-nums">{{ unreadTab }}</span></div>
+  <sc-if value="{{ notEmpty }}"><div style="display:flex;flex-direction:column;gap:12px;align-items:flex-start;padding:28px 0;border-top:1.5px solid var(--rule2);border-bottom:1px solid var(--rule)"><span style="font-family:'Material Symbols Rounded';font-size:32px;color:var(--ink2)">notifications</span><span style="font-size:17px;line-height:24px;font-weight:600">No notifications yet</span><span style="font-size:14px;line-height:21px;color:var(--ink2);text-wrap:pretty">When a topic unlocks, a live session is about to start, your teacher replies or posts an announcement, it shows up here.</span></div></sc-if>
+  <sc-for list="{{ notGroups }}" as="g" hint-placeholder-count="2">
+    <section style="display:flex;flex-direction:column">
+      <h2 style="margin:0;padding-bottom:8px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">{{ g.title }}</h2>
+      <sc-for list="{{ g.items }}" as="n" hint-placeholder-count="3">
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:14px 12px;margin:0 -12px;border-bottom:1px solid var(--rule);background:{{ n.bg }}">
+          <span style="flex:none;width:40px;height:40px;border:1px solid {{ n.ib }};border-radius:4px;display:flex;align-items:center;justify-content:center;font-family:'Material Symbols Rounded';font-size:22px;color:{{ n.ic }}">{{ n.icon }}</span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+            <div style="display:flex;align-items:baseline;gap:8px"><span style="flex:1;min-width:0;font-size:15px;line-height:22px;font-weight:{{ n.fw }}">{{ n.title }}</span><span style="flex:none;font-size:12px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ n.time }}</span></div>
+            <span style="font-size:14px;line-height:20px;color:var(--ink2);text-wrap:pretty">{{ n.body }}</span>
+            <span style="font-size:12px;font-weight:600;color:var(--ink2)">{{ n.kind }}</span>
+          </div>
+          <sc-if value="{{ n.unread }}"><span aria-label="Unread" style="flex:none;margin-top:8px;width:8px;height:8px;border-radius:50%;background:var(--primary)"></span></sc-if>
+        </div>
+      </sc-for>
+    </section>
+  </sc-for>
+</div>
+</sc-if>
+
+<!-- S-32 LIVE SESSIONS -->
+<sc-if value="{{ sLive }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px"><h1 style="margin:0;font-size:var(--h1);line-height:1.25;font-weight:600;letter-spacing:-.01em">Live sessions</h1><span style="display:flex;align-items:center;gap:6px;font-size:14px;line-height:20px;color:var(--ink2)"><span style="font-family:'Material Symbols Rounded';font-size:18px">schedule</span>Times in your time zone: Cairo (GMT+3)</span></div>
+<div style="display:grid;grid-template-columns:var(--cols2);gap:28px var(--gapL);align-items:start">
+  <section aria-label="Upcoming" style="display:flex;flex-direction:column;min-width:0">
+    <h2 style="margin:0;padding-bottom:8px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Upcoming</h2>
+    <sc-if value="{{ liveEmpty }}"><div style="display:flex;flex-direction:column;gap:8px;padding:20px 0;border-bottom:1px solid var(--rule)"><span style="font-size:16px;line-height:24px;font-weight:600">No sessions scheduled</span><span style="font-size:14px;line-height:21px;color:var(--ink2);text-wrap:pretty">When your teacher plans a live session, you'll get a notification and it appears here with its join link.</span></div></sc-if>
+    <sc-for list="{{ upcoming }}" as="s" hint-placeholder-count="3">
+      <div style="display:grid;grid-template-columns:64px minmax(0,1fr);gap:14px;padding:16px 12px;margin:0 -12px;border-bottom:1px solid var(--rule);background:{{ s.bg }}">
+        <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:64px;border:1px solid {{ s.db }};border-radius:4px;background:var(--page)"><span style="font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">{{ s.dow }}</span><span style="font-size:22px;line-height:26px;font-weight:600;font-variant-numeric:tabular-nums">{{ s.day }}</span><span style="font-size:11px;color:var(--ink2)">{{ s.mon }}</span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+          <span style="font-size:12px;font-weight:600;color:var(--ink2)">{{ s.course }}</span>
+          <span style="font-size:16px;line-height:23px;font-weight:600;text-wrap:pretty">{{ s.title }}</span>
+          <span style="font-size:14px;font-variant-numeric:tabular-nums">{{ s.time }}</span>
+          <sc-if value="{{ s.soon }}"><span style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--primary)"><span style="font-family:'Material Symbols Rounded';font-size:18px">timer</span>{{ s.soon }}</span></sc-if>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:4px">
+            <sc-if value="{{ s.join }}"><button style="height:48px;padding:0 20px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">videocam</span>Join session</button></sc-if>
+            <sc-if value="{{ s.later }}"><span style="height:48px;display:flex;align-items:center;font-size:13px;color:var(--ink2)">Join link opens 10 min before</span></sc-if>
+            <button style="height:48px;padding:0 14px;border:1px solid var(--primary);border-radius:4px;background:transparent;color:var(--primary);font-size:14px;font-weight:600;display:flex;align-items:center;gap:6px"><span style="font-family:'Material Symbols Rounded';font-size:20px">calendar_add_on</span>Add to calendar</button>
+          </div>
+        </div>
+      </div>
+    </sc-for>
+  </section>
+  <section aria-label="Recordings" style="display:flex;flex-direction:column;min-width:0">
+    <h2 style="margin:0;padding-bottom:8px;border-bottom:1.5px solid var(--rule2);font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)">Recordings</h2>
+    <sc-if value="{{ liveEmpty }}"><div style="display:flex;flex-direction:column;gap:8px;padding:20px 0;border-bottom:1px solid var(--rule)"><span style="font-size:16px;line-height:24px;font-weight:600">No recordings yet</span><span style="font-size:14px;line-height:21px;color:var(--ink2);text-wrap:pretty">Each session's recording is added here a few hours after it ends.</span></div></sc-if>
+    <sc-for list="{{ recordings }}" as="r" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;min-height:68px;padding:8px 0;box-sizing:border-box;border-bottom:1px solid var(--rule)"><span style="flex:none;font-family:'Material Symbols Rounded';font-size:28px;color:var(--primary)">play_circle</span><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;line-height:21px;font-weight:600;text-wrap:pretty">{{ r.title }}</span><span style="font-size:13px;color:var(--ink2);font-variant-numeric:tabular-nums">{{ r.meta }}</span></div><sc-if value="{{ r.watched }}"><span style="flex:none;display:flex;align-items:center;gap:4px;font-size:12px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:16px;color:var(--green)">check</span>Watched</span></sc-if></div></sc-for>
+  </section>
+</div>
+</sc-if>
+
+<div style="font-family:'Noto Sans Mono',monospace;font-size:12px;color:var(--ink2)">{{ footNote }}</div>
+</div>
+</main>
+
+<sc-if value="{{ hasAct }}" hint-placeholder-val="{{ false }}">
+<div style="grid-area:act;border-top:1px solid var(--rule);padding:12px 16px;display:flex;flex-direction:column;gap:8px;background:var(--page)">
+  <sc-if value="{{ sCo }}"><div style="display:flex;justify-content:space-between;align-items:baseline;font-variant-numeric:tabular-nums"><span style="font-size:14px;font-weight:600">Total</span><span style="font-size:20px;font-weight:600">{{ co.total }}</span></div></sc-if>
+  <button style="height:48px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;white-space:nowrap;font-variant-numeric:tabular-nums">{{ actLabel }}</button>
+</div>
+</sc-if>
+
+<sc-if value="{{ dlg }}" hint-placeholder-val="{{ false }}">
+<div style="grid-row:1/-1;grid-column:1/-1;z-index:5;background:var(--scrim);display:flex;align-items:{{ dlgAlign }};justify-content:center">
+  <div role="dialog" aria-modal="true" aria-labelledby="actd" style="width:100%;max-width:{{ dlgW }};box-sizing:border-box;background:var(--page);border-radius:{{ dlgR }};padding:24px;display:flex;flex-direction:column;gap:14px">
+    <span style="font-family:'Material Symbols Rounded';font-size:28px">key</span>
+    <h2 id="actd" style="margin:0;font-size:22px;line-height:30px;font-weight:600">Enter activation code</h2>
+    <p style="margin:0;font-size:15px;line-height:23px;color:var(--ink2);text-wrap:pretty">12 letters and numbers, from your teacher or your learning centre.</p>
+    <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:600">Code</span><span style="height:52px;box-sizing:border-box;border:{{ dlgB }};border-radius:4px;padding:0 13px;display:flex;align-items:center;font-size:18px;font-family:'Noto Sans Mono',monospace;letter-spacing:.08em">AE7K-29QM-X4TB</span>
+      <sc-if value="{{ dlgErr }}"><span role="alert" style="display:flex;gap:6px;align-items:flex-start;font-size:13px;line-height:18px;color:var(--red)"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:18px;font-variation-settings:'FILL' 1">error</span><span style="text-wrap:pretty">This code was already used on another account. Check each character, or contact support with the code.</span></span></sc-if>
+      <sc-if value="{{ dlgOk }}"><span style="font-size:13px;line-height:18px;color:var(--ink2)">Dashes are added for you. 0 and O count as the same.</span></sc-if>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;margin-top:4px">
+      <button style="flex:{{ dlgBtnFlex }};height:48px;padding:0 18px;border:1px solid var(--rule2);border-radius:4px;background:transparent;color:var(--ink);font-size:14px;font-weight:600">Cancel</button>
+      <button style="flex:{{ dlgBtnFlex }};height:48px;padding:0 24px;border:none;border-radius:4px;background:var(--primary);color:var(--onp);font-size:14px;font-weight:600">Activate</button>
+    </div>
+  </div>
+</div>
+</sc-if>
+
+</div></div></div></div></div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:&quot;420px&quot;,&quot;height&quot;:&quot;860px&quot;},&quot;screen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;auth&quot;,&quot;onboard&quot;,&quot;devices&quot;,&quot;checkout&quot;,&quot;orders&quot;,&quot;receipt&quot;,&quot;gate&quot;,&quot;profile&quot;,&quot;notif&quot;,&quot;live&quot;],&quot;default&quot;:&quot;auth&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;state&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;default&quot;,&quot;error&quot;,&quot;signup&quot;,&quot;sent&quot;,&quot;limit&quot;,&quot;none&quot;,&quot;coupon&quot;,&quot;usd&quot;,&quot;failed&quot;,&quot;code&quot;,&quot;empty&quot;,&quot;signedout&quot;,&quot;codeBad&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;default&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;bp&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;laptop&quot;],&quot;default&quot;:&quot;phone&quot;,&quot;tsType&quot;:&quot;'phone'|'laptop'&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;'light'|'dark'&quot;},&quot;scroll&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;&quot;,&quot;dates&quot;],&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;pad&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;string&quot;}}">
+const NAV = [['home', 'Home'], ['menu_book', 'Courses'], ['insights', 'Skills'], ['timer', 'Mock exams'], ['person', 'Profile']];
+const LAY = {
+  phone: { areas: "'status' 'top' 'main' 'nav'", gcols: 'minmax(0,1fr)', grows: '24px 56px minmax(0,1fr) 80px' },
+  phoneBare: { areas: "'status' 'top' 'main'", gcols: 'minmax(0,1fr)', grows: '24px 56px minmax(0,1fr)' },
+  phoneAct: { areas: "'status' 'top' 'main' 'act'", gcols: 'minmax(0,1fr)', grows: '24px 56px minmax(0,1fr) auto' },
+  laptop: { areas: "'nav top' 'nav main'", gcols: '256px minmax(0,1fr)', grows: '72px minmax(0,1fr)' },
+  laptopBare: { areas: "'top' 'main'", gcols: 'minmax(0,1fr)', grows: '72px minmax(0,1fr)' }
+};
+const PH = { pad: '16px', h1: '24px', cols2: 'minmax(0,1fr)', gapL: '24px', btnFlex: '1 1 100%', fcols: 'minmax(0,1fr)', sb: 'none' };
+const LP = { pad: '32px', h1: '32px', cols2: 'minmax(0,1fr) 340px', gapL: '48px', btnFlex: '0 0 auto', fcols: 'repeat(2,minmax(0,1fr))', sb: 'thin' };
+const DARK = { '--page': '#11141A', '--surface2': '#1D222C', '--frame': '#1E2533', '--ink': '#E7E9EE', '--ink2': '#A8AFBC', '--ink3': '#5E6573', '--onp': '#0B1026', '--rule': '#2B313D', '--rule2': '#E7E9EE', '--fb': '#6B7383', '--primary': '#86A5FF', '--pc': '#1F2A4A', '--red': '#FF8A8E', '--redc': '#2E1A1D', '--green': '#5BC28C', '--warn': '#F0A050', '--scrim': 'rgba(0,0,0,.6)' };
+const seg = (labels, on) => labels.map((x, i) => { const [n, icon] = Array.isArray(x) ? x : [x]; return { n, icon, on: i === on, bg: i === on ? 'var(--pc)' : 'transparent', bl: i ? '1px solid var(--fb)' : 'none' }; });
+const radio = sel => ({ sel, rc: sel ? 'var(--primary)' : 'var(--ink2)', dot: sel ? 'var(--primary)' : 'transparent' });
+
+class Component extends DCLogic {
+  rootRef = React.createRef();
+  mainRef = React.createRef();
+  componentDidMount() { this.scroll(); }
+  componentDidUpdate(pp) { if (pp.screen !== this.props.screen || pp.scroll !== this.props.scroll) this.scroll(); }
+  scroll() {
+    setTimeout(() => {
+      const m = this.mainRef.current; if (!m) return;
+      const sec = this.props.scroll; const el = sec && m.querySelector(`[data-sec="${sec}"]`);
+      m.scrollTop = el ? el.getBoundingClientRect().top - m.getBoundingClientRect().top + m.scrollTop - 16 : 0;
+    }, 300);
+  }
+  renderVals() {
+    const isPhone = this.props.bp !== 'laptop', isLaptop = !isPhone;
+    const screen = this.props.screen ?? 'auth', st = this.props.state ?? 'default';
+    const dark = (this.props.theme ?? 'light') === 'dark' || (screen === 'profile' && st === 'dark');
+    const F = isPhone ? ['360px', '780px', '10px solid #1A1D24', '32px'] : ['1280px', '800px', 'none', '0'];
+
+    const bare = screen === 'auth' || screen === 'onboard' || (screen === 'devices' && st !== 'default') || (screen === 'gate' && st === 'signedout');
+    const act = isPhone && (screen === 'onboard' || screen === 'checkout' || (screen === 'devices' && st === 'limit'));
+    const navOn = { profile: 4, devices: 4, orders: 4, receipt: 4, checkout: 1, live: 1, notif: 0, gate: 0 }[screen] ?? 0;
+    const hasNav = !bare && !act;
+    const lk = isPhone ? (act ? 'phoneAct' : bare ? 'phoneBare' : 'phone') : (bare ? 'laptopBare' : 'laptop');
+    const L = { ...(isPhone ? PH : LP), ...LAY[lk] };
+    if (screen === 'notif' || screen === 'orders') L.cols2 = 'minmax(0,1fr)';
+    if (screen === 'live' && isLaptop) L.cols2 = 'minmax(0,1fr) minmax(0,1fr)';
+
+    const isRoot = !bare && (screen === 'profile' || screen === 'gate');
+    const T = { profile: 'Profile', gate: 'Home', devices: 'Devices', checkout: 'Checkout', orders: 'Orders and receipts', receipt: 'Receipt AE-104812', notif: 'Notifications', live: 'Live sessions' }[screen] || '';
+    const brandPhone = isPhone && bare;
+    const topAct = (screen === 'notif' && st !== 'empty') ? 'Mark all read' : (bare && (screen === 'onboard' || screen === 'devices')) ? 'Sign out' : '';
+
+    const auth = { signin: st === 'default' || st === 'error', err: st === 'error', signup: st === 'signup', sent: st === 'sent', pwBorder: st === 'error' ? '2px solid var(--red)' : '1px solid var(--fb)' };
+    const onbErr = screen === 'onboard' && st === 'error';
+    const onb = {
+      err: onbErr, phone: onbErr ? '10 1234 56' : '10 1234 5678', phB: onbErr ? '2px solid var(--red)' : '1px solid var(--fb)',
+      tests: [
+        { course: 'SAT Math', test: 'SAT', date: 'Sat 6 Mar 2027', until: 'Sat 20 Mar 2027', why: 'test date + 14 days', ok: true, bad: false, border: '1px solid var(--fb)' },
+        onbErr ? { course: 'EST Math', test: 'EST I · Math', date: 'Sat 3 Oct 2026', ok: false, bad: true, border: '2px solid var(--red)' }
+          : { course: 'EST Math', test: 'EST I · Math', date: 'Sat 21 Nov 2026', until: 'Fri 11 Dec 2026', why: '60-day minimum', ok: true, bad: false, border: '1px solid var(--fb)' }
+      ]
+    };
+
+    const dGate = screen === 'devices' && st !== 'default', dNone = st === 'none';
+    const devs = [['laptop_windows', 'Chrome on Windows', 'Last used today, 18:40 · Cairo', !dGate], ['phone_iphone', 'iPhone 13 · app', 'Last used yesterday, 21:40 · Cairo', false]];
+    const dev = {
+      manage: !dGate, gate: dGate, none: dGate && dNone, cta: dGate && !dNone, listRole: dGate ? 'radiogroup' : 'list',
+      left: dNone ? '0 changes left this month' : '1 change left this month',
+      list: devs.map(([icon, name, meta, here], i) => ({ icon, name, meta, here, rm: !dGate && !here, radio: dGate, ...radio(dGate && !dNone && i === 1), c: dNone ? 'var(--ink2)' : 'var(--ink)' })),
+      note: dGate ? (dNone ? 'Changes reset on the 1st of each month.' : 'Removing a device signs it out and uses your 1 change this month. The next one opens on 1 Nov.') : 'Removing a device signs it out there and uses 1 change. Changes reset on the 1st of each month. You can\'t remove the device you\'re using now.'
+    };
+    if (dGate && dNone) dev.list.forEach(d => { d.rc = 'var(--ink3)'; });
+
+    const usd = st === 'usd';
+    const m = v => usd ? '$' + v : 'EGP ' + v.toLocaleString('en-US');
+    const P = usd ? [60, 60, 100] : [2400, 2400, 4000];
+    const cpOk = st === 'coupon' || st === 'failed' || st === 'code';
+    const co = {
+      failed: st === 'failed', cpOk, cpBad: usd,
+      courses: [['SAT Math', '40 topics · Notes, practice, quizzes · Mock exams', P[0]], ['EST Math', '45 topics · Notes, practice, quizzes · Mock exams', P[1]], ['SAT + EST bundle', 'Both courses, one payment', P[2], m(P[0] + P[1] - P[2])]].map(([name, meta, p, save], i) => ({ name, meta, price: m(p), save: save ? 'Save ' + save : '', ...radio(i === 0), bg: i === 0 ? 'var(--pc)' : 'transparent' })),
+      curNote: usd ? 'Prices in USD for United Arab Emirates.' : 'Prices in EGP for Egypt.',
+      cpVal: usd ? 'SUMMER10' : cpOk ? 'SPRING15' : 'Optional', cpC: (usd || cpOk) ? 'var(--ink)' : 'var(--ink2)', cpB: usd ? '2px solid var(--red)' : '1px solid var(--fb)', cpBtn: cpOk ? 'Remove' : 'Apply',
+      cards: usd ? 'Visa · Mastercard · Amex' : 'Visa · Mastercard · Meeza', cardB: st === 'failed' ? '2px solid var(--red)' : '1px solid var(--fb)',
+      wallet: usd ? 'Apple Pay or Google Pay' : 'Mobile wallet', walletMeta: usd ? 'Confirm on your phone' : 'Pay from your wallet number, confirm with a PIN',
+      lines: [{ k: 'SAT Math', v: m(P[0]) }].concat(cpOk ? [{ k: 'Coupon SPRING15 · 15%', v: '−' + m(P[0] * 0.15) }] : []),
+      total: m(cpOk ? P[0] * 0.85 : P[0])
+    };
+
+    const ordEmpty = screen === 'orders' && st === 'empty';
+    const OG = isPhone ? ['1/1/2/2', '1/2/2/3', '2/1/3/3', '3/1/4/2', '4/1/5/3', '3/2/4/3'] : ['auto', 'auto', 'auto', 'auto', 'auto', 'auto'];
+    const orders = [
+      ['AE-104812', '12 Oct 2026', 'SAT Math', 'EGP 2,040', 'Paid', 'check_circle', 'var(--green)', 1],
+      ['AE-104811', '12 Oct 2026', 'SAT Math', 'EGP 2,040', 'Failed · not charged', 'cancel', 'var(--red)', 0],
+      ['AE-103377', '2 Sep 2026', 'EST Math', 'Activation code', 'Activated', 'check_circle', 'var(--green)', 1]
+    ].map(([no, date, item, amt, status, si, sc, r]) => ({ no, date, item, amt, status, si, sc, receipt: !!r, retry: !r, ga1: OG[0], ga2: OG[1], ga3: OG[2], ga4: OG[3], ga5: OG[4], ga6: OG[5] }));
+
+    const gate = { out: st === 'signedout', home: st !== 'signedout', courses: [{ name: 'SAT Math', meta: '40 topics · Video, notes, practice, quiz' }, { name: 'EST Math', meta: '45 topics · Video, notes, practice, quiz' }] };
+
+    const profGroupsL = [
+      { title: 'Profile', rows: [['Full name', 'Youssef Adel Hassan', 'Shown as the watermark on your videos and notes'], ['Mobile number', '+20 10 1234 5678'], ['Country', 'Egypt · Cairo time (GMT+3)'], ['School', 'Al Nour International School'], ['Grade', 'Grade 11']] },
+      { title: 'Test dates', rows: [['SAT Math', 'SAT · Sat 6 Mar 2027', 'Access until Sat 20 Mar 2027'], ['EST Math', 'EST I · Sat 21 Nov 2026', 'Access until Fri 11 Dec 2026 · 60-day minimum']] }
+    ].map(g => ({ title: g.title, rows: g.rows.map(([k, v, note]) => ({ k, v, note: note || '', icon: k.includes('Math') ? 'edit_calendar' : 'edit' })) }));
+    const acctRows = [['password', 'Password', 'Changed 12 Oct'], ['devices', 'Devices', '2 of 2 · 1 change left'], ['notifications', 'Notifications', ''], ['receipt_long', 'Orders and receipts', 'Web']].map(([icon, k, v]) => ({ icon, k, v }));
+
+    const notEmpty = screen === 'notif' && st === 'empty';
+    const NI = [
+      ['Today', 'videocam', 'Live session in 1 hour', 'SAT Math · Circles and arcs review, today 19:00–20:30.', '17:58', 'Live session', 1],
+      ['Today', 'ink_pen', 'A. Elmenshawy replied to your question', 'On 4.2 · Ex 7: "Close. Check the sign in step 2 and try again."', '15:12', 'Teacher reply', 1, 1],
+      ['Today', 'lock_open', '4.3 Systems of equations is open', 'You passed the 4.2 quiz. Start with the video.', '13:40', 'Topic unlocked', 1],
+      ['Earlier', 'campaign', 'Thursday\'s EST session moves to 20:00', 'Same link. The recording will be up the next morning.', 'Sat 10 Oct', 'Announcement', 0],
+      ['Earlier', 'lock_open', '4.2 Linear inequalities is open', 'You passed the 4.1 quiz. Start with the video.', 'Thu 8 Oct', 'Topic unlocked', 0]
+    ];
+    const notGroups = notEmpty ? [] : ['Today', 'Earlier'].map(title => ({ title, items: NI.filter(n => n[0] === title).map(([, icon, t, body, time, kind, u, red]) => ({ icon, title: t, body, time, kind: (u ? 'Unread · ' : '') + kind, unread: !!u, fw: u ? '700' : '500', bg: u ? 'var(--pc)' : 'transparent', ic: red ? 'var(--red)' : 'var(--ink)', ib: red ? 'var(--red)' : 'var(--rule)' })) }));
+
+    const liveEmpty = screen === 'live' && st === 'empty';
+    const upcoming = liveEmpty ? [] : [
+      ['Today', '12', 'Oct', 'SAT Math', 'Circles and arcs review', '19:00–20:30', 'Starts in 8 min', 1],
+      ['Thu', '15', 'Oct', 'EST Math', 'Mock 2 walkthrough: the questions most of you missed', '20:00–21:30', '', 0],
+      ['Sat', '17', 'Oct', 'SAT Math', 'Percent change and growth, Q&A', '18:00–19:00', '', 0]
+    ].map(([dow, day, mon, course, title, time, soon, j]) => ({ dow, day, mon, course, title, time, soon, join: !!j, later: !j, bg: j ? 'var(--pc)' : 'transparent', db: j ? 'var(--primary)' : 'var(--rule)' }));
+    const recordings = liveEmpty ? [] : [
+      ['Linear functions from a table', 'SAT Math · Sat 10 Oct · 1 h 24 min', 0],
+      ['EST Math: Mock 1 walkthrough', 'EST Math · Thu 8 Oct · 1 h 31 min', 1],
+      ['Systems of equations, word problems', 'SAT Math · Sat 3 Oct · 1 h 12 min', 1]
+    ].map(([title, meta, w]) => ({ title, meta, watched: !!w }));
+
+    const dlg = screen === 'checkout' && st === 'code' || screen === 'gate' && st === 'codeBad';
+    const dlgErr = screen === 'gate';
+
+    return {
+      rootRef: this.rootRef, mainRef: this.mainRef,
+      frameW: F[0], frameH: F[1], bezel: F[2], frameR: F[3], pad: this.props.pad ?? (isPhone ? '24px' : '0'),
+      themeVars: dark ? DARK : {}, L, isPhone, isLaptop, hasNav,
+      nav: NAV.map(([icon, label], i) => ({ icon, label, on: i === navOn, off: i !== navOn })),
+      showBrand: bare, noBrand: !bare, hasBack: !bare && !isRoot, hasBell: isRoot,
+      title: brandPhone ? 'Abdelrahman Elmenshawy' : T, topFs: brandPhone ? '15px' : isRoot ? (isPhone ? '20px' : '28px') : (isPhone ? '16px' : '18px'), topFw: brandPhone ? '700' : '600',
+      topPadL: bare || isRoot ? '32px' : '12px', topAct,
+      sAuth: screen === 'auth', sOnb: screen === 'onboard', sDev: screen === 'devices', sCo: screen === 'checkout', sOrd: screen === 'orders', sRec: screen === 'receipt', sGate: screen === 'gate', sProf: screen === 'profile', sNot: screen === 'notif', sLive: screen === 'live',
+      auth, authTop: isPhone ? '8px' : '40px',
+      pwRules: [['At least 8 characters', 0], ['A number', 1], ['A letter', 1]].map(([t, ok]) => ({ t, icon: ok ? 'check_circle' : 'radio_button_unchecked', c: ok ? 'var(--ink)' : 'var(--ink2)', st: ok ? '' : ' · 7 so far' })),
+      onb, grades: seg(['9', '10', '11', '12'], 2).map(g => ({ ...g, n: g.n })),
+      dev, devMax: dGate ? '520px' : '720px', devAlign: dGate && isLaptop ? 'center' : 'stretch', devTop: dGate && isLaptop ? '40px' : '0', devBtnAlign: 'flex-start',
+      co, ordEmpty, ordList: screen === 'orders' && !ordEmpty, orders, ordCols: isPhone ? 'minmax(0,1fr) auto' : '120px 120px minmax(0,1fr) 160px 200px 120px',
+      gate, profGroupsL, acctRows,
+      themes: seg([['Light', 'light_mode'], ['Dark', 'dark_mode']], dark ? 1 : 0), sizes: seg(['Default', 'Large', 'Largest'], 0),
+      notEmpty, notGroups, unreadTab: notEmpty ? 'Unread' : 'Unread · 3',
+      liveEmpty, upcoming, recordings,
+      hasAct: act, actLabel: screen === 'checkout' ? 'Pay ' + co.total : screen === 'devices' ? 'Remove iPhone 13 and continue' : 'Start learning',
+      dlg, dlgErr, dlgOk: !dlgErr, dlgB: dlgErr ? '2px solid var(--red)' : '2px solid var(--primary)',
+      dlgAlign: isPhone ? 'flex-end' : 'center', dlgW: isPhone ? '100%' : '460px', dlgR: isPhone ? '12px 12px 0 0' : '4px', dlgBtnFlex: isPhone ? '1 1 100%' : '0 0 auto',
+      footNote: screen === 'checkout' || screen === 'orders' || screen === 'receipt' ? 'Sample data · prices, names and dates are illustrative' : 'Sample data · names and dates are illustrative'
+    };
+  }
+}
+</script>
+</body>
+</html>
