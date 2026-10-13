@@ -1485,11 +1485,12 @@ Commit: `feat(F-4): MathText with inline/block TeX and mixed direction`. PR titl
 
 Locked names so later plans and neighbours agree. Each plan starts by re-reading the spec section and the export file named.
 
-**PR "Components"** — `lib/shared/widgets/`, source `Components.dc.html`.
-- Files: `choice_tile.dart` (`ChoiceTile`), `spr_input.dart` (`SprInput`, Answer Preview via `parseSprAnswer` from `lib/core/grading/spr_answer.dart` — reuse, do not re-implement), `spr_keypad.dart` (`SprKeypad`), `booklet_banner.dart` (`BookletBanner` info/warning/offline), `booklet_overlays.dart` (`showBookletDialog`, `showBookletSheet`), `booklet_skeleton.dart`, `empty_state.dart`, `error_retry.dart`, `booklet_chip.dart`, `painters/dashed_border.dart`, `painters/strike_through.dart`, `focus_ring.dart`, `loading_button.dart`.
-- All choice/explanation text renders through `MathText`.
-- Decides golden-test setup: goldens tagged `golden` in `dart_test.yaml`, run locally; CI runs `flutter test --exclude-tags golden` (font rendering differs Windows vs Linux) — confirm with `flutter-design-fidelity:golden-tests` skill.
-- Done when: every component state in `Components.dc.html` has a widget test; goldens at 360 + 1280, light + dark.
+**PR "Components A — answer inputs"** — plan `docs/superpowers/plans/2026-10-13-f4-components-inputs.md`. `ChoiceTile`, `SprInput`, `SprKeypad`, `FeedbackLabel`, `lib/core/grading/spr_editing.dart`, `painters/dashed_border.dart`, `painters/strike_through.dart`, `focus_ring.dart`, golden setup.
+
+**PR "Components B — buttons and feedback"** — own plan (writing-plans) when reached; source `Components.dc.html` §1 and §8. `loading_button.dart`, `booklet_chip.dart`, `booklet_banner.dart` (info/warning/offline), `booklet_overlays.dart` (`showBookletDialog`, `showBookletSheet`, snackbar helper), `booklet_progress.dart`, `booklet_skeleton.dart`, `empty_state.dart`, `error_retry.dart`. Reuses the golden harness from PR A.
+
+Scope moves (decided 2026-10-13): `Components.dc.html` §4 margin note, §6 exam bar + module time bar + review time-per-question, §7 navigator cell → PR "QuestionView". §5 explanation frames (rule box, worked example) → deferred to the review/notes work.
+Goldens: test files under `test/goldens/` with `@Tags(['golden'])`; real fonts from `test/goldens/flutter_test_config.dart`; baselines generated on Windows; CI runs `flutter test --exclude-tags golden`.
 
 **PR "App shell"** — `lib/shared/widgets/app_shell/`, source `App Shell.dc.html`.
 - `AppShell` (bottom `NavigationBar` / `NavigationRail` / sidebar by `BookletLayout.forWidth`), `FocusModeScaffold` (quiz/mock, nav hidden). Wired via `StatefulShellRoute.indexedStack` in `lib/core/router/app_router.dart`; destinations stay placeholders.
