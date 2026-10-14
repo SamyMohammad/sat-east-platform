@@ -195,6 +195,36 @@ void main() {
     );
   }
 
+  testWidgets('F-4: statusLabel replaces the default feedback label', (
+    t,
+  ) async {
+    await pumpTile(
+      t,
+      const ChoiceTile(
+        letter: 'B',
+        content: 'x',
+        state: ChoiceTileState.incorrect,
+        statusLabel: '1st try',
+      ),
+    );
+    expect(find.text('1st try'), findsOneWidget);
+    expect(find.text('Incorrect'), findsNothing);
+  });
+
+  testWidgets('F-4: null statusLabel keeps the default feedback label', (
+    t,
+  ) async {
+    await pumpTile(
+      t,
+      const ChoiceTile(
+        letter: 'B',
+        content: 'x',
+        state: ChoiceTileState.incorrect,
+      ),
+    );
+    expect(find.text('Incorrect'), findsOneWidget);
+  });
+
   testWidgets('F-4: selected tile is a checked radio', (t) async {
     final handle = t.ensureSemantics();
     await pumpTile(t, tile(ChoiceTileState.selected, onSelect: () {}));
