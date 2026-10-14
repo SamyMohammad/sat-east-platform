@@ -33,6 +33,8 @@ abstract final class BookletSize {
   static const double iconStatus = 18;
   static const double spinner = 20;
   static const double progressThickness = 4;
+  static const double progressSegmentGap = 3;
+  static const double headerProgress = 300;
   static const double statusIcon = 32;
   static const double chipVisual = 32;
   static const double dialogWidth = 400;
