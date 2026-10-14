@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
+/// Widest share of the heading row the title may take before it ellipsizes.
+const double _maxTitleShare = 0.6;
+
 /// Frame-tinted block with a titled rule line and a `MathText` body.
 /// Shared by `HintPanel` and `WorkedExample`.
 class FramedPanel extends StatelessWidget {
@@ -48,7 +51,7 @@ class FramedPanel extends StatelessWidget {
                   ],
                   ConstrainedBox(
                     constraints: BoxConstraints(
-                      maxWidth: constraints.maxWidth * 0.6,
+                      maxWidth: constraints.maxWidth * _maxTitleShare,
                     ),
                     child: Text(
                       title,
