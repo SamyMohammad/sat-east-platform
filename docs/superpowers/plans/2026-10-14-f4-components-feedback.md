@@ -4,7 +4,7 @@
 
 **Goal:** Implement Components.dc.html §1 and §8 using the booklet theme.
 
-**Architecture:** Small reusable widgets in `apps/client/lib/core/widgets/` receive display values and callbacks. They do not fetch data, coordinate business operations, or own feature state. Native Material controls retain keyboard, focus, semantics and dismissal behavior. Existing theme and golden harness are reused.
+**Architecture:** Small reusable widgets in `apps/client/lib/shared/widgets/` receive display values and callbacks. They do not fetch data, coordinate business operations, or own feature state. Native Material controls retain keyboard, focus, semantics and dismissal behavior. Existing theme and golden harness are reused.
 
 **Tech Stack:** Flutter 3.44.1, Dart 3.12.1, flutter_test; no dependencies added.
 
@@ -31,7 +31,7 @@ follow when those application surfaces exist.
 
 - Continue on the user-selected `feat/F-4-components-inputs` branch; preserve Components A changes.
 - User's `continue` authorizes the next previously described component stage. The design is already supplied; no redesign or new feature decisions are required.
-- Current AGENTS.md takes precedence: new shared widgets live in `core/widgets/`.
+- Shared UI lives in `lib/shared/widgets/` (CLAUDE.md A.2, ADR-007).
 - All visual values use the theme or tokens; touch targets are at least 48 px.
 - English UI, mixed-direction content, light/dark support, 360/1280 widths and 2× text.
 - Widgets render caller-supplied values only. No grading, timer, connectivity, navigation or error-mapping logic.
@@ -51,7 +51,7 @@ follow when those application surfaces exist.
 
 ## Public Interfaces
 
-All paths below are relative to `apps/client/lib/core/widgets/`.
+All paths below are relative to `apps/client/lib/shared/widgets/`.
 
 | File | Interface |
 |---|---|
@@ -69,7 +69,7 @@ All paths below are relative to `apps/client/lib/core/widgets/`.
 ## Task 1 — Buttons, chips and banners
 
 **Owner:** controls implementer. **Files:** first three production files above.
-**Tests:** `test/core/widgets/booklet_controls_test.dart` (test-writer).
+**Tests:** `test/shared/widgets/booklet_controls_test.dart` (test-writer).
 
 - [x] Write deterministic widget tests for each variant, callbacks, disabled/loading suppression, chip selection, live banner message, action pairs and 360/2×.
 - [x] Parent runs tests before production exists; expected missing imports/classes.
@@ -92,7 +92,7 @@ testWidgets('F-4: loading prevents duplicate action', (tester) async {
 ## Task 2 — Overlays and status components
 
 **Owner:** feedback implementer. **Files:** other seven production files above.
-**Tests:** `test/core/widgets/booklet_feedback_test.dart` (test-writer).
+**Tests:** `test/shared/widgets/booklet_feedback_test.dart` (test-writer).
 
 - [x] Write widget tests for dialog/sheet returned results/dismissal, scrolling at 360/2×, snackbar actions, progress edge inputs, static skeleton and status actions.
 - [x] Parent runs tests before production exists; expected missing imports/classes.

@@ -5,9 +5,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/widgets/booklet_banner.dart';
-import 'package:sat_east_client/core/widgets/booklet_chip.dart';
-import 'package:sat_east_client/core/widgets/loading_button.dart';
+import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 Future<void> _pump(
   WidgetTester tester,
