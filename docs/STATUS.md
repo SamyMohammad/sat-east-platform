@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 `QuestionView` PR 1 (practice + homework), PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 1 plan](superpowers/plans/2026-10-14-f4-questionview-pr1.md) | merged locally to `main` | — | PR 1 merged locally (not pushed); PR 2 quiz next |
+| F-4 `QuestionView` PR 1 (practice + homework), PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 1 plan](superpowers/plans/2026-10-14-f4-questionview-pr1.md) | `feat/F-4-questionview-pr1` | #22 | PR 1 in review (483 tests + 52 goldens); PR 2 quiz next |
 
 ## Next
 
