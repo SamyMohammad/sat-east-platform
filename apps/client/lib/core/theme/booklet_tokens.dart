@@ -54,6 +54,8 @@ abstract final class BookletSize {
   static const double shellMonogram = 40;
   static const double shellNavigation = 80;
   static const double blockMathMinHeight = 64;
+  static const double footerHeight = 72;
+  static const double marginNote = 300;
 }
 
 /// Letter-spacing in logical px for the 12 px caption style
