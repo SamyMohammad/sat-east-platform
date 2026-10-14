@@ -2,13 +2,13 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-14
+> Last updated: 2026-10-15
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 `QuestionView` PR 1 (practice + homework), PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 1 plan](superpowers/plans/2026-10-14-f4-questionview-pr1.md) | `feat/F-4-questionview-pr1` | #22 | PR 1 in review (483 tests + 52 goldens); PR 2 quiz next |
+| F-4 `QuestionView` PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 2 plan](superpowers/plans/2026-10-15-f4-questionview-pr2.md) | `feat/F-4-questionview-pr2` | — | PR 1 merged (#22); PR 2 quiz in progress |
 
 ## Next
 
@@ -40,6 +40,7 @@
 | 6 | F-4 `MathText` | #15 |
 | 6 | F-4 components A — answer inputs | #16 |
 | 6 | F-4 components B — buttons + feedback, AppShell | #18, #19 → re-landed in #20 |
+| 6 | F-4 `QuestionView` PR 1 — practice + homework | #22 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
 | S1 (early) | AUTH-04/05 device limit, PAY-01/04 catalogue backend | #11 |
