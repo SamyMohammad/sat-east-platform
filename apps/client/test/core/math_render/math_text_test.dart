@@ -26,6 +26,40 @@ Future<void> pumpMath(
 }
 
 void main() {
+  group('F-4: inline math punctuation direction per paragraph', () {
+    final inlineMath = find.byWidgetPredicate(
+      (w) => w.runtimeType.toString() == '_InlineMath',
+    );
+    const arabic = r'إذا \(x\)، فإن';
+
+    TextDirection directionOf(WidgetTester t) =>
+        Directionality.of(t.element(inlineMath));
+
+    testWidgets('F-4: Arabic second paragraph math sits under rtl', (
+      tester,
+    ) async {
+      await pumpMath(tester, 'Intro.\n\n$arabic');
+      expect(inlineMath, findsOneWidget);
+      expect(directionOf(tester), TextDirection.rtl);
+    });
+
+    testWidgets('F-4: Arabic only paragraph math sits under rtl', (
+      tester,
+    ) async {
+      await pumpMath(tester, arabic);
+      expect(inlineMath, findsOneWidget);
+      expect(directionOf(tester), TextDirection.rtl);
+    });
+
+    testWidgets('F-4: English only paragraph math sits under ltr', (
+      tester,
+    ) async {
+      await pumpMath(tester, r'If \(x\), then');
+      expect(inlineMath, findsOneWidget);
+      expect(directionOf(tester), TextDirection.ltr);
+    });
+  });
+
   for (final (kind, source) in [
     ('inline', r'\(x=3\)'),
     ('block', r'\[x=3\]'),
@@ -122,5 +156,29 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     expect(find.byType(SingleChildScrollView), findsWidgets);
+  });
+
+  testWidgets('F-4: each paragraph takes its own direction', (tester) async {
+    await pumpMath(tester, 'Add 7 to both sides.\n\nنضيف ٧ إلى الطرفين.');
+
+    TextDirection? directionOf(String fragment) => tester
+        .widgetList<Text>(find.byType(Text))
+        .where((t) => (t.textSpan?.toPlainText() ?? '').contains(fragment))
+        .single
+        .textDirection;
+
+    expect(directionOf('Add 7'), TextDirection.ltr);
+    expect(directionOf('نضيف'), TextDirection.rtl);
+  });
+
+  testWidgets('F-4: a single mixed paragraph keeps its overall direction', (
+    tester,
+  ) async {
+    await pumpMath(tester, r'ميل المستقيم يساوي \(3\).');
+
+    final text = tester
+        .widgetList<Text>(find.byType(Text))
+        .firstWhere((t) => t.textSpan != null);
+    expect(text.textDirection, TextDirection.rtl);
   });
 }

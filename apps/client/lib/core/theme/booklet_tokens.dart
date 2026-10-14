@@ -6,6 +6,7 @@ abstract final class BookletSpace {
   static const double s2 = 8;
   static const double s3 = 12;
   static const double s4 = 16;
+  static const double s5 = 20;
   static const double s6 = 24;
   static const double s8 = 32;
   static const double s12 = 48;
@@ -33,6 +34,8 @@ abstract final class BookletSize {
   static const double iconStatus = 18;
   static const double spinner = 20;
   static const double progressThickness = 4;
+  static const double progressSegmentGap = 3;
+  static const double headerProgress = 300;
   static const double statusIcon = 32;
   static const double chipVisual = 32;
   static const double dialogWidth = 400;
@@ -52,12 +55,27 @@ abstract final class BookletSize {
   static const double shellMonogram = 40;
   static const double shellNavigation = 80;
   static const double blockMathMinHeight = 64;
+  static const double footerHeight = 72;
+  static const double marginNote = 300;
+  static const double navigatorPanel = 280;
+  static const double navigatorCell = 48;
+  static const double navigatorUnderlineWidth = 20;
+  static const double navigatorUnderlineHeight = 3;
+  static const double legendSwatch = 16;
+  static const double submitChipMinWidth = 56;
+}
+
+/// Letter-spacing in logical px for the 12 px caption style
+/// (`labelSmall` is 0.06 em = 0.72; uppercase panel titles are 0.08 em).
+abstract final class BookletTracking {
+  static const double caps = 0.96;
 }
 
 /// Line widths (Components.dc.html borders, outlines, strike).
 abstract final class BookletStroke {
   static const double thin = 1;
   static const double badge = 1.5;
+  static const double current = 2.5;
   static const double strong = 2;
   static const double strike = 1.5;
   static const double focusRing = 2;

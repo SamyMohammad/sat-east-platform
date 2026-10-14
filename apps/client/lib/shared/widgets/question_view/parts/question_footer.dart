@@ -1,0 +1,122 @@
+import 'package:flutter/material.dart';
+
+import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+/// Pinned 72 px action bar. Phone: leading, centred middle, primary. Wide:
+/// 1fr / auto / 1fr grid with the optional [helper] beside the primary.
+class QuestionFooter extends StatelessWidget {
+  const QuestionFooter({
+    required this.leading,
+    required this.middle,
+    required this.primary,
+    super.key,
+    this.helper,
+  });
+
+  final Widget? leading;
+  final Widget middle;
+  final Widget primary;
+  final String? helper;
+
+  /// Above this text scale the phone footer stacks instead of squeezing.
+  static const double _stackScale = 1.3;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact =
+            BookletLayout.forWidth(constraints.maxWidth) ==
+            BookletLayout.compact;
+        final scheme = Theme.of(context).colorScheme;
+        return DecoratedBox(
+          decoration: BoxDecoration(
+            color: scheme.surface,
+            border: Border(top: BorderSide(color: scheme.outlineVariant)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: BookletSize.footerHeight,
+              ),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: compact ? BookletSpace.s3 : BookletSpace.s8,
+                  vertical: compact ? BookletSpace.s2 : 0,
+                ),
+                child: compact ? _compact(context) : _wide(context),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _compact(BuildContext context) {
+    final stack = MediaQuery.textScalerOf(context).scale(1) > _stackScale;
+    if (stack) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        spacing: BookletSpace.s2,
+        children: [
+          middle,
+          Row(
+            mainAxisAlignment: leading == null
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.spaceBetween,
+            children: [
+              ?leading,
+              Flexible(child: primary),
+            ],
+          ),
+        ],
+      );
+    }
+    return Row(
+      spacing: BookletSpace.s1,
+      children: [
+        ?leading,
+        Expanded(child: Center(child: middle)),
+        primary,
+      ],
+    );
+  }
+
+  Widget _wide(BuildContext context) {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        Expanded(
+          child: Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: leading,
+          ),
+        ),
+        middle,
+        Expanded(
+          child: Align(
+            alignment: AlignmentDirectional.centerEnd,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: BookletSpace.s4,
+              children: [
+                if (helper != null)
+                  Flexible(
+                    child: Text(
+                      helper!,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                primary,
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

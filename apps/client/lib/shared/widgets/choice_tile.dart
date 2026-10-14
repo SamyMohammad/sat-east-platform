@@ -45,6 +45,7 @@ class ChoiceTile extends StatefulWidget {
     this.onSelect,
     this.onEliminate,
     this.onRestore,
+    this.statusLabel,
   });
 
   final String letter;
@@ -55,6 +56,9 @@ class ChoiceTile extends StatefulWidget {
   final VoidCallback? onSelect;
   final VoidCallback? onEliminate;
   final VoidCallback? onRestore;
+
+  /// Replaces the default feedback label (e.g. "1st try" for "Incorrect").
+  final String? statusLabel;
 
   @override
   State<ChoiceTile> createState() => _ChoiceTileState();
@@ -226,7 +230,7 @@ class _ChoiceTileState extends State<ChoiceTile> {
           widthFactor: 1,
           child: FeedbackLabel(
             icon: status.icon,
-            label: status.label,
+            label: widget.statusLabel ?? status.label,
             color: status.color,
           ),
         ),
