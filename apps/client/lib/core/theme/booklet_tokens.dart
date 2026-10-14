@@ -28,6 +28,7 @@ abstract final class BookletSize {
   static const double largeControl = 56;
   static const double choiceBadge = 28;
   static const double sprInputWidth = 200;
+  static const double sprPreviewWidth = 128;
   static const double iconSmall = 20;
   static const double iconStatus = 18;
   static const double readingColumn = 640;
