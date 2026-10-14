@@ -65,7 +65,8 @@ class QuizQuestionHeader extends StatelessWidget {
                       ? colors.onHighlighter
                       : scheme.onSurface,
                   backgroundColor: marked ? colors.highlighter : null,
-                  minimumSize: const Size(0, BookletSize.touchTarget),
+                  minimumSize: const Size(0, BookletSize.examToggleHeight),
+                  tapTargetSize: MaterialTapTargetSize.padded,
                   padding: const EdgeInsets.symmetric(
                     horizontal: BookletSpace.s3,
                     vertical:

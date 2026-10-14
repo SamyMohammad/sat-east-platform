@@ -228,7 +228,7 @@ class ExamBar extends StatelessWidget {
           foregroundColor: colors.onExamBar,
           side: BorderSide(color: colors.examBarRule),
           minimumSize: const Size(0, BookletSize.examTimerButtonHeight),
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          tapTargetSize: MaterialTapTargetSize.padded,
           padding: const EdgeInsets.symmetric(horizontal: BookletSpace.s3),
         ),
         child: Text(hidden ? 'Show' : 'Hide'),

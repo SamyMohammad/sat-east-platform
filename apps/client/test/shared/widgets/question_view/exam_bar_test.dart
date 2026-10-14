@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
+import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_clock.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/quiz_question_header.dart';
@@ -60,6 +61,21 @@ Iterable<Semantics> semanticsWithLabel(WidgetTester tester, String label) =>
 
 Color? clockColor(WidgetTester tester, String text) =>
     tester.widget<Text>(find.text(text)).style?.color;
+
+void expectButtonSizes(
+  WidgetTester tester, {
+  required double visual,
+}) {
+  final button = find.byType(OutlinedButton);
+  final surface = find
+      .descendant(of: button, matching: find.byType(Material))
+      .first;
+  expect(tester.getSize(surface).height, visual);
+  expect(
+    tester.getSize(button).height,
+    greaterThanOrEqualTo(BookletSize.touchTarget),
+  );
+}
 
 void main() {
   const colors = BookletColors.light;
@@ -148,6 +164,26 @@ void main() {
       expect(find.text('14:30'), findsOneWidget);
       await tester.tap(find.text('Hide'));
       expect(taps, 1);
+    });
+
+    testWidgets('F-4: Hide button is 32 visual and 48 tappable', (
+      tester,
+    ) async {
+      await pump(tester, bar(onToggleTimer: () {}), width: 1280);
+
+      expectButtonSizes(tester, visual: BookletSize.examTimerButtonHeight);
+    });
+
+    testWidgets('F-4: Show button is 32 visual and 48 tappable', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        bar(timerHidden: true, onToggleTimer: () {}),
+        width: 1280,
+      );
+
+      expectButtonSizes(tester, visual: BookletSize.examTimerButtonHeight);
     });
 
     testWidgets('F-4: no Hide button when onToggleTimer is null', (
@@ -349,11 +385,33 @@ void main() {
     testWidgets('F-4: unmarked semantics is toggled false', (tester) async {
       await header(tester, onMark: () {});
 
-      final toggled = tester
+      final falseToggles = tester
           .widgetList<Semantics>(find.byType(Semantics))
-          .where((s) => s.properties.toggled == true);
-      expect(toggled, isEmpty);
+          .where((s) => s.properties.toggled == false);
+      expect(falseToggles, isNotEmpty);
+      expect(
+        tester
+            .widgetList<Semantics>(find.byType(Semantics))
+            .where((s) => s.properties.toggled == true),
+        isEmpty,
+      );
       expect(find.byIcon(Icons.bookmark_border), findsOneWidget);
+    });
+
+    testWidgets('F-4: unmarked toggle is 40 visual and 48 tappable', (
+      tester,
+    ) async {
+      await header(tester, onMark: () {});
+
+      expectButtonSizes(tester, visual: BookletSize.examToggleHeight);
+    });
+
+    testWidgets('F-4: marked toggle is 40 visual and 48 tappable', (
+      tester,
+    ) async {
+      await header(tester, marked: true, onMark: () {});
+
+      expectButtonSizes(tester, visual: BookletSize.examToggleHeight);
     });
 
     testWidgets('F-4: null onMark disables the toggle', (tester) async {
