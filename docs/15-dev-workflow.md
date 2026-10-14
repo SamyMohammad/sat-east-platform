@@ -74,6 +74,25 @@ Later sprints pick up the rest of the playbook: Outbox sync (S4, 16 §3), rate l
 
 **Definition of done** (from `11`): acceptance criteria met + tests + deployed to staging.
 
+### Size the loop to the story
+
+Not every story needs every step. Pick the tier when you pick the story, and say it in the plan or PR.
+
+| Tier | Typical story | Steps |
+|------|---------------|-------|
+| **S** | Screen or CRUD the spec already defines; no money, grading or access logic | 1 → quick brainstorm (open points only) → short plan inside the PR description → TDD → `review-gate` → PR |
+| **M** | Feature with a new Cubit + RPC, or a new shared widget | Full loop; plan file in `superpowers/plans/`; one `code-reviewer` pass |
+| **L** | Grading, unlocking, scoring, payments, enrollment, devices, RLS, exam engine | Full loop + design spec in `superpowers/specs/` + pgTAP + `/security-review` |
+
+Plan a whole sprint's related stories together when they share data or repositories; one plan, split into independent tasks.
+
+### Parallel agents
+
+- One agent per working tree. Run parallel agents (Claude subagents, Codex) in their own `git worktree`, never in the same folder.
+- Split tasks by files, not by feature: two tasks that touch the same file run one after the other.
+- Small PRs, merged the same day CI is green; stacked branches merge in order.
+- Update [`STATUS.md`](STATUS.md) in the PR that changes a row.
+
 ### When things break
 | Situation | Use |
 |-----------|-----|
