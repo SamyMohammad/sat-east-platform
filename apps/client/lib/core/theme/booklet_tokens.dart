@@ -43,6 +43,14 @@ abstract final class BookletSize {
   static const double skeletonShortFraction = 0.6;
   static const double readingColumn = 640;
   static const double questionColumn = 720;
+  static const double shellRail = 80;
+  static const double shellSidebar = 256;
+  static const double shellCompactHeader = 56;
+  static const double shellMediumHeader = 64;
+  static const double shellExpandedHeader = 72;
+  static const double shellCompactMonogram = 32;
+  static const double shellMonogram = 40;
+  static const double shellNavigation = 80;
   static const double blockMathMinHeight = 64;
 }
 
