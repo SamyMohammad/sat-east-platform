@@ -8,9 +8,9 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 Components A — answer inputs | [design spec](superpowers/specs/2026-10-13-f4-design-system-questionview-design.md) §2 | [plan](superpowers/plans/2026-10-13-f4-components-inputs.md) | `feat/F-4-components-inputs` | — | Implemented, splitting into PRs |
-| F-4 Components B — buttons + feedback | same §2 | [plan](superpowers/plans/2026-10-14-f4-components-feedback.md) | `feat/F-4-components-feedback` | — | Implemented, splitting into PRs |
-| F-4 AppShell | same §2 | [plan](superpowers/plans/2026-10-14-f4-app-shell.md) | `feat/F-4-app-shell` | — | Implemented, splitting into PRs |
+| F-4 Components A — answer inputs | [design spec](superpowers/specs/2026-10-13-f4-design-system-questionview-design.md) §2 | [plan](superpowers/plans/2026-10-13-f4-components-inputs.md) | `feat/F-4-components-inputs` | #16 | In review |
+| F-4 Components B — buttons + feedback | same §2 | [plan](superpowers/plans/2026-10-14-f4-components-feedback.md) | `feat/F-4-components-feedback` | #18 (on #16) | In review |
+| F-4 AppShell | same §2 | [plan](superpowers/plans/2026-10-14-f4-app-shell.md) | `feat/F-4-app-shell` | #19 (on #18) | In review |
 
 ## Next
 
