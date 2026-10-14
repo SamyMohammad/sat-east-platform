@@ -5,9 +5,10 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/focus_mode_scaffold.dart';
+
+import '../full_viewport_harness.dart';
 
 void main() {
   for (final width in [360.0, 768.0, 1280.0]) {
@@ -62,58 +63,38 @@ Future<void> _expectShellGolden(
   Brightness brightness = Brightness.light,
   double textScale = 1,
   bool focusMode = false,
-}) async {
-  tester.view.devicePixelRatio = 1;
-  tester.view.physicalSize = Size(width, width == 768 ? 1024 : 800);
-  addTearDown(tester.view.resetDevicePixelRatio);
-  addTearDown(tester.view.resetPhysicalSize);
-  const boundaryKey = Key('full-shell-golden');
-  await tester.pumpWidget(
-    MaterialApp(
-      theme: brightness == Brightness.light
-          ? AppTheme.light()
-          : AppTheme.dark(),
-      builder: (context, child) => MediaQuery(
-        data: MediaQuery.of(context).copyWith(
-          textScaler: TextScaler.linear(textScale),
-        ),
-        child: child!,
-      ),
-      home: RepaintBoundary(
-        key: boundaryKey,
-        child: focusMode
-            ? FocusModeScaffold(
-                appBar: AppBar(title: const Text('Practice')),
-                bottomBar: SafeArea(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: FilledButton(
-                      onPressed: () {},
-                      child: const Text('Check answer'),
-                    ),
-                  ),
-                ),
-                child: const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: _FocusSample(),
-                ),
-              )
-            : AppShell(
-                selectedIndex: 1,
-                onDestinationSelected: (_) {},
-                onNotifications: () {},
-                child: const _CoursesSample(),
+}) => expectViewportGolden(
+  tester,
+  name: name,
+  width: width,
+  height: width == 768 ? 1024 : 800,
+  brightness: brightness,
+  textScale: textScale,
+  directory: '../baselines',
+  child: focusMode
+      ? FocusModeScaffold(
+          appBar: AppBar(title: const Text('Practice')),
+          bottomBar: SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: FilledButton(
+                onPressed: () {},
+                child: const Text('Check answer'),
               ),
-      ),
-    ),
-  );
-  await tester.pumpAndSettle();
-  expect(tester.takeException(), isNull);
-  await expectLater(
-    find.byKey(boundaryKey),
-    matchesGoldenFile('../baselines/$name.png'),
-  );
-}
+            ),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.all(24),
+            child: _FocusSample(),
+          ),
+        )
+      : AppShell(
+          selectedIndex: 1,
+          onDestinationSelected: (_) {},
+          onNotifications: () {},
+          child: const _CoursesSample(),
+        ),
+);
 
 class _CoursesSample extends StatelessWidget {
   const _CoursesSample();

@@ -17,11 +17,65 @@ class MathText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final segments = parseMathMarkup(source);
-    final direction = detectTextDirection(
-      segments.whereType<TextRun>().map((r) => r.text).join(),
+    final paragraphs = _paragraphs(parseMathMarkup(source));
+    final baseStyle = DefaultTextStyle.of(context).style.merge(style);
+
+    final children = <Widget>[];
+    TextDirection? first;
+    for (final segments in paragraphs) {
+      final direction = detectTextDirection(
+        segments.whereType<TextRun>().map((r) => r.text).join(),
+      );
+      first ??= direction;
+      // Each paragraph carries its own direction so inline-math punctuation
+      // (which reads the ambient direction) follows it, not the first one.
+      children.addAll([
+        for (final w in _paragraph(segments, direction, baseStyle))
+          Directionality(textDirection: direction, child: w),
+      ]);
+    }
+
+    return Directionality(
+      textDirection: first ?? TextDirection.ltr,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        spacing: BookletSpace.s2,
+        children: children,
+      ),
     );
-    var base = DefaultTextStyle.of(context).style.merge(style);
+  }
+
+  static final _blankLine = RegExp(r'\n\s*\n');
+
+  /// Splits segments into paragraphs on blank lines (rule 8: one direction per
+  /// paragraph). Only [TextRun]s are split, so a blank line inside a block
+  /// equation `\[...\]` never breaks it.
+  static List<List<MathSegment>> _paragraphs(List<MathSegment> segments) {
+    final out = <List<MathSegment>>[[]];
+    for (final s in segments) {
+      if (s is! TextRun) {
+        out.last.add(s);
+        continue;
+      }
+      final parts = s.text.split(_blankLine);
+      for (var i = 0; i < parts.length; i++) {
+        if (i > 0) out.add([]);
+        // Pieces created by a split that are empty add nothing.
+        if (parts.length > 1 && parts[i].isEmpty) continue;
+        out.last.add(TextRun(parts[i], bold: s.bold));
+      }
+    }
+    if (out.length > 1) out.removeWhere((p) => p.isEmpty);
+    return out.isEmpty ? [[]] : out;
+  }
+
+  List<Widget> _paragraph(
+    List<MathSegment> segments,
+    TextDirection direction,
+    TextStyle baseStyle,
+  ) {
+    var base = baseStyle;
     if (direction == TextDirection.rtl) {
       base = base.merge(
         BookletType.arabic.copyWith(
@@ -66,16 +120,7 @@ class MathText extends StatelessWidget {
       }
     }
     flushInline();
-
-    return Directionality(
-      textDirection: direction,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisSize: MainAxisSize.min,
-        spacing: BookletSpace.s2,
-        children: children,
-      ),
-    );
+    return children;
   }
 
   List<InlineSpan> _spans(List<MathSegment> source, TextStyle style) {

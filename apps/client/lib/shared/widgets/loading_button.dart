@@ -15,6 +15,7 @@ class LoadingButton extends StatelessWidget {
     this.icon,
     this.errorText,
     this.variant = BookletButtonVariant.primary,
+    this.expanded = false,
   });
 
   final String label;
@@ -23,6 +24,9 @@ class LoadingButton extends StatelessWidget {
   final IconData? icon;
   final String? errorText;
   final BookletButtonVariant variant;
+
+  /// Fills the available width instead of hugging the label.
+  final bool expanded;
 
   bool get _filled =>
       variant == BookletButtonVariant.primary ||
@@ -49,7 +53,9 @@ class LoadingButton extends StatelessWidget {
     };
     return Column(
       mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: expanded
+          ? CrossAxisAlignment.stretch
+          : CrossAxisAlignment.start,
       spacing: BookletSpace.s1,
       children: [
         Semantics(value: isLoading ? 'Loading' : null, child: button),

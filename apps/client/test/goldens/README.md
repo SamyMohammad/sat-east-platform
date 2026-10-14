@@ -15,10 +15,12 @@ changed PNG before committing:
 flutter test test/goldens --update-goldens --tags golden
 ```
 
-The 41 baselines cover answer inputs plus controls, statuses and overlays
+The 52 baselines cover answer inputs plus controls, statuses and overlays
 at 360 and 1280 pixels, light/dark themes, and 360-pixel 2× text variants.
 Shell captures use the full viewport at 360, 768 and 1280 pixels, including
-2× text and focus mode without destination navigation.
+2× text and focus mode without destination navigation. QuestionView captures
+(practice idle, first miss, correct, revealed, homework) use the full
+viewport at 360 and 1280 pixels, plus a 360-pixel 2× text first-miss.
 Feedback sheets sample animations after 180 ms, then stop decorative tickers
 to compare a visible, deterministic loading phase. Linux CI excludes the
 `golden` tag because font rasterisation differs between platforms.
