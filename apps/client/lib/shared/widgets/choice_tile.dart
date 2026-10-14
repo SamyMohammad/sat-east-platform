@@ -142,13 +142,35 @@ class _ChoiceTileState extends State<ChoiceTile> {
               borderRadius: radius,
               border: Border.all(color: look.border, width: look.borderWidth),
             ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: BookletSpace.s3,
-        children: [
-          Expanded(child: body),
-          ?trailing,
-        ],
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final fontSize = textTheme.bodyMedium!.fontSize!;
+          final enlarged =
+              MediaQuery.textScalerOf(context).scale(fontSize) > fontSize;
+          if (trailing != null &&
+              enlarged &&
+              constraints.maxWidth < BookletSize.readingColumn) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                body,
+                Align(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: trailing,
+                ),
+              ],
+            );
+          }
+          return Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: BookletSpace.s3,
+            children: [
+              Expanded(child: body),
+              ?trailing,
+            ],
+          );
+        },
       ),
     );
     if (look.dashed) {
@@ -198,8 +220,8 @@ class _ChoiceTileState extends State<ChoiceTile> {
   Widget? _trailing(_ChoiceLook look) {
     final status = look.status;
     if (status != null) {
-      return SizedBox(
-        height: BookletSize.touchTarget,
+      return ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: BookletSize.touchTarget),
         child: Align(
           widthFactor: 1,
           child: FeedbackLabel(
