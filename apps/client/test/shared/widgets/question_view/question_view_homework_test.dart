@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
-import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
