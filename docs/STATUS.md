@@ -8,16 +8,13 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 Components A — answer inputs | [design spec](superpowers/specs/2026-10-13-f4-design-system-questionview-design.md) §2 | [plan](superpowers/plans/2026-10-13-f4-components-inputs.md) | `feat/F-4-components-inputs` | #16 | In review |
-| F-4 Components B — buttons + feedback | same §2 | [plan](superpowers/plans/2026-10-14-f4-components-feedback.md) | `feat/F-4-components-feedback` | #18 (on #16) | In review |
-| F-4 AppShell | same §2 | [plan](superpowers/plans/2026-10-14-f4-app-shell.md) | `feat/F-4-app-shell` | #19 (on #18) | In review |
+| F-4 `QuestionView` | [design spec](superpowers/specs/2026-10-13-f4-design-system-questionview-design.md) | — | — | — | Next: brainstorm + plan |
 
 ## Next
 
-1. F-4 `QuestionView` (practice / homework / quiz / mock modes) — needs its own plan.
-2. F-4 component gallery + deploy shell to staging (Phase 0 exit).
-3. Phase 1 vertical slice: login → course → topic → practice → quiz → unlock, on staging.
-4. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
+1. F-4 component gallery + deploy shell to staging (Phase 0 exit).
+2. Phase 1 vertical slice: login → course → topic → practice → quiz → unlock, on staging.
+3. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
 
 ## Open
 
@@ -41,6 +38,8 @@
 | 6 | F-4 design brief, Claude Design export | #8, #12 |
 | 6 | F-4 theme + tokens | #13 |
 | 6 | F-4 `MathText` | #15 |
+| 6 | F-4 components A — answer inputs | #16 |
+| 6 | F-4 components B — buttons + feedback, AppShell | #18, #19 → re-landed in #20 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
 | S1 (early) | AUTH-04/05 device limit, PAY-01/04 catalogue backend | #11 |

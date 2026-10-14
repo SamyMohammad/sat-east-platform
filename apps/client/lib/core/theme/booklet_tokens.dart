@@ -31,8 +31,26 @@ abstract final class BookletSize {
   static const double sprPreviewWidth = 128;
   static const double iconSmall = 20;
   static const double iconStatus = 18;
+  static const double spinner = 20;
+  static const double progressThickness = 4;
+  static const double statusIcon = 32;
+  static const double chipVisual = 32;
+  static const double dialogWidth = 400;
+  static const double skeletonLabel = 12;
+  static const double skeletonBody = 20;
+  static const double skeletonLabelFraction = 0.3;
+  static const double skeletonLongFraction = 0.85;
+  static const double skeletonShortFraction = 0.6;
   static const double readingColumn = 640;
   static const double questionColumn = 720;
+  static const double shellRail = 80;
+  static const double shellSidebar = 256;
+  static const double shellCompactHeader = 56;
+  static const double shellMediumHeader = 64;
+  static const double shellExpandedHeader = 72;
+  static const double shellCompactMonogram = 32;
+  static const double shellMonogram = 40;
+  static const double shellNavigation = 80;
   static const double blockMathMinHeight = 64;
 }
 
