@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
 Future<T?> showBookletDialog<T>({
@@ -13,6 +14,55 @@ Future<T?> showBookletDialog<T>({
       ? AnimationStyle.noAnimation
       : null,
   builder: builder,
+);
+
+/// A non-modal-looking popover anchored to the bottom centre (above the
+/// footer). Transparent barrier: tapping outside, or Esc, dismisses it.
+Future<T?> showBookletPopover<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  required double width,
+  required double bottomOffset,
+  required String barrierLabel,
+}) => showDialog<T>(
+  context: context,
+  barrierColor: Colors.transparent,
+  barrierLabel: barrierLabel,
+  animationStyle: MediaQuery.disableAnimationsOf(context)
+      ? AnimationStyle.noAnimation
+      : null,
+  builder: (popoverContext) {
+    final scheme = Theme.of(popoverContext).colorScheme;
+    return SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: bottomOffset),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: width),
+            child: Material(
+              color: scheme.surface,
+              elevation: Theme.of(popoverContext).dialogTheme.elevation ?? 0,
+              shadowColor: popoverContext.booklet.overlayShadow,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(BookletRadius.md),
+                side: BorderSide(color: scheme.outlineVariant),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  BookletSpace.s5,
+                  BookletSpace.s4,
+                  BookletSpace.s5,
+                  BookletSpace.s5,
+                ),
+                child: Builder(builder: builder),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  },
 );
 
 Future<T?> showBookletSheet<T>({

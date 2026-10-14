@@ -58,6 +58,9 @@ abstract final class BookletSize {
   static const double footerHeight = 72;
   static const double marginNote = 300;
   static const double navigatorPanel = 280;
+  static const double navigatorPopover = 456;
+  static const int navigatorSheetColumns = 6;
+  static const int navigatorPopoverColumns = 7;
   static const double navigatorCell = 48;
   static const double navigatorUnderlineWidth = 20;
   static const double navigatorUnderlineHeight = 3;
