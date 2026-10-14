@@ -28,7 +28,7 @@ jobs:
       - run: flutter pub get
       - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze --fatal-infos
-      - run: flutter test
+      - run: flutter test --exclude-tags golden
       - name: Write placeholder env (PR builds never deploy)
         run: |
           cat > env/ci.json <<'EOF'

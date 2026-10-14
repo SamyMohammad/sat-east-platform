@@ -73,13 +73,13 @@ QuestionView(
 ## 4. Testing
 - Unit: `BookletColors`, `MathText` parser (success + failure, invalid LaTeX falls back).
 - Widget: each component's key states; each `QuestionView` mode renders the right chrome and fires callbacks; `QuestionData` has no answer-key field.
-- Golden: components and `QuestionView` at 360 and 1280 (light; dark for components).
+- Golden: components and `QuestionView` at 360 and 1280 (light; dark for components), one 2.0 text-scale variant per component. Tagged `golden`, baselines generated on Windows, excluded on CI (`flutter test --exclude-tags golden`) because Linux font rasterisation differs.
 - Deterministic: no real network or timers; clock injected. Written by `test-writer`.
 
 ## 5. Delivery (one small PR per step)
 1. Math spike on web + bundle fonts.
 2. Theme and tokens.
-3. Components.
+3. Components, in two PRs: A answer inputs (`ChoiceTile`, `SprInput`, `SprKeypad`), B buttons and feedback. Margin note, exam bar and navigator cell ship with `QuestionView`; explanation frames are deferred to the review/notes work.
 4. `AppShell`.
 5. `QuestionView`, all modes.
 6. Gallery page (the "prototype" in `docs/15` row 6) from static sample data.

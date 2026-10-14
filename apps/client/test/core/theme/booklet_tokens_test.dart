@@ -29,6 +29,12 @@ void main() {
     }
   });
 
+  test('F-4: answer controls are 56 and the badge centres in a 48 row', () {
+    expect(BookletSize.largeControl, 56);
+    expect((BookletSize.touchTarget - BookletSize.choiceBadge) / 2, 10);
+    expect(BookletStroke.strong - BookletStroke.thin, 1);
+  });
+
   Future<Duration> resolveWith(
     WidgetTester tester, {
     required bool reduced,
