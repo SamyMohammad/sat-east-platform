@@ -50,28 +50,35 @@ class QuizQuestionHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(width: BookletSpace.s3),
-            Semantics(
-              toggled: marked,
-              button: true,
-              child: OutlinedButton.icon(
-                onPressed: onMark,
-                icon: Icon(
-                  marked ? Icons.bookmark : Icons.bookmark_border,
-                  size: BookletSize.iconSmall,
-                ),
-                label: Text(marked ? 'Marked for review' : 'Mark for review'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: marked
-                      ? colors.onHighlighter
-                      : scheme.onSurface,
-                  backgroundColor: marked ? colors.highlighter : null,
-                  minimumSize: const Size(0, BookletSize.examToggleHeight),
-                  tapTargetSize: MaterialTapTargetSize.padded,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: BookletSpace.s3,
-                    vertical:
-                        (BookletSize.examToggleHeight - BookletSize.iconSmall) /
-                        2,
+            Flexible(
+              child: Semantics(
+                toggled: marked,
+                button: true,
+                child: OutlinedButton.icon(
+                  onPressed: onMark,
+                  icon: Icon(
+                    marked ? Icons.bookmark : Icons.bookmark_border,
+                    size: BookletSize.iconSmall,
+                  ),
+                  label: Text(
+                    marked ? 'Marked for review' : 'Mark for review',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: marked
+                        ? colors.onHighlighter
+                        : scheme.onSurface,
+                    backgroundColor: marked ? colors.highlighter : null,
+                    minimumSize: const Size(0, BookletSize.examToggleHeight),
+                    tapTargetSize: MaterialTapTargetSize.padded,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: BookletSpace.s3,
+                      vertical:
+                          (BookletSize.examToggleHeight -
+                              BookletSize.iconSmall) /
+                          2,
+                    ),
                   ),
                 ),
               ),

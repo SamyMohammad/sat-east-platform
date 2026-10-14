@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_body.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_footer.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_shortcuts.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/save_status_label.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/submit_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
@@ -34,6 +39,7 @@ class QuestionView extends StatelessWidget {
     this.onJumpTo,
     this.onSubmit,
     this.onRetrySave,
+    this.onToggleTimer,
     this.figureBuilder,
   });
 
@@ -53,6 +59,9 @@ class QuestionView extends StatelessWidget {
   final ValueChanged<int>? onJumpTo;
   final VoidCallback? onSubmit;
   final VoidCallback? onRetrySave;
+
+  /// Hide / Show timer (quiz, wide layouts only).
+  final VoidCallback? onToggleTimer;
   final Widget Function(BuildContext, String path)? figureBuilder;
 
   @override
@@ -68,12 +77,12 @@ class QuestionView extends StatelessWidget {
           choicesInteractive: mode.choicesInteractive,
           onSelect: onSelect,
           onEliminate: onEliminate,
-          onMark: onMark,
+          onMark: mode.markAction(onMark),
           onPrev: mode.backAction(onPrev),
           onNext: mode.forwardAction(onNext),
           child: Column(
             children: [
-              _header(),
+              _header(context, layout),
               Expanded(child: _bodyWithPanel(layout)),
               _footer(context, layout),
             ],
@@ -93,6 +102,7 @@ class QuestionView extends StatelessWidget {
       onEliminate: onEliminate,
       onRestore: onRestore,
       onSprChanged: onSprChanged,
+      onMark: onMark,
       figureBuilder: figureBuilder,
     );
     if (mode case HomeworkMode(
@@ -121,7 +131,7 @@ class QuestionView extends StatelessWidget {
     return body;
   }
 
-  Widget _header() => switch (mode) {
+  Widget _header(BuildContext context, BookletLayout layout) => switch (mode) {
     PracticeMode(:final rep, :final repTarget) => QuestionHeader(
       title: title,
       modeLabel: 'Practice',
@@ -146,6 +156,28 @@ class QuestionView extends StatelessWidget {
         onBack: onBack,
         trailing: SaveStatusLabel(status: saveStatus, onRetry: onRetrySave),
       ),
+    final QuizMode quiz => Column(
+      children: [
+        ExamBar(
+          title: title,
+          shortTitle: quiz.title,
+          subtitle: '${quiz.total} questions',
+          remaining: quiz.remaining,
+          timeBudget: quiz.timeBudget,
+          warning: quiz.isWarning,
+          timerHidden: quiz.timerHidden,
+          compact: layout == BookletLayout.compact,
+          onToggleTimer: onToggleTimer,
+        ),
+        if (quiz.isWarning)
+          ExamWarningBanner(
+            warnAt: quiz.warnAt,
+            onReviewMarked: quiz.marked.isEmpty
+                ? null
+                : () => _openNavigator(context, layout, quiz),
+          ),
+      ],
+    ),
   };
 
   Widget _footer(BuildContext context, BookletLayout layout) {
@@ -242,7 +274,120 @@ class QuestionView extends StatelessWidget {
             onPressed: mode.forwardAction(onNext),
           ),
         );
+      case final QuizMode quiz:
+        return _quizFooter(context, layout, quiz);
     }
+  }
+
+  Widget _quizFooter(
+    BuildContext context,
+    BookletLayout layout,
+    QuizMode quiz,
+  ) {
+    final index = quiz.index;
+    final total = quiz.total;
+    final compact = layout == BookletLayout.compact;
+    final scheme = Theme.of(context).colorScheme;
+    final label = 'Question ${index + 1} of $total';
+    final back = LoadingButton(
+      label: 'Back',
+      onPressed: quiz.backAction(onPrev),
+      variant: BookletButtonVariant.secondary,
+    );
+    final primary = index == total - 1
+        ? LoadingButton(
+            label: 'Submit quiz',
+            onPressed: _confirmSubmit(context, quiz),
+          )
+        : LoadingButton(label: 'Next', onPressed: quiz.forwardAction(onNext));
+    const icon = Icon(Icons.expand_less, size: BookletSize.iconStatus);
+    void open() => _openNavigator(context, layout, quiz);
+
+    if (compact) {
+      return QuestionFooter(
+        leading: back,
+        middle: TextButton(
+          onPressed: open,
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.zero,
+            minimumSize: const Size(0, BookletSize.touchTarget),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: BookletSpace.s1,
+            children: [
+              Flexible(child: Text(label, textAlign: TextAlign.center)),
+              icon,
+            ],
+          ),
+        ),
+        primary: primary,
+      );
+    }
+    return QuestionFooter(
+      leading: null,
+      middle: FilledButton(
+        onPressed: open,
+        style: FilledButton.styleFrom(
+          backgroundColor: scheme.onSurface,
+          foregroundColor: scheme.surface,
+          minimumSize: const Size(0, BookletSize.touchTarget),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: BookletSpace.s1,
+          children: [Text(label), icon],
+        ),
+      ),
+      primary: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: BookletSpace.s3,
+        children: [back, primary],
+      ),
+    );
+  }
+
+  /// Opens the phone sheet or the wide popover for a quiz. Cells jump only
+  /// until time is up.
+  void _openNavigator(
+    BuildContext context,
+    BookletLayout layout,
+    QuizMode quiz,
+  ) {
+    final open = layout == BookletLayout.compact
+        ? showNavigatorSheet
+        : showNavigatorPopover;
+    unawaited(
+      open(
+        context,
+        title: '${quiz.title} questions',
+        total: quiz.total,
+        index: quiz.index,
+        answered: quiz.answered,
+        marked: quiz.marked,
+        onJumpTo: quiz.isTimeUp ? null : onJumpTo,
+        submitLabel: 'Submit quiz',
+        onSubmitPressed: _confirmSubmit(context, quiz),
+      ),
+    );
+  }
+
+  /// Null when submitting is disabled; otherwise opens the confirm dialog.
+  VoidCallback? _confirmSubmit(BuildContext context, QuizMode quiz) {
+    final onConfirm = quiz.submitAction(onSubmit);
+    if (onConfirm == null) return null;
+    return () => unawaited(
+      showSubmitConfirmDialog(
+        context,
+        title: 'Submit quiz?',
+        body: 'After you submit, your answers are locked and marked.',
+        confirmLabel: 'Submit quiz',
+        total: quiz.total,
+        answered: quiz.answered,
+        onSubmit: onConfirm,
+        onJumpTo: onJumpTo,
+      ),
+    );
   }
 
   /// Under `FirstMiss` the same answer cannot be checked twice.

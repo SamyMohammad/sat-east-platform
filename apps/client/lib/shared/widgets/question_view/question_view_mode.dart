@@ -43,13 +43,55 @@ final class HomeworkMode extends QuestionViewMode {
   final Set<int> marked;
 }
 
+final class QuizMode extends QuestionViewMode {
+  const QuizMode({
+    required this.title,
+    required this.index,
+    required this.total,
+    required this.remaining,
+    required this.timeBudget,
+    required this.warnAt,
+    this.timerHidden = false,
+    this.answered = const {},
+    this.marked = const {},
+  });
+
+  /// e.g. "Quiz 4.2".
+  final String title;
+
+  /// 0-based.
+  final int index;
+  final int total;
+  final Duration remaining;
+  final Duration timeBudget;
+
+  /// The remaining time at which the warning banner appears (from settings).
+  final Duration warnAt;
+  final bool timerHidden;
+  final Set<int> answered;
+  final Set<int> marked;
+}
+
 /// The enabled-state rules shared by the footer and the keyboard shortcuts,
 /// so the two cannot drift apart (ruling R8).
 extension QuestionViewModeGating on QuestionViewMode {
+  /// A quiz whose clock has run out accepts no more input.
+  bool get isTimeUp => switch (this) {
+    QuizMode(:final remaining) => remaining <= Duration.zero,
+    PracticeMode() || HomeworkMode() => false,
+  };
+
+  /// A quiz inside its warning window.
+  bool get isWarning => switch (this) {
+    QuizMode(:final remaining, :final warnAt) => remaining <= warnAt,
+    PracticeMode() || HomeworkMode() => false,
+  };
+
   /// Tiles accept select / eliminate / restore only in homework, `Idle` and
-  /// `FirstMiss`.
+  /// `FirstMiss`, and in a quiz until time is up.
   bool get choicesInteractive => switch (this) {
     HomeworkMode() => true,
+    QuizMode() => !isTimeUp,
     PracticeMode(:final feedback) => feedback is Idle || feedback is FirstMiss,
   };
 
@@ -59,11 +101,27 @@ extension QuestionViewModeGating on QuestionViewMode {
       feedback is Correct || feedback is Revealed ? onNext : null,
     HomeworkMode(:final index, :final total) =>
       index < total - 1 ? onNext : null,
+    QuizMode(:final index, :final total) =>
+      !isTimeUp && index < total - 1 ? onNext : null,
   };
 
   /// [onPrev] when the footer's Back action is enabled, otherwise null.
   VoidCallback? backAction(VoidCallback? onPrev) => switch (this) {
     PracticeMode() => onPrev,
     HomeworkMode(:final index) => index > 0 ? onPrev : null,
+    QuizMode(:final index) => !isTimeUp && index > 0 ? onPrev : null,
+  };
+
+  /// [onMark] when marking for review is enabled, otherwise null.
+  VoidCallback? markAction(VoidCallback? onMark) => switch (this) {
+    QuizMode() => isTimeUp ? null : onMark,
+    PracticeMode() || HomeworkMode() => onMark,
+  };
+
+  /// [onSubmit] when submitting is enabled, otherwise null.
+  VoidCallback? submitAction(VoidCallback? onSubmit) => switch (this) {
+    HomeworkMode() => onSubmit,
+    QuizMode() => isTimeUp ? null : onSubmit,
+    PracticeMode() => null,
   };
 }

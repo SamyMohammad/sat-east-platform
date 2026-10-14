@@ -7,6 +7,7 @@ import 'package:sat_east_client/shared/widgets/question_view/parts/choice_list.d
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/quiz_question_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/spr_answer_area.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/worked_example.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
@@ -27,6 +28,7 @@ class QuestionBody extends StatelessWidget {
     this.onEliminate,
     this.onRestore,
     this.onSprChanged,
+    this.onMark,
     this.figureBuilder,
   });
 
@@ -38,6 +40,7 @@ class QuestionBody extends StatelessWidget {
   final ValueChanged<String>? onEliminate;
   final ValueChanged<String>? onRestore;
   final ValueChanged<String>? onSprChanged;
+  final VoidCallback? onMark;
   final Widget Function(BuildContext, String path)? figureBuilder;
 
   static const double _gap = BookletSpace.s5;
@@ -50,6 +53,10 @@ class QuestionBody extends StatelessWidget {
       Idle() || FirstMiss() => SprInputState.editable,
     },
     HomeworkMode() => SprInputState.editable,
+    QuizMode(:final remaining) =>
+      remaining <= Duration.zero
+          ? SprInputState.disabled
+          : SprInputState.editable,
   };
 
   String? get _sprKey => switch (mode) {
@@ -105,11 +112,18 @@ class QuestionBody extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: _gap,
       children: [
-        ExerciseHeader(
-          label: question.label,
-          difficulty: question.difficulty,
-          skill: question.skill,
-        ),
+        switch (mode) {
+          QuizMode(:final index) => QuizQuestionHeader(
+            number: index + 1,
+            marked: answer.marked,
+            onMark: mode.markAction(onMark),
+          ),
+          PracticeMode() || HomeworkMode() => ExerciseHeader(
+            label: question.label,
+            difficulty: question.difficulty,
+            skill: question.skill,
+          ),
+        },
         MathText(question.stemMd, style: theme.textTheme.bodyLarge),
         if (figureBuilder case final build?)
           for (final path in question.imagePaths) build(context, path),
