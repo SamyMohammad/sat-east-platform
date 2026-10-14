@@ -114,7 +114,6 @@ void main() {
       t,
     ) async {
       final handle = t.ensureSemantics();
-      addTearDown(handle.dispose);
       _setSize(t, _wide);
       final jumps = <int>[];
       await t.pumpWidget(
@@ -150,6 +149,7 @@ void main() {
 
       await t.tap(_cell(3));
       expect(jumps, [3]);
+      handle.dispose();
     });
   });
 
