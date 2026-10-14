@@ -5,7 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/shared/widgets/spr_keypad.dart';
+import 'package:sat_east_client/core/widgets/spr_keypad.dart';
 
 Future<(List<SprKey>, List<bool>)> pumpKeypad(
   WidgetTester tester, {

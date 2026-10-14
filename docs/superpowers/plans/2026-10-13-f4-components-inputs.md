@@ -15,7 +15,9 @@
 ### Continuation on 2026-10-14
 
 Tasks 0–3 are present in commits `79d948e` through `b3f76ee` on
-`feat/F-4-components-inputs`. New SPR components live in lib/shared/widgets/ with ChoiceTile (CLAUDE.md A.2). Existing
+`feat/F-4-components-inputs`. The remaining implementation uses
+`lib/core/widgets/` for new SPR components and `test/core/widgets/` for their
+tests, following the current AGENTS.md shared-component rule. Existing
 `ChoiceTile`, painters and `FeedbackLabel` keep their paths.
 
 Implementation adjustments: single-line submission, composing-text-safe

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/shell_header.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/shell_navigation.dart';
+import 'package:sat_east_client/core/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/core/widgets/app_shell/shell_header.dart';
+import 'package:sat_east_client/core/widgets/app_shell/shell_navigation.dart';
 
 class AppShell extends StatefulWidget {
   const AppShell({

@@ -7,8 +7,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/spr_input.dart';
-import 'package:sat_east_client/shared/widgets/spr_keypad.dart';
+import 'package:sat_east_client/core/widgets/spr_input.dart';
+import 'package:sat_east_client/core/widgets/spr_keypad.dart';
 
 import '../golden_harness.dart';
 

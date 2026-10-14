@@ -7,10 +7,10 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/focus_mode_scaffold.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/shell_header.dart';
+import 'package:sat_east_client/core/widgets/app_shell/app_shell.dart';
+import 'package:sat_east_client/core/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/core/widgets/app_shell/focus_mode_scaffold.dart';
+import 'package:sat_east_client/core/widgets/app_shell/shell_header.dart';
 
 void main() {
   for (final width in [360.0, 600.0, 601.0, 768.0, 1023.0, 1024.0, 1280.0]) {

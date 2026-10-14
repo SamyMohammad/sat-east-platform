@@ -1,8 +1,8 @@
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
-import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/core/widgets/app_shell/app_shell.dart';
+import 'package:sat_east_client/core/widgets/app_shell/app_shell_destination.dart';
 
 abstract final class AppRoutes {
   static const home = '/';

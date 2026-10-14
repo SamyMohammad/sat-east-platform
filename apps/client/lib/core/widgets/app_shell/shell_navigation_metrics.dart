@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/core/widgets/app_shell/app_shell_destination.dart';
 
 double maxShellLabelHeight(
   BuildContext context,
