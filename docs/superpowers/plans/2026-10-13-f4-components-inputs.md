@@ -11,6 +11,33 @@
 **Spec:** `docs/superpowers/specs/2026-10-13-f4-design-system-questionview-design.md` §2. Parent plan: `docs/superpowers/plans/2026-10-13-f4-design-system.md` ("Steps 4–7"). Design source: `docs/design/claude-design-export/Components.dc.html` lines 91–216 (light), `Components Dark.dc.html` (same sheet, dark tokens).
 
 ## Context
+
+### Continuation on 2026-10-14
+
+Tasks 0–3 are present in commits `79d948e` through `b3f76ee` on
+`feat/F-4-components-inputs`. New SPR components live in lib/shared/widgets/ with ChoiceTile (CLAUDE.md A.2). Existing
+`ChoiceTile`, painters and `FeedbackLabel` keep their paths.
+
+Implementation adjustments: single-line submission, composing-text-safe
+formatting, external focus ownership, adaptive review labels at 2× text size,
+keyboard-operable keypad keys, and a zero key aligned to two grid columns.
+Visual review also found and fixed double scaling of inline math in
+`MathText` (WidgetSpan and the math engine both applied text scaling), and
+ensured the answer preview sits beside the field when space permits.
+The golden matrix has 13 images, including 2× SPR input and keypad variants.
+Goldens use real bundled fonts and stay excluded on Linux CI.
+
+The remaining snippets below describe the original plan; the path and layout
+adjustments in this continuation take precedence. Commit/push/PR wait for the
+user's approval of the completed change.
+
+Tasks 4–6 are implemented and locally verified: 192 unit/widget tests and
+13 Windows golden tests pass. All golden PNGs were opened and reviewed.
+The independent branch review has no remaining material findings.
+The generic review-gate script misidentifies `BookletSpace.s3` as a numeric
+EdgeInsets literal; both reported locations use the existing spacing token.
+Next: approval and PR for Components A, then plan Components B (buttons and
+feedback). Chrome gallery/staging validation belongs to the later gallery PR.
 Row 6 of `docs/15` §1 (F-4). Theme + tokens (PR #13) and `MathText` (PR #15) are merged. `lib/shared/widgets/` is empty. Brainstorm quick pass (2026-10-13) decided:
 1. Components PR covers `Components.dc.html` §1–3 + §8. §4 margin note, §6 exam bar / time bars, §7 navigator cell move to the QuestionView PR. §5 explanation frames are deferred to the review/notes work.
 2. Split into two PRs: **A = answer inputs (this plan)**, B = buttons + feedback (chips, banners, overlays, progress, skeleton, empty, error-retry, loading button) — its own plan later.
