@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_body.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_footer.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
@@ -61,24 +62,49 @@ class QuestionView extends StatelessWidget {
         return Column(
           children: [
             _header(),
-            Expanded(
-              child: QuestionBody(
-                question: question,
-                mode: mode,
-                answer: answer,
-                layout: layout,
-                onSelect: onSelect,
-                onEliminate: onEliminate,
-                onRestore: onRestore,
-                onSprChanged: onSprChanged,
-                figureBuilder: figureBuilder,
-              ),
-            ),
+            Expanded(child: _bodyWithPanel(layout)),
             _footer(context, layout),
           ],
         );
       },
     );
+  }
+
+  Widget _bodyWithPanel(BookletLayout layout) {
+    final body = QuestionBody(
+      question: question,
+      mode: mode,
+      answer: answer,
+      layout: layout,
+      onSelect: onSelect,
+      onEliminate: onEliminate,
+      onRestore: onRestore,
+      onSprChanged: onSprChanged,
+      figureBuilder: figureBuilder,
+    );
+    if (mode case HomeworkMode(
+      :final title,
+      :final index,
+      :final total,
+      :final answered,
+      :final marked,
+    ) when layout != BookletLayout.compact) {
+      return Row(
+        children: [
+          Expanded(child: body),
+          HomeworkNavigatorPanel(
+            title: title,
+            total: total,
+            index: index,
+            answered: answered,
+            marked: marked,
+            onJumpTo: onJumpTo,
+            onSubmit: onSubmit,
+          ),
+        ],
+      );
+    }
+    return body;
   }
 
   Widget _header() => switch (mode) {
@@ -98,8 +124,8 @@ class QuestionView extends StatelessWidget {
     ) =>
       QuestionHeader(
         title: title,
-        modeLabel: 'Homework',
-        progressLabel: 'Question ${index + 1} of $total',
+        modeLabel: 'Homework · $total questions',
+        progressLabel: '${answered.length} of $total answered',
         done: answered.length,
         total: total,
         current: index,
@@ -148,11 +174,45 @@ class QuestionView extends StatelessWidget {
                   onPressed: checkEnabled ? onCheck : null,
                 ),
         );
-      case HomeworkMode(:final index, :final total):
+      case HomeworkMode(
+        :final title,
+        :final index,
+        :final total,
+        :final answered,
+        :final marked,
+      ):
+        final label = 'Question ${index + 1} of $total';
         return QuestionFooter(
-          leading: leading,
-          middle: middle('Question ${index + 1} of $total'),
-          primary: LoadingButton(label: 'Next', onPressed: onNext),
+          leading: LoadingButton(
+            label: 'Back',
+            onPressed: index > 0 ? onPrev : null,
+            variant: BookletButtonVariant.secondary,
+          ),
+          middle: layout == BookletLayout.compact
+              ? TextButton.icon(
+                  onPressed: () => showHomeworkNavigatorSheet(
+                    context,
+                    title: title,
+                    total: total,
+                    index: index,
+                    answered: answered,
+                    marked: marked,
+                    onJumpTo: onJumpTo,
+                    onSubmit: onSubmit,
+                  ),
+                  iconAlignment: IconAlignment.end,
+                  icon: const Icon(Icons.expand_less),
+                  label: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )
+              : middle(label),
+          primary: LoadingButton(
+            label: 'Next',
+            onPressed: index < total - 1 ? onNext : null,
+          ),
         );
     }
   }
