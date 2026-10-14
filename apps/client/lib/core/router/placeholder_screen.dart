@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/core/widgets/empty_state.dart';
+import 'package:sat_east_client/shared/widgets/empty_state.dart';
 
 /// Temporary destination content until each feature lands.
 class PlaceholderScreen extends StatelessWidget {
