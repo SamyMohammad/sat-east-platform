@@ -4,7 +4,7 @@ import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
-import 'package:sat_east_client/shared/widgets/loading_button.dart';
+import 'package:sat_east_client/core/widgets/loading_button.dart';
 
 enum BookletBannerKind { info, warning, offline }
 

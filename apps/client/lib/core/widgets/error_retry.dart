@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
-import 'package:sat_east_client/shared/widgets/loading_button.dart';
+import 'package:sat_east_client/core/widgets/booklet_status_frame.dart';
+import 'package:sat_east_client/core/widgets/loading_button.dart';
 
 class ErrorRetry extends StatelessWidget {
   const ErrorRetry({

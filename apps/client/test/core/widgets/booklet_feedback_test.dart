@@ -7,12 +7,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
-import 'package:sat_east_client/shared/widgets/booklet_progress.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
-import 'package:sat_east_client/shared/widgets/empty_state.dart';
-import 'package:sat_east_client/shared/widgets/error_retry.dart';
+import 'package:sat_east_client/core/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/core/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/core/widgets/booklet_progress.dart';
+import 'package:sat_east_client/core/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/core/widgets/empty_state.dart';
+import 'package:sat_east_client/core/widgets/error_retry.dart';
 
 Future<void> _pump(
   WidgetTester tester,

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
-import 'package:sat_east_client/shared/widgets/booklet_progress.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
-import 'package:sat_east_client/shared/widgets/empty_state.dart';
-import 'package:sat_east_client/shared/widgets/error_retry.dart';
-import 'package:sat_east_client/shared/widgets/loading_button.dart';
+import 'package:sat_east_client/core/widgets/booklet_banner.dart';
+import 'package:sat_east_client/core/widgets/booklet_chip.dart';
+import 'package:sat_east_client/core/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/core/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/core/widgets/booklet_progress.dart';
+import 'package:sat_east_client/core/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/core/widgets/empty_state.dart';
+import 'package:sat_east_client/core/widgets/error_retry.dart';
+import 'package:sat_east_client/core/widgets/loading_button.dart';
 
 Widget _sheet(List<Widget> children) => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
