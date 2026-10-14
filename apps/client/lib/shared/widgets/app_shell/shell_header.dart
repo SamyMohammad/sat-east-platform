@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/core/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 
 class ShellHeader extends StatelessWidget {
   const ShellHeader({
