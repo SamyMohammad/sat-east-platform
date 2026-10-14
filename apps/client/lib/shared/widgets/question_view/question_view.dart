@@ -103,6 +103,7 @@ class QuestionView extends StatelessWidget {
       :final marked,
     ) when layout != BookletLayout.compact) {
       return Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(child: body),
           HomeworkNavigatorPanel(

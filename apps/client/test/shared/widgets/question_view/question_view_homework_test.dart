@@ -7,8 +7,10 @@ import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/worked_example.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
@@ -476,5 +478,13 @@ void main() {
       await t.tap(find.text('Retry'));
       expect(calls.retries, 1);
     });
+  });
+
+  testWidgets('F-4: homework body is top-aligned at 1280', (t) async {
+    await _pump(t, size: _wide);
+
+    final headerBottom = t.getRect(find.byType(QuestionHeader)).bottom;
+    final exerciseTop = t.getRect(find.byType(ExerciseHeader)).top;
+    expect(exerciseTop - headerBottom, lessThanOrEqualTo(48));
   });
 }
