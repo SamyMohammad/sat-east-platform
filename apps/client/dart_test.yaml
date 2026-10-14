@@ -1,0 +1,3 @@
+tags:
+  golden:
+    description: Pixel goldens. Baselines generated on Windows; excluded on CI.
