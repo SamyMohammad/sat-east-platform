@@ -21,13 +21,13 @@ const _choices = [
 
 const _idleMode = PracticeMode(feedback: Idle(), rep: 1, repTarget: 3);
 
-typedef _Calls = ({
+typedef ChoiceCalls = ({
   List<String> selects,
   List<String> eliminates,
   List<String> restores,
 });
 
-Future<_Calls> pumpChoices(
+Future<ChoiceCalls> pumpChoices(
   WidgetTester t, {
   required bool interactive,
   AnswerState answer = const AnswerState(),
@@ -160,8 +160,11 @@ void main() {
     testWidgets('F-4: hardware typing clears the keypad key hint', (t) async {
       await pumpSpr(t, useKeypad: true);
       await t.tap(find.text('3'));
+      await t.pump();
       await t.tap(find.text('/'));
+      await t.pump();
       await t.tap(find.text('/'));
+      await t.pump();
       await t.pump();
       expect(find.text('A fraction has only one slash.'), findsOneWidget);
       await t.enterText(find.byType(TextField), '3/4');
