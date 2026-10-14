@@ -28,8 +28,12 @@ class QuestionHeader extends StatelessWidget {
   final Widget? trailing;
 
   @override
-  Widget build(BuildContext context) {
-    final layout = BookletLayout.forWidth(MediaQuery.sizeOf(context).width);
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) => _build(context, constraints.maxWidth),
+  );
+
+  Widget _build(BuildContext context, double width) {
+    final layout = BookletLayout.forWidth(width);
     final wide = layout != BookletLayout.compact;
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;

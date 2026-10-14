@@ -40,7 +40,7 @@ class QuestionBody extends StatelessWidget {
   final ValueChanged<String>? onSprChanged;
   final Widget Function(BuildContext, String path)? figureBuilder;
 
-  static const double _gap = BookletSpace.s4 + BookletSpace.s1;
+  static const double _gap = BookletSpace.s5;
 
   bool get _interactive => switch (mode) {
     HomeworkMode() => true,

@@ -461,8 +461,8 @@ void main() {
         ),
       );
       expect(
-        find.ancestor(of: note, matching: find.byType(Row)),
-        findsWidgets,
+        t.getTopLeft(note).dx,
+        greaterThan(t.getTopRight(find.byType(ExerciseHeader)).dx - 1),
       );
     });
   });
@@ -601,7 +601,7 @@ void main() {
           return SizedBox(key: ValueKey('fig-$path'), height: 40);
         },
       );
-      expect(calls.toSet(), {'a.png', 'b.png'});
+      expect(calls, ['a.png', 'b.png']);
       expect(find.byKey(const ValueKey('fig-a.png')), findsOneWidget);
       expect(find.byKey(const ValueKey('fig-b.png')), findsOneWidget);
     });
@@ -649,7 +649,62 @@ void main() {
         final rect = t.getRect(check);
         expect(rect.bottom, lessThanOrEqualTo(_phone.height));
         expect(rect.top, greaterThanOrEqualTo(0));
+        expect(
+          MediaQuery.textScalerOf(t.element(find.text('Check'))).scale(10),
+          20,
+        );
+        await t.scrollUntilVisible(
+          find.byType(HintPanel),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        expect(find.byType(HintPanel), findsOneWidget);
+        expect(t.takeException(), isNull);
       },
     );
+  });
+
+  group('QuestionView footer layout', () {
+    testWidgets('F-4: "Pick another answer" shows at 768', (t) async {
+      await _pump(
+        t,
+        size: _tablet,
+        feedback: const FirstMiss(missed: 'A', noteMd: 'n'),
+        answer: const AnswerState(selected: 'A'),
+        onCheck: () {},
+      );
+      expect(find.text('Pick another answer'), findsOneWidget);
+    });
+
+    testWidgets('F-4: a 380 px parent on a 1280 screen uses compact footer', (
+      t,
+    ) async {
+      await _setSize(t, _wide);
+      await t.pumpWidget(
+        _app(
+          Row(
+            children: [
+              const SizedBox(width: 900),
+              Expanded(
+                child: QuestionView(
+                  title: 'Linear equations',
+                  question: _mcq(),
+                  mode: _mode(const FirstMiss(missed: 'A', noteMd: 'n')),
+                  answer: const AnswerState(selected: 'A'),
+                  onCheck: () {},
+                  onPrev: () {},
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      await t.pump();
+      expect(find.text('Pick another answer'), findsNothing);
+      expect(find.text('Back'), findsOneWidget);
+      expect(find.text('Check'), findsOneWidget);
+      expect(t.takeException(), isNull);
+      expect(t.getRect(find.text('Check')).right, lessThanOrEqualTo(1280));
+    });
   });
 }
