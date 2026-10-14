@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 `QuestionView` | [design spec](superpowers/specs/2026-10-13-f4-design-system-questionview-design.md) | — | — | — | Next: brainstorm + plan |
+| F-4 `QuestionView` PR 1 (practice + homework), PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 1 plan](superpowers/plans/2026-10-14-f4-questionview-pr1.md) | `docs/F-4-questionview-spec` | #21 | Spec + PR 1 plan approved; implement after #21 merges |
 
 ## Next
 

@@ -81,7 +81,7 @@ QuestionView(
 2. Theme and tokens.
 3. Components, in two PRs: A answer inputs (`ChoiceTile`, `SprInput`, `SprKeypad`), B buttons and feedback. Margin note, exam bar and navigator cell ship with `QuestionView`; explanation frames are deferred to the review/notes work.
 4. `AppShell`.
-5. `QuestionView`, all modes.
+5. `QuestionView`: practice + homework, then quiz. Review and mock come later — see [`2026-10-14-f4-questionview-design.md`](2026-10-14-f4-questionview-design.md).
 6. Gallery page (the "prototype" in `docs/15` row 6) from static sample data.
 
 Definition of done: `dart format`, `flutter analyze --fatal-infos`, `flutter test` clean; gallery runs on Chrome at 360 and 1280 matching the design; CI green; deployed to staging (`docs/11`).
