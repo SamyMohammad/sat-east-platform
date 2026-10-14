@@ -41,7 +41,14 @@ class SaveStatusLabel extends StatelessWidget {
           else
             Icon(icon, size: BookletSize.iconStatus, color: color),
           const SizedBox(width: BookletSpace.s2),
-          Flexible(child: Text(copy, style: style)),
+          Flexible(
+            child: Text(
+              copy,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: style,
+            ),
+          ),
           if (status == SaveStatus.failed)
             TextButton(
               onPressed: onRetry,

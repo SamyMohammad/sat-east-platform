@@ -32,6 +32,9 @@ class ExerciseHeader extends StatelessWidget {
         border: Border(
           bottom: BorderSide(
             color: scheme.outlineVariant,
+            // Explicit: keeps the 1 px rule if the default changes.
+            // ignore: avoid_redundant_argument_values
+            width: BookletStroke.thin,
           ),
         ),
       ),

@@ -97,8 +97,10 @@ class QuestionHeader extends StatelessWidget {
       content = Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
-            height: BookletSize.shellCompactHeader,
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              minHeight: BookletSize.shellCompactHeader,
+            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: BookletSpace.s1),
               child: Row(
@@ -106,7 +108,6 @@ class QuestionHeader extends StatelessWidget {
                   back,
                   const SizedBox(width: BookletSpace.s1),
                   Expanded(child: titles),
-                  ?trailing,
                 ],
               ),
             ),
@@ -118,7 +119,13 @@ class QuestionHeader extends StatelessWidget {
               BookletSpace.s4,
               BookletSpace.s3,
             ),
-            child: progress,
+            child: _ProgressBlock(
+              label: progressLabel,
+              done: done,
+              total: total,
+              current: current,
+              trailing: trailing,
+            ),
           ),
         ],
       );
@@ -128,6 +135,9 @@ class QuestionHeader extends StatelessWidget {
         border: Border(
           bottom: BorderSide(
             color: scheme.outlineVariant,
+            // Explicit: keeps the 1 px rule if the default changes.
+            // ignore: avoid_redundant_argument_values
+            width: BookletStroke.thin,
           ),
         ),
       ),
@@ -142,8 +152,10 @@ class _ProgressBlock extends StatelessWidget {
     required this.done,
     required this.total,
     required this.current,
+    this.trailing,
   });
 
+  final Widget? trailing;
   final String label;
   final int done;
   final int total;
@@ -157,14 +169,22 @@ class _ProgressBlock extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          label,
-          style: theme.textTheme.labelSmall?.copyWith(
-            color: scheme.onSurfaceVariant,
-            fontFeatures: const [FontFeature.tabularFigures()],
-          ),
+        Wrap(
+          alignment: WrapAlignment.spaceBetween,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          spacing: BookletSpace.s2,
+          children: [
+            Text(
+              label,
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: scheme.onSurfaceVariant,
+                fontFeatures: const [FontFeature.tabularFigures()],
+              ),
+            ),
+            ?trailing,
+          ],
         ),
-        const SizedBox(height: BookletSpace.s2 - BookletSpace.s1 / 2),
+        const SizedBox(height: BookletSpace.s2),
         Row(
           children: [
             for (var i = 0; i < total; i++) ...[
@@ -182,6 +202,9 @@ class _ProgressBlock extends StatelessWidget {
                     border: i >= done && i == current
                         ? Border.all(
                             color: scheme.primary,
+                            // Explicit: keeps the 1 px border.
+                            // ignore: avoid_redundant_argument_values
+                            width: BookletStroke.thin,
                           )
                         : null,
                   ),

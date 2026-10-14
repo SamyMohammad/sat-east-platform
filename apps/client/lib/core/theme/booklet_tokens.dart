@@ -56,6 +56,12 @@ abstract final class BookletSize {
   static const double blockMathMinHeight = 64;
 }
 
+/// Letter-spacing in logical px for the 12 px caption style
+/// (`labelSmall` is 0.06 em = 0.72; uppercase panel titles are 0.08 em).
+abstract final class BookletTracking {
+  static const double caps = 0.96;
+}
+
 /// Line widths (Components.dc.html borders, outlines, strike).
 abstract final class BookletStroke {
   static const double thin = 1;

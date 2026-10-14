@@ -87,7 +87,6 @@ void main() {
     testWidgets('F-4: segment bar has one segment per question', (
       tester,
     ) async {
-      // Assumes each segment carries ValueKey('progress-segment-<i>').
       await pump(tester, header());
 
       for (var i = 0; i < 5; i++) {
@@ -95,6 +94,74 @@ void main() {
       }
       expect(find.byKey(const ValueKey('progress-segment-5')), findsNothing);
     });
+
+    testWidgets('F-4: segments are filled, outlined current, then rule', (
+      tester,
+    ) async {
+      await pump(tester, header());
+
+      final scheme = Theme.of(
+        tester.element(find.byType(QuestionHeader)),
+      ).colorScheme;
+      BoxDecoration deco(int i) =>
+          tester
+                  .widget<Container>(
+                    find.byKey(ValueKey('progress-segment-$i')),
+                  )
+                  .decoration!
+              as BoxDecoration;
+
+      for (final i in [0, 1]) {
+        expect(deco(i).color, scheme.primary);
+      }
+      expect(deco(2).color, scheme.primaryContainer);
+      final border = deco(2).border! as Border;
+      expect(border.top.color, scheme.primary);
+      expect(border.top.width, 1);
+      for (final i in [3, 4]) {
+        expect(deco(i).color, scheme.outlineVariant);
+        expect(deco(i).border, isNull);
+      }
+    });
+
+    for (final scale in [1.0, 2.0]) {
+      testWidgets(
+        'F-4: failed save trailing does not overflow at 360 px, text x$scale',
+        (tester) async {
+          var retries = 0;
+          tester.view.physicalSize = const Size(360, 800);
+          tester.view.devicePixelRatio = 1;
+          addTearDown(tester.view.reset);
+          await tester.pumpWidget(
+            MaterialApp(
+              theme: AppTheme.light(),
+              home: MediaQuery.withClampedTextScaling(
+                minScaleFactor: scale,
+                maxScaleFactor: scale,
+                child: Scaffold(
+                  body: QuestionHeader(
+                    title: 'Homework ' * 20,
+                    modeLabel: 'Homework',
+                    progressLabel: '3 of 5',
+                    done: 2,
+                    total: 5,
+                    current: 2,
+                    trailing: SaveStatusLabel(
+                      status: SaveStatus.failed,
+                      onRetry: () => retries++,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+
+          expect(tester.takeException(), isNull);
+          await tester.tap(find.text('Retry'));
+          expect(retries, 1);
+        },
+      );
+    }
 
     testWidgets('F-4: has no overflow menu on phone', (tester) async {
       await pump(tester, header());
@@ -310,6 +377,64 @@ void main() {
         r'Try \(x = 3\)',
       );
     });
+
+    testWidgets('F-4: correct note renders non-empty body via MathText', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        const MarginNote(
+          tone: MarginNoteTone.correct,
+          author: null,
+          bodyMd: r'Well done \(x\)',
+        ),
+      );
+
+      expect(
+        tester.widget<MathText>(find.byType(MathText)).source,
+        r'Well done \(x\)',
+      );
+    });
+
+    for (final inline in [true, false]) {
+      testWidgets(
+        'F-4: ${inline ? 'inline draws top rule' : 'aside draws leading rule'}',
+        (tester) async {
+          await pump(
+            tester,
+            MarginNote(
+              tone: MarginNoteTone.miss,
+              author: 'Mr. Samy',
+              bodyMd: 'Body',
+              inline: inline,
+            ),
+          );
+
+          final error = Theme.of(
+            tester.element(find.byType(MarginNote)),
+          ).colorScheme.error;
+          final box = tester.widget<DecoratedBox>(
+            find.descendant(
+              of: find.byType(MarginNote),
+              matching: find.byType(DecoratedBox),
+            ),
+          );
+          final border = (box.decoration as BoxDecoration).border!;
+          if (inline) {
+            expect(border, isA<Border>());
+            expect((border as Border).top.color, error);
+            expect(border.top.width, greaterThan(0));
+            expect(border.left, BorderSide.none);
+          } else {
+            expect(border, isA<BorderDirectional>());
+            final dir = border as BorderDirectional;
+            expect(dir.start.color, error);
+            expect(dir.start.width, greaterThan(0));
+            expect(dir.top, BorderSide.none);
+          }
+        },
+      );
+    }
 
     testWidgets('F-4: empty body renders header only, no MathText', (
       tester,

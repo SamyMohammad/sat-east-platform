@@ -21,9 +21,6 @@ class FramedPanel extends StatelessWidget {
   final double padding;
   final Color titleColor;
 
-  /// Title letter-spacing, in em.
-  static const double _tracking = 0.08;
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -52,7 +49,7 @@ class FramedPanel extends StatelessWidget {
                     style: base?.copyWith(
                       color: titleColor,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: (base.fontSize ?? 12) * _tracking,
+                      letterSpacing: BookletTracking.caps,
                     ),
                   ),
                 ),
