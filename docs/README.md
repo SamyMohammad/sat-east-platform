@@ -33,6 +33,7 @@ and laptop; UI is English-only.
 | 12 | [Testing Strategy](12-testing-strategy.md) | Architect | Phase 0 setup |
 | 13 | [Risks & Open Questions](13-risks-and-open-questions.md) | PM | Weekly review |
 | 14 | [Glossary](14-glossary.md) | All | Whenever a term is unclear |
+| — | [Status board](STATUS.md) | PM / Dev | Start of every session — what is done, open and next |
 | 15 | [Developer Workflow](15-dev-workflow.md) | Dev | Daily — how to build each story |
 | 16 | [Supabase Playbook](16-supabase-playbook.md) | Architect / Dev | Before any SQL; drawbacks → mitigations |
 | ADR | [Architecture Decision Records](adr/) | Architect | When questioning a tech choice |
