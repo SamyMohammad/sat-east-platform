@@ -7,6 +7,7 @@ import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navi
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_body.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_footer.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/question_shortcuts.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/save_status_label.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
@@ -59,12 +60,24 @@ class QuestionView extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final layout = BookletLayout.forWidth(constraints.maxWidth);
-        return Column(
-          children: [
-            _header(),
-            Expanded(child: _bodyWithPanel(layout)),
-            _footer(context, layout),
-          ],
+        return QuestionShortcuts(
+          labels: switch (question.kind) {
+            McqKind(:final choices) => [for (final c in choices) c.label],
+            SprKind() => const <String>[],
+          },
+          choicesInteractive: mode.choicesInteractive,
+          onSelect: onSelect,
+          onEliminate: onEliminate,
+          onMark: onMark,
+          onPrev: mode.backAction(onPrev),
+          onNext: mode.forwardAction(onNext),
+          child: Column(
+            children: [
+              _header(),
+              Expanded(child: _bodyWithPanel(layout)),
+              _footer(context, layout),
+            ],
+          ),
         );
       },
     );
@@ -143,7 +156,7 @@ class QuestionView extends StatelessWidget {
         ? null
         : LoadingButton(
             label: 'Back',
-            onPressed: onPrev,
+            onPressed: mode.backAction(onPrev),
             variant: BookletButtonVariant.secondary,
           );
     Widget middle(String text) => Text(
@@ -167,7 +180,10 @@ class QuestionView extends StatelessWidget {
               ? 'Pick another answer'
               : null,
           primary: done
-              ? LoadingButton(label: 'Next', onPressed: onNext)
+              ? LoadingButton(
+                  label: 'Next',
+                  onPressed: mode.forwardAction(onNext),
+                )
               : LoadingButton(
                   label: 'Check',
                   isLoading: feedback is Checking,
@@ -185,7 +201,7 @@ class QuestionView extends StatelessWidget {
         return QuestionFooter(
           leading: LoadingButton(
             label: 'Back',
-            onPressed: index > 0 ? onPrev : null,
+            onPressed: mode.backAction(onPrev),
             variant: BookletButtonVariant.secondary,
           ),
           middle: layout == BookletLayout.compact
@@ -211,7 +227,7 @@ class QuestionView extends StatelessWidget {
               : middle(label),
           primary: LoadingButton(
             label: 'Next',
-            onPressed: index < total - 1 ? onNext : null,
+            onPressed: mode.forwardAction(onNext),
           ),
         );
     }

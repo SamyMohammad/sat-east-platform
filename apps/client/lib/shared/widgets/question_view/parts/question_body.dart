@@ -42,11 +42,6 @@ class QuestionBody extends StatelessWidget {
 
   static const double _gap = BookletSpace.s5;
 
-  bool get _interactive => switch (mode) {
-    HomeworkMode() => true,
-    PracticeMode(:final feedback) => feedback is Idle || feedback is FirstMiss,
-  };
-
   SprInputState get _sprState => switch (mode) {
     PracticeMode(:final feedback) => switch (feedback) {
       Correct() => SprInputState.correct,
@@ -174,7 +169,7 @@ class QuestionBody extends StatelessWidget {
         choices: choices,
         answer: answer,
         mode: mode,
-        interactive: _interactive,
+        interactive: mode.choicesInteractive,
         onSelect: onSelect,
         onEliminate: onEliminate,
         onRestore: onRestore,
@@ -185,7 +180,7 @@ class QuestionBody extends StatelessWidget {
         state: _sprState,
         useKeypad: layout == BookletLayout.compact,
         correctAnswer: _sprKey,
-        onChanged: _interactive ? onSprChanged : null,
+        onChanged: mode.choicesInteractive ? onSprChanged : null,
       ),
     };
   }
