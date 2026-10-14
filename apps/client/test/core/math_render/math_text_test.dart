@@ -26,6 +26,37 @@ Future<void> pumpMath(
 }
 
 void main() {
+  for (final (kind, source) in [
+    ('inline', r'\(x=3\)'),
+    ('block', r'\[x=3\]'),
+  ]) {
+    testWidgets('F-4: $kind math scales once at 2x text', (tester) async {
+      await pumpMath(tester, source);
+      final original = tester.getRect(find.byType(Math));
+
+      await pumpMath(tester, source, textScale: 2);
+      final enlarged = tester.getRect(find.byType(Math));
+
+      expect(enlarged.width / original.width, closeTo(2, 0.05));
+      expect(enlarged.height / original.height, closeTo(2, 0.05));
+      expect(tester.takeException(), isNull);
+    });
+  }
+
+  testWidgets('F-4: glued inline punctuation scales once at 2x text', (
+    tester,
+  ) async {
+    await pumpMath(tester, r'The answer is \(x=3\).');
+    final original = tester.getRect(find.text('.'));
+
+    await pumpMath(tester, r'The answer is \(x=3\).', textScale: 2);
+    final enlarged = tester.getRect(find.text('.'));
+
+    expect(enlarged.height / original.height, closeTo(2, 0.05));
+    expect(enlarged.width / original.width, closeTo(2, 0.05));
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('F-4: inline TeX renders through flutter_math', (tester) async {
     await pumpMath(tester, r'If \(2x+3=11\), find x.');
     expect(find.byType(Math), findsOneWidget);

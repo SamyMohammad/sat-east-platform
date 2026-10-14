@@ -163,6 +163,36 @@ void main() {
       expect(find.byIcon(icon), findsOneWidget);
       expect(find.byType(IconButton), findsNothing);
     });
+
+    testWidgets(
+      'F-4: ${state.name} keeps content and feedback visible '
+      'at 360 px and 2x text',
+      (t) async {
+        await pumpTile(
+          t,
+          tile(
+            state,
+            content:
+                r'The line rises 3 units for each unit to the right, so its slope is \(3\).',
+          ),
+          width: 360,
+          textScale: 2,
+        );
+
+        expect(t.takeException(), isNull);
+        expect(
+          find.textContaining('The line rises').hitTestable(),
+          findsOneWidget,
+        );
+        expect(find.text(label).hitTestable(), findsOneWidget);
+        expect(find.byIcon(icon), findsOneWidget);
+        final bounds = t.getRect(find.byType(ChoiceTile));
+        final feedback = t.getRect(find.text(label));
+        expect(feedback.left, greaterThanOrEqualTo(bounds.left));
+        expect(feedback.right, lessThanOrEqualTo(bounds.right));
+        expect(feedback.bottom, lessThanOrEqualTo(bounds.bottom));
+      },
+    );
   }
 
   testWidgets('F-4: selected tile is a checked radio', (t) async {

@@ -21,11 +21,13 @@ class FeedbackLabel extends StatelessWidget {
       spacing: BookletSpace.s1,
       children: [
         Icon(icon, size: BookletSize.iconStatus, color: color),
-        Text(
-          label,
-          style: Theme.of(
-            context,
-          ).textTheme.labelSmall?.copyWith(color: color, letterSpacing: 0),
+        Flexible(
+          child: Text(
+            label,
+            style: Theme.of(
+              context,
+            ).textTheme.labelSmall?.copyWith(color: color, letterSpacing: 0),
+          ),
         ),
       ],
     );

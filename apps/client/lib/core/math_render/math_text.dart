@@ -110,7 +110,10 @@ class MathText extends StatelessWidget {
             WidgetSpan(
               alignment: PlaceholderAlignment.baseline,
               baseline: TextBaseline.alphabetic,
-              child: _InlineMath(tex: tex, style: style, trailing: trailing),
+              // WidgetSpan scales its child; Math.tex must not scale it again.
+              child: MediaQuery.withNoTextScaling(
+                child: _InlineMath(tex: tex, style: style, trailing: trailing),
+              ),
             ),
           );
         case BlockMath():
