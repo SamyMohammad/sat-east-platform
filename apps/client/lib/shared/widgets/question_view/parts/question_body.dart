@@ -53,10 +53,8 @@ class QuestionBody extends StatelessWidget {
       Idle() || FirstMiss() => SprInputState.editable,
     },
     HomeworkMode() => SprInputState.editable,
-    QuizMode(:final remaining) =>
-      remaining <= Duration.zero
-          ? SprInputState.disabled
-          : SprInputState.editable,
+    QuizMode() =>
+      mode.isTimeUp ? SprInputState.disabled : SprInputState.editable,
   };
 
   String? get _sprKey => switch (mode) {

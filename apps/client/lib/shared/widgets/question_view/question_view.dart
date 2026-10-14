@@ -238,7 +238,8 @@ class QuestionView extends StatelessWidget {
             variant: BookletButtonVariant.secondary,
           ),
           middle: layout == BookletLayout.compact
-              ? TextButton(
+              ? _NavigatorFooterButton(
+                  label: label,
                   onPressed: () => showHomeworkNavigatorSheet(
                     context,
                     title: title,
@@ -248,24 +249,6 @@ class QuestionView extends StatelessWidget {
                     marked: marked,
                     onJumpTo: onJumpTo,
                     onSubmit: onSubmit,
-                  ),
-                  style: TextButton.styleFrom(
-                    padding: EdgeInsets.zero,
-                    minimumSize: const Size(0, BookletSize.touchTarget),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: BookletSpace.s1,
-                    children: [
-                      Flexible(
-                        // Wraps rather than ellipsizing: the copy is never cut.
-                        child: Text(label, textAlign: TextAlign.center),
-                      ),
-                      const Icon(
-                        Icons.expand_less,
-                        size: BookletSize.iconStatus,
-                      ),
-                    ],
                   ),
                 )
               : middle(label),
@@ -300,27 +283,12 @@ class QuestionView extends StatelessWidget {
             onPressed: _confirmSubmit(context, quiz),
           )
         : LoadingButton(label: 'Next', onPressed: quiz.forwardAction(onNext));
-    const icon = Icon(Icons.expand_less, size: BookletSize.iconStatus);
     void open() => _openNavigator(context, layout, quiz);
 
     if (compact) {
       return QuestionFooter(
         leading: back,
-        middle: TextButton(
-          onPressed: open,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: const Size(0, BookletSize.touchTarget),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: BookletSpace.s1,
-            children: [
-              Flexible(child: Text(label, textAlign: TextAlign.center)),
-              icon,
-            ],
-          ),
-        ),
+        middle: _NavigatorFooterButton(label: label, onPressed: open),
         primary: primary,
       );
     }
@@ -336,7 +304,10 @@ class QuestionView extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           spacing: BookletSpace.s1,
-          children: [Text(label), icon],
+          children: [
+            Text(label),
+            const Icon(Icons.expand_less, size: BookletSize.iconStatus),
+          ],
         ),
       ),
       primary: Row(
@@ -397,5 +368,33 @@ class QuestionView extends StatelessWidget {
       McqKind() => answer.selected == feedback.missed,
       SprKind() => answer.sprText == feedback.missed,
     };
+  }
+}
+
+/// Phone footer centre button: "Question i of n" and an up chevron. Wraps
+/// rather than ellipsizing: the copy is never cut.
+class _NavigatorFooterButton extends StatelessWidget {
+  const _NavigatorFooterButton({required this.label, required this.onPressed});
+
+  final String label;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        padding: EdgeInsets.zero,
+        minimumSize: const Size(0, BookletSize.touchTarget),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: BookletSpace.s1,
+        children: [
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+          const Icon(Icons.expand_less, size: BookletSize.iconStatus),
+        ],
+      ),
+    );
   }
 }

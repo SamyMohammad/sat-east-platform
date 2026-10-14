@@ -49,7 +49,7 @@ class QuizQuestionHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: BookletSpace.s3),
+            const SizedBox(width: BookletSpace.s2),
             Flexible(
               child: Semantics(
                 toggled: marked,
@@ -73,7 +73,7 @@ class QuizQuestionHeader extends StatelessWidget {
                     minimumSize: const Size(0, BookletSize.examToggleHeight),
                     tapTargetSize: MaterialTapTargetSize.padded,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: BookletSpace.s3,
+                      horizontal: BookletSpace.s2,
                       vertical:
                           (BookletSize.examToggleHeight -
                               BookletSize.iconSmall) /
@@ -83,7 +83,6 @@ class QuizQuestionHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const Spacer(),
           ],
         ),
       ),

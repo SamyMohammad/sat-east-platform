@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
@@ -477,15 +478,14 @@ void main() {
         );
         await t.tap(find.text('Question 4 of $_total'));
         await t.pumpAndSettle();
-        if (_grid.evaluate().isNotEmpty) {
-          await t.tap(_cell(9), warnIfMissed: false);
-          await t.pumpAndSettle();
-        }
+        expect(_grid, findsOneWidget);
+        await t.tap(_cell(9), warnIfMissed: false);
+        await t.pumpAndSettle();
         expect(calls.jumps, isEmpty);
       });
 
       testWidgets('F-4: SPR input is disabled', (t) async {
-        await _pump(
+        final calls = await _pump(
           t,
           size: size,
           question: _spr,
@@ -495,9 +495,37 @@ void main() {
           t.widget<SprInput>(find.byType(SprInput)).state,
           SprInputState.disabled,
         );
+        await _key(t, LogicalKeyboardKey.keyM);
+        await _key(t, LogicalKeyboardKey.arrowLeft);
+        await _key(t, LogicalKeyboardKey.arrowRight);
+        expect(calls.marks, 0);
+        expect(calls.prevs, 0);
+        expect(calls.nexts, 0);
       });
     });
   }
+
+  group('QuestionView quiz mark toggle at 360', () {
+    for (final marked in [false, true]) {
+      final text = marked ? 'Marked for review' : 'Mark for review';
+      testWidgets('F-4: "$text" label is not truncated', (t) async {
+        await _pump(
+          t,
+          size: _phone,
+          answer: AnswerState(marked: marked),
+        );
+        final label = find.descendant(
+          of: find.byType(QuizQuestionHeader),
+          matching: find.text(text),
+        );
+        expect(label, findsOneWidget);
+        expect(
+          t.renderObject<RenderParagraph>(label).didExceedMaxLines,
+          isFalse,
+        );
+      });
+    }
+  });
 
   group('QuestionView quiz wide bar', () {
     testWidgets('F-4: hidden timer shows "Timer hidden" and Show', (t) async {
