@@ -42,7 +42,7 @@ class QuestionFooter extends StatelessWidget {
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: compact ? BookletSpace.s4 : BookletSpace.s8,
+                  horizontal: compact ? BookletSpace.s3 : BookletSpace.s8,
                   vertical: compact ? BookletSpace.s2 : 0,
                 ),
                 child: compact ? _compact(context) : _wide(context),
@@ -63,7 +63,9 @@ class QuestionFooter extends StatelessWidget {
         children: [
           middle,
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: leading == null
+                ? MainAxisAlignment.end
+                : MainAxisAlignment.spaceBetween,
             children: [
               ?leading,
               Flexible(child: primary),
@@ -73,7 +75,7 @@ class QuestionFooter extends StatelessWidget {
       );
     }
     return Row(
-      spacing: BookletSpace.s2,
+      spacing: BookletSpace.s1,
       children: [
         ?leading,
         Expanded(child: Center(child: middle)),

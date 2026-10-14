@@ -26,6 +26,40 @@ Future<void> pumpMath(
 }
 
 void main() {
+  group('F-4: inline math punctuation direction per paragraph', () {
+    final inlineMath = find.byWidgetPredicate(
+      (w) => w.runtimeType.toString() == '_InlineMath',
+    );
+    const arabic = r'إذا \(x\)، فإن';
+
+    TextDirection directionOf(WidgetTester t) =>
+        Directionality.of(t.element(inlineMath));
+
+    testWidgets('F-4: Arabic second paragraph math sits under rtl', (
+      tester,
+    ) async {
+      await pumpMath(tester, 'Intro.\n\n$arabic');
+      expect(inlineMath, findsOneWidget);
+      expect(directionOf(tester), TextDirection.rtl);
+    });
+
+    testWidgets('F-4: Arabic only paragraph math sits under rtl', (
+      tester,
+    ) async {
+      await pumpMath(tester, arabic);
+      expect(inlineMath, findsOneWidget);
+      expect(directionOf(tester), TextDirection.rtl);
+    });
+
+    testWidgets('F-4: English only paragraph math sits under ltr', (
+      tester,
+    ) async {
+      await pumpMath(tester, r'If \(x\), then');
+      expect(inlineMath, findsOneWidget);
+      expect(directionOf(tester), TextDirection.ltr);
+    });
+  });
+
   for (final (kind, source) in [
     ('inline', r'\(x=3\)'),
     ('block', r'\[x=3\]'),

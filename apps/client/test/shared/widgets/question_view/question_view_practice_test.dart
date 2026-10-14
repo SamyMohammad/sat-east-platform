@@ -707,4 +707,24 @@ void main() {
       expect(t.getRect(find.text('Check')).right, lessThanOrEqualTo(1280));
     });
   });
+
+  testWidgets(
+    'F-4: stacked footer end-aligns Check when there is no Back at 360 / 2x',
+    (t) async {
+      t.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(t.platformDispatcher.clearTextScaleFactorTestValue);
+      await _pump(
+        t,
+        size: _phone,
+        feedback: const FirstMiss(missed: 'A', noteMd: 'n'),
+        answer: const AnswerState(selected: 'B'),
+        onCheck: () {},
+      );
+      final check = find.byWidgetPredicate(
+        (w) => w is LoadingButton && w.label == 'Check',
+      );
+      expect(check, findsOneWidget);
+      expect(t.getRect(check).right, greaterThanOrEqualTo(_phone.width - 24));
+    },
+  );
 }

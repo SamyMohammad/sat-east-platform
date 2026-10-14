@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/question_view/parts/question_shortcuts.dart';
 import 'package:sat_east_client/shared/widgets/spr_input.dart';
 import 'package:sat_east_client/shared/widgets/spr_keypad.dart';
 
@@ -63,20 +62,15 @@ class _SprAnswerAreaState extends State<SprAnswerArea> {
         // A raw pointer listener never loses the gesture arena to the field.
         Listener(
           onPointerDown: (_) => _showKeypad(),
-          // Typed letters, arrows and M must reach the field, not the
-          // QuestionView shortcuts above it.
-          child: Shortcuts(
-            shortcuts: QuestionShortcuts.typingBlockers,
-            child: SprInput(
-              value: widget.text,
-              onChanged: _onTyped,
-              state: widget.state,
-              keyHint: _keyHint,
-              correctAnswer: widget.state == SprInputState.incorrect
-                  ? widget.correctAnswer
-                  : null,
-              useKeypad: widget.useKeypad,
-            ),
+          child: SprInput(
+            value: widget.text,
+            onChanged: _onTyped,
+            state: widget.state,
+            keyHint: _keyHint,
+            correctAnswer: widget.state == SprInputState.incorrect
+                ? widget.correctAnswer
+                : null,
+            useKeypad: widget.useKeypad,
           ),
         ),
         if (showKeypad)

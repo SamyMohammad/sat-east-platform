@@ -85,15 +85,17 @@ class QuestionShortcuts extends StatelessWidget {
     const SingleActivator(LogicalKeyboardKey.arrowRight): const _NextIntent(),
   };
 
-  /// Shortcuts for an editable field: every key bound above maps to a no-op
-  /// that stops propagation, so typed letters, arrows and M never reach the
-  /// bindings of an ancestor [QuestionShortcuts].
-  static final Map<ShortcutActivator, Intent> typingBlockers = {
-    for (final activator in _bindings.keys)
-      activator: const DoNothingAndStopPropagationTextIntent(),
-  };
-
   bool _hasChoice(int index) => index < labels.length;
+
+  /// True while the primary focus is inside a text field. The actions are
+  /// disabled then, so the key bubbles to the default text-editing shortcuts
+  /// (typing, caret movement) instead of being swallowed here.
+  static bool _isTyping() {
+    final context = FocusManager.instance.primaryFocus?.context;
+    if (context == null) return false;
+    return context.widget is EditableText ||
+        context.findAncestorWidgetOfExactType<EditableText>() != null;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -103,26 +105,30 @@ class QuestionShortcuts extends StatelessWidget {
         actions: <Type, Action<Intent>>{
           _SelectChoiceIntent: _GatedAction<_SelectChoiceIntent>(
             enabled: (i) =>
-                onSelect != null && choicesInteractive && _hasChoice(i.index),
+                !_isTyping() &&
+                onSelect != null &&
+                choicesInteractive &&
+                _hasChoice(i.index),
             run: (i) => onSelect!(labels[i.index]),
           ),
           _EliminateChoiceIntent: _GatedAction<_EliminateChoiceIntent>(
             enabled: (i) =>
+                !_isTyping() &&
                 onEliminate != null &&
                 choicesInteractive &&
                 _hasChoice(i.index),
             run: (i) => onEliminate!(labels[i.index]),
           ),
           _MarkIntent: _GatedAction<_MarkIntent>(
-            enabled: (_) => onMark != null,
+            enabled: (_) => !_isTyping() && onMark != null,
             run: (_) => onMark!(),
           ),
           _PrevIntent: _GatedAction<_PrevIntent>(
-            enabled: (_) => onPrev != null,
+            enabled: (_) => !_isTyping() && onPrev != null,
             run: (_) => onPrev!(),
           ),
           _NextIntent: _GatedAction<_NextIntent>(
-            enabled: (_) => onNext != null,
+            enabled: (_) => !_isTyping() && onNext != null,
             run: (_) => onNext!(),
           ),
         },

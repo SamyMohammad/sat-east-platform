@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
@@ -475,6 +476,58 @@ void main() {
       );
       await t.tap(find.text('Retry'));
       expect(calls.retries, 1);
+    });
+  });
+
+  group('QuestionView homework final review regressions', () {
+    for (final size in [const Size(1024, 800), _wide]) {
+      testWidgets(
+        'F-4: choice column uses the available width at ${size.width.toInt()}',
+        (t) async {
+          await _pump(t, size: size);
+          final bodyWidth = size.width - 280;
+          final avail = bodyWidth - 2 * 32;
+          final expected = avail < 720 ? avail : 720.0;
+          final tile = find.byKey(const ValueKey('choice-A'));
+          expect(tile, findsOneWidget);
+          expect(t.getSize(tile).width, greaterThanOrEqualTo(expected));
+        },
+      );
+    }
+
+    testWidgets('F-4: 360 footer shows "Question 6 of 20" without ellipsis', (
+      t,
+    ) async {
+      await _pump(t, size: _phone);
+      final finder = find.text('Question 6 of 20');
+      expect(finder, findsOneWidget);
+      final paragraph = t.renderObject<RenderParagraph>(finder);
+      expect(paragraph.didExceedMaxLines, isFalse);
+    });
+
+    testWidgets('F-4: sheet cell is inert when onJumpTo is null', (t) async {
+      _setSize(t, _phone);
+      await t.pumpWidget(
+        _app(
+          QuestionView(
+            title: 'Homework 4.2',
+            question: _question,
+            mode: _mode(),
+            answer: const AnswerState(),
+            onNext: () {},
+            onPrev: () {},
+          ),
+        ),
+      );
+      await t.pumpAndSettle();
+      await t.tap(find.text('Question 6 of 20'));
+      await t.pumpAndSettle();
+      expect(find.byType(HomeworkNavigatorGrid), findsOneWidget);
+
+      await t.tap(_cell(0));
+      await t.pumpAndSettle();
+
+      expect(find.byType(HomeworkNavigatorGrid), findsOneWidget);
     });
   });
 

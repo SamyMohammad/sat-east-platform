@@ -37,30 +37,39 @@ class FramedPanel extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, size: BookletSize.iconStatus, color: titleColor),
-                  const SizedBox(width: BookletSpace.s2),
-                ],
-                Flexible(
-                  child: Text(
-                    title,
-                    style: base?.copyWith(
-                      color: titleColor,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: BookletTracking.caps,
+            // The title takes its natural width (capped at 60% of the row so a
+            // long label ellipsizes); the rule fills whatever is left.
+            LayoutBuilder(
+              builder: (context, constraints) => Row(
+                children: [
+                  if (icon != null) ...[
+                    Icon(icon, size: BookletSize.iconStatus, color: titleColor),
+                    const SizedBox(width: BookletSpace.s2),
+                  ],
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxWidth: constraints.maxWidth * 0.6,
+                    ),
+                    child: Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: base?.copyWith(
+                        color: titleColor,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: BookletTracking.caps,
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: BookletSpace.s2),
-                Expanded(
-                  child: SizedBox(
-                    height: BookletStroke.thin,
-                    child: ColoredBox(color: scheme.outlineVariant),
+                  const SizedBox(width: BookletSpace.s2),
+                  Expanded(
+                    child: SizedBox(
+                      height: BookletStroke.thin,
+                      child: ColoredBox(color: scheme.outlineVariant),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: BookletSpace.s3),
             MathText(md, style: theme.textTheme.bodyMedium),

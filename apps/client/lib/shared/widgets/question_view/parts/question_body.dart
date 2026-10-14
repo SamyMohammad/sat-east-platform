@@ -97,7 +97,7 @@ class QuestionBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final aside = layout == BookletLayout.expanded;
+    final aside = layout == BookletLayout.expanded && mode is PracticeMode;
     final parts = _feedbackParts(inline: !aside);
     final theme = Theme.of(context);
 

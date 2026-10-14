@@ -27,7 +27,12 @@ class MathText extends StatelessWidget {
         segments.whereType<TextRun>().map((r) => r.text).join(),
       );
       first ??= direction;
-      children.addAll(_paragraph(segments, direction, baseStyle));
+      // Each paragraph carries its own direction so inline-math punctuation
+      // (which reads the ambient direction) follows it, not the first one.
+      children.addAll([
+        for (final w in _paragraph(segments, direction, baseStyle))
+          Directionality(textDirection: direction, child: w),
+      ]);
     }
 
     return Directionality(

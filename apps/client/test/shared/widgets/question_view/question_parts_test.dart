@@ -3,8 +3,10 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
+import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/framed_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
@@ -466,6 +468,23 @@ void main() {
       expect(find.text('Mr. Samy'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
+  });
+
+  testWidgets('F-4: HintPanel heading rule reaches the content right edge', (
+    tester,
+  ) async {
+    await pump(tester, const HintPanel(md: 'Use it'), width: 720);
+    final panel = find.byType(FramedPanel);
+    final rule = find.descendant(
+      of: panel,
+      matching: find.byWidgetPredicate(
+        (w) => w is SizedBox && w.height == BookletStroke.thin,
+      ),
+    );
+    expect(rule, findsOneWidget);
+    final contentRight =
+        tester.getRect(panel).right - tester.widget<FramedPanel>(panel).padding;
+    expect(tester.getRect(rule).right, closeTo(contentRight, 1));
   });
 
   group('F-4: HintPanel and WorkedExample', () {

@@ -206,7 +206,7 @@ class QuestionView extends StatelessWidget {
             variant: BookletButtonVariant.secondary,
           ),
           middle: layout == BookletLayout.compact
-              ? TextButton.icon(
+              ? TextButton(
                   onPressed: () => showHomeworkNavigatorSheet(
                     context,
                     title: title,
@@ -217,12 +217,23 @@ class QuestionView extends StatelessWidget {
                     onJumpTo: onJumpTo,
                     onSubmit: onSubmit,
                   ),
-                  iconAlignment: IconAlignment.end,
-                  icon: const Icon(Icons.expand_less),
-                  label: Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  style: TextButton.styleFrom(
+                    padding: EdgeInsets.zero,
+                    minimumSize: const Size(0, BookletSize.touchTarget),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: BookletSpace.s1,
+                    children: [
+                      Flexible(
+                        // Wraps rather than ellipsizing: the copy is never cut.
+                        child: Text(label, textAlign: TextAlign.center),
+                      ),
+                      const Icon(
+                        Icons.expand_less,
+                        size: BookletSize.iconStatus,
+                      ),
+                    ],
                   ),
                 )
               : middle(label),

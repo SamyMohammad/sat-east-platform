@@ -259,6 +259,58 @@ void main() {
     });
   });
 
+  group('QuestionView shortcuts caret in SPR field (final review I1)', () {
+    Future<(_Calls, TextEditingController)> pumpSpr(WidgetTester t) async {
+      t.view.physicalSize = _wide;
+      t.view.devicePixelRatio = 1;
+      addTearDown(t.view.reset);
+      final calls = _Calls();
+      await t.pumpWidget(
+        _app(
+          QuestionView(
+            title: 'Linear equations',
+            question: _spr,
+            mode: _homework,
+            answer: const AnswerState(sprText: '123'),
+            onSelect: calls.selects.add,
+            onEliminate: calls.eliminates.add,
+            onPrev: () => calls.prevs++,
+            onNext: () => calls.nexts++,
+          ),
+        ),
+      );
+      await t.pump();
+      return (calls, t.widget<TextField>(find.byType(TextField)).controller!);
+    }
+
+    testWidgets('F-4: left arrow in the SPR field moves the caret only', (
+      t,
+    ) async {
+      final (calls, controller) = await pumpSpr(t);
+      await t.tap(find.byType(TextField));
+      await t.pump();
+      controller.selection = const TextSelection.collapsed(offset: 3);
+      await t.pump();
+
+      await t.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await t.pump();
+
+      expect(controller.selection.baseOffset, 2);
+      expect(calls.prevs, 0);
+      expect(calls.nexts, 0);
+    });
+
+    testWidgets('F-4: left arrow fires onPrev once focus is out of the field', (
+      t,
+    ) async {
+      final (calls, _) = await pumpSpr(t);
+
+      await t.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+
+      expect(calls.prevs, 1);
+    });
+  });
+
   group('QuestionView shortcuts when locked (Review Focus 2)', () {
     testWidgets('F-4: A does not select under Checking', (t) async {
       final calls = await _pump(

@@ -357,10 +357,12 @@ Future<void> showHomeworkNavigatorSheet(
           answered: answered,
           marked: marked,
           columns: 6,
-          onJumpTo: (i) {
-            Navigator.of(sheetContext).pop();
-            onJumpTo?.call(i);
-          },
+          onJumpTo: onJumpTo == null
+              ? null
+              : (i) {
+                  Navigator.of(sheetContext).pop();
+                  onJumpTo(i);
+                },
         ),
         LoadingButton(
           label: 'Submit homework',
