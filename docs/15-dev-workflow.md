@@ -90,7 +90,7 @@ Plan a whole sprint's related stories together when they share data or repositor
 
 - One agent per working tree. Run parallel agents (Claude subagents, Codex) in their own `git worktree`, never in the same folder.
 - Split tasks by files, not by feature: two tasks that touch the same file run one after the other.
-- Small PRs, merged the same day CI is green; stacked branches merge in order.
+- Small PRs, merged the same day CI is green. Stacked PRs: before merging one, change its base to `main` (or delete the merged base branch so GitHub retargets it); otherwise it merges into the old base branch, not `main`.
 - Update [`STATUS.md`](STATUS.md) in the PR that changes a row.
 
 ### When things break
