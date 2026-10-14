@@ -15,7 +15,7 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `save_video_progress` | asset_id, from_s, to_s, position_s | pct | merges watched ranges; marks step at ≥ 80% |
 | `mark_notes_opened` | asset_id | ok | |
 | `get_practice_questions` | topic_id, subtopic_id?, difficulty?, limit | questions (no keys) | practice pool; prefers unseen |
-| `check_practice_answer` | question_id, answer, time_ms | is_correct, key, explanation | logs a `practice` attempt answer |
+| `check_practice_answer` | question_id, answer, time_ms, reveal (default false) | is_correct; if correct or `reveal`: key, explanation; else: hint, misconception for the chosen answer | logs a `practice` attempt answer; one retry then reveal (client sends `reveal` on the 2nd miss) |
 | `start_attempt` | kind, topic_id? / mock_group? | attempt_id, questions (no keys), time_limit_s, deadline, server_now, saved answers + client_seq | idempotent: resumes an in-progress attempt (client continues from max client_seq + 1) |
 | `save_answer` | attempt_id, question_id, answer, time_ms, marked, eliminated, client_seq | ok | upsert; ignores older `client_seq`; rejected after deadline + `settings.save_grace_s` (30 s) |
 | `submit_attempt` | attempt_id | report | grades, updates progress/mastery/unlocks, returns keys |

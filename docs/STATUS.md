@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 `QuestionView` | [design spec](superpowers/specs/2026-10-13-f4-design-system-questionview-design.md) | — | — | — | Next: brainstorm + plan |
+| F-4 `QuestionView` PR 1 (practice + homework), PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | — | — | — | Spec in review |
 
 ## Next
 
