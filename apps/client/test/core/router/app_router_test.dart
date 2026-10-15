@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 
 void main() {
   final destinations = [
@@ -78,6 +79,64 @@ void main() {
         expect(_selectedIndex(tester), 3);
         expect(tester.takeException(), isNull);
       }
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  testWidgets('F-4: /gallery is routed by default in the dev flavor', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.gallery);
+    try {
+      await tester.pumpWidget(
+        MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(GalleryScreen), findsOneWidget);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  testWidgets('F-4: /gallery is not routed when includeGallery is false', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(
+      initialLocation: AppRoutes.gallery,
+      includeGallery: false,
+    );
+    try {
+      await _pumpRouter(tester, router);
+      expect(find.byType(GalleryScreen), findsNothing);
+      // go_router shows its error page; no exception may escape.
+      expect(tester.takeException(), isNull);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  testWidgets('F-4: /gallery shows the gallery when includeGallery is true', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(
+      initialLocation: AppRoutes.gallery,
+      includeGallery: true,
+    );
+    try {
+      await tester.pumpWidget(
+        MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.byType(GalleryScreen), findsOneWidget);
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());
       router.dispose();

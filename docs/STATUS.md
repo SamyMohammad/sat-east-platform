@@ -8,11 +8,11 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 `QuestionView` PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 2 plan](superpowers/plans/2026-10-15-f4-questionview-pr2.md) | `feat/F-4-questionview-pr2` | #23 | PR 2 in review |
+| F-4 design gallery | [spec](superpowers/specs/2026-10-15-f4-gallery-design.md) | [plan](superpowers/plans/2026-10-15-f4-gallery.md) | `feat/F-4-gallery` | #24 | in review |
 
 ## Next
 
-1. F-4 component gallery + deploy shell to staging (Phase 0 exit).
+1. After merge: check `https://sat-staging.pages.dev/#/gallery` at 360 and 1280 (Phase 0 UI exit).
 2. Phase 1 vertical slice: login → course → topic → practice → quiz → unlock, on staging.
 3. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
 
@@ -41,6 +41,7 @@
 | 6 | F-4 components A — answer inputs | #16 |
 | 6 | F-4 components B — buttons + feedback, AppShell | #18, #19 → re-landed in #20 |
 | 6 | F-4 `QuestionView` PR 1 — practice + homework | #22 |
+| 6 | F-4 `QuestionView` PR 2 — quiz | #23 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
 | S1 (early) | AUTH-04/05 device limit, PAY-01/04 catalogue backend | #11 |
