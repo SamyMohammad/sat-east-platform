@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 `QuestionView` PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 2 plan](superpowers/plans/2026-10-15-f4-questionview-pr2.md) | `feat/F-4-questionview-pr2` | — | PR 2 in review |
+| F-4 `QuestionView` PR 2 (quiz) | [spec](superpowers/specs/2026-10-14-f4-questionview-design.md) | [PR 2 plan](superpowers/plans/2026-10-15-f4-questionview-pr2.md) | `feat/F-4-questionview-pr2` | #23 | PR 2 in review |
 
 ## Next
 
