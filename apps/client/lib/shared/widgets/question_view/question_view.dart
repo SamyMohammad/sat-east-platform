@@ -169,7 +169,7 @@ class QuestionView extends StatelessWidget {
           compact: layout == BookletLayout.compact,
           onToggleTimer: onToggleTimer,
         ),
-        if (quiz.isWarning)
+        if (quiz.showsWarningBanner)
           ExamWarningBanner(
             warnAt: quiz.warnAt,
             onReviewMarked: quiz.marked.isEmpty

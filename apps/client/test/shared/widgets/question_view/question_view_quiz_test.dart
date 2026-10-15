@@ -350,6 +350,15 @@ void main() {
         expect(find.text('04:41'), findsOneWidget);
       });
 
+      testWidgets('F-4: no warning banner when time is up (0:00)', (t) async {
+        await _pump(
+          t,
+          size: size,
+          mode: _mode(remaining: Duration.zero),
+        );
+        expect(find.byType(ExamWarningBanner), findsNothing);
+      });
+
       testWidgets('F-4: no warning banner at 5:01', (t) async {
         await _pump(
           t,

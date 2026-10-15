@@ -72,6 +72,7 @@ class ExamBar extends StatelessWidget {
   Widget _track(BuildContext context, double width, double thickness) {
     final colors = context.booklet;
     return SizedBox(
+      key: const ValueKey('exam-budget-bar'),
       width: width,
       height: thickness,
       child: ColoredBox(
@@ -198,14 +199,12 @@ class ExamBar extends StatelessWidget {
                     ],
                   ],
                 ),
-                if (!hidden) ...[
-                  const SizedBox(height: BookletSpace.s1),
-                  _track(
-                    context,
-                    BookletSize.examBudgetWide,
-                    BookletSize.progressThickness,
-                  ),
-                ],
+                const SizedBox(height: BookletSpace.s1),
+                _track(
+                  context,
+                  BookletSize.examBudgetWide,
+                  BookletSize.progressThickness,
+                ),
               ],
             ),
             const Expanded(child: SizedBox.shrink()),
@@ -275,43 +274,58 @@ class ExamWarningBanner extends StatelessWidget {
                 horizontal: BookletSpace.s4,
                 vertical: BookletSpace.s2,
               ),
-              child: Wrap(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 spacing: BookletSpace.s2,
-                runSpacing: BookletSpace.s1,
-                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
-                  Icon(
-                    Icons.schedule,
-                    size: BookletSize.iconSmall,
-                    color: colors.warning,
+                  Padding(
+                    padding: const EdgeInsets.only(top: BookletSpace.s1),
+                    child: Icon(
+                      Icons.schedule,
+                      size: BookletSize.iconSmall,
+                      color: colors.warning,
+                    ),
                   ),
-                  Text.rich(
-                    TextSpan(
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: colors.warning,
-                      ),
+                  Expanded(
+                    child: Wrap(
+                      spacing: BookletSpace.s2,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        TextSpan(
-                          text: lead,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        Text.rich(
+                          TextSpan(
+                            style: textTheme.bodyMedium?.copyWith(
+                              color: colors.warning,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: lead,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                              const TextSpan(
+                                text:
+                                    ' Answer the rest; a guess scores better '
+                                    'than a blank.',
+                              ),
+                            ],
+                          ),
                         ),
-                        const TextSpan(
-                          text:
-                              ' Answer the rest; a guess scores better than '
-                              'a blank.',
-                        ),
+                        if (onReviewMarked != null)
+                          TextButton(
+                            onPressed: onReviewMarked,
+                            style: TextButton.styleFrom(
+                              foregroundColor: colors.warning,
+                              minimumSize: const Size(
+                                0,
+                                BookletSize.touchTarget,
+                              ),
+                            ),
+                            child: const Text('Review marked'),
+                          ),
                       ],
                     ),
                   ),
-                  if (onReviewMarked != null)
-                    TextButton(
-                      onPressed: onReviewMarked,
-                      style: TextButton.styleFrom(
-                        foregroundColor: colors.warning,
-                        minimumSize: const Size(0, BookletSize.touchTarget),
-                      ),
-                      child: const Text('Review marked'),
-                    ),
                 ],
               ),
             ),

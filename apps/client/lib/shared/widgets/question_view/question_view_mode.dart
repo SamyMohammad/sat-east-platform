@@ -87,6 +87,10 @@ extension QuestionViewModeGating on QuestionViewMode {
     PracticeMode() || HomeworkMode() => false,
   };
 
+  /// The warning banner shows inside the warning window, but not once time
+  /// is up.
+  bool get showsWarningBanner => isWarning && !isTimeUp;
+
   /// Tiles accept select / eliminate / restore only in homework, `Idle` and
   /// `FirstMiss`, and in a quiz until time is up.
   bool get choicesInteractive => switch (this) {

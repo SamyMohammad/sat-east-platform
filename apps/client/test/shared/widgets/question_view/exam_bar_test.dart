@@ -254,6 +254,30 @@ void main() {
     });
   });
 
+  group('F-4: ExamBar budget bar', () {
+    const budgetBar = ValueKey('exam-budget-bar');
+    final cases = <String, (ExamBar, double)>{
+      'phone': (bar(compact: true), 360),
+      'phone timer hidden': (bar(compact: true, timerHidden: true), 360),
+      'phone warning': (bar(compact: true, warning: true), 360),
+      'wide': (bar(), 1280),
+      'wide timer hidden': (
+        bar(timerHidden: true, onToggleTimer: () {}),
+        1280,
+      ),
+      'wide warning': (bar(warning: true), 1280),
+    };
+    for (final entry in cases.entries) {
+      testWidgets('F-4: budget bar is present in ${entry.key}', (
+        tester,
+      ) async {
+        await pump(tester, entry.value.$1, width: entry.value.$2);
+
+        expect(find.byKey(budgetBar), findsOneWidget);
+      });
+    }
+  });
+
   group('F-4: exam semantics', () {
     testWidgets('F-4: clock label is "Time left 14:30" and not live', (
       tester,
@@ -321,6 +345,19 @@ void main() {
         find.textContaining('2 minutes left.', findRichText: true),
         findsOneWidget,
       );
+    });
+
+    testWidgets('F-4: icon sits beside the first text line at 360 px', (
+      tester,
+    ) async {
+      await banner(tester, const Duration(minutes: 5), onReviewMarked: () {});
+
+      final icon = tester.getRect(find.byIcon(Icons.schedule));
+      final text = tester.getRect(
+        find.textContaining('minutes left.', findRichText: true),
+      );
+      expect(icon.center.dy, greaterThanOrEqualTo(text.top));
+      expect(icon.center.dy, lessThanOrEqualTo(text.top + icon.height + 8));
     });
 
     testWidgets('F-4: Review marked fires its callback', (tester) async {
