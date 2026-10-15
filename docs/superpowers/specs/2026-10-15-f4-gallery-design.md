@@ -54,7 +54,7 @@ gallery_screen.dart    GalleryScreen(entryId): top bar + selected entry
   - This local UI state is allowed by B.1.
 
 ## 3. Routing (`lib/core/router/app_router.dart`)
-- `createRouter({String? initialLocation, bool? includeGallery})`. When `includeGallery` is null it means `Env.flavor != Flavor.prod`.
+- `createRouter({String? initialLocation, bool? includeGallery})`. The route is registered only when `!Env.isProd && (includeGallery ?? true)`; `Env.isProd` is a compile-time const, so prod builds drop the gallery code.
 - `AppRoutes.gallery = '/gallery'` is a top-level `GoRoute` outside the `StatefulShellRoute`, so it has no nav chrome.
 
 ## 4. Testing (`test/features/design_gallery/`)

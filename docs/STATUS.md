@@ -8,11 +8,11 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 design gallery | [spec](superpowers/specs/2026-10-15-f4-gallery-design.md) | [plan](superpowers/plans/2026-10-15-f4-gallery.md) | `feat/F-4-gallery` | — | in progress |
+| F-4 design gallery | [spec](superpowers/specs/2026-10-15-f4-gallery-design.md) | [plan](superpowers/plans/2026-10-15-f4-gallery.md) | `feat/F-4-gallery` | — | in review |
 
 ## Next
 
-1. F-4 design gallery on staging (Phase 0 UI exit) — in progress; CI already deploys every `main` push.
+1. After merge: check `https://sat-staging.pages.dev/#/gallery` at 360 and 1280 (Phase 0 UI exit).
 2. Phase 1 vertical slice: login → course → topic → practice → quiz → unlock, on staging.
 3. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
 
