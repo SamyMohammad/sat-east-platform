@@ -406,6 +406,166 @@ void main() {
     });
   });
 
+  group('time-up dialog with a nested navigator host', () {
+    final innerKey = GlobalKey();
+
+    Future<_Calls> pumpNested(WidgetTester t, Size size) async {
+      _setSize(t, size);
+      await t.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Navigator(
+            onGenerateRoute: (_) => MaterialPageRoute<void>(
+              builder: (_) => Scaffold(
+                body: Builder(
+                  builder: (c) {
+                    return SizedBox.expand(key: innerKey);
+                  },
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      return _Calls();
+    }
+
+    BuildContext inner() => innerKey.currentContext!;
+
+    testWidgets('F-4: replaces the popover opened from the inner context', (
+      t,
+    ) async {
+      final calls = await pumpNested(t, _wide);
+      unawaited(
+        showNavigatorPopover(
+          inner(),
+          title: _title,
+          total: _total,
+          index: 5,
+          answered: _answered,
+          marked: const {2, 8},
+          onJumpTo: calls.jumps.add,
+          submitLabel: 'Submit quiz',
+          onSubmitPressed: () => calls.submitPresses++,
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(_grid, findsOneWidget);
+
+      unawaited(
+        showQuizTimeUpDialog(
+          inner(),
+          title: 'Quiz 4.2',
+          answered: 9,
+          onContinue: () => calls.continues++,
+        ),
+      );
+      await t.pumpAndSettle();
+
+      _expectOnlyTimeUpOpen();
+    });
+
+    testWidgets('F-4: replaces the submit dialog opened from the inner '
+        'context', (t) async {
+      final calls = await pumpNested(t, _wide);
+      unawaited(
+        showSubmitConfirmDialog(
+          inner(),
+          title: 'Submit quiz?',
+          body: 'After you submit, your answers are locked and marked.',
+          confirmLabel: 'Submit quiz',
+          total: _total,
+          answered: _answered,
+          onSubmit: () => calls.submits++,
+          onJumpTo: calls.jumps.add,
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(find.text('Submit quiz?'), findsOneWidget);
+
+      unawaited(
+        showQuizTimeUpDialog(
+          inner(),
+          title: 'Quiz 4.2',
+          answered: 9,
+          onContinue: () => calls.continues++,
+        ),
+      );
+      await t.pumpAndSettle();
+
+      _expectOnlyTimeUpOpen();
+    });
+
+    testWidgets('F-4: replaces the sheet opened from the inner context', (
+      t,
+    ) async {
+      final calls = await pumpNested(t, _phone);
+      unawaited(
+        showNavigatorSheet(
+          inner(),
+          title: _title,
+          total: _total,
+          index: 5,
+          answered: _answered,
+          marked: const {2, 8},
+          onJumpTo: calls.jumps.add,
+          submitLabel: 'Submit quiz',
+          onSubmitPressed: () => calls.submitPresses++,
+        ),
+      );
+      await t.pumpAndSettle();
+      expect(_grid, findsOneWidget);
+
+      unawaited(
+        showQuizTimeUpDialog(
+          inner(),
+          title: 'Quiz 4.2',
+          answered: 9,
+          onContinue: () => calls.continues++,
+        ),
+      );
+      await t.pumpAndSettle();
+
+      _expectOnlyTimeUpOpen();
+    });
+  });
+
+  testWidgets('F-4: Esc does not dismiss the time-up dialog', (t) async {
+    final calls = await _pumpHost(t, _wide);
+    await _openTimeUp(t, calls);
+
+    await t.sendKeyEvent(LogicalKeyboardKey.escape);
+    await t.pumpAndSettle();
+
+    expect(_dialog, findsOneWidget);
+    expect(calls.continues, 0);
+  });
+
+  testWidgets('F-4: popover scrolls on a short viewport and Submit quiz is '
+      'reachable', (t) async {
+    final calls = await _pumpHost(t, const Size(800, 360));
+    await _openPopover(t, calls);
+
+    expect(t.takeException(), isNull);
+    final popover = find
+        .ancestor(of: _grid, matching: find.byType(Material))
+        .first;
+    final scrollable = find
+        .descendant(of: popover, matching: find.byType(Scrollable))
+        .first;
+    expect(scrollable, findsOneWidget);
+
+    await t.scrollUntilVisible(
+      find.text('Submit quiz'),
+      50,
+      scrollable: scrollable,
+    );
+    await t.tap(find.text('Submit quiz'));
+    await t.pumpAndSettle();
+
+    expect(calls.submitPresses, 1);
+  });
+
   group('time-up copy', () {
     testWidgets('F-4: singular answer', (t) async {
       final calls = await _pumpHost(t, _wide);

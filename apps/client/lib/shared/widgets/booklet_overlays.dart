@@ -55,7 +55,16 @@ Future<T?> showBookletPopover<T>({
                   BookletSpace.s5,
                   BookletSpace.s5,
                 ),
-                child: Builder(builder: builder),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Builder(builder: builder),
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

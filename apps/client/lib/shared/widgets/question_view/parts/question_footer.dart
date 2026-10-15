@@ -11,12 +11,17 @@ class QuestionFooter extends StatelessWidget {
     required this.primary,
     super.key,
     this.helper,
+    this.phoneComposition = false,
   });
 
   final Widget? leading;
   final Widget middle;
   final Widget primary;
   final String? helper;
+
+  /// Lays out like the phone footer (flexible middle, stacks at large text
+  /// scales) even on wide screens. For footers whose wide grid would not fit.
+  final bool phoneComposition;
 
   /// Above this text scale the phone footer stacks instead of squeezing.
   static const double _stackScale = 1.3;
@@ -45,7 +50,9 @@ class QuestionFooter extends StatelessWidget {
                   horizontal: compact ? BookletSpace.s3 : BookletSpace.s8,
                   vertical: compact ? BookletSpace.s2 : 0,
                 ),
-                child: compact ? _compact(context) : _wide(context),
+                child: compact || phoneComposition
+                    ? _compact(context)
+                    : _wide(context),
               ),
             ),
           ),

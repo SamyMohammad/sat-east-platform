@@ -545,6 +545,43 @@ void main() {
     });
   });
 
+  group('QuestionView quiz footer at medium widths', () {
+    for (final (width, scale) in [
+      (601.0, 1.0),
+      (768.0, 1.0),
+      (900.0, 1.0),
+      (768.0, 1.3),
+    ]) {
+      for (final (index, label) in [(3, 'Next'), (11, 'Submit quiz')]) {
+        testWidgets('F-4: footer fits at $width (x$scale), "$label" visible', (
+          t,
+        ) async {
+          t.platformDispatcher.textScaleFactorTestValue = scale;
+          addTearDown(t.platformDispatcher.clearTextScaleFactorTestValue);
+          const height = 800.0;
+          await _pump(
+            t,
+            size: Size(width, height),
+            mode: _mode(index: index),
+          );
+
+          expect(t.takeException(), isNull);
+          final button = find.widgetWithText(LoadingButton, label);
+          expect(button, findsOneWidget);
+          final rect = t.getRect(button);
+          expect(rect.left, greaterThanOrEqualTo(0));
+          expect(rect.top, greaterThanOrEqualTo(0));
+          expect(rect.right, lessThanOrEqualTo(width));
+          expect(rect.bottom, lessThanOrEqualTo(height));
+          if (width == 768 && index == 3) {
+            expect(find.text('Back'), findsOneWidget);
+            expect(_button(t, 'Back').onPressed, isNotNull);
+          }
+        });
+      }
+    }
+  });
+
   group('QuestionView quiz width changes', () {
     testWidgets('F-4: resizing 1280 to 360 swaps the popover button for the '
         'sheet button and callbacks still fire', (t) async {

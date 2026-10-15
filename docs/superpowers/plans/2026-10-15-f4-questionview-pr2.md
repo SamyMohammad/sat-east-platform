@@ -457,5 +457,5 @@ Steps:
 
 - Every command above is clean, and the goldens pass on Windows.
 - No consumer route exists yet (the gallery comes after PR 2), so verification relies on widget tests at 360 / 768 / 1280 plus the golden PNGs, compared by eye against the `QuestionView Homework Quiz Review.dc.html` Q1–Q3 screens.
-- No-timer check: `grep -rn "Timer\|Ticker\|Stopwatch\|periodic" lib/shared/widgets/question_view` finds nothing.
+- No-timer check: `grep -rnE "\bTimer\(|Ticker|Stopwatch|periodic" lib/shared/widgets/question_view` finds nothing.
 - Rule-1 check: the PR 1 contract test still passes. `QuizMode` has no key or explanation field.

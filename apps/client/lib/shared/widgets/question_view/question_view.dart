@@ -285,35 +285,47 @@ class QuestionView extends StatelessWidget {
         : LoadingButton(label: 'Next', onPressed: quiz.forwardAction(onNext));
     void open() => _openNavigator(context, layout, quiz);
 
-    if (compact) {
+    if (layout != BookletLayout.expanded) {
+      // Phone and medium widths: Back on the left, primary on the right.
       return QuestionFooter(
+        phoneComposition: true,
         leading: back,
-        middle: _NavigatorFooterButton(label: label, onPressed: open),
+        middle: compact
+            ? _NavigatorFooterButton(label: label, onPressed: open)
+            : _inkNavigatorButton(scheme, label, open),
         primary: primary,
       );
     }
     return QuestionFooter(
       leading: null,
-      middle: FilledButton(
-        onPressed: open,
-        style: FilledButton.styleFrom(
-          backgroundColor: scheme.onSurface,
-          foregroundColor: scheme.surface,
-          minimumSize: const Size(0, BookletSize.touchTarget),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          spacing: BookletSpace.s1,
-          children: [
-            Text(label),
-            const Icon(Icons.expand_less, size: BookletSize.iconStatus),
-          ],
-        ),
-      ),
+      middle: _inkNavigatorButton(scheme, label, open),
       primary: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: BookletSpace.s3,
         children: [back, primary],
+      ),
+    );
+  }
+
+  Widget _inkNavigatorButton(
+    ColorScheme scheme,
+    String label,
+    VoidCallback onPressed,
+  ) {
+    return FilledButton(
+      onPressed: onPressed,
+      style: FilledButton.styleFrom(
+        backgroundColor: scheme.onSurface,
+        foregroundColor: scheme.surface,
+        minimumSize: const Size(0, BookletSize.touchTarget),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        spacing: BookletSpace.s1,
+        children: [
+          Flexible(child: Text(label, textAlign: TextAlign.center)),
+          const Icon(Icons.expand_less, size: BookletSize.iconStatus),
+        ],
       ),
     );
   }
