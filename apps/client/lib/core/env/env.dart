@@ -27,6 +27,9 @@ abstract final class Env {
     defaultValue: 'https://eu.i.posthog.com',
   );
 
+  /// Compile-time, so prod builds tree-shake dev-only code (e.g. the gallery).
+  static const bool isProd = _flavor == 'prod';
+
   static Flavor get flavor => Flavor.values.byName(_flavor);
 
   static bool get isConfigured =>

@@ -216,6 +216,54 @@ void main() {
         }
       });
 
+      testWidgets('F-4: quiz-time-up opens the time-up dialog', (tester) async {
+        _viewport(tester, width);
+        final router = createRouter(
+          initialLocation: galleryLocation('quiz-time-up'),
+          includeGallery: true,
+        );
+        try {
+          await tester.pumpWidget(
+            MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+          );
+          await tester.pumpAndSettle();
+          expect(find.byType(BookletDialog), findsOneWidget);
+          expect(find.text("Time's up. Quiz 4.2 submitted."), findsOneWidget);
+          expect(tester.takeException(), isNull);
+        } finally {
+          await _dispose(tester, router);
+        }
+      });
+
+      testWidgets('F-4: homework-navigator shows sheet or inline panel', (
+        tester,
+      ) async {
+        _viewport(tester, width);
+        final router = createRouter(
+          initialLocation: galleryLocation('homework-navigator'),
+          includeGallery: true,
+        );
+        try {
+          await tester.pumpWidget(
+            MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+          );
+          await tester.pumpAndSettle();
+          if (width == 360) {
+            expect(find.byType(BottomSheet), findsOneWidget);
+            expect(find.byType(QuestionNavigatorGrid), findsOneWidget);
+          } else {
+            expect(find.byType(BottomSheet), findsNothing);
+            expect(
+              find.byKey(const ValueKey('homework-navigator-panel')),
+              findsOneWidget,
+            );
+          }
+          expect(tester.takeException(), isNull);
+        } finally {
+          await _dispose(tester, router);
+        }
+      });
+
       for (final id in ['practice-idle', 'quiz-submit']) {
         testWidgets('F-4: AppBar title is not clipped on $id', (tester) async {
           _viewport(tester, width);

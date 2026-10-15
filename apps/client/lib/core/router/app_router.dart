@@ -41,7 +41,7 @@ GoRouter createRouter({String? initialLocation, bool? includeGallery}) =>
               ),
           ],
         ),
-        if (includeGallery ?? Env.flavor != Flavor.prod)
+        if (!Env.isProd && (includeGallery ?? true))
           GoRoute(
             path: AppRoutes.gallery,
             builder: (context, state) =>

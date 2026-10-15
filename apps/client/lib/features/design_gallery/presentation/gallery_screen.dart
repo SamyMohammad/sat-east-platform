@@ -137,6 +137,7 @@ class _EntryHostState extends State<_EntryHost> {
     var found = true;
     while (found) {
       found = false;
+      // The predicate only peeks at the top route; returning true never pops.
       navigator.popUntil((route) {
         if (route is PopupRoute) {
           found = true;
