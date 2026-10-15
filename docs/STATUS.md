@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 design gallery | [spec](superpowers/specs/2026-10-15-f4-gallery-design.md) | [plan](superpowers/plans/2026-10-15-f4-gallery.md) | `feat/F-4-gallery` | — | in review |
+| F-4 design gallery | [spec](superpowers/specs/2026-10-15-f4-gallery-design.md) | [plan](superpowers/plans/2026-10-15-f4-gallery.md) | `feat/F-4-gallery` | #24 | in review |
 
 ## Next
 
