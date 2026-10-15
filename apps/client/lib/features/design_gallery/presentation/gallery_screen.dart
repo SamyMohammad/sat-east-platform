@@ -31,44 +31,59 @@ class _GalleryScreenState extends State<GalleryScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Design gallery'),
-        actions: [
-          Flexible(
-            child: DropdownButton<String>(
-              value: entry.id,
-              isExpanded: true,
-              onChanged: (id) => context.go(galleryLocation(id!)),
-              items: [
-                for (final e in galleryEntries)
-                  DropdownMenuItem(
-                    value: e.id,
-                    child: Text(e.label, overflow: TextOverflow.ellipsis),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(BookletSize.touchTarget),
+          child: Row(
+            children: [
+              const SizedBox(width: BookletSpace.s4),
+              Flexible(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    maxWidth: BookletSize.galleryPicker,
                   ),
-              ],
-            ),
+                  child: DropdownButton<String>(
+                    value: entry.id,
+                    isExpanded: true,
+                    onChanged: (id) {
+                      if (id != null) context.go(galleryLocation(id));
+                    },
+                    items: [
+                      for (final e in galleryEntries)
+                        DropdownMenuItem(
+                          value: e.id,
+                          child: Text(e.label, overflow: TextOverflow.ellipsis),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_left),
+                tooltip: 'Previous entry',
+                onPressed: hasPrevious
+                    ? () => context.go(
+                        galleryLocation(galleryEntries[index - 1].id),
+                      )
+                    : null,
+              ),
+              IconButton(
+                icon: const Icon(Icons.chevron_right),
+                tooltip: 'Next entry',
+                onPressed: hasNext
+                    ? () => context.go(
+                        galleryLocation(galleryEntries[index + 1].id),
+                      )
+                    : null,
+              ),
+              if (entry.openOverlay != null)
+                TextButton(
+                  onPressed: () => _hostKey.currentState?.reopen(),
+                  child: const Text('Reopen'),
+                ),
+              const SizedBox(width: BookletSpace.s2),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            tooltip: 'Previous entry',
-            onPressed: hasPrevious
-                ? () =>
-                      context.go(galleryLocation(galleryEntries[index - 1].id))
-                : null,
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            tooltip: 'Next entry',
-            onPressed: hasNext
-                ? () =>
-                      context.go(galleryLocation(galleryEntries[index + 1].id))
-                : null,
-          ),
-          if (entry.openOverlay != null)
-            TextButton(
-              onPressed: () => _hostKey.currentState?.reopen(),
-              child: const Text('Reopen'),
-            ),
-          const SizedBox(width: BookletSpace.s2),
-        ],
+        ),
       ),
       body: _EntryHost(key: _hostKey, entry: entry),
     );
@@ -111,11 +126,26 @@ class _EntryHostState extends State<_EntryHost> {
   }
 
   void _closeOverlays() {
-    Navigator.of(context, rootNavigator: true).popUntil(_isNotPopup);
-    Navigator.of(context).popUntil(_isNotPopup);
+    _removePopups(Navigator.of(context, rootNavigator: true));
+    _removePopups(Navigator.of(context));
   }
 
-  static bool _isNotPopup(Route<dynamic> route) => route is! PopupRoute;
+  /// Removes (without the exit animation) every [PopupRoute] on [navigator].
+  /// `popUntil` would animate out and leave the route mounted for extra
+  /// frames, so a fast entry change could still show the old overlay.
+  static void _removePopups(NavigatorState navigator) {
+    var found = true;
+    while (found) {
+      found = false;
+      navigator.popUntil((route) {
+        if (route is PopupRoute) {
+          found = true;
+          navigator.removeRoute(route);
+        }
+        return true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => widget.entry.builder(context);

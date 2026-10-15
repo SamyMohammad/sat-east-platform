@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +10,7 @@ import 'package:sat_east_client/features/design_gallery/presentation/gallery_ent
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 
 void main() {
   for (final width in [360.0, 1280.0]) {
@@ -191,36 +193,58 @@ void main() {
         }
       });
 
-      testWidgets('F-4: choosing quiz from quiz-submit leaves no dialog', (
+      testWidgets('F-4: leaving quiz-navigator closes its sheet or popover', (
         tester,
       ) async {
         _viewport(tester, width);
         final router = createRouter(
-          initialLocation: galleryLocation('quiz-submit'),
+          initialLocation: galleryLocation('quiz-navigator'),
           includeGallery: true,
         );
         try {
-          await tester.pumpWidget(
-            MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
-          );
-          await tester.pumpAndSettle();
-          expect(find.byType(BookletDialog), findsOneWidget);
+          await _pumpGallery(tester, router);
+          expect(find.byType(QuestionNavigatorGrid), findsOneWidget);
 
-          // A modal barrier blocks the AppBar; dismiss it as a user would.
-          await tester.tap(find.text('Keep working'));
-          await tester.pumpAndSettle();
-          await tester.tap(find.byType(DropdownButton<String>));
-          await tester.pumpAndSettle();
-          await tester.tap(find.text('Quiz · Question').last);
-          await tester.pumpAndSettle();
+          router.go(galleryLocation('quiz'));
+          await _pumpBounded(tester);
 
-          expect(_location(router), galleryLocation('quiz'));
-          expect(find.byType(BookletDialog), findsNothing);
+          expect(find.byType(QuestionNavigatorGrid), findsNothing);
+          expect(find.byType(BottomSheet), findsNothing);
           expect(tester.takeException(), isNull);
         } finally {
           await _dispose(tester, router);
         }
       });
+
+      for (final id in ['practice-idle', 'quiz-submit']) {
+        testWidgets('F-4: AppBar title is not clipped on $id', (tester) async {
+          _viewport(tester, width);
+          final router = createRouter(
+            initialLocation: galleryLocation(id),
+            includeGallery: true,
+          );
+          try {
+            await tester.pumpWidget(
+              MaterialApp.router(
+                theme: AppTheme.light(),
+                routerConfig: router,
+              ),
+            );
+            await tester.pumpAndSettle();
+
+            final title = find.descendant(
+              of: find.byType(AppBar),
+              matching: find.text('Design gallery'),
+            );
+            final paragraph = tester.renderObject<RenderParagraph>(title);
+            expect(paragraph.didExceedMaxLines, isFalse);
+            expect(paragraph.size.width, greaterThan(40));
+            expect(tester.takeException(), isNull);
+          } finally {
+            await _dispose(tester, router);
+          }
+        });
+      }
 
       testWidgets('F-4: unknown entry id falls back to the first entry', (
         tester,
@@ -260,7 +284,7 @@ void main() {
     }
   });
 
-  testWidgets('F-4: the AppBar does not overflow at 360 with a long label', (
+  testWidgets('F-4: no AppBar overflow at 360 on practice-revealed-spr', (
     tester,
   ) async {
     _viewport(tester, 360);
