@@ -6,10 +6,13 @@ import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/painters/dashed_border.dart';
 
-/// Confirms the one-time homework submit. Lists unanswered questions as
+/// Confirms a one-time submit (homework, quiz). Lists unanswered questions as
 /// chips that close the dialog and jump back to them.
-Future<void> showHomeworkSubmitDialog(
+Future<void> showSubmitConfirmDialog(
   BuildContext context, {
+  required String title,
+  required String body,
+  required String confirmLabel,
   required int total,
   required Set<int> answered,
   required VoidCallback? onSubmit,
@@ -22,16 +25,13 @@ Future<void> showHomeworkSubmitDialog(
   return showBookletDialog<void>(
     context: context,
     builder: (dialogContext) => BookletDialog(
-      title: 'Submit homework?',
+      title: title,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: BookletSpace.s3,
         children: [
-          const Text(
-            'You can submit once. After that your answers are locked and '
-            'marked.',
-          ),
+          Text(body),
           if (unanswered.isNotEmpty)
             _UnansweredList(
               indices: unanswered,
@@ -48,7 +48,7 @@ Future<void> showHomeworkSubmitDialog(
           child: const Text('Keep working'),
         ),
         LoadingButton(
-          label: 'Submit homework',
+          label: confirmLabel,
           onPressed: () {
             Navigator.of(dialogContext).pop();
             onSubmit?.call();

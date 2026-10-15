@@ -58,11 +58,23 @@ abstract final class BookletSize {
   static const double footerHeight = 72;
   static const double marginNote = 300;
   static const double navigatorPanel = 280;
+  static const double navigatorPopover = 456;
+  static const int navigatorSheetColumns = 6;
+  static const int navigatorPopoverColumns = 7;
   static const double navigatorCell = 48;
   static const double navigatorUnderlineWidth = 20;
   static const double navigatorUnderlineHeight = 3;
   static const double legendSwatch = 16;
   static const double submitChipMinWidth = 56;
+  static const double examBarCompact = 56;
+  static const double examBarWide = 76;
+  static const double examBudgetCompact = 96;
+  static const double examBudgetWide = 200;
+  static const double examBudgetThinThickness = 3;
+  static const double examToggleHeight = 40;
+  static const double examTimerButtonHeight = 32;
+  static const double examQuestionBadge = 32;
+  static const double warningBannerMinHeight = 56;
 }
 
 /// Letter-spacing in logical px for the 12 px caption style

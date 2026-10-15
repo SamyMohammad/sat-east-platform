@@ -73,6 +73,38 @@ void main() {
     });
   });
 
+  group('Quiz', () {
+    const quiz = QuizMode(
+      title: 'Quiz 4.2',
+      index: 0,
+      total: 5,
+      remaining: Duration(minutes: 10),
+      timeBudget: Duration(minutes: 18),
+      warnAt: Duration(minutes: 5),
+    );
+
+    test('F-4: selected choice looks selected', () {
+      expectLook(
+        choiceLookFor('B', const AnswerState(selected: 'B'), quiz),
+        ChoiceTileState.selected,
+      );
+    });
+
+    test('F-4: eliminated choice looks eliminated', () {
+      expectLook(
+        choiceLookFor('C', const AnswerState(eliminated: {'C'}), quiz),
+        ChoiceTileState.eliminated,
+      );
+    });
+
+    test('F-4: other choice looks idle', () {
+      expectLook(
+        choiceLookFor('A', const AnswerState(selected: 'B'), quiz),
+        ChoiceTileState.idle,
+      );
+    });
+  });
+
   group('Checking', () {
     final mode = practice(const Checking());
 

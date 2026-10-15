@@ -1,6 +1,8 @@
 @Tags(['golden'])
 library;
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
@@ -10,6 +12,7 @@ import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.d
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
+import 'package:sat_east_client/shared/widgets/question_view/quiz_time_up_dialog.dart';
 
 import '../full_viewport_harness.dart';
 
@@ -114,7 +117,152 @@ Widget _homeworkView() => Scaffold(
   ),
 );
 
+const _quizAnswered = {0, 1, 2, 3, 4, 5, 7, 8, 10, 11};
+
+Widget _quizView({
+  required int index,
+  required Duration remaining,
+  AnswerState answer = const AnswerState(),
+  bool timerHidden = false,
+  Set<int> marked = const {4},
+}) => Scaffold(
+  body: QuestionView(
+    title: 'Quiz · 4.2 Linear equations',
+    question: _question,
+    mode: QuizMode(
+      title: 'Quiz 4.2',
+      index: index,
+      total: 12,
+      remaining: remaining,
+      timeBudget: const Duration(minutes: 18),
+      warnAt: const Duration(minutes: 5),
+      timerHidden: timerHidden,
+      answered: _quizAnswered,
+      marked: marked,
+    ),
+    answer: answer,
+    onBack: () {},
+    onSelect: (_) {},
+    onEliminate: (_) {},
+    onRestore: (_) {},
+    onNext: () {},
+    onPrev: () {},
+    onMark: () {},
+    onJumpTo: (_) {},
+    onSubmit: () {},
+    onToggleTimer: () {},
+  ),
+);
+
+const _quizAnswer = AnswerState(selected: 'B', eliminated: {'D'});
+
+Future<void> _openNavigator(WidgetTester tester) async {
+  await tester.tap(find.textContaining('Question 4 of 12'));
+}
+
+void _quizGoldens() {
+  for (final width in [360.0, 1280.0]) {
+    final w = width.toInt();
+    testWidgets('F-4: golden qv_quiz_$w', (tester) async {
+      await expectViewportGolden(
+        tester,
+        name: 'qv_quiz_$w',
+        width: width,
+        height: 800,
+        child: _quizView(
+          index: 3,
+          remaining: const Duration(minutes: 14, seconds: 30),
+          answer: _quizAnswer,
+        ),
+      );
+    });
+    testWidgets('F-4: golden qv_quiz_warning_$w', (tester) async {
+      await expectViewportGolden(
+        tester,
+        name: 'qv_quiz_warning_$w',
+        width: width,
+        height: 800,
+        child: _quizView(
+          index: 10,
+          remaining: const Duration(minutes: 4, seconds: 41),
+          answer: const AnswerState(selected: 'A', marked: true),
+          marked: const {4, 10},
+        ),
+      );
+    });
+    testWidgets('F-4: golden qv_quiz_navigator_$w', (tester) async {
+      await expectViewportGolden(
+        tester,
+        name: 'qv_quiz_navigator_$w',
+        width: width,
+        height: 800,
+        child: _quizView(
+          index: 3,
+          remaining: const Duration(minutes: 14, seconds: 30),
+          answer: _quizAnswer,
+        ),
+        interact: _openNavigator,
+      );
+    });
+  }
+
+  testWidgets('F-4: golden qv_quiz_timer_hidden_1280', (tester) async {
+    await expectViewportGolden(
+      tester,
+      name: 'qv_quiz_timer_hidden_1280',
+      width: 1280,
+      height: 800,
+      child: _quizView(
+        index: 3,
+        remaining: const Duration(minutes: 14, seconds: 30),
+        answer: _quizAnswer,
+        timerHidden: true,
+      ),
+    );
+  });
+
+  testWidgets('F-4: golden qv_quiz_submit_1280', (tester) async {
+    await expectViewportGolden(
+      tester,
+      name: 'qv_quiz_submit_1280',
+      width: 1280,
+      height: 800,
+      child: _quizView(
+        index: 3,
+        remaining: const Duration(minutes: 14, seconds: 30),
+        answer: _quizAnswer,
+      ),
+      interact: (tester) async {
+        await _openNavigator(tester);
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Submit quiz').last);
+      },
+    );
+  });
+
+  testWidgets('F-4: golden qv_quiz_timeup_360', (tester) async {
+    await expectViewportGolden(
+      tester,
+      name: 'qv_quiz_timeup_360',
+      width: 360,
+      height: 800,
+      child: _quizView(index: 3, remaining: Duration.zero, answer: _quizAnswer),
+      interact: (tester) async {
+        unawaited(
+          showQuizTimeUpDialog(
+            tester.element(find.byType(QuestionView)),
+            title: 'Quiz 4.2',
+            answered: 10,
+            onContinue: () {},
+          ),
+        );
+      },
+    );
+  });
+}
+
 void main() {
+  _quizGoldens();
   for (final width in [360.0, 1280.0]) {
     for (final entry in _practiceCases.entries) {
       final name = '${entry.key}_${width.toInt()}';

@@ -10,6 +10,7 @@ import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.da
 import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/worked_example.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
@@ -110,7 +111,7 @@ Future<void> _openSubmitDialog(WidgetTester t) async {
 }
 
 void main() {
-  group('HomeworkNavigatorGrid semantics', () {
+  group('QuestionNavigatorGrid semantics', () {
     testWidgets('F-4: cells are labelled by state and fire onJumpTo(n-1)', (
       t,
     ) async {
@@ -119,7 +120,7 @@ void main() {
       final jumps = <int>[];
       await t.pumpWidget(
         _app(
-          HomeworkNavigatorGrid(
+          QuestionNavigatorGrid(
             total: 6,
             index: 2,
             answered: const {0, 2},
@@ -202,7 +203,7 @@ void main() {
           findsOneWidget,
         );
         expect(_inPanel(find.text('Submit homework')), findsOneWidget);
-        expect(_inPanel(find.text('Marked for review')), findsNothing);
+        expect(_inPanel(find.text('Marked for review')), findsOneWidget);
       });
 
       testWidgets('F-4: panel grid has 4 columns and 20 cells', (t) async {
@@ -232,13 +233,13 @@ void main() {
     ) async {
       await _pump(t, size: _phone);
       expect(_panel, findsNothing);
-      expect(find.byType(HomeworkNavigatorGrid), findsNothing);
+      expect(find.byType(QuestionNavigatorGrid), findsNothing);
       expect(find.byIcon(Icons.expand_less), findsOneWidget);
 
       await t.tap(find.text('Question 6 of 20'));
       await t.pumpAndSettle();
 
-      expect(find.byType(HomeworkNavigatorGrid), findsOneWidget);
+      expect(find.byType(QuestionNavigatorGrid), findsOneWidget);
     });
 
     testWidgets('F-4: sheet has 6 columns, extra legend and submit', (
@@ -272,7 +273,7 @@ void main() {
       await t.pumpAndSettle();
 
       expect(calls.jumps, [11]);
-      expect(find.byType(HomeworkNavigatorGrid), findsNothing);
+      expect(find.byType(QuestionNavigatorGrid), findsNothing);
     });
   });
 
@@ -290,18 +291,18 @@ void main() {
         await t.pumpAndSettle();
 
         expect(_panel, findsNothing);
-        expect(find.byType(HomeworkNavigatorGrid), findsNothing);
+        expect(find.byType(QuestionNavigatorGrid), findsNothing);
         expect(t.takeException(), isNull);
 
         await t.tap(find.text('Question 6 of 20'));
         await t.pumpAndSettle();
-        expect(find.byType(HomeworkNavigatorGrid), findsOneWidget);
+        expect(find.byType(QuestionNavigatorGrid), findsOneWidget);
 
         await t.tap(_cell(12));
         await t.pumpAndSettle();
 
         expect(calls.jumps, [3, 12]);
-        expect(find.byType(HomeworkNavigatorGrid), findsNothing);
+        expect(find.byType(QuestionNavigatorGrid), findsNothing);
       },
     );
   });
@@ -522,12 +523,12 @@ void main() {
       await t.pumpAndSettle();
       await t.tap(find.text('Question 6 of 20'));
       await t.pumpAndSettle();
-      expect(find.byType(HomeworkNavigatorGrid), findsOneWidget);
+      expect(find.byType(QuestionNavigatorGrid), findsOneWidget);
 
       await t.tap(_cell(0));
       await t.pumpAndSettle();
 
-      expect(find.byType(HomeworkNavigatorGrid), findsOneWidget);
+      expect(find.byType(QuestionNavigatorGrid), findsOneWidget);
     });
   });
 

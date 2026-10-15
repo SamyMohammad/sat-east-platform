@@ -29,7 +29,7 @@ ChoiceLook choiceLookFor(
   final firstTry = _look(ChoiceTileState.incorrect, _firstTryLabel);
 
   return switch (mode) {
-    HomeworkMode() => working,
+    HomeworkMode() || QuizMode() => working,
     PracticeMode(:final feedback) => switch (feedback) {
       Idle() => working,
       Checking() => _look(

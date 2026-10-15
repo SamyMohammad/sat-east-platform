@@ -16,6 +16,7 @@ Future<void> expectViewportGolden(
   Brightness brightness = Brightness.light,
   double textScale = 1,
   String directory = 'goldens',
+  Future<void> Function(WidgetTester tester)? interact,
 }) async {
   tester.view.devicePixelRatio = 1;
   tester.view.physicalSize = Size(width, height);
@@ -30,12 +31,17 @@ Future<void> expectViewportGolden(
         data: MediaQuery.of(
           context,
         ).copyWith(textScaler: TextScaler.linear(textScale)),
-        child: child!,
+        // The boundary sits above the Navigator so overlays are captured.
+        child: RepaintBoundary(key: _viewportBoundary, child: child),
       ),
-      home: RepaintBoundary(key: _viewportBoundary, child: child),
+      home: child,
     ),
   );
   await tester.pumpAndSettle();
+  if (interact != null) {
+    await interact(tester);
+    await tester.pumpAndSettle();
+  }
   expect(tester.takeException(), isNull);
   await expectLater(
     find.byKey(_viewportBoundary),
