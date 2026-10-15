@@ -1,9 +1,9 @@
-﻿# F-4 â€” Design gallery â€” design
+# F-4 — Design gallery — design
 
-Status: approved 2026-10-15. Parent: [`2026-10-13-f4-design-system-questionview-design.md`](2026-10-13-f4-design-system-questionview-design.md) step 6 and the "PR Gallery" entry in `docs/superpowers/plans/2026-10-13-f4-design-system.md`. Tier **M** (`docs/15` Â§2): one presentation-only feature, no backend.
+Status: approved 2026-10-15. Parent: [`2026-10-13-f4-design-system-questionview-design.md`](2026-10-13-f4-design-system-questionview-design.md) step 6 and the "PR Gallery" entry in `docs/superpowers/plans/2026-10-13-f4-design-system.md`. Tier **M** (`docs/15` §2): one presentation-only feature, no backend.
 
 ## Goal
-A `/gallery` page, hidden in prod, that shows every `QuestionView` mode and state from static sample data. The user and the teacher review it on staging at 360 and 1280 against the Claude Design export. Merging it closes the UI part of Phase 0 (`docs/15` Â§1 row 6).
+A `/gallery` page, hidden in prod, that shows every `QuestionView` mode and state from static sample data. The user and the teacher review it on staging at 360 and 1280 against the Claude Design export. Merging it closes the UI part of Phase 0 (`docs/15` §1 row 6).
 
 ## Decisions (2026-10-15)
 | Topic | Decision |
@@ -19,9 +19,9 @@ gallery_entries.dart   GalleryEntry {id, label, build(BuildContext), openOverlay
                        const-ordered list `galleryEntries`; static sample data
 gallery_screen.dart    GalleryScreen(entryId): top bar + selected entry
 ```
-- Presentation only: no `data/` or `domain/` layer, because there is no data source (ADR-007 Â§4, CLAUDE.md A.1).
+- Presentation only: no `data/` or `domain/` layer, because there is no data source (ADR-007 §4, CLAUDE.md A.1).
 - **Sample data** comes from the export (`QuestionView.dc.html` QS):
-  - the linear equation `3x âˆ’ 7 = 29`;
+  - the linear equation `3x − 7 = 29`;
   - the rational expression;
   - the SPR slope question;
   - one explanation with an Arabic paragraph (rule 8).
@@ -58,7 +58,7 @@ gallery_screen.dart    GalleryScreen(entryId): top bar + selected entry
 - `AppRoutes.gallery = '/gallery'` is a top-level `GoRoute` outside the `StatefulShellRoute`, so it has no nav chrome.
 
 ## 4. Testing (`test/features/design_gallery/`)
-- Every entry renders at 360Ã—800 and 1280Ã—800 with `tester.takeException() == null`.
+- Every entry renders at 360×800 and 1280×800 with `tester.takeException() == null`.
 - The dropdown and prev/next change the shown entry and the `entry` query parameter. Prev is disabled on the first entry and next on the last.
 - Each overlay entry opens its overlay after the first frame. "Reopen" opens it again after it is closed. Switching entry closes a leftover overlay.
 - An unknown id shows the first entry.
@@ -66,4 +66,4 @@ gallery_screen.dart    GalleryScreen(entryId): top bar + selected entry
 - No new goldens: `QuestionView` already has 61.
 
 ## Done when
-`dart format`, `flutter analyze --fatal-infos` and `flutter test` are clean. CI is green and the branch is merged, so CI deploys it to staging. `https://sat-staging.pages.dev/gallery` is checked at 360 and 1280. `docs/15` row 6 is marked done and `docs/STATUS.md` is updated.
+`dart format`, `flutter analyze --fatal-infos` and `flutter test` are clean. CI is green and the branch is merged, so CI deploys it to staging. `https://sat-staging.pages.dev/#/gallery` is checked at 360 and 1280. `docs/15` row 6 is marked done and `docs/STATUS.md` is updated.
