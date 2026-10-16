@@ -30,6 +30,8 @@ class AuthCubit extends Cubit<AuthState> {
   final Duration _checkEvery;
 
   StreamSubscription<void>? _tickSub;
+  StreamSubscription<AppUser?>? _userSub;
+  Future<void>? _pendingSignOut;
   bool _inFlight = false;
 
   /// True while [signOut] runs; new operations are rejected meanwhile.
@@ -40,6 +42,9 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// Restores the session, registers the device, then routes by outcome.
   Future<void> start() async {
+    // Watch the session for the cubit's whole life: if it disappears while
+    // signed in (token revoked, expired refresh), the user is signed out.
+    _userSub ??= _auth.userChanges.listen(_onUserChanged);
     if (_inFlight || _signingOut) return;
     final user = _auth.currentUser;
     if (user == null) {
@@ -120,7 +125,12 @@ class AuthCubit extends Cubit<AuthState> {
     await _guarded((gen) async {
       final result = await _devices.status();
       if (_stale(gen)) return;
-      // A transient failure must never sign the user out.
+      // A transient failure must never sign the user out, except a lost
+      // session (not_authenticated), which is not transient.
+      if (result is Failure<DeviceStatus>) {
+        if (result.error.code == ErrorCodes.notAuthenticated) await signOut();
+        return;
+      }
       if (result is! Success<DeviceStatus>) return;
       switch (result.value) {
         case DeviceStatus.active:
@@ -142,7 +152,17 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> signOut([SignOutReason? reason]) async {
+  /// Leaves the check-inbox screen: back to the signed-out state.
+  void acknowledgeConfirmation() {
+    if (state is AuthConfirmationSent) emit(const AuthSignedOut());
+  }
+
+  /// Overlapping calls share one sign-out; the first reason wins.
+  Future<void> signOut([SignOutReason? reason]) => _pendingSignOut ??= _signOut(
+    reason,
+  ).whenComplete(() => _pendingSignOut = null);
+
+  Future<void> _signOut(SignOutReason? reason) async {
     _signingOut = true;
     _invalidateInFlight();
     try {
@@ -158,9 +178,30 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
+  void _onUserChanged(AppUser? user) {
+    // Our own sign-out also emits null; it handles its own state.
+    if (user != null || _signingOut) return;
+    final current = state;
+    if (current is AuthSignedIn ||
+        current is AuthDeviceGate ||
+        current is AuthConfirmationSent) {
+      unawaited(_sessionLost());
+    }
+  }
+
+  Future<void> _sessionLost() async {
+    _invalidateInFlight();
+    await _cancelTicker();
+    await _reporter.clearUser();
+    if (isClosed) return;
+    emit(const AuthSignedOut());
+  }
+
   @override
   Future<void> close() async {
     _invalidateInFlight();
+    await _userSub?.cancel();
+    _userSub = null;
     await _cancelTicker();
     return super.close();
   }

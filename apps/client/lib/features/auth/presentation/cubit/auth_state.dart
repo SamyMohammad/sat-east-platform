@@ -3,7 +3,7 @@ import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 
-enum SignOutReason { deviceRemoved, changesExhausted }
+enum SignOutReason { deviceRemoved }
 
 sealed class AuthState extends Equatable {
   const AuthState();

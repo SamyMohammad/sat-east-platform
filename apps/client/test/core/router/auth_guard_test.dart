@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sat_east_client/app.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
@@ -12,6 +13,8 @@ import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_screen.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 
 import '../../features/auth/presentation/screens/auth_screen_harness.dart';
@@ -351,6 +354,89 @@ void main() {
 
       expect(controller.hasListener, isFalse);
       expect(count, 0);
+    });
+  });
+
+  group('P1-2: check inbox exit', () {
+    testWidgets('P1-2: Back to sign in lands on /sign-in under the guard', (
+      tester,
+    ) async {
+      final harness = _Harness(_confirmation);
+      when(harness.cubit.acknowledgeConfirmation).thenAnswer((_) async {
+        harness.emit(_signedOut);
+      });
+      final router = await _pump(tester, harness, AppRoutes.checkInbox, 1280);
+      expect(_path(router), AppRoutes.checkInbox);
+      expect(find.byType(CheckInboxScreen), findsOneWidget);
+
+      await tester.tap(find.text('Back to sign in'));
+      await _pumpFrames(tester);
+
+      expect(_path(router), AppRoutes.signIn);
+      expect(find.byType(SignInScreen), findsOneWidget);
+    });
+  });
+
+  group('P1-2: gallery gate', () {
+    testWidgets('P1-2: /gallery redirects to sign-in when not routed', (
+      tester,
+    ) async {
+      final router = await _pump(
+        tester,
+        _Harness(_signedOut),
+        AppRoutes.gallery,
+        1280,
+      );
+
+      expect(_path(router), AppRoutes.signIn);
+    });
+  });
+
+  group('P1-2: App wiring', () {
+    testWidgets('P1-2: renders SignInScreen with the cubit provided', (
+      tester,
+    ) async {
+      final harness = _Harness(_signedOut);
+      addTearDown(harness.close);
+
+      await tester.pumpWidget(App(auth: harness.cubit));
+      await _pumpFrames(tester);
+
+      expect(find.byType(SignInScreen), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('P1-2: resuming the app runs one device check', (
+      tester,
+    ) async {
+      final harness = _Harness(_signedOut);
+      addTearDown(harness.close);
+      await tester.pumpWidget(App(auth: harness.cubit));
+      await _pumpFrames(tester);
+      tester.binding
+        ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.paused)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.hidden)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.inactive)
+        ..handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+      await tester.pump();
+
+      verify(harness.cubit.checkDevice).called(1);
+    });
+
+    testWidgets('P1-2: disposing the app leaves no listener on the cubit', (
+      tester,
+    ) async {
+      final harness = _Harness(_signedOut);
+      addTearDown(harness.close);
+      await tester.pumpWidget(App(auth: harness.cubit));
+      await _pumpFrames(tester);
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+
+      expect(harness._controller.hasListener, isFalse);
     });
   });
 }

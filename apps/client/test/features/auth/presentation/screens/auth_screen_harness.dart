@@ -33,6 +33,8 @@ MockAuthCubit mockCubit(AuthState state) {
   when(() => cubit.signUp(any(), any(), any())).thenAnswer((_) async {});
   when(() => cubit.removeDevice(any())).thenAnswer((_) async {});
   when(cubit.signOut).thenAnswer((_) async {});
+  when(cubit.checkDevice).thenAnswer((_) async {});
+  when(cubit.acknowledgeConfirmation).thenAnswer((_) async {});
   return cubit;
 }
 

@@ -143,24 +143,6 @@ void main() {
         expect(tester.takeException(), isNull);
       });
 
-      testWidgets('P1-2: shows the banner for changesExhausted', (
-        tester,
-      ) async {
-        await pump(
-          tester,
-          const AuthSignedOut(reason: SignOutReason.changesExhausted),
-        );
-
-        expect(
-          find.text(
-            "You've used your device changes for this month. "
-            'Contact your teacher.',
-          ),
-          findsOneWidget,
-        );
-        expect(tester.takeException(), isNull);
-      });
-
       const foreign = [ErrorCodes.emailTaken, ErrorCodes.weakPassword];
       for (final code in foreign) {
         testWidgets('P1-2: ignores the sign-up only error $code', (

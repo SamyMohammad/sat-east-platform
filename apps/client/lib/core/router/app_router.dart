@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/env/env.dart';
@@ -26,6 +27,8 @@ abstract final class AppRoutes {
   static const devices = '/devices';
 }
 
+/// [refresh] is owned (and disposed) by the caller; when omitted with [auth],
+/// a stream-backed one is created and never disposed (tests only).
 /// Auth screens read the [AuthCubit] from a `BlocProvider` above the app.
 /// With [auth] set, the router redirects by session state; without it (tests)
 /// there is no guard.
@@ -33,66 +36,72 @@ GoRouter createRouter({
   String? initialLocation,
   bool? includeGallery,
   AuthCubit? auth,
-}) => GoRouter(
-  initialLocation: initialLocation,
-  refreshListenable: auth == null ? null : GoRouterRefreshStream(auth.stream),
-  redirect: auth == null
-      ? null
-      : (context, state) => _authRedirect(auth.state, state.uri.path),
-  routes: [
-    StatefulShellRoute.indexedStack(
-      builder: (context, state, shell) => AppShell(
-        selectedIndex: shell.currentIndex,
-        onDestinationSelected: (index) => shell.goBranch(index),
-        child: shell,
-      ),
-      branches: [
-        for (final destination in AppShellDestination.values)
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: _pathFor(destination),
-                builder: (context, state) => PlaceholderScreen(
-                  title: destination == AppShellDestination.home
-                      ? null
-                      : destination.label,
+  Listenable? refresh,
+}) {
+  final galleryEnabled = !Env.isProd && (includeGallery ?? true);
+  return GoRouter(
+    initialLocation: initialLocation,
+    refreshListenable:
+        refresh ?? (auth == null ? null : GoRouterRefreshStream(auth.stream)),
+    redirect: auth == null
+        ? null
+        : (context, state) =>
+              _authRedirect(auth.state, state.uri.path, galleryEnabled),
+    routes: [
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, shell) => AppShell(
+          selectedIndex: shell.currentIndex,
+          onDestinationSelected: (index) => shell.goBranch(index),
+          child: shell,
+        ),
+        branches: [
+          for (final destination in AppShellDestination.values)
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: _pathFor(destination),
+                  builder: (context, state) => PlaceholderScreen(
+                    title: destination == AppShellDestination.home
+                        ? null
+                        : destination.label,
+                  ),
                 ),
-              ),
-            ],
-          ),
-      ],
-    ),
-    GoRoute(
-      path: AppRoutes.signIn,
-      builder: (context, state) => const SignInScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.signUp,
-      builder: (context, state) => const SignUpScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.checkInbox,
-      builder: (context, state) => const CheckInboxScreen(),
-    ),
-    GoRoute(
-      path: AppRoutes.devices,
-      builder: (context, state) => const DeviceGateScreen(),
-    ),
-    if (!Env.isProd && (includeGallery ?? true))
-      GoRoute(
-        path: AppRoutes.gallery,
-        builder: (context, state) =>
-            GalleryScreen(entryId: state.uri.queryParameters['entry']),
+              ],
+            ),
+        ],
       ),
-  ],
-);
+      GoRoute(
+        path: AppRoutes.signIn,
+        builder: (context, state) => const SignInScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.signUp,
+        builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.checkInbox,
+        builder: (context, state) => const CheckInboxScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.devices,
+        builder: (context, state) => const DeviceGateScreen(),
+      ),
+      if (galleryEnabled)
+        GoRoute(
+          path: AppRoutes.gallery,
+          builder: (context, state) =>
+              GalleryScreen(entryId: state.uri.queryParameters['entry']),
+        ),
+    ],
+  );
+}
 
 const _signedOutPaths = <String>{AppRoutes.signIn, AppRoutes.signUp};
 
 /// Returns the location to move to, or null to stay. Never loops: every
 /// target is a fixed point of the same function for that state.
-String? _authRedirect(AuthState state, String path) {
-  if (path == AppRoutes.gallery) return null;
+String? _authRedirect(AuthState state, String path, bool galleryEnabled) {
+  if (galleryEnabled && path == AppRoutes.gallery) return null;
   return switch (state) {
     AuthUnknown() || AuthBusy() => null,
     AuthSignedOut() => _signedOutPaths.contains(path) ? null : AppRoutes.signIn,

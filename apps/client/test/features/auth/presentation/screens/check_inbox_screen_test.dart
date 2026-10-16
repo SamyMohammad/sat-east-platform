@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_screen.dart';
 import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
@@ -33,13 +34,22 @@ void main() {
         expect(tester.takeException(), isNull);
       });
 
-      testWidgets('P1-2: Back to sign in goes to /sign-in', (tester) async {
-        await pump(tester);
+      testWidgets('P1-2: Back to sign in acknowledges the confirmation', (
+        tester,
+      ) async {
+        final cubit = mockCubit(const AuthConfirmationSent('a@b.co'));
+        await pumpAuthScreen(
+          tester,
+          cubit: cubit,
+          screen: const CheckInboxScreen(),
+          path: '/check-inbox',
+          size: size,
+        );
 
         await tester.tap(find.text('Back to sign in'));
-        await tester.pumpAndSettle();
+        await tester.pump();
 
-        expect(find.text('route:/sign-in'), findsOneWidget);
+        verify(cubit.acknowledgeConfirmation).called(1);
       });
     });
   }

@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 /// Outcome of a repository call (ADR-007 §3).
 sealed class Result<T> {
   const Result();
@@ -16,11 +18,14 @@ final class Failure<T> extends Result<T> {
 }
 
 /// A failure mapped to an error code from `docs/07` §9.
-class AppError {
+class AppError extends Equatable {
   const AppError(this.code, [this.message]);
 
   final String code;
   final String? message;
+
+  @override
+  List<Object?> get props => [code, message];
 
   @override
   String toString() => 'AppError($code${message == null ? '' : ': $message'})';

@@ -38,6 +38,7 @@ void main() {
   late MockDeviceRepository devices;
   late MockErrorReporter reporter;
   late StreamController<void> ticks;
+  late StreamController<AppUser?> users;
 
   setUp(() {
     auth = MockAuthRepository();
@@ -45,6 +46,9 @@ void main() {
     reporter = MockErrorReporter();
     ticks = StreamController<void>.broadcast();
     addTearDown(ticks.close);
+    users = StreamController<AppUser?>.broadcast();
+    addTearDown(users.close);
+    when(() => auth.userChanges).thenAnswer((_) => users.stream);
 
     when(() => auth.currentUser).thenReturn(_user);
     when(() => auth.signOut()).thenAnswer((_) async => const Success(null));
@@ -431,9 +435,9 @@ void main() {
       'P1-2: emits SignedOut with the reason and clears the reporter user',
       build: build,
       seed: () => const AuthSignedIn(_user),
-      act: (c) => c.signOut(SignOutReason.changesExhausted),
+      act: (c) => c.signOut(SignOutReason.deviceRemoved),
       expect: () => [
-        const AuthSignedOut(reason: SignOutReason.changesExhausted),
+        const AuthSignedOut(reason: SignOutReason.deviceRemoved),
       ],
       verify: (_) {
         verify(() => auth.signOut()).called(1);
@@ -821,6 +825,182 @@ void main() {
       ),
       act: (c) => c.clearError(),
       expect: () => <AuthState>[],
+    );
+  });
+
+  group('P1-2: acknowledgeConfirmation', () {
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: moves ConfirmationSent to SignedOut',
+      build: build,
+      seed: () => const AuthConfirmationSent('a@b.co'),
+      act: (c) => c.acknowledgeConfirmation(),
+      expect: () => [const AuthSignedOut()],
+    );
+
+    final others = <String, AuthState>{
+      'SignedOut with an error': const AuthSignedOut(error: _network),
+      'SignedIn': const AuthSignedIn(_user),
+      'Busy': const AuthBusy(),
+      'DeviceGate': _gate,
+      'Unknown': const AuthUnknown(),
+    };
+    for (final entry in others.entries) {
+      blocTest<AuthCubit, AuthState>(
+        'P1-2: does nothing on ${entry.key}',
+        build: build,
+        seed: () => entry.value,
+        act: (c) => c.acknowledgeConfirmation(),
+        expect: () => <AuthState>[],
+      );
+    }
+  });
+
+  group('P1-2: session loss', () {
+    test('P1-2: a null user while SignedIn signs out', () async {
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      expect(cubit.state, const AuthSignedIn(_user));
+
+      users.add(null);
+      await pumpEventQueue();
+
+      expect(cubit.state, const AuthSignedOut());
+      expect(ticks.hasListener, isFalse);
+    });
+
+    test('P1-2: after session loss a tick makes no further call', () async {
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      users.add(null);
+      await pumpEventQueue();
+
+      ticks.add(null);
+      await pumpEventQueue();
+
+      verifyNever(() => devices.status());
+      verify(() => devices.register()).called(1);
+    });
+
+    test('P1-2: a null user while DeviceGate signs out', () async {
+      when(
+        () => devices.register(),
+      ).thenAnswer((_) async => const Success(_limit));
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      expect(cubit.state, _gate);
+
+      users.add(null);
+      await pumpEventQueue();
+
+      expect(cubit.state, const AuthSignedOut());
+    });
+
+    test('P1-2: a null user while ConfirmationSent signs out', () async {
+      when(
+        () => auth.signUp(
+          email: 'a@b.co',
+          password: 'pw',
+          fullName: 'Sam Ali',
+        ),
+      ).thenAnswer((_) async => const Success(SignUpOutcome.confirmationSent));
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      await cubit.signUp('a@b.co', 'pw', 'Sam Ali');
+      expect(cubit.state, const AuthConfirmationSent('a@b.co'));
+
+      users.add(null);
+      await pumpEventQueue();
+
+      expect(cubit.state, const AuthSignedOut());
+    });
+
+    test('P1-2: a non-null user event changes nothing', () async {
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+
+      users.add(_user);
+      await pumpEventQueue();
+
+      expect(states, isEmpty);
+    });
+
+    test('P1-2: a null user while SignedOut emits nothing', () async {
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      await cubit.signOut();
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+
+      users.add(null);
+      await pumpEventQueue();
+
+      expect(states, isEmpty);
+    });
+
+    test('P1-2: close cancels the user subscription', () async {
+      final cubit = build();
+      await cubit.start();
+      expect(users.hasListener, isTrue);
+
+      await cubit.close();
+
+      expect(users.hasListener, isFalse);
+    });
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: checkDevice not_authenticated signs out without a reason',
+      setUp: () => when(() => devices.status()).thenAnswer(
+        (_) async => const Failure(AppError(ErrorCodes.notAuthenticated)),
+      ),
+      build: build,
+      seed: () => const AuthSignedIn(_user),
+      act: (c) => c.checkDevice(),
+      expect: () => [const AuthSignedOut()],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: checkDevice with another failure keeps the state',
+      setUp: () => when(
+        () => devices.status(),
+      ).thenAnswer((_) async => const Failure(_forbidden)),
+      build: build,
+      seed: () => const AuthSignedIn(_user),
+      act: (c) => c.checkDevice(),
+      expect: () => <AuthState>[],
+    );
+  });
+
+  group('P1-2: overlapping signOut', () {
+    test(
+      'P1-2: two concurrent signOut calls hit the repository once',
+      () async {
+        final pending = Completer<Result<void>>();
+        when(() => auth.signOut()).thenAnswer((_) => pending.future);
+        final cubit = build();
+        addTearDown(cubit.close);
+        await cubit.start();
+
+        final first = cubit.signOut(SignOutReason.deviceRemoved);
+        final second = cubit.signOut();
+        pending.complete(const Success(null));
+        await Future.wait([first, second]);
+
+        verify(() => auth.signOut()).called(1);
+        expect(
+          cubit.state,
+          const AuthSignedOut(reason: SignOutReason.deviceRemoved),
+        );
+      },
     );
   });
 }

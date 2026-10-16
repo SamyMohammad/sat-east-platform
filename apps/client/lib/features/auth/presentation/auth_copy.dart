@@ -15,6 +15,4 @@ String authErrorCopy(String code) => switch (code) {
 String signOutReasonCopy(SignOutReason reason) => switch (reason) {
   SignOutReason.deviceRemoved =>
     'This device was removed from your account. Sign in again to continue.',
-  SignOutReason.changesExhausted =>
-    "You've used your device changes for this month. Contact your teacher.",
 };

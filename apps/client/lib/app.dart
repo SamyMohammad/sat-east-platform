@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 
@@ -17,7 +18,14 @@ class App extends StatefulWidget {
 }
 
 class _AppState extends State<App> {
-  late final GoRouter _router = createRouter(auth: widget.auth);
+  // Owned here so its stream subscription is cancelled with the app.
+  late final GoRouterRefreshStream? _refresh = widget.auth == null
+      ? null
+      : GoRouterRefreshStream(widget.auth!.stream);
+  late final GoRouter _router = createRouter(
+    auth: widget.auth,
+    refresh: _refresh,
+  );
   late final AppLifecycleListener _lifecycle;
 
   @override
@@ -33,6 +41,7 @@ class _AppState extends State<App> {
   void dispose() {
     _lifecycle.dispose();
     _router.dispose();
+    _refresh?.dispose();
     super.dispose();
   }
 
