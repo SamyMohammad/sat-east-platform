@@ -18,7 +18,7 @@ const viewports = <(String, Size)>[
   ('1280x800', Size(1280, 800)),
 ];
 
-final _paths = [
+const List<String> _paths = [
   AppRoutes.signIn,
   AppRoutes.signUp,
   AppRoutes.checkInbox,
