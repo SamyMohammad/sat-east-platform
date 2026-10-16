@@ -1,6 +1,6 @@
 # P1 slice part 3 — Course map — design
 
-Status: draft 2026-10-17 (awaiting approval). Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 3). Story: `docs/03` L-1. Reqs: LRN-01 (lock order), LRN-03 (read side), LRN-07 (continue card, course-map version only). Screen: `docs/04` S-14.
+Status: approved 2026-10-17. Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 3). Story: `docs/03` L-1. Reqs: LRN-01 (lock order), LRN-03 (read side), LRN-07 (continue card, course-map version only). Screen: `docs/04` S-14.
 Tier **L** (`docs/15` §2): the story is M, but it computes access (lock state) server-side, so it gets this spec, pgTAP and `/security-review`.
 Design source: `docs/design/claude-design-export/Learning Path.dc.html` (course map, topic rows, lock message, continue card).
 
