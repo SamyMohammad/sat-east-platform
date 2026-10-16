@@ -37,13 +37,13 @@ One complete thread on `staging`: a student signs in, opens a course, sees its t
   3. Systems of linear equations.
 
   Each topic has one subtopic and 1–2 skills.
-- **Questions per topic:** 12 in the `practice` pool and 12 in the `quiz` pool. 108 in total.
+- **Questions per topic:** 12 in the `practice` pool and 12 in the `quiz` pool. 72 in total.
   - Status `published`, linked to the course in `question_courses`.
   - About 75 % MCQ (4 choices, A–D) and 25 % SPR.
   - Difficulty mix per pool: 4 E / 5 M / 3 H.
   - `hint_md` on every practice question.
 - **Keys** live in `private.question_keys`:
-  - `correct_answer` uses the shape the graders expect: MCQ `{"label":"B"}`, SPR `{"answers":["2/3","0.6666"]}`. The exact shape must match what `private.grade_spr` and the attempt RPCs read; the plan confirms it from the schema and the GRD-02 migration.
+  - `correct_answer` uses the documented shapes (`docs/06` §148, `private.grade_spr`): MCQ `{"choice":"B"}`, SPR `{"accepted":["2/3","0.666","0.667"],"tolerance":0}`.
   - `explanation_md` is on every question. At least 6 explanations include an Arabic paragraph (rule 8).
   - `misconceptions` holds a map from a wrong MCQ label to a short note, on about half of the MCQs.
   - `solved_by = 'teacher'`.
@@ -79,6 +79,12 @@ One complete thread on `staging`: a student signs in, opens a course, sees its t
 ## Done when
 - `scripts/db-test.ps1` and CI `db` are green, and the seed loads on a local `db reset`.
 - After merge, the staging deploy applies the seed:
-  - 3 demo topics and 108 questions are visible on staging (checked with a read-only query);
+  - 3 demo topics and 72 questions are visible on staging (checked with a read-only query);
   - a new sign-up on staging gets the demo enrolment once part 2's sign-up exists. Until then, a student created in the Supabase dashboard is enough.
 - `docs/STATUS.md` is updated.
+
+## Deltas from planning (2026-10-16)
+- **Delivery:** CI runs `supabase db query --linked --file` for each `supabase/seeds/demo/[0-9]*.sql` on every main deploy. It does not use `--include-seed`: the CLI never re-executes a changed seed file, it only refreshes the hash.
+- **Not in `config.toml` `sql_paths`:** the existing tests insert their own `SAT` course (`courses.code` is unique). Local use goes through `scripts/db-seed-demo.ps1`. CI applies the seed twice to the local stack after the pgTAP suite, then runs `supabase/seeds/demo/check.sql` (assertions) instead of new pgTAP tests.
+- **Course code:** the demo course uses `code = 'SAT'`. Rename or remove it when the real SAT course lands on staging.
+- **Count:** 72 questions (3 × (12 + 12)).
