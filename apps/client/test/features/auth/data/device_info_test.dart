@@ -17,11 +17,11 @@ void main() {
       'Safari on iOS':
           'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',
     };
-    cases.forEach((expected, ua) {
-      test('P1-2: labels $expected', () {
-        expect(labelFromUserAgent(ua), expected);
+    for (final entry in cases.entries) {
+      test('P1-2: labels ${entry.key}', () {
+        expect(labelFromUserAgent(entry.value), entry.key);
       });
-    });
+    }
 
     test('P1-2: falls back to Web browser for unknown agent', () {
       expect(labelFromUserAgent('SomeBot/1.0'), 'Web browser');

@@ -17,18 +17,22 @@ void main() {
       'over_request_rate_limit': ErrorCodes.rateLimited,
       'over_email_send_rate_limit': ErrorCodes.rateLimited,
     };
-    cases.forEach((authCode, expected) {
-      test('P1-2: maps $authCode to $expected', () {
+    for (final entry in cases.entries) {
+      test('P1-2: maps ${entry.key} to ${entry.value}', () {
         final error = mapAuthException(
-          AuthApiException('boom', statusCode: '400', code: authCode),
+          AuthApiException('boom', statusCode: '400', code: entry.key),
         );
-        expect(error.code, expected);
+        expect(error.code, entry.value);
       });
-    });
+    }
 
     test('P1-2: maps unknown code to internal', () {
       final error = mapAuthException(
-        const AuthApiException('boom', statusCode: '500', code: 'something_new'),
+        const AuthApiException(
+          'boom',
+          statusCode: '500',
+          code: 'something_new',
+        ),
       );
       expect(error.code, ErrorCodes.internal);
     });
