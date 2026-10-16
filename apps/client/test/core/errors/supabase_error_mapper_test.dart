@@ -1,0 +1,110 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+void main() {
+  group('P1-2: mapAuthException', () {
+    const cases = <String, String>{
+      'invalid_credentials': ErrorCodes.invalidCredentials,
+      'email_not_confirmed': ErrorCodes.emailNotConfirmed,
+      'user_already_exists': ErrorCodes.emailTaken,
+      'email_exists': ErrorCodes.emailTaken,
+      'weak_password': ErrorCodes.weakPassword,
+      'over_request_rate_limit': ErrorCodes.rateLimited,
+      'over_email_send_rate_limit': ErrorCodes.rateLimited,
+    };
+    cases.forEach((authCode, expected) {
+      test('P1-2: maps $authCode to $expected', () {
+        final error = mapAuthException(
+          AuthApiException('boom', statusCode: '400', code: authCode),
+        );
+        expect(error.code, expected);
+      });
+    });
+
+    test('P1-2: maps unknown code to internal', () {
+      final error = mapAuthException(
+        const AuthApiException('boom', statusCode: '500', code: 'something_new'),
+      );
+      expect(error.code, ErrorCodes.internal);
+    });
+
+    test('P1-2: maps null code on AuthException to internal', () {
+      expect(
+        mapAuthException(const AuthException('boom')).code,
+        ErrorCodes.internal,
+      );
+    });
+
+    test('P1-2: maps retryable fetch exception with null code to network', () {
+      expect(
+        mapAuthException(AuthRetryableFetchException()).code,
+        ErrorCodes.network,
+      );
+    });
+
+    test('P1-2: keeps original message for logs', () {
+      final error = mapAuthException(
+        const AuthApiException('raw text', code: 'invalid_credentials'),
+      );
+      expect(error.message, 'raw text');
+    });
+  });
+
+  group('P1-2: mapPostgrestException', () {
+    const known = [
+      ErrorCodes.notAuthenticated,
+      ErrorCodes.forbidden,
+      ErrorCodes.invalidInput,
+      ErrorCodes.deviceLimit,
+      ErrorCodes.rateLimited,
+      ErrorCodes.internal,
+    ];
+    for (final code in known) {
+      test('P1-2: maps message $code to the same code', () {
+        expect(
+          mapPostgrestException(PostgrestException(message: code)).code,
+          code,
+        );
+      });
+    }
+
+    test('P1-2: maps unknown message to internal', () {
+      final error = mapPostgrestException(
+        const PostgrestException(message: 'relation x does not exist'),
+      );
+      expect(error.code, ErrorCodes.internal);
+    });
+
+    test('P1-2: keeps original message for logs', () {
+      final error = mapPostgrestException(
+        const PostgrestException(message: 'weird failure'),
+      );
+      expect(error.message, 'weird failure');
+    });
+  });
+
+  group('P1-2: mapUnknownError', () {
+    test('P1-2: maps SocketException to network', () {
+      expect(
+        mapUnknownError(const SocketException('offline')).code,
+        ErrorCodes.network,
+      );
+    });
+
+    test('P1-2: maps TimeoutException to network', () {
+      expect(
+        mapUnknownError(TimeoutException('slow')).code,
+        ErrorCodes.network,
+      );
+    });
+
+    test('P1-2: maps any other error to internal', () {
+      expect(mapUnknownError(StateError('bug')).code, ErrorCodes.internal);
+    });
+  });
+}
