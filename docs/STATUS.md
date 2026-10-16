@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 2 — login + device limit (slice 2/5) | [spec](superpowers/specs/2026-10-16-p1-login-design.md) | [plan](superpowers/plans/2026-10-16-p1-login.md) | `feat/P1-login` | — | in progress |
+| P1 part 2 — login + device limit (slice 2/5) | [spec](superpowers/specs/2026-10-16-p1-login-design.md) | [plan](superpowers/plans/2026-10-16-p1-login.md) | `feat/P1-login` | #27 | in review |
 
 ## Next
 
