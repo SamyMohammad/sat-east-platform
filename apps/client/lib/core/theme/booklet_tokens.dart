@@ -39,6 +39,9 @@ abstract final class BookletSize {
   static const double statusIcon = 32;
   static const double chipVisual = 32;
   static const double dialogWidth = 400;
+
+  /// Max width of the sign-in / sign-up / device-gate card.
+  static const double authCard = 400;
   static const double skeletonLabel = 12;
   static const double skeletonBody = 20;
   static const double skeletonLabelFraction = 0.3;

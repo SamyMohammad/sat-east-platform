@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 1 — demo seed (slice 1/5) | [spec](superpowers/specs/2026-10-16-p1-slice-demo-seed-design.md) | [plan](superpowers/plans/2026-10-16-p1-demo-seed.md) | `feat/P1-demo-seed` | #26 | in progress |
+| P1 part 2 — login + device limit (slice 2/5) | [spec](superpowers/specs/2026-10-16-p1-login-design.md) | [plan](superpowers/plans/2026-10-16-p1-login.md) | `feat/P1-login` | #27 | in review |
 
 ## Next
 
@@ -26,6 +26,10 @@
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
+| Manage devices | Manage-devices page + list-my-devices RPC deferred |
+| register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |
+| Login type size | Login screens use labelLarge 14/600 vs design 13/600 |
+| Login a11y | Verify AuthTextField semantics with a screen reader on staging |
 | Teacher asks | `15` §0 list — Paymob onboarding, taxonomy, pilot topic block launch more than code |
 
 ## Done
@@ -45,6 +49,7 @@
 | 6 | F-4 components B — buttons + feedback, AppShell | #18, #19 → re-landed in #20 |
 | 6 | F-4 `QuestionView` PR 1 — practice + homework | #22 |
 | 6 | F-4 `QuestionView` PR 2 — quiz | #23 |
+| P1 | Slice 1/5 — staging demo seed | #26 |
 | 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |

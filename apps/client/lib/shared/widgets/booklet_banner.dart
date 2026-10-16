@@ -6,7 +6,7 @@ import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
-enum BookletBannerKind { info, warning, offline }
+enum BookletBannerKind { info, warning, offline, error }
 
 class BookletBanner extends StatelessWidget {
   const BookletBanner({
@@ -44,6 +44,11 @@ class BookletBanner extends StatelessWidget {
         scheme.onSurface,
         scheme.surfaceContainer,
         Icons.cloud_off,
+      ),
+      BookletBannerKind.error => (
+        scheme.error,
+        scheme.errorContainer,
+        Icons.error_outline,
       ),
     };
     final text = Semantics(
