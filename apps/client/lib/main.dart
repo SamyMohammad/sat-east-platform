@@ -36,6 +36,7 @@ Future<void> _start(ErrorReporter errorReporter) async {
   }
 
   await Hive.initFlutter();
+  final deviceBox = await Hive.openBox<String>('device');
   await Supabase.initialize(
     url: Env.supabaseUrl,
     publishableKey: Env.supabasePublishableKey,
@@ -45,7 +46,11 @@ Future<void> _start(ErrorReporter errorReporter) async {
     host: Env.posthogHost,
     reporter: errorReporter,
   );
-  configureDependencies(errorReporter: errorReporter, analytics: analytics);
+  configureDependencies(
+    errorReporter: errorReporter,
+    analytics: analytics,
+    deviceBox: deviceBox,
+  );
 
   runApp(const App());
 }
