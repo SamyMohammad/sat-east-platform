@@ -11,13 +11,18 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MockGoTrueClient extends Mock implements GoTrueClient {}
 
-User _user({String id = 'u1', String? email = 'a@b.co'}) => User(
+User _user({
+  String id = 'u1',
+  String? email = 'a@b.co',
+  List<UserIdentity>? identities,
+}) => User(
   id: id,
   appMetadata: const {},
   userMetadata: const {},
   aud: 'authenticated',
   createdAt: '2026-10-01T00:00:00Z',
   email: email,
+  identities: identities,
 );
 
 Session _session(User user) =>
@@ -151,6 +156,66 @@ void main() {
       );
     });
 
+    test('P1-2: confirmationSent for a new user with identities', () async {
+      when(
+        () => auth.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          data: any(named: 'data'),
+        ),
+      ).thenAnswer(
+        (_) async => AuthResponse(
+          user: _user(
+            identities: [
+              const UserIdentity(
+                identityId: 'i1',
+                id: 'u1',
+                userId: 'u1',
+                identityData: {},
+                provider: 'email',
+                createdAt: '2026-10-01T00:00:00Z',
+                lastSignInAt: '2026-10-01T00:00:00Z',
+              ),
+            ],
+          ),
+        ),
+      );
+
+      final result = await source.signUp(
+        email: 'a@b.co',
+        password: 'pw',
+        fullName: 'Sam Ali',
+      );
+
+      expect(
+        (result as Success<SignUpOutcome>).value,
+        SignUpOutcome.confirmationSent,
+      );
+    });
+
+    test('P1-2: existing account (empty identities) is emailTaken', () async {
+      when(
+        () => auth.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          data: any(named: 'data'),
+        ),
+      ).thenAnswer(
+        (_) async => AuthResponse(user: _user(identities: const [])),
+      );
+
+      final result = await source.signUp(
+        email: 'a@b.co',
+        password: 'pw',
+        fullName: 'Sam Ali',
+      );
+
+      expect(
+        (result as Failure<SignUpOutcome>).error.code,
+        ErrorCodes.emailTaken,
+      );
+    });
+
     test('P1-2: sends full_name as user metadata', () async {
       when(
         () => auth.signUp(
@@ -243,6 +308,40 @@ void main() {
       final future = source.userChanges.take(2).toList();
       controller
         ..add(AuthState(AuthChangeEvent.signedIn, _session(_user())))
+        ..add(const AuthState(AuthChangeEvent.signedOut, null));
+
+      expect(
+        future,
+        completion([const AppUser(id: 'u1', email: 'a@b.co'), null]),
+      );
+    });
+
+    test('P1-2: userChanges emits equal consecutive users once', () {
+      final controller = StreamController<AuthState>();
+      addTearDown(controller.close);
+      when(() => auth.onAuthStateChange).thenAnswer((_) => controller.stream);
+
+      final future = source.userChanges.take(2).toList();
+      controller
+        ..add(AuthState(AuthChangeEvent.signedIn, _session(_user())))
+        ..add(AuthState(AuthChangeEvent.tokenRefreshed, _session(_user())))
+        ..add(const AuthState(AuthChangeEvent.signedOut, null));
+
+      expect(
+        future,
+        completion([const AppUser(id: 'u1', email: 'a@b.co'), null]),
+      );
+    });
+
+    test('P1-2: userChanges drops stream errors and keeps going', () {
+      final controller = StreamController<AuthState>();
+      addTearDown(controller.close);
+      when(() => auth.onAuthStateChange).thenAnswer((_) => controller.stream);
+
+      final future = source.userChanges.take(2).toList();
+      controller
+        ..add(AuthState(AuthChangeEvent.signedIn, _session(_user())))
+        ..addError(AuthRetryableFetchException())
         ..add(const AuthState(AuthChangeEvent.signedOut, null));
 
       expect(

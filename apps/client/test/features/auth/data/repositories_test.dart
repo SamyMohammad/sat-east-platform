@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_id_store.dart';
@@ -13,35 +14,11 @@ import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_registration.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_status.dart';
 import 'package:sat_east_client/features/auth/domain/entities/sign_up_outcome.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
+
+import 'fakes.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}
-
-class FakeDeviceIdStore implements DeviceIdStore {
-  FakeDeviceIdStore(this.id);
-
-  final String id;
-
-  @override
-  Future<String> read() async => id;
-}
-
-class FakeDeviceInfo implements DeviceInfo {
-  @override
-  String get platform => 'android';
-
-  @override
-  String get label => 'Android app';
-}
-
-class FakeRpc {
-  Object? response;
-  final calls = <(String, Map<String, Object?>)>[];
-
-  Future<Object?> call(String fn, Map<String, Object?> params) async {
-    calls.add((fn, params));
-    return response;
-  }
-}
 
 void main() {
   group('P1-2: AuthRepositoryImpl', () {
@@ -133,6 +110,45 @@ void main() {
         (result as Success<DeviceRegistration>).value,
         const DeviceAllowed('d1'),
       );
+    });
+
+    test('P1-2: register returns internal when the id store throws', () async {
+      repository = DeviceRepositoryImpl(
+        idStore: FakeDeviceIdStore(fingerprint, error: StateError('disk')),
+        info: FakeDeviceInfo(),
+        remote: DeviceRemoteDataSource(rpc.call),
+      );
+
+      final result = await repository.register();
+
+      expect(
+        (result as Failure<DeviceRegistration>).error.code,
+        ErrorCodes.internal,
+      );
+      expect(rpc.calls, isEmpty);
+    });
+
+    test('P1-2: status returns internal when the id store throws', () async {
+      repository = DeviceRepositoryImpl(
+        idStore: FakeDeviceIdStore(fingerprint, error: StateError('disk')),
+        info: FakeDeviceInfo(),
+        remote: DeviceRemoteDataSource(rpc.call),
+      );
+
+      final result = await repository.status();
+
+      expect(
+        (result as Failure<DeviceStatus>).error.code,
+        ErrorCodes.internal,
+      );
+    });
+
+    test('P1-2: remove passes a data source failure through', () async {
+      rpc.error = const PostgrestException(message: 'device_limit');
+
+      final result = await repository.remove('d9');
+
+      expect((result as Failure<int>).error.code, ErrorCodes.deviceLimit);
     });
 
     test('P1-2: status passes the stored fingerprint', () async {

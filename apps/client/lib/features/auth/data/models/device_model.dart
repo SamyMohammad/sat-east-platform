@@ -1,15 +1,9 @@
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 
-class DeviceModel extends Device {
-  const DeviceModel({
-    required super.id,
-    super.platform,
-    super.label,
-    super.lastSeenAt,
-  });
-
+/// Parses `devices` rows into the domain [Device].
+abstract final class DeviceModel {
   /// Throws [FormatException] when `id` is missing or fields are mistyped.
-  factory DeviceModel.fromJson(Map<String, Object?> json) {
+  static Device fromJson(Map<String, Object?> json) {
     final id = json['id'];
     if (id is! String) throw const FormatException('device id missing');
     final platform = json['platform'];
@@ -20,7 +14,7 @@ class DeviceModel extends Device {
         (seen != null && seen is! String)) {
       throw const FormatException('device field mistyped');
     }
-    return DeviceModel(
+    return Device(
       id: id,
       platform: platform as String?,
       label: label as String?,

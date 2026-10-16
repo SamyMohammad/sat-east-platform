@@ -5,24 +5,12 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_remote_data_source.dart';
 import 'package:sat_east_client/features/auth/data/models/device_model.dart';
+import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_registration.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_status.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// Records RPC calls; returns [response] or throws [error].
-class FakeRpc {
-  Object? response;
-  Object? error;
-  final calls = <(String, Map<String, Object?>)>[];
-
-  Future<Object?> call(String fn, Map<String, Object?> params) async {
-    calls.add((fn, params));
-    // Tests inject arbitrary exception types.
-    // ignore: only_throw_errors
-    if (error != null) throw error!;
-    return response;
-  }
-}
+import 'fakes.dart';
 
 void main() {
   late FakeRpc rpc;
@@ -35,7 +23,7 @@ void main() {
 
   group('P1-2: DeviceModel.fromJson', () {
     test('P1-2: parses an ISO last_seen_at', () {
-      final model = DeviceModel.fromJson(const {
+      final Device model = DeviceModel.fromJson(const {
         'id': 'd1',
         'platform': 'web',
         'label': 'Chrome on Windows',
@@ -49,7 +37,7 @@ void main() {
     });
 
     test('P1-2: keeps null last_seen_at, platform and label', () {
-      final model = DeviceModel.fromJson(const {
+      final Device model = DeviceModel.fromJson(const {
         'id': 'd2',
         'platform': null,
         'label': null,
@@ -131,6 +119,52 @@ void main() {
       expect(limit.devices[1].lastSeenAt, isNull);
       expect(limit.devices[1].platform, 'android');
     });
+
+    test(
+      'P1-2: limit_reached equals a hand-built DeviceLimitReached',
+      () async {
+        rpc.response = {
+          'status': 'limit_reached',
+          'changes_left': 2,
+          'devices': [
+            {
+              'id': 'd1',
+              'platform': 'web',
+              'label': 'Chrome on Windows',
+              'last_seen_at': '2026-10-01T12:30:00+00:00',
+            },
+            {
+              'id': 'd2',
+              'platform': 'android',
+              'label': 'Android app',
+              'last_seen_at': null,
+            },
+          ],
+        };
+
+        final result = await source.register(
+          fingerprint: 'fp',
+          platform: 'web',
+          label: 'x',
+        );
+
+        expect(
+          (result as Success<DeviceRegistration>).value,
+          DeviceLimitReached(
+            devices: [
+              Device(
+                id: 'd1',
+                platform: 'web',
+                label: 'Chrome on Windows',
+                lastSeenAt: DateTime.utc(2026, 10, 1, 12, 30),
+              ),
+              const Device(id: 'd2', platform: 'android', label: 'Android app'),
+            ],
+            changesLeft: 2,
+          ),
+        );
+      },
+    );
 
     test('P1-2: maps limit_reached with no devices to an empty list', () async {
       rpc.response = {

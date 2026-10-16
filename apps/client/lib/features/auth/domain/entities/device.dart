@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-class Device extends Equatable {
+final class Device extends Equatable {
   const Device({required this.id, this.platform, this.label, this.lastSeenAt});
 
   final String id;

@@ -13,8 +13,10 @@ class AuthRemoteDataSource {
 
   AppUser? get currentUser => _toUser(_auth.currentUser);
 
-  Stream<AppUser?> get userChanges =>
-      _auth.onAuthStateChange.map((state) => _toUser(state.session?.user));
+  Stream<AppUser?> get userChanges => _auth.onAuthStateChange
+      .map((state) => _toUser(state.session?.user))
+      .handleError((Object _) {})
+      .distinct();
 
   Future<Result<AppUser>> signIn({
     required String email,
@@ -46,6 +48,14 @@ class AuthRemoteDataSource {
         password: password,
         data: {'full_name': fullName},
       );
+      // Supabase enumeration protection: an existing email comes back as a
+      // user with no identities and no session.
+      final identities = response.user?.identities;
+      if (response.session == null &&
+          identities != null &&
+          identities.isEmpty) {
+        return const Failure(AppError(ErrorCodes.emailTaken));
+      }
       return Success(
         response.session == null
             ? SignUpOutcome.confirmationSent
