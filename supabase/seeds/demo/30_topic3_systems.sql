@@ -75,20 +75,21 @@ perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000031003',
   '00000000-0000-4000-8de0-000000000013', '00000000-0000-4000-8de0-000000000023',
   'practice', 'mcq', 'E',
-  $q$At a museum, adult tickets cost $8 and child tickets cost $5. A family bought 6 tickets for a total of $39. Which system can be used to find the number of adult tickets \(a\) and child tickets \(c\)?$q$,
+  $q$At a museum, adult tickets cost $8 and child tickets cost $5. A family bought 7 tickets for a total of $44. Which system can be used to find the number of adult tickets \(a\) and child tickets \(c\)?$q$,
   $q$One equation counts the tickets; the other adds up the money.$q$,
   jsonb_build_object(
-    'A', $q$\(a + c = 39\) and \(8a + 5c = 6\)$q$,
-    'B', $q$\(a + c = 6\) and \(5a + 8c = 39\)$q$,
-    'C', $q$\(8a + 5c = 39\) and \(a - c = 6\)$q$,
-    'D', $q$\(a + c = 6\) and \(8a + 5c = 39\)$q$),
+    'A', $q$\(a + c = 44\) and \(8a + 5c = 7\)$q$,
+    'B', $q$\(a + c = 7\) and \(5a + 8c = 44\)$q$,
+    'C', $q$\(8a + 5c = 44\) and \(a - c = 7\)$q$,
+    'D', $q$\(a + c = 7\) and \(8a + 5c = 44\)$q$),
   '{"choice":"D"}',
-  $q$The number of tickets is 6: \(a + c = 6\).
+  $q$The number of tickets is 7: \(a + c = 7\).
 
-Adult tickets bring in \(8a\) dollars and child tickets \(5c\) dollars, for a total of 39: \(8a + 5c = 39\).
+Adult tickets bring in \(8a\) dollars and child tickets \(5c\) dollars, for a total of 44: \(8a + 5c = 44\).
 
-(The solution is \(a = 3\), \(c = 3\): \(24 + 15 = 39\).)$q$,
-  null,
+(The solution is \(a = 3\), \(c = 4\): \(24 + 20 = 44\).)$q$,
+  jsonb_build_object(
+    'B', $q$You swapped the prices. Each adult ticket costs $8, so 8 multiplies \(a\); this system gives 4 adults and 3 children, which costs \(32 + 15 = 47\) dollars.$q$),
   array['DEMO.SYS.MODEL']);
 
 -- P4 (E, SPR)
@@ -227,7 +228,7 @@ How many solutions does the system above have?$q$,
   $q$Rewrite the second equation in the form \(y = mx + b\) and compare slopes and intercepts.$q$,
   jsonb_build_object(
     'A', $q$Exactly one$q$,
-    'B', $q$Exactly two$q$,
+    'B', $q$Exactly one, at \((0, 3)\)$q$,
     'C', $q$No solution$q$,
     'D', $q$Infinitely many$q$),
   '{"choice":"C"}',
@@ -492,15 +493,15 @@ perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000032008',
   '00000000-0000-4000-8de0-000000000013', '00000000-0000-4000-8de0-000000000023',
   'quiz', 'spr', 'M',
-  $q$A rectangle has a perimeter of 47 meters. Its length is 4 meters more than twice its width. What is the width of the rectangle, in meters?$q$,
+  $q$A rope 24 meters long is cut into two pieces. The longer piece is 2 meters shorter than three times the shorter piece. How long is the shorter piece, in meters?$q$,
   null,
   null,
   '{"accepted":["13/2","6.5"],"tolerance":0}',
-  $q$Let \(L\) be the length and \(W\) the width: \(2L + 2W = 47\) and \(L = 2W + 4\).
+  $q$Let \(s\) be the shorter piece and \(l\) the longer piece: \(s + l = 24\) and \(l = 3s - 2\).
 
-Substitute: \(2(2W + 4) + 2W = 47\), so \(6W + 8 = 47\), \(6W = 39\), \(W = 6.5\).
+Substitute: \(s + 3s - 2 = 24\), so \(4s = 26\) and \(s = 6.5\).
 
-Check: \(L = 17\), and \(2(17) + 2(6.5) = 34 + 13 = 47\).$q$,
+Check: \(l = 3(6.5) - 2 = 17.5\), and \(6.5 + 17.5 = 24\).$q$,
   null,
   array['DEMO.SYS.MODEL']);
 
@@ -517,7 +518,7 @@ How many solutions does the system above have?$q$,
   null,
   jsonb_build_object(
     'A', $q$Exactly one$q$,
-    'B', $q$Exactly two$q$,
+    'B', $q$Exactly one, at \((1, -1)\)$q$,
     'C', $q$No solution$q$,
     'D', $q$Infinitely many$q$),
   '{"choice":"D"}',
@@ -525,6 +526,7 @@ How many solutions does the system above have?$q$,
 
 Both equations describe the same line, so every point on that line is a solution: infinitely many.$q$,
   jsonb_build_object(
+    'B', $q$\((1, -1)\) is a solution, but not the only one: \((3, 2)\) works too. The equations describe the same line.$q$,
     'C', $q$The first equation is twice the second, so they are the same line, not parallel lines.$q$),
   array['DEMO.SYS.SOLVE']);
 
