@@ -12,23 +12,26 @@
 
 set client_min_messages = warning;
 
+do $do$
+begin
+
 -- ---------------------------------------------------------------------------
 -- Practice (hints on every item): 9 MCQ + 3 SPR, difficulty 4 E / 5 M / 3 H
 -- ---------------------------------------------------------------------------
 
 -- P1 (E, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011001',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'E',
   $q$If \(3x + 7 = 22\), what is the value of \(x\)?$q$,
   $q$Undo the operations in reverse order: deal with the \(+7\) before the \(3\).$q$,
   jsonb_build_object(
-    'A', $q$\(\frac{1}{3}\)$q$,
-    'B', $q$\(5\)$q$,
+    'A', $q$\(5\)$q$,
+    'B', $q$\(\frac{1}{3}\)$q$,
     'C', $q$\(\frac{29}{3}\)$q$,
     'D', $q$\(15\)$q$),
-  '{"choice":"B"}',
+  '{"choice":"A"}',
   $q$Subtract 7 from both sides: \(3x = 15\).
 
 Divide both sides by 3: \(x = 5\).
@@ -37,12 +40,12 @@ Check: \(3(5) + 7 = 22\).
 
 الفكرة الأساسية: نطرح 7 من الطرفين أولًا فنحصل على \(3x = 15\)، ثم نقسم الطرفين على 3 فيكون \(x = 5\).$q$,
   jsonb_build_object(
-    'A', $q$You divided 22 by 3 before subtracting 7. Subtract 7 from both sides first.$q$,
+    'B', $q$You divided 22 by 3 before subtracting 7. Subtract 7 from both sides first.$q$,
     'C', $q$You added 7 to 22 instead of subtracting it.$q$),
   array['DEMO.LE.SOLVE']);
 
 -- P2 (E, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011002',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'E',
@@ -64,7 +67,7 @@ Check: \(5 - 2(-3) = 5 + 6 = 11\).$q$,
   array['DEMO.LE.SOLVE']);
 
 -- P3 (E, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011003',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'E',
@@ -86,7 +89,7 @@ So \(C = 25m + 40\). Check with 2 months: \(25(2) + 40 = 90\), which is \(40 + 2
   array['DEMO.LE.MODEL']);
 
 -- P4 (E, SPR)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011004',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'spr', 'E',
@@ -103,7 +106,7 @@ Check: \(4(3.5) - 9 = 14 - 9 = 5\).$q$,
   array['DEMO.LE.SOLVE']);
 
 -- P5 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011005',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'M',
@@ -124,11 +127,11 @@ Add 12 to both sides: \(x = 17\).
 Check: \(3(17 - 4) = 39\) and \(2(17) + 5 = 39\).$q$,
   jsonb_build_object(
     'C', $q$You multiplied only \(x\) by 3. The 3 multiplies the 4 as well: \(3(x - 4) = 3x - 12\).$q$,
-    'B', $q$You added \(2x\) to both sides instead of subtracting it.$q$),
+    'B', $q$You moved \(2x\) to the left side without changing its sign.$q$),
   array['DEMO.LE.SOLVE']);
 
 -- P6 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011006',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'M',
@@ -153,18 +156,18 @@ Check: \(\frac{10}{3} + \frac{10}{6} = \frac{20}{6} + \frac{10}{6} = \frac{30}{6
   array['DEMO.LE.SOLVE']);
 
 -- P7 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011007',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'M',
   $q$A water tank holds 600 liters. It drains at a constant rate of 15 liters per minute. After how many minutes will the tank hold 150 liters?$q$,
   $q$Write the amount left after \(t\) minutes as \(600 - 15t\) and set it equal to 150.$q$,
   jsonb_build_object(
-    'A', $q$\(10\)$q$,
-    'B', $q$\(30\)$q$,
+    'A', $q$\(30\)$q$,
+    'B', $q$\(10\)$q$,
     'C', $q$\(40\)$q$,
     'D', $q$\(50\)$q$),
-  '{"choice":"B"}',
+  '{"choice":"A"}',
   $q$The amount left after \(t\) minutes is \(600 - 15t\).
 
 Set it equal to 150: \(600 - 15t = 150\).
@@ -177,7 +180,7 @@ Check: \(600 - 15(30) = 600 - 450 = 150\).$q$,
   array['DEMO.LE.MODEL']);
 
 -- P8 (M, SPR)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011008',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'spr', 'M',
@@ -196,7 +199,7 @@ Check: \(2(3(2.5) + 1) = 2(8.5) = 17\) and \(4(2.5) + 7 = 17\).$q$,
   array['DEMO.LE.SOLVE']);
 
 -- P9 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011009',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'M',
@@ -221,18 +224,18 @@ Check: \(60 + 40(6) = 300\).$q$,
   array['DEMO.LE.MODEL']);
 
 -- P10 (H, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011010',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'H',
   $q$In the equation \(kx + 6 = 3x + 2\), \(k\) is a constant. For what value of \(k\) does the equation have no solution?$q$,
   $q$A linear equation has no solution when the \(x\)-terms cancel but the constants do not match.$q$,
   jsonb_build_object(
-    'A', $q$\(-4\)$q$,
+    'A', $q$\(3\)$q$,
     'B', $q$\(-3\)$q$,
-    'C', $q$\(3\)$q$,
+    'C', $q$\(-4\)$q$,
     'D', $q$\(4\)$q$),
-  '{"choice":"C"}',
+  '{"choice":"A"}',
   $q$Move the \(x\)-terms to one side: \((k - 3)x = 2 - 6 = -4\).
 
 If \(k - 3 \ne 0\), dividing gives exactly one solution.
@@ -242,11 +245,11 @@ If \(k = 3\), the equation becomes \(0 = -4\), which is never true, so there is 
 So \(k = 3\).$q$,
   jsonb_build_object(
     'B', $q$Sign error: the \(x\)-coefficients must be equal, so \(k = 3\), not \(-3\).$q$,
-    'A', $q$\(-4\) is the difference of the constants, not the value of \(k\). With \(k = -4\) the equation has one solution.$q$),
+    'C', $q$\(-4\) is the difference of the constants, not the value of \(k\). With \(k = -4\) the equation has one solution.$q$),
   array['DEMO.LE.SOLVE']);
 
 -- P11 (H, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011011',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'mcq', 'H',
@@ -271,7 +274,7 @@ Check: Plan A \(30 + 8 = 38\), Plan B \(18 + 20 = 38\).$q$,
   array['DEMO.LE.MODEL']);
 
 -- P12 (H, SPR)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000011012',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'practice', 'spr', 'H',
@@ -296,7 +299,7 @@ As a decimal, \(\frac{17}{7} = 2.4285\ldots\), so 2.428 or 2.429 is also accepte
 -- ---------------------------------------------------------------------------
 
 -- Q1 (E, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012001',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'E',
@@ -319,29 +322,29 @@ Check: \(7(4) - 4 = 24\).$q$,
   array['DEMO.LE.SOLVE']);
 
 -- Q2 (E, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012002',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'E',
   $q$What value of \(x\) satisfies \(\frac{x}{4} + 3 = 8\)?$q$,
   null,
   jsonb_build_object(
-    'A', $q$\(5\)$q$,
-    'B', $q$\(20\)$q$,
-    'C', $q$\(29\)$q$,
-    'D', $q$\(44\)$q$),
-  '{"choice":"B"}',
+    'A', $q$\(29\)$q$,
+    'B', $q$\(44\)$q$,
+    'C', $q$\(5\)$q$,
+    'D', $q$\(20\)$q$),
+  '{"choice":"D"}',
   $q$Subtract 3 from both sides: \(\frac{x}{4} = 5\).
 
 Multiply both sides by 4: \(x = 20\).
 
 Check: \(\frac{20}{4} + 3 = 5 + 3 = 8\).$q$,
   jsonb_build_object(
-    'C', $q$You multiplied 8 by 4 before subtracting 3, so the 3 was never multiplied. Subtract 3 first.$q$),
+    'A', $q$You multiplied 8 by 4 before subtracting 3, so the 3 was never multiplied. Subtract 3 first.$q$),
   array['DEMO.LE.SOLVE']);
 
 -- Q3 (E, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012003',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'E',
@@ -362,7 +365,7 @@ Her savings are \(120 + 15w\), so the equation is \(120 + 15w = 300\).
   array['DEMO.LE.MODEL']);
 
 -- Q4 (E, SPR)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012004',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'spr', 'E',
@@ -381,7 +384,7 @@ As a decimal, \(\frac{2}{3} = 0.666\ldots\); enter it filling all five character
   array['DEMO.LE.SOLVE']);
 
 -- Q5 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012005',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'M',
@@ -408,7 +411,7 @@ Check: \(4(14 - 3) = 44\) and \(5(7) + 9 = 44\).
   array['DEMO.LE.SOLVE']);
 
 -- Q6 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012006',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'M',
@@ -431,7 +434,7 @@ Check: \(0.4(6) + 1.2 = 3.6\) and \(0.1(6) + 3 = 3.6\).$q$,
   array['DEMO.LE.SOLVE']);
 
 -- Q7 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012007',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'M',
@@ -455,7 +458,7 @@ Check: \(3.50 + 2(9) = 21.50\).$q$,
   array['DEMO.LE.MODEL']);
 
 -- Q8 (M, SPR)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012008',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'spr', 'M',
@@ -474,7 +477,7 @@ Check: \(2(15 + 8.5) = 2(23.5) = 47\).$q$,
   array['DEMO.LE.MODEL']);
 
 -- Q9 (M, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012009',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'M',
@@ -499,7 +502,7 @@ Subtract 1: \(6x - 1 = 23\).
   array['DEMO.LE.SOLVE']);
 
 -- Q10 (H, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012010',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'H',
@@ -521,18 +524,18 @@ Both give \(a = 4\). Check: \(4(x + 2) = 4x + 8\) for every \(x\).$q$,
   array['DEMO.LE.SOLVE']);
 
 -- Q11 (H, MCQ)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012011',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'mcq', 'H',
   $q$Candle A is 30 centimeters tall and burns down 2 centimeters per hour. Candle B is 22 centimeters tall and burns down 1.2 centimeters per hour. Both are lit at the same time. After how many hours will the two candles be the same height?$q$,
   null,
   jsonb_build_object(
-    'A', $q$\(2.5\)$q$,
-    'B', $q$\(4\)$q$,
-    'C', $q$\(10\)$q$,
+    'A', $q$\(10\)$q$,
+    'B', $q$\(2.5\)$q$,
+    'C', $q$\(4\)$q$,
     'D', $q$\(65\)$q$),
-  '{"choice":"C"}',
+  '{"choice":"A"}',
   $q$Height of candle A after \(t\) hours: \(30 - 2t\). Candle B: \(22 - 1.2t\).
 
 Set them equal: \(30 - 2t = 22 - 1.2t\).
@@ -541,11 +544,11 @@ Add \(2t\) and subtract 22: \(8 = 0.8t\), so \(t = 10\).
 
 Check: \(30 - 20 = 10\) and \(22 - 12 = 10\); both candles are 10 cm tall.$q$,
   jsonb_build_object(
-    'A', $q$You added the burn rates (\(8 \div 3.2\)). The gap of 8 cm closes at the difference of the rates, 0.8 cm per hour.$q$),
+    'B', $q$You added the burn rates (\(8 \div 3.2\)). The gap of 8 cm closes at the difference of the rates, 0.8 cm per hour.$q$),
   array['DEMO.LE.MODEL']);
 
 -- Q12 (H, SPR)
-select private.demo_upsert_question(
+perform private.demo_upsert_question(
   '00000000-0000-4000-8de0-000000012012',
   '00000000-0000-4000-8de0-000000000011', '00000000-0000-4000-8de0-000000000021',
   'quiz', 'spr', 'H',
@@ -562,3 +565,6 @@ Subtract \(4x\) and add 18: \(5x = 24\), so \(x = \frac{24}{5} = 4.8\).
 Check: \(\frac{3}{4}(2.8) = 2.1\) and \(\frac{1}{3}(4.8) + 0.5 = 1.6 + 0.5 = 2.1\).$q$,
   null,
   array['DEMO.LE.SOLVE']);
+
+end
+$do$;
