@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:sat_east_client/app.dart';
@@ -6,6 +8,7 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
 import 'package:sat_east_client/core/observability/sentry_error_reporter.dart';
+import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -51,6 +54,7 @@ Future<void> _start(ErrorReporter errorReporter) async {
     analytics: analytics,
     deviceBox: deviceBox,
   );
+  unawaited(getIt<AuthCubit>().start());
 
-  runApp(const App());
+  runApp(App(auth: getIt<AuthCubit>()));
 }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
-import 'package:sat_east_client/features/auth/presentation/screens/auth_paths.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -24,7 +24,7 @@ class CheckInboxScreen extends StatelessWidget {
           actions: [
             LoadingButton(
               label: 'Back to sign in',
-              onPressed: () => context.go(AuthPaths.signIn),
+              onPressed: () => context.go(AppRoutes.signIn),
             ),
           ],
         ),

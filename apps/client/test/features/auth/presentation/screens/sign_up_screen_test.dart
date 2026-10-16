@@ -272,6 +272,26 @@ void main() {
         });
       }
 
+      testWidgets('P1-2: calls clearError once after the first frame', (
+        tester,
+      ) async {
+        final cubit = await pump(tester, const AuthSignedOut());
+
+        verify(cubit.clearError).called(1);
+      });
+
+      testWidgets('P1-2: keyboard submit while busy does not call signUp', (
+        tester,
+      ) async {
+        final cubit = await pump(tester, const AuthBusy());
+
+        await fill(tester);
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pump();
+
+        verifyNever(() => cubit.signUp(any(), any(), any()));
+      });
+
       testWidgets('P1-2: weakPassword shows the stronger password copy', (
         tester,
       ) async {

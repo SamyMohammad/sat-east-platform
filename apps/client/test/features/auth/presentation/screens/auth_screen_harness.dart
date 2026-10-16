@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
@@ -17,8 +18,12 @@ const viewports = <(String, Size)>[
   ('1280x800', Size(1280, 800)),
 ];
 
-/// Route paths Task 5 adds as `AppRoutes`.
-const _paths = ['/sign-in', '/sign-up', '/check-inbox', '/devices'];
+final _paths = [
+  AppRoutes.signIn,
+  AppRoutes.signUp,
+  AppRoutes.checkInbox,
+  AppRoutes.devices,
+];
 
 /// A mock cubit that reports [state] and accepts every command.
 MockAuthCubit mockCubit(AuthState state) {

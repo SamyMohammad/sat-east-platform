@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
-import 'package:sat_east_client/features/auth/presentation/screens/auth_paths.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
@@ -24,6 +24,15 @@ class _SignInScreenState extends State<SignInScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _passwordFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    // Drop an error left over from the other auth screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<AuthCubit>().clearError();
+    });
+  }
 
   @override
   void dispose() {
@@ -86,7 +95,7 @@ class _SignInScreenState extends State<SignInScreen> {
         const AuthFooterLink(
           prompt: 'New here?',
           linkLabel: 'Create an account',
-          path: AuthPaths.signUp,
+          path: AppRoutes.signUp,
         ),
       ],
     );

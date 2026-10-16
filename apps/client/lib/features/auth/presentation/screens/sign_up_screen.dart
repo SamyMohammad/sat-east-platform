@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/form_rules.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
-import 'package:sat_east_client/features/auth/presentation/screens/auth_paths.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
@@ -30,6 +30,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
   late final Listenable _form = Listenable.merge([_name, _email, _password]);
+
+  @override
+  void initState() {
+    super.initState();
+    // Drop an error left over from the other auth screen.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.read<AuthCubit>().clearError();
+    });
+  }
 
   @override
   void dispose() {
@@ -76,7 +85,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           const AuthFooterLink(
             prompt: 'Already have an account?',
             linkLabel: 'Sign in',
-            path: AuthPaths.signIn,
+            path: AppRoutes.signIn,
           ),
         ],
       ),
@@ -173,7 +182,7 @@ class _EmailTakenError extends StatelessWidget {
       LoadingButton(
         label: 'Sign in instead',
         variant: BookletButtonVariant.tertiary,
-        onPressed: () => context.go(AuthPaths.signIn),
+        onPressed: () => context.go(AppRoutes.signIn),
       ),
     ],
   );

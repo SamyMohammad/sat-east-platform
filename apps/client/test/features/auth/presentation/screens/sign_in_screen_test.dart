@@ -207,6 +207,14 @@ void main() {
         verifyNever(() => cubit.signIn(any(), any()));
       });
 
+      testWidgets('P1-2: calls clearError once after the first frame', (
+        tester,
+      ) async {
+        final cubit = await pump(tester, const AuthSignedOut());
+
+        verify(cubit.clearError).called(1);
+      });
+
       testWidgets('P1-2: shows no banner by default', (tester) async {
         await pump(tester, const AuthSignedOut());
 

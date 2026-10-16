@@ -26,6 +26,10 @@
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
+| Manage devices | Manage-devices page + list-my-devices RPC deferred |
+| register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |
+| Login type size | Login screens use labelLarge 14/600 vs design 13/600 |
+| Login a11y | Verify AuthTextField semantics with a screen reader on staging |
 | Teacher asks | `15` §0 list — Paymob onboarding, taxonomy, pilot topic block launch more than code |
 
 ## Done
