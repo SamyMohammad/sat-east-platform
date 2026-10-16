@@ -5,6 +5,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
+import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
 
 import 'auth_screen_harness.dart';
 
@@ -158,6 +159,52 @@ void main() {
           findsOneWidget,
         );
         expect(tester.takeException(), isNull);
+      });
+
+      const foreign = [ErrorCodes.emailTaken, ErrorCodes.weakPassword];
+      for (final code in foreign) {
+        testWidgets('P1-2: ignores the sign-up only error $code', (
+          tester,
+        ) async {
+          await pump(tester, AuthSignedOut(error: AppError(code)));
+
+          expect(find.byType(BookletBanner), findsNothing);
+          expect(find.text('Something went wrong. Try again.'), findsNothing);
+        });
+      }
+
+      testWidgets('P1-2: the removed banner shows despite a foreign error', (
+        tester,
+      ) async {
+        await pump(
+          tester,
+          const AuthSignedOut(
+            reason: SignOutReason.deviceRemoved,
+            error: AppError(ErrorCodes.emailTaken),
+          ),
+        );
+
+        expect(
+          find.text(
+            'This device was removed from your account. '
+            'Sign in again to continue.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Something went wrong. Try again.'), findsNothing);
+      });
+
+      testWidgets('P1-2: keyboard submit while busy does not call signIn', (
+        tester,
+      ) async {
+        final cubit = await pump(tester, const AuthBusy());
+
+        await tester.enterText(find.byType(TextField).at(0), 'a@b.co');
+        await tester.enterText(find.byType(TextField).at(1), 'Password1');
+        await tester.testTextInput.receiveAction(TextInputAction.done);
+        await tester.pump();
+
+        verifyNever(() => cubit.signIn(any(), any()));
       });
 
       testWidgets('P1-2: shows no banner by default', (tester) async {

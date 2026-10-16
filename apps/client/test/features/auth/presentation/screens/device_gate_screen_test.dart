@@ -1,8 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/device_gate_screen.dart';
+import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
 
 import 'auth_screen_harness.dart';
 
@@ -203,6 +206,41 @@ void main() {
 
         expect(buttonOf(tester, removeButton()).isLoading, isTrue);
         expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('P1-2: a gate error shows a banner', (tester) async {
+        await pump(
+          tester,
+          AuthDeviceGate(
+            devices: _devices,
+            changesLeft: 1,
+            error: const AppError(ErrorCodes.internal),
+          ),
+        );
+
+        expect(find.byType(BookletBanner), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('P1-2: no banner without a gate error', (tester) async {
+        await pump(tester, _gate());
+
+        expect(find.byType(BookletBanner), findsNothing);
+      });
+
+      testWidgets('P1-2: both sign out buttons are disabled while removing', (
+        tester,
+      ) async {
+        final cubit = await pump(tester, _gate(removing: true));
+
+        await tester.tap(find.text('Sign out'), warnIfMissed: false);
+        await tester.tap(
+          loadingButton('Sign out instead'),
+          warnIfMissed: false,
+        );
+        await tester.pump();
+
+        verifyNever(cubit.signOut);
       });
 
       testWidgets('P1-2: the top Sign out calls signOut', (tester) async {

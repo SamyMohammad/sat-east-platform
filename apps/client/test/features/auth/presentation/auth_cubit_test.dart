@@ -756,4 +756,71 @@ void main() {
       await Future.wait([newer, third]);
     });
   });
+
+  group('P1-2: clearError', () {
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: clears the error of SignedOut',
+      build: build,
+      seed: () => const AuthSignedOut(error: _network),
+      act: (c) => c.clearError(),
+      expect: () => [const AuthSignedOut()],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: keeps the reason when clearing the error',
+      build: build,
+      seed: () => const AuthSignedOut(
+        reason: SignOutReason.deviceRemoved,
+        error: _network,
+      ),
+      act: (c) => c.clearError(),
+      expect: () => [
+        const AuthSignedOut(reason: SignOutReason.deviceRemoved),
+      ],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: does nothing on SignedOut with only a reason',
+      build: build,
+      seed: () => const AuthSignedOut(reason: SignOutReason.deviceRemoved),
+      act: (c) => c.clearError(),
+      expect: () => <AuthState>[],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: does nothing on a plain SignedOut',
+      build: build,
+      seed: () => const AuthSignedOut(),
+      act: (c) => c.clearError(),
+      expect: () => <AuthState>[],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: does nothing on SignedIn',
+      build: build,
+      seed: () => const AuthSignedIn(_user),
+      act: (c) => c.clearError(),
+      expect: () => <AuthState>[],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: does nothing on Busy',
+      build: build,
+      seed: () => const AuthBusy(),
+      act: (c) => c.clearError(),
+      expect: () => <AuthState>[],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: does nothing on a DeviceGate with an error',
+      build: build,
+      seed: () => const AuthDeviceGate(
+        devices: [_device],
+        changesLeft: 1,
+        error: _forbidden,
+      ),
+      act: (c) => c.clearError(),
+      expect: () => <AuthState>[],
+    );
+  });
 }

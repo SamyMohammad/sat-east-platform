@@ -59,7 +59,9 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
         child: LoadingButton(
           label: 'Sign out',
           variant: BookletButtonVariant.tertiary,
-          onPressed: context.read<AuthCubit>().signOut,
+          onPressed: state is AuthDeviceGate && state.removing
+              ? null
+              : context.read<AuthCubit>().signOut,
         ),
       );
       if (state is! AuthDeviceGate) return AuthCard(children: [signOut]);
@@ -96,7 +98,7 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
             label: 'Sign out instead',
             variant: BookletButtonVariant.secondary,
             expanded: true,
-            onPressed: context.read<AuthCubit>().signOut,
+            onPressed: gate.removing ? null : context.read<AuthCubit>().signOut,
           ),
         ],
       ),

@@ -47,13 +47,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
       FormRules.passwordRules(_password.text).allMet;
 
   void _submit() {
-    if (!_valid) return;
+    final cubit = context.read<AuthCubit>();
+    if (!_valid || cubit.state is AuthBusy) return;
     unawaited(
-      context.read<AuthCubit>().signUp(
-        _email.text.trim(),
-        _password.text,
-        _name.text.trim(),
-      ),
+      cubit.signUp(_email.text.trim(), _password.text, _name.text.trim()),
     );
   }
 
@@ -154,7 +151,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final code = _errorCode(state);
     if (code == null ||
         code == ErrorCodes.emailTaken ||
-        code == ErrorCodes.weakPassword) {
+        code == ErrorCodes.weakPassword ||
+        // Sign-in-only codes belong to the sign-in screen.
+        code == ErrorCodes.invalidCredentials ||
+        code == ErrorCodes.emailNotConfirmed) {
       return null;
     }
     return authErrorCopy(code);
@@ -186,9 +186,8 @@ class _PasswordRules extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final length = rules.hasMinLength
-        ? 'At least 8 characters'
-        : 'At least 8 characters · ${rules.length} so far';
+    const base = 'At least ${FormRules.minPasswordLength} characters';
+    final length = rules.hasMinLength ? base : '$base · ${rules.length} so far';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: BookletSpace.s1,

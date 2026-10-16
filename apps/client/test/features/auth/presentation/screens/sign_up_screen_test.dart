@@ -5,6 +5,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
 
 import 'auth_screen_harness.dart';
 
@@ -228,6 +229,48 @@ void main() {
 
         expect(find.text('route:/sign-in'), findsOneWidget);
       });
+
+      testWidgets('P1-2: a network error shows a banner with its copy', (
+        tester,
+      ) async {
+        await pump(
+          tester,
+          const AuthSignedOut(error: AppError(ErrorCodes.network)),
+        );
+
+        expect(find.byType(BookletBanner), findsOneWidget);
+        expect(
+          find.text('No connection. Check your internet and try again.'),
+          findsOneWidget,
+        );
+        expect(tester.takeException(), isNull);
+      });
+
+      testWidgets('P1-2: an internal error shows the generic banner', (
+        tester,
+      ) async {
+        await pump(
+          tester,
+          const AuthSignedOut(error: AppError(ErrorCodes.internal)),
+        );
+
+        expect(find.text('Something went wrong. Try again.'), findsOneWidget);
+      });
+
+      const foreign = [
+        ErrorCodes.invalidCredentials,
+        ErrorCodes.emailNotConfirmed,
+      ];
+      for (final code in foreign) {
+        testWidgets('P1-2: ignores the sign-in only error $code', (
+          tester,
+        ) async {
+          await pump(tester, AuthSignedOut(error: AppError(code)));
+
+          expect(find.byType(BookletBanner), findsNothing);
+          expect(find.text('Something went wrong. Try again.'), findsNothing);
+        });
+      }
 
       testWidgets('P1-2: weakPassword shows the stronger password copy', (
         tester,

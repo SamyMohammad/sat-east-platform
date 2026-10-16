@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
@@ -32,9 +33,11 @@ class _SignInScreenState extends State<SignInScreen> {
     super.dispose();
   }
 
-  void _submit() => unawaited(
-    context.read<AuthCubit>().signIn(_email.text.trim(), _password.text),
-  );
+  void _submit() {
+    final cubit = context.read<AuthCubit>();
+    if (cubit.state is AuthBusy) return;
+    unawaited(cubit.signIn(_email.text.trim(), _password.text));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +94,12 @@ class _SignInScreenState extends State<SignInScreen> {
 
   static String? _bannerMessage(AuthState state) {
     if (state is! AuthSignedOut) return null;
-    if (state.error case final error?) return authErrorCopy(error.code);
+    // Sign-up-only codes belong to the sign-up screen.
+    if (state.error case final error?
+        when error.code != ErrorCodes.emailTaken &&
+            error.code != ErrorCodes.weakPassword) {
+      return authErrorCopy(error.code);
+    }
     if (state.reason case final reason?) return signOutReasonCopy(reason);
     return null;
   }

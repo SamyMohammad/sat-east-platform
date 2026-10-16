@@ -134,6 +134,14 @@ class AuthCubit extends Cubit<AuthState> {
     });
   }
 
+  /// Drops a stale error (keeps the sign-out reason). SignedOut only.
+  void clearError() {
+    final current = state;
+    if (current is AuthSignedOut && current.error != null) {
+      emit(AuthSignedOut(reason: current.reason));
+    }
+  }
+
   Future<void> signOut([SignOutReason? reason]) async {
     _signingOut = true;
     _invalidateInFlight();
