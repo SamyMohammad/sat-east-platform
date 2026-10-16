@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 1 — demo seed (slice 1/5) | [spec](superpowers/specs/2026-10-16-p1-slice-demo-seed-design.md) | [plan](superpowers/plans/2026-10-16-p1-demo-seed.md) | `feat/P1-demo-seed` | — | in progress |
+| P1 part 1 — demo seed (slice 1/5) | [spec](superpowers/specs/2026-10-16-p1-slice-demo-seed-design.md) | [plan](superpowers/plans/2026-10-16-p1-demo-seed.md) | `feat/P1-demo-seed` | #26 | in progress |
 
 ## Next
 
