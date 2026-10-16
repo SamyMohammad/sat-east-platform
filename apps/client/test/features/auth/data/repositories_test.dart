@@ -5,8 +5,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/data/datasources/auth_remote_data_source.dart';
-import 'package:sat_east_client/features/auth/data/datasources/device_id_store.dart';
-import 'package:sat_east_client/features/auth/data/datasources/device_info.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_remote_data_source.dart';
 import 'package:sat_east_client/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:sat_east_client/features/auth/data/repositories/device_repository_impl.dart';

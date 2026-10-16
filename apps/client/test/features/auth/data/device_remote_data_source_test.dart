@@ -23,7 +23,7 @@ void main() {
 
   group('P1-2: DeviceModel.fromJson', () {
     test('P1-2: parses an ISO last_seen_at', () {
-      final Device model = DeviceModel.fromJson(const {
+      final model = DeviceModel.fromJson(const {
         'id': 'd1',
         'platform': 'web',
         'label': 'Chrome on Windows',
@@ -37,7 +37,7 @@ void main() {
     });
 
     test('P1-2: keeps null last_seen_at, platform and label', () {
-      final Device model = DeviceModel.fromJson(const {
+      final model = DeviceModel.fromJson(const {
         'id': 'd2',
         'platform': null,
         'label': null,
