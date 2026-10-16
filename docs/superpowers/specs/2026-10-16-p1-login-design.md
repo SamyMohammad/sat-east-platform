@@ -77,3 +77,20 @@ presentation/
   - the removed session signs out within about a minute;
   - the new student has the demo enrolment from part 1.
 - `docs/STATUS.md` is updated.
+
+## Deltas from planning (2026-10-16)
+1. **No backend change.** S-11 at sign-in uses `register_device`'s `limit_reached` payload: `devices[{id, platform, label, last_seen_at}]` and `changes_left`. The "manage devices" page (not at sign-in) is deferred, and so is a "list my devices" RPC. RLS already allows `select` on own `devices` rows if that page is built later.
+2. **Exact RPC contract** (`supabase/migrations/20261009000000_auth04_device_limit.sql`):
+   - **`register_device`** returns either `{"status":"ok","device_id"}` or `{"status":"limit_reached","devices":[…],"changes_left":int}`. It raises `not_authenticated` or `invalid_input`. The fingerprint must match `^[A-Za-z0-9_-]{16,128}$`, the platform must be one of `web|android|ios`, and the label is at most 80 characters.
+   - **`remove_device`** returns `{"changes_left":int}`. It raises `forbidden` (not yours, or already revoked) or `device_limit` (no changes left).
+   - **`device_status`** returns `'active'`, `'revoked'` or `'unknown'` as text.
+   - Exceptions reach the client as `PostgrestException.message` equal to the code.
+3. **The device is registered on every sign-in and on session restore**, which also refreshes `last_seen_at`. `device_status` is used only for the 60-second and app-resume revocation checks:
+   - `'revoked'` → sign out with reason `deviceRemoved`;
+   - `'unknown'` → register again;
+   - `'active'` → do nothing.
+4. **The App Check Edge Function `register-device` (docs/07) is not used yet.** The client calls the RPC directly, and the Edge Function arrives with App Check enforcement later.
+5. **Client-side auth codes** are added to `docs/07` §9 as a separate "client-only (GoTrue / transport)" list:
+   - `invalid_credentials`, `email_not_confirmed`, `email_taken`, `weak_password` and `network`;
+   - `rate_limited` reuses the existing code.
+6. **Hidden in this part** (out of scope): "Continue with Google", "Forgot password?" and "Contact support". The no-changes-left gate shows "Contact your teacher" text instead.

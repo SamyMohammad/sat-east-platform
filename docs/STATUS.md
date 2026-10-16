@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 1 — demo seed (slice 1/5) | [spec](superpowers/specs/2026-10-16-p1-slice-demo-seed-design.md) | [plan](superpowers/plans/2026-10-16-p1-demo-seed.md) | `feat/P1-demo-seed` | #26 | in progress |
+| P1 part 2 — login + device limit (slice 2/5) | [spec](superpowers/specs/2026-10-16-p1-login-design.md) | [plan](superpowers/plans/2026-10-16-p1-login.md) | `feat/P1-login` | — | in progress |
 
 ## Next
 
@@ -45,6 +45,7 @@
 | 6 | F-4 components B — buttons + feedback, AppShell | #18, #19 → re-landed in #20 |
 | 6 | F-4 `QuestionView` PR 1 — practice + homework | #22 |
 | 6 | F-4 `QuestionView` PR 2 — quiz | #23 |
+| P1 | Slice 1/5 — staging demo seed | #26 |
 | 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
