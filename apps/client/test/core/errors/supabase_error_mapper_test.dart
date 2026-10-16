@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' show ClientException;
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -105,6 +106,10 @@ void main() {
         mapUnknownError(TimeoutException('slow')).code,
         ErrorCodes.network,
       );
+    });
+
+    test('P1-2: maps http ClientException to network', () {
+      expect(mapUnknownError(ClientException('x')).code, ErrorCodes.network);
     });
 
     test('P1-2: maps any other error to internal', () {

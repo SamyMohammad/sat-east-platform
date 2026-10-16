@@ -38,6 +38,20 @@ void main() {
     expect(await DeviceIdStore(box).read(), first);
   });
 
+  test('P1-2: concurrent reads on an empty box return one id', () async {
+    final store = DeviceIdStore(box);
+    final ids = await Future.wait([store.read(), store.read()]);
+    expect(ids[0], ids[1]);
+    expect(box.get('id'), ids[0]);
+  });
+
+  test('P1-2: replaces a corrupt stored value with a new valid id', () async {
+    await box.put('id', 'not-a-valid-id');
+    final id = await DeviceIdStore(box).read();
+    expect(id, matches(RegExp(r'^[0-9a-f]{32}$')));
+    expect(box.get('id'), id);
+  });
+
   test('P1-2: ids differ across separate boxes', () async {
     final other = await Hive.openBox<String>(
       'device_test_other_${DateTime.now().microsecondsSinceEpoch}',

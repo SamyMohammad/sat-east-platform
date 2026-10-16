@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:http/http.dart' show ClientException;
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -32,7 +33,9 @@ AppError mapPostgrestException(PostgrestException e) {
 /// Fallback for non-Supabase errors (transport failures and the rest).
 AppError mapUnknownError(Object e) {
   final code = switch (e) {
-    SocketException() || TimeoutException() => ErrorCodes.network,
+    SocketException() ||
+    TimeoutException() ||
+    ClientException() => ErrorCodes.network,
     _ => ErrorCodes.internal,
   };
   return AppError(code, e.toString());

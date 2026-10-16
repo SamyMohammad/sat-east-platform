@@ -8,11 +8,21 @@ class DeviceIdStore {
 
   static const _key = 'id';
 
-  final Box<String> _box;
+  static final _validId = RegExp(r'^[0-9a-f]{32}$');
 
-  Future<String> read() async {
+  final Box<String> _box;
+  Future<String>? _pending;
+
+  Future<String> read() {
     final existing = _box.get(_key);
-    if (existing != null) return existing;
+    if (existing != null && _validId.hasMatch(existing)) {
+      return Future.value(existing);
+    }
+    // Concurrent first reads share one generation.
+    return _pending ??= _generate().whenComplete(() => _pending = null);
+  }
+
+  Future<String> _generate() async {
     final random = Random.secure();
     final id = List.generate(
       16,
