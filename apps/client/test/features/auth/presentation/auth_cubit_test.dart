@@ -654,4 +654,106 @@ void main() {
       );
     });
   });
+
+  group('P1-2: operations rejected while signing out', () {
+    test(
+      'P1-2: checkDevice during signOut makes no register or emit',
+      () async {
+        final pendingOut = Completer<Result<void>>();
+        when(() => auth.signOut()).thenAnswer((_) => pendingOut.future);
+        when(
+          () => devices.status(),
+        ).thenAnswer((_) async => const Success(DeviceStatus.unknown));
+        final cubit = build();
+        addTearDown(cubit.close);
+        await cubit.start();
+        final states = <AuthState>[];
+        final sub = cubit.stream.listen(states.add);
+        addTearDown(sub.cancel);
+
+        final out = cubit.signOut();
+        await pumpEventQueue();
+        await cubit.checkDevice();
+        pendingOut.complete(const Success(null));
+        await out;
+        await pumpEventQueue();
+
+        expect(cubit.state, const AuthSignedOut());
+        expect(states, [const AuthSignedOut()]);
+        verify(() => devices.register()).called(1); // only from start()
+        verify(() => reporter.setUser('u1')).called(1); // only from start()
+        verify(() => reporter.clearUser()).called(1);
+      },
+    );
+
+    test('P1-2: removeDevice during signOut never calls remove', () async {
+      when(
+        () => devices.register(),
+      ).thenAnswer((_) async => const Success(_limit));
+      final pendingOut = Completer<Result<void>>();
+      when(() => auth.signOut()).thenAnswer((_) => pendingOut.future);
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      expect(cubit.state, _gate);
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+
+      final out = cubit.signOut();
+      await pumpEventQueue();
+      await cubit.removeDevice('d1');
+      pendingOut.complete(const Success(null));
+      await out;
+      await pumpEventQueue();
+
+      verifyNever(() => devices.remove(any()));
+      expect(cubit.state, const AuthSignedOut());
+      expect(states, [const AuthSignedOut()]);
+    });
+
+    test(
+      'P1-2: signIn reaches the repository after signOut completes',
+      () async {
+        when(
+          () => auth.signIn(email: 'a@b.co', password: 'pw'),
+        ).thenAnswer((_) async => const Success(_user));
+        final cubit = build();
+        addTearDown(cubit.close);
+        await cubit.start();
+        await cubit.signOut();
+
+        await cubit.signIn('a@b.co', 'pw');
+
+        verify(() => auth.signIn(email: 'a@b.co', password: 'pw')).called(1);
+        expect(cubit.state, const AuthSignedIn(_user));
+      },
+    );
+
+    test('P1-2: a stale finally does not release a newer guard', () async {
+      final pendingStatus = Completer<Result<DeviceStatus>>();
+      when(() => devices.status()).thenAnswer((_) => pendingStatus.future);
+      final pendingSignIn = Completer<Result<AppUser>>();
+      when(
+        () => auth.signIn(email: 'a@b.co', password: 'pw'),
+      ).thenAnswer((_) => pendingSignIn.future);
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      final stale = cubit.checkDevice();
+      await pumpEventQueue();
+      await cubit.signOut();
+      final newer = cubit.signIn('a@b.co', 'pw');
+      await pumpEventQueue();
+
+      pendingStatus.complete(const Success(DeviceStatus.active));
+      await stale;
+      final third = cubit.signIn('a@b.co', 'pw');
+      await pumpEventQueue();
+
+      verify(() => auth.signIn(email: 'a@b.co', password: 'pw')).called(1);
+      pendingSignIn.complete(const Success(_user));
+      await Future.wait([newer, third]);
+    });
+  });
 }

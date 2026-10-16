@@ -32,12 +32,15 @@ class AuthCubit extends Cubit<AuthState> {
   StreamSubscription<void>? _tickSub;
   bool _inFlight = false;
 
+  /// True while [signOut] runs; new operations are rejected meanwhile.
+  bool _signingOut = false;
+
   /// Bumped by sign-out and close so in-flight work can detect it is stale.
   int _session = 0;
 
   /// Restores the session, registers the device, then routes by outcome.
   Future<void> start() async {
-    if (_inFlight) return;
+    if (_inFlight || _signingOut) return;
     final user = _auth.currentUser;
     if (user == null) {
       emit(const AuthSignedOut());
@@ -132,14 +135,19 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> signOut([SignOutReason? reason]) async {
+    _signingOut = true;
     _invalidateInFlight();
-    await _cancelTicker();
-    // Repository error ignored: the UI signs out regardless.
-    await _auth.signOut();
-    // Not an emit, so it runs even if the cubit was closed meanwhile.
-    await _reporter.clearUser();
-    if (isClosed) return;
-    emit(AuthSignedOut(reason: reason));
+    try {
+      await _cancelTicker();
+      // Repository error ignored: the UI signs out regardless.
+      await _auth.signOut();
+      // Not an emit, so it runs even if the cubit was closed meanwhile.
+      await _reporter.clearUser();
+      if (isClosed) return;
+      emit(AuthSignedOut(reason: reason));
+    } finally {
+      _signingOut = false;
+    }
   }
 
   @override
@@ -158,7 +166,7 @@ class AuthCubit extends Cubit<AuthState> {
   bool _stale(int gen) => isClosed || gen != _session;
 
   Future<void> _guarded(Future<void> Function(int gen) body) async {
-    if (_inFlight) return;
+    if (_inFlight || _signingOut) return;
     _inFlight = true;
     final gen = _session;
     try {
