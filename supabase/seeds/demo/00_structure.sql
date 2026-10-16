@@ -17,6 +17,8 @@
 --   course ...0001, unit ...0002, topics ...0011-13, subtopics ...0021-23,
 --   skills ...0031-36, questions ...0TPNNN (see later files).
 
+set client_min_messages = warning;
+
 -- Course
 insert into public.courses (id, code, title, slug, description, is_published)
 values (
@@ -120,7 +122,35 @@ as $fn$
 declare
   v_course constant uuid := '00000000-0000-4000-8de0-000000000001';
   v_label  text;
+  v_entry  jsonb;
+  v_rows   int;
 begin
+  if p_skill_codes is null or cardinality(p_skill_codes) = 0 then
+    raise exception 'demo question %: p_skill_codes must be non-empty', p_id;
+  end if;
+  if not exists (
+    select 1 from public.subtopics where id = p_subtopic and topic_id = p_topic
+  ) then
+    raise exception 'demo question %: subtopic % does not belong to topic %', p_id, p_subtopic, p_topic;
+  end if;
+
+  if p_type = 'spr' then
+    if jsonb_typeof(p_key -> 'accepted') is distinct from 'array'
+       or jsonb_array_length(p_key -> 'accepted') = 0 then
+      raise exception 'demo question %: SPR key accepted must be a non-empty array', p_id;
+    end if;
+    for v_entry in select e from jsonb_array_elements(p_key -> 'accepted') as e loop
+      if jsonb_typeof(v_entry) <> 'string'
+         or (v_entry #>> '{}') <> btrim(v_entry #>> '{}')
+         or private.spr_parse(v_entry #>> '{}', false) is null then
+        raise exception 'demo question %: SPR accepted entry % is not a valid answer string', p_id, v_entry;
+      end if;
+    end loop;
+    if p_key ? 'tolerance' and jsonb_typeof(p_key -> 'tolerance') <> 'number' then
+      raise exception 'demo question %: SPR key tolerance must be a number', p_id;
+    end if;
+  end if;
+
   if p_type = 'mcq' then
     if p_choices is null
        or jsonb_typeof(p_choices) <> 'object'
@@ -169,6 +199,11 @@ begin
   delete from public.question_skills where question_id = p_id;
   insert into public.question_skills (question_id, skill_id)
   select p_id, s.id from public.skills s where s.code = any (p_skill_codes);
+  get diagnostics v_rows = row_count;
+  if v_rows <> cardinality(p_skill_codes) then
+    raise exception 'demo question %: % of % skill codes unknown or duplicated (%)',
+      p_id, cardinality(p_skill_codes) - v_rows, cardinality(p_skill_codes), p_skill_codes;
+  end if;
 
   insert into private.question_keys (
     question_id, correct_answer, explanation_md, misconceptions, solved_by

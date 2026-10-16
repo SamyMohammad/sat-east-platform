@@ -134,7 +134,10 @@ jobs:
           # psql with the pooler URL that `supabase link` wrote above.
           set -euo pipefail
           url="$(cat supabase/.temp/pooler-url)"
-          for f in $(ls supabase/seeds/demo/[0-9]*.sql | sort); do
+          shopt -s nullglob
+          files=(supabase/seeds/demo/[0-9]*.sql)
+          (( ${#files[@]} )) || { echo "::error::no demo seed files"; exit 1; }
+          for f in "${files[@]}"; do
             psql "$url" -v ON_ERROR_STOP=1 --single-transaction -q -f "$f"
           done
       - name: Deploy Edge Functions (skipped while none exist)
