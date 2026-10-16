@@ -51,6 +51,23 @@ jobs:
       - run: supabase test db
       - run: supabase db lint --fail-on error
       - run: pwsh scripts/api-private-check.ps1
+      # Last in the job, after pgTAP/lint/api checks, so they see a clean DB. Uses psql inside the db
+      # container (always present, no host psql/port/password assumptions; same as
+      # scripts/db-seed-demo.ps1). `supabase db query --file` rejects multi-statement files.
+      - name: "Demo seed: apply twice + check"
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=(supabase/seeds/demo/[0-9]*.sql)
+          (( ${#files[@]} )) || { echo "::error::no demo seed files"; exit 1; }
+          db=supabase_db_sat-east-platform
+          for pass in 1 2; do
+            for f in "${files[@]}"; do
+              echo "pass $pass: $f"
+              docker exec -i "$db" psql -U postgres -d postgres -v ON_ERROR_STOP=1 --single-transaction -q -f - < "$f"
+            done
+          done
+          docker exec -i "$db" psql -U postgres -d postgres -v ON_ERROR_STOP=1 --single-transaction -f - < supabase/seeds/demo/check.sql
 
   # Deno tests + type-check for Edge Functions (docs/12). Spikes are not run here.
   functions:
