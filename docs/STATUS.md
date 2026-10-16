@@ -2,27 +2,30 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-15
+> Last updated: 2026-10-16
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| F-4 design gallery | [spec](superpowers/specs/2026-10-15-f4-gallery-design.md) | [plan](superpowers/plans/2026-10-15-f4-gallery.md) | `feat/F-4-gallery` | #24 | in review |
+| P1 part 1 — demo seed (slice 1/5) | [spec](superpowers/specs/2026-10-16-p1-slice-demo-seed-design.md) | [plan](superpowers/plans/2026-10-16-p1-demo-seed.md) | `feat/P1-demo-seed` | #26 | in progress |
 
 ## Next
 
-1. After merge: check `https://sat-staging.pages.dev/#/gallery` at 360 and 1280 (Phase 0 UI exit).
-2. Phase 1 vertical slice: login → course → topic → practice → quiz → unlock, on staging.
-3. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
+1. Phase 1 vertical slice: login → course → topic → practice → quiz → unlock, on staging.
+2. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
 
 ## Open
 
 | Item | Notes |
 |------|-------|
-| PR #14 | Open revert of the theme PR #13 — close it unless the revert is wanted |
 | Pass mark | Teacher Area A design shows 70%, `settings` default is 75% |
 | SPR `.0000` | Should trailing zeros grade correct for tiny keys like `1/30000`? |
+| Time-up copy | "Your 0 answers…" wording when nothing was answered |
+| Restyle | Move to a well-known design system — deferred until after the MVP ships to production |
+| Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
+| Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
+| Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
 | Teacher asks | `15` §0 list — Paymob onboarding, taxonomy, pilot topic block launch more than code |
 
 ## Done
@@ -42,6 +45,7 @@
 | 6 | F-4 components B — buttons + feedback, AppShell | #18, #19 → re-landed in #20 |
 | 6 | F-4 `QuestionView` PR 1 — practice + homework | #22 |
 | 6 | F-4 `QuestionView` PR 2 — quiz | #23 |
+| 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
 | S1 (early) | AUTH-04/05 device limit, PAY-01/04 catalogue backend | #11 |

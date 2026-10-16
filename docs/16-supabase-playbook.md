@@ -227,6 +227,7 @@ Abnormal volume (e.g. > N practice fetches/day) also feeds SEC-04 suspicious-act
   Add `edge-runtime` to `-x` when not touching Edge Functions. Check names with `supabase start --help`.
 - Cap WSL memory: `%UserProfile%\.wslconfig` → `[wsl2]` / `memory=6GB` (one-time, by you).
 - Scripts in `scripts/`: `db-up.ps1`, `db-reset.ps1` (reset + seed), `db-test.ps1` (`supabase test db`), `db-down.ps1`.
+- **Demo seed** (staging/local only, never prod): `scripts/db-seed-demo.ps1 [-Check]`; see `supabase/seeds/demo/README.md`. The test DB stays unseeded.
 
 ---
 
