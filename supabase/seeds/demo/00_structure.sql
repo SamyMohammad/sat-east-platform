@@ -10,8 +10,10 @@
 -- twice leaves all row counts unchanged.
 --
 -- Course code note: courses.code is unique, so the demo course uses code 'SAT'.
--- When the real SAT course arrives on staging, rename or remove this demo
--- course first (see STATUS Open).
+-- Re-running this seed undoes any edit made to these rows on staging, and a real
+-- course with code 'SAT' would make every deploy fail with a unique violation.
+-- To retire the demo: delete the CI step "Seed staging demo data" and these seed
+-- files (or change the demo course code). Never edit staging data by hand.
 --
 -- Fixed UUID prefix 00000000-0000-4000-8de0-:
 --   course ...0001, unit ...0002, topics ...0011-13, subtopics ...0021-23,
@@ -184,12 +186,17 @@ begin
     status       = excluded.status,
     source       = excluded.source;
 
-  delete from public.question_choices where question_id = p_id;
+  -- Upsert by (question_id, label) so choice ids stay stable across re-runs.
   if p_choices is not null then
     for v_label in select k from jsonb_object_keys(p_choices) as k order by k loop
       insert into public.question_choices (question_id, label, body_md)
-      values (p_id, v_label, p_choices ->> v_label);
+      values (p_id, v_label, p_choices ->> v_label)
+      on conflict (question_id, label) do update set body_md = excluded.body_md;
     end loop;
+    delete from public.question_choices
+      where question_id = p_id and not (p_choices ? label::text);
+  else
+    delete from public.question_choices where question_id = p_id;
   end if;
 
   insert into public.question_courses (question_id, course_id)

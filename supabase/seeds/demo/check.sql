@@ -97,6 +97,54 @@ begin
       and not exists (select 1 from public.enrollments e where e.user_id = p.id and e.course_id = c);
   if n <> 0 then raise exception 'check 8: % student profiles lack the demo enrolment', n; end if;
 
+  -- 9. Content quality
+  select count(*) into n from public.questions
+    where source = 'demo' and pool = 'practice' and btrim(coalesce(hint_md, '')) = '';
+  if n <> 0 then raise exception 'check 9: % practice questions lack a hint', n; end if;
+  select count(*) into n from public.questions q left join private.question_keys k on k.question_id = q.id
+    where q.source = 'demo' and btrim(coalesce(k.explanation_md, '')) = '';
+  if n <> 0 then raise exception 'check 9: % questions lack an explanation', n; end if;
+  for r in
+    select t.slug, q.pool,
+           count(*) filter (where q.difficulty = 'E') as e,
+           count(*) filter (where q.difficulty = 'M') as m,
+           count(*) filter (where q.difficulty = 'H') as h
+    from public.questions q join public.topics t on t.id = q.topic_id
+    where q.source = 'demo' group by t.slug, q.pool
+  loop
+    if (r.e, r.m, r.h) <> (4, 5, 3) then
+      raise exception 'check 9: topic % pool % difficulty mix is E%/M%/H%, expected 4/5/3', r.slug, r.pool, r.e, r.m, r.h;
+    end if;
+  end loop;
+  for r in
+    select t.slug, count(*) filter (where k.explanation_md ~ '[؀-ۿ]') as ar
+    from public.topics t
+    left join public.questions q on q.topic_id = t.id and q.source = 'demo'
+    left join private.question_keys k on k.question_id = q.id
+    where t.course_id = c group by t.slug
+  loop
+    if r.ar < 2 then raise exception 'check 9: topic % has % Arabic explanations, expected at least 2', r.slug, r.ar; end if;
+  end loop;
+  select count(*) into n from public.questions q
+    where q.source = 'demo' and not exists (select 1 from public.question_skills qs where qs.question_id = q.id);
+  if n <> 0 then raise exception 'check 9: % questions have no skill', n; end if;
+
+  -- 10. Helper functions are not executable by anon/authenticated
+  foreach s in array array[
+    'private.demo_upsert_question(uuid,uuid,uuid,public.question_pool,public.question_type,public.difficulty,text,text,jsonb,jsonb,text,jsonb,text[])',
+    'private.demo_enroll_new_student()'
+  ] loop
+    if has_function_privilege('anon', s, 'execute') then raise exception 'check 10: anon can execute %', s; end if;
+    if has_function_privilege('authenticated', s, 'execute') then raise exception 'check 10: authenticated can execute %', s; end if;
+  end loop;
+
+  -- 8b. If the CI fixture student exists, the seed must have enrolled it
+  if exists (select 1 from auth.users where id = '00000000-0000-4000-8de0-0000000000f1') then
+    select count(*) into n from public.enrollments
+      where user_id = '00000000-0000-4000-8de0-0000000000f1' and course_id = c and status = 'active';
+    if n <> 1 then raise exception 'check 8: fixture student not enrolled by the seed (% rows)', n; end if;
+  end if;
+
   -- 7. Trigger: a new auth user becomes a student profile and is auto-enrolled
   insert into auth.users (id, email, raw_user_meta_data, raw_app_meta_data, created_at, updated_at)
   values (v_user, v_user || '@demo-check.test', '{}'::jsonb, '{}'::jsonb, now(), now());

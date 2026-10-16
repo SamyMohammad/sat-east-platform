@@ -23,7 +23,7 @@
 | SPR `.0000` | Should trailing zeros grade correct for tiny keys like `1/30000`? |
 | Time-up copy | "Your 0 answers…" wording when nothing was answered |
 | Restyle | Move to a well-known design system — deferred until after the MVP ships to production |
-| Demo course code | Demo course uses code `SAT` — rename/remove when real SAT content lands |
+| Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
 | Teacher asks | `15` §0 list — Paymob onboarding, taxonomy, pilot topic block launch more than code |

@@ -1,5 +1,7 @@
 # Apply the P1 demo seed (supabase/seeds/demo/[0-9]*.sql) to the LOCAL database.
 # Local only; idempotent. Run after scripts/db-reset.ps1.
+# FOOTGUN: after seeding, scripts/db-test.ps1 fails until the DB is unseeded. Workaround:
+# `supabase migration up --local` + restart supabase_auth_sat-east-platform (db reset exits 139 here).
 # -Check also runs supabase/seeds/demo/check.sql afterwards (expects "demo seed OK").
 # `supabase db query --file` cannot run multi-statement files (prepared
 # statement), so this pipes each file to psql inside the local db container.
