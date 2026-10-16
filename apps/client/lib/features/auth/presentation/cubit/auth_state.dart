@@ -37,6 +37,10 @@ final class AuthConfirmationSent extends AuthState {
 
   final String email;
 
+  // Keep the email out of toString (A.6: no PII in logs).
+  @override
+  bool? get stringify => false;
+
   @override
   List<Object?> get props => [email];
 }
@@ -62,6 +66,9 @@ final class AuthSignedIn extends AuthState {
   const AuthSignedIn(this.user);
 
   final AppUser user;
+
+  @override
+  bool? get stringify => false;
 
   @override
   List<Object?> get props => [user];

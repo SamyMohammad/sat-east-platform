@@ -6,6 +6,10 @@ final class AppUser extends Equatable {
   final String id;
   final String email;
 
+  // Keep the email out of toString (A.6).
+  @override
+  bool? get stringify => false;
+
   @override
   List<Object?> get props => [id, email];
 }

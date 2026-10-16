@@ -237,6 +237,14 @@ void main() {
       build: build,
       seed: () => _gate,
       act: (c) => c.removeDevice('d1'),
+      expect: () => [
+        const AuthDeviceGate(
+          devices: [_device],
+          changesLeft: 1,
+          removing: true,
+        ),
+        const AuthSignedIn(_user),
+      ],
       verify: (c) {
         verify(() => devices.remove('d1')).called(1);
         verify(() => devices.register()).called(1);
@@ -451,5 +459,199 @@ void main() {
       act: (c) => c.signOut(),
       expect: () => [const AuthSignedOut()],
     );
+  });
+
+  group('P1-2: checkDevice register outcomes', () {
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: unknown then limit reached shows the DeviceGate',
+      setUp: () {
+        when(
+          () => devices.status(),
+        ).thenAnswer((_) async => const Success(DeviceStatus.unknown));
+        when(
+          () => devices.register(),
+        ).thenAnswer((_) async => const Success(_limit));
+      },
+      build: build,
+      seed: () => const AuthSignedIn(_user),
+      act: (c) => c.checkDevice(),
+      expect: () => [_gate],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: unknown then register failure keeps the state',
+      setUp: () {
+        when(
+          () => devices.status(),
+        ).thenAnswer((_) async => const Success(DeviceStatus.unknown));
+        when(
+          () => devices.register(),
+        ).thenAnswer((_) async => const Failure(_network));
+      },
+      build: build,
+      seed: () => const AuthSignedIn(_user),
+      act: (c) => c.checkDevice(),
+      expect: () => <AuthState>[],
+    );
+  });
+
+  group('P1-2: signOut invalidates in-flight work', () {
+    test(
+      'P1-2: stale unknown status after signOut makes no register',
+      () async {
+        final pending = Completer<Result<DeviceStatus>>();
+        when(() => devices.status()).thenAnswer((_) => pending.future);
+        final cubit = build();
+        addTearDown(cubit.close);
+        await cubit.start();
+        final check = cubit.checkDevice();
+        await pumpEventQueue();
+        await cubit.signOut();
+        final states = <AuthState>[];
+        final sub = cubit.stream.listen(states.add);
+        addTearDown(sub.cancel);
+
+        pending.complete(const Success(DeviceStatus.unknown));
+        await check;
+        await pumpEventQueue();
+
+        expect(states, isEmpty);
+        expect(cubit.state, const AuthSignedOut());
+        verify(() => devices.register()).called(1); // only from start()
+      },
+    );
+
+    test('P1-2: stale revoked status after signOut stays plain', () async {
+      final pending = Completer<Result<DeviceStatus>>();
+      when(() => devices.status()).thenAnswer((_) => pending.future);
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      final check = cubit.checkDevice();
+      await pumpEventQueue();
+      await cubit.signOut();
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+
+      pending.complete(const Success(DeviceStatus.revoked));
+      await check;
+      await pumpEventQueue();
+
+      expect(states, isEmpty);
+      expect(cubit.state, const AuthSignedOut());
+    });
+
+    test('P1-2: signIn works after a stale check was overtaken', () async {
+      final pending = Completer<Result<DeviceStatus>>();
+      when(() => devices.status()).thenAnswer((_) => pending.future);
+      when(
+        () => auth.signIn(email: 'a@b.co', password: 'pw'),
+      ).thenAnswer((_) async => const Success(_user));
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      final check = cubit.checkDevice();
+      await pumpEventQueue();
+      await cubit.signOut();
+
+      await cubit.signIn('a@b.co', 'pw');
+
+      verify(() => auth.signIn(email: 'a@b.co', password: 'pw')).called(1);
+      expect(cubit.state, const AuthSignedIn(_user));
+      pending.complete(const Success(DeviceStatus.active));
+      await check;
+    });
+
+    for (final success in [true, false]) {
+      test(
+        'P1-2: stale remove ${success ? 'success' : 'failure'} after '
+        'signOut makes no emit and no register',
+        () async {
+          when(
+            () => devices.register(),
+          ).thenAnswer((_) async => const Success(_limit));
+          final pending = Completer<Result<int>>();
+          when(() => devices.remove('d1')).thenAnswer((_) => pending.future);
+          final cubit = build();
+          addTearDown(cubit.close);
+          await cubit.start();
+          expect(cubit.state, _gate);
+          final removal = cubit.removeDevice('d1');
+          await pumpEventQueue();
+          await cubit.signOut();
+          final states = <AuthState>[];
+          final sub = cubit.stream.listen(states.add);
+          addTearDown(sub.cancel);
+
+          pending.complete(
+            success
+                ? const Success<int>(0)
+                : const Failure<int>(_deviceLimitError),
+          );
+          await removal;
+          await pumpEventQueue();
+
+          expect(states, isEmpty);
+          expect(cubit.state, const AuthSignedOut());
+          verify(() => devices.register()).called(1); // only from start()
+        },
+      );
+    }
+
+    test('P1-2: clearUser runs even if closed during auth.signOut', () async {
+      final pending = Completer<Result<void>>();
+      when(() => auth.signOut()).thenAnswer((_) => pending.future);
+      final cubit = build();
+      await cubit.start();
+
+      final out = cubit.signOut();
+      await pumpEventQueue();
+      await cubit.close();
+      pending.complete(const Success(null));
+      await out;
+
+      verify(() => reporter.clearUser()).called(1);
+    });
+  });
+
+  group('P1-2: register without a user', () {
+    blocTest<AuthCubit, AuthState>(
+      'P1-2: signUp signedIn with no current user is not_authenticated',
+      setUp: () {
+        when(() => auth.currentUser).thenReturn(null);
+        when(
+          () => auth.signUp(
+            email: 'a@b.co',
+            password: 'pw',
+            fullName: 'Sam Ali',
+          ),
+        ).thenAnswer((_) async => const Success(SignUpOutcome.signedIn));
+      },
+      build: build,
+      act: (c) => c.signUp('a@b.co', 'pw', 'Sam Ali'),
+      expect: () => [
+        const AuthBusy(),
+        isA<AuthSignedOut>().having(
+          (s) => s.error?.code,
+          'error code',
+          ErrorCodes.notAuthenticated,
+        ),
+      ],
+      verify: (_) => verifyNever(() => devices.register()),
+    );
+  });
+
+  group('P1-2: state toString', () {
+    test('P1-2: AuthSignedIn.toString does not contain the email', () {
+      expect(const AuthSignedIn(_user).toString(), isNot(contains('a@b.co')));
+    });
+
+    test('P1-2: AuthConfirmationSent.toString does not contain the email', () {
+      expect(
+        const AuthConfirmationSent('a@b.co').toString(),
+        isNot(contains('a@b.co')),
+      );
+    });
   });
 }
