@@ -2,18 +2,30 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-17
+> Last updated: 2026-10-18
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 5 — quiz + unlock (slice 5/5) | [spec](superpowers/specs/2026-10-17-p1-quiz-design.md) | [plan](superpowers/plans/2026-10-17-p1-quiz.md) | `feat/P1-quiz` | #32 | in review |
+| P1 slice staging fixes | — | — | `fix/P1-staging-check` | — | in progress |
 
-## Next
+## Next — parallel lanes
 
-1. Phase 1 vertical slice: finish the staging check after #32 merges (login → course → topic → practice → quiz → unlock).
-2. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
+Up to 3 lanes at once, each in its own `git worktree` branched from `main` (never stacked). Each lane still goes brainstorm → plan → Codex → review → PR.
+
+| Lane | Scope | Write set |
+|------|-------|-----------|
+| 1 — Student UI (Flutter) | A-2 profile, A-3 manage devices, A-5 password reset, P-1 course page (backend in #11) | `lib/features/auth`, `lib/features/catalogue` |
+| 2 — Backend only | L-7 review set + `get_attempt_review`, L-9 teacher unlock, `cron-expire-attempts`, `private.hit_rate_limit`, practice_count advisory lock | `supabase/` only |
+| 3 — Teacher area (Flutter) | C-1 topics builder, C-7 settings, then C-4/C-5 question import + editor | `lib/features/teacher/*` |
+
+Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml`, migration timestamps, `docs/07` §9 error codes, this file.
+- Lanes only append to DI and the router; each plan reserves its migration names and error codes up front.
+- Only the router session edits this file, after a merge; other lanes rebase on `main` after each merge and re-run gates.
+- Run Flutter gates one lane at a time (`flutter test -j 2`, OOM otherwise). Open a draft PR early so CI runs pgTAP.
+
+Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice staging check (login → course → topic → practice → quiz → unlock) is the user's.
 
 ## Open
 
@@ -59,6 +71,8 @@
 | P1 | Slice 2/5 — email login + device limit (staging login check pending, user) | #27 |
 | P1 | Slice 3/5 — course map (staging check pending, user) | #29 |
 | P1 | Slice 4/5 — practice (staging check pending, user) | #30 |
+| P1 | Slice 5/5 — quiz + unlock (staging check pending, user) | #32 |
+| — | Auth Site URL setup doc | #31 |
 | 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
