@@ -19,6 +19,9 @@ import 'package:sat_east_client/features/practice/data/datasources/practice_remo
 import 'package:sat_east_client/features/practice/data/repositories/practice_repository_impl.dart';
 import 'package:sat_east_client/features/practice/domain/repositories/practice_repository.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_cubit.dart';
+import 'package:sat_east_client/features/quiz/data/datasources/quiz_remote_data_source.dart';
+import 'package:sat_east_client/features/quiz/data/repositories/quiz_repository_impl.dart';
+import 'package:sat_east_client/features/quiz/domain/repositories/quiz_repository.dart';
 import 'package:sat_east_client/features/topic/data/datasources/topic_remote_data_source.dart';
 import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
 import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
@@ -84,6 +87,14 @@ void configureDependencies({
     )
     ..registerFactory<CourseMapCubit>(
       () => CourseMapCubit(getIt<CourseMapRepository>()),
+    )
+    ..registerLazySingleton<QuizRemoteDataSource>(
+      () => QuizRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<QuizRepository>(
+      () => QuizRepositoryImpl(getIt<QuizRemoteDataSource>()),
     )
     ..registerLazySingleton<TopicRemoteDataSource>(
       () => TopicRemoteDataSource(
