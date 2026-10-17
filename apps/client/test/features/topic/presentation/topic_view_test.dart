@@ -8,6 +8,7 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
@@ -153,6 +154,10 @@ void main() {
       await tester.tap(find.text(label));
       await tester.pumpAndSettle();
       expect(find.text('Quiz destination'), findsOneWidget);
+      expect(
+        GoRouterState.of(tester.element(find.text('Quiz destination'))).extra,
+        QuizEntry.startOrResume,
+      );
     });
   }
 

@@ -7,6 +7,41 @@ void _autosaveCases() {
     tearDown(() => h.close());
 
     test(
+      'PRC-03: invalid_input stops retries and pending saves permanently',
+      () async {
+        const invalid = AppError(ErrorCodes.invalidInput);
+        final first = Completer<Result<SaveOutcome>>();
+        h.repo.onSave = (_) => first.future;
+        await h.cubit.start('topic');
+        final errors = <AppError?>[];
+        final sub = h.cubit.stream
+            .where((s) => s is QuizRunning)
+            .cast<QuizRunning>()
+            .map((s) => s.saveError)
+            .distinct()
+            .listen(errors.add);
+        addTearDown(sub.cancel);
+        h.cubit.select('A');
+        h.cubit.select('B');
+        first.complete(const Failure(invalid));
+        await _settle();
+        expect(h.running.saveError, invalid);
+        h.repo.onSave = (_) async => const Success(SaveOutcome.saved);
+        for (final seconds in [2, 5, 10, 10]) {
+          await h.tick(Duration(seconds: seconds));
+        }
+        h.cubit.next();
+        h.cubit.sprChanged('3');
+        await _settle();
+        expect(h.repo.saves, hasLength(1));
+        expect(h.running.saveError, invalid);
+        expect(errors.where((e) => e == invalid), hasLength(1));
+        await h.cubit.close();
+        expect(h.repo.saves, hasLength(1));
+      },
+    );
+
+    test(
       'PRC-03: selecting an answer saves the exact attempt and sequence',
       () async {
         await h.cubit.start('topic');

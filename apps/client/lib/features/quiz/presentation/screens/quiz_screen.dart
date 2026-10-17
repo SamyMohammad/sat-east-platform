@@ -59,7 +59,10 @@ class _QuizViewState extends State<QuizView> {
       case QuizSubmitted(:final report):
         void result() {
           if (context.mounted) {
-            context.go(AppRoutes.quizResult(widget.topicId), extra: report);
+            context.replace(
+              AppRoutes.quizResult(widget.topicId),
+              extra: report,
+            );
           }
         }
 

@@ -1,7 +1,7 @@
 -- PRC-03: shared grader, quiz settings and practice hardening.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(90);
+select plan(91);
 
 select tests.create_supabase_user('quiz_student');
 
@@ -373,6 +373,16 @@ select tests.clear_authentication();
 reset role;
 update public.questions set type = 'mcq' where id = pg_temp.q(17);
 update private.question_keys set correct_answer = '{"choice":"B"}' where question_id = pg_temp.q(17);
+
+-- A retried successful submit must survive access expiry after a lost response.
+update public.enrollments set expires_at = now() - interval '1 minute'
+  where user_id = tests.get_supabase_uid('quiz_student')
+    and course_id = '00000000-0000-0000-0000-0000000017c1';
+select tests.authenticate_as('quiz_student');
+select is(public.submit_attempt(pg_temp.att('pass')), (select v from ctx where k = 'pass_report'),
+  'PRC-03: submitted attempt returns its original report after enrollment expires');
+select tests.clear_authentication();
+reset role;
 
 select * from finish();
 rollback;

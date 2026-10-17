@@ -6,6 +6,29 @@ void _submitCases() {
     setUp(() => h = _Harness());
     tearDown(() => h.close());
 
+    test(
+      'PRC-03: elapsed deadline submits despite failed manual flush '
+      'without tick',
+      () async {
+        final first = Completer<Result<SaveOutcome>>();
+        final finalSave = Completer<Result<SaveOutcome>>();
+        h.repo.onSave = (_) =>
+            h.repo.saves.length == 1 ? first.future : finalSave.future;
+        await h.cubit.start('topic');
+        h.cubit.select('A');
+        h.cubit.select('B');
+        final pending = h.cubit.submit();
+        first.complete(const Success(SaveOutcome.saved));
+        await _settle();
+        expect(h.repo.saves, hasLength(2));
+        h.clock = h.clock.add(const Duration(minutes: 21));
+        finalSave.complete(const Failure(_network));
+        await pending;
+        expect(h.repo.submitted, ['attempt']);
+        expect(h.cubit.state, const QuizSubmitted(_report));
+      },
+    );
+
     test('PRC-03: manual submit emits the exact server report', () async {
       await h.cubit.start('topic');
       await h.cubit.submit();
@@ -116,7 +139,7 @@ void _submitCases() {
               h.repo.saves.length == 1 ? first.future : second.future;
           await h.cubit.start('topic');
           h.cubit.select('A');
-          final pending = h.cubit.submit();
+          final pending = retryFails ? h.cubit.timeUp() : h.cubit.submit();
           first.complete(const Failure(_network));
           try {
             await _settle();
@@ -141,23 +164,64 @@ void _submitCases() {
       );
     }
 
-    test('PRC-03: submit proceeds after each queued save fails once', () async {
-      final first = Completer<Result<SaveOutcome>>();
-      h.repo.onSave = (_) => h.repo.saves.length == 1
-          ? first.future
-          : Future.value(const Failure(_network));
-      await h.cubit.start('topic');
-      h.cubit.select('A');
-      h.cubit.select('B');
-      h.cubit.next();
-      h.cubit.sprChanged('3');
-      final pending = h.cubit.submit();
-      first.complete(const Failure(_network));
-      await pending;
-      expect(h.repo.saves, hasLength(3));
-      expect(h.repo.saves.map((s) => s.clientSeq), [1, 2, 3]);
-      expect(h.repo.submitted, ['attempt']);
-    });
+    test(
+      'PRC-03: time-up submit proceeds after each queued save fails once',
+      () async {
+        final first = Completer<Result<SaveOutcome>>();
+        h.repo.onSave = (_) => h.repo.saves.length == 1
+            ? first.future
+            : Future.value(const Failure(_network));
+        await h.cubit.start('topic');
+        h.cubit.select('A');
+        h.cubit.select('B');
+        h.cubit.next();
+        h.cubit.sprChanged('3');
+        final pending = h.cubit.timeUp();
+        first.complete(const Failure(_network));
+        await pending;
+        expect(h.repo.saves, hasLength(3));
+        expect(h.repo.saves.map((s) => s.clientSeq), [1, 2, 3]);
+        expect(h.repo.submitted, ['attempt']);
+      },
+    );
+
+    for (final includeSecondQuestion in [false, true]) {
+      test('PRC-03: manual submit blocks on dirty answers and allows retry '
+          '(second question succeeds: $includeSecondQuestion)', () async {
+        final first = Completer<Result<SaveOutcome>>();
+        h.repo.onSave = (_) => h.repo.saves.length == 1
+            ? first.future
+            : Future.value(
+                includeSecondQuestion && h.repo.saves.last.questionId == 'spr'
+                    ? const Success(SaveOutcome.saved)
+                    : const Failure(_network),
+              );
+        await h.cubit.start('topic');
+        h.cubit.select('A');
+        h.cubit.select('B');
+        if (includeSecondQuestion) {
+          h.cubit.next();
+          h.cubit.sprChanged('3');
+        }
+        final pending = h.cubit.submit();
+        first.complete(const Failure(_network));
+        await pending;
+        expect(h.repo.saves, hasLength(includeSecondQuestion ? 3 : 2));
+        expect(h.repo.saves[1].answer, 'B');
+        expect(h.repo.submitted, isEmpty);
+        expect(h.running.submitting, isFalse);
+        expect(h.running.submitError, _network);
+        expect(h.running.saveError, _network);
+        expect(h.running.answers['mcq'], 'B');
+        h.repo.onSave = (_) async => const Success(SaveOutcome.saved);
+        await h.cubit.submit();
+        expect(h.repo.saves, hasLength(includeSecondQuestion ? 4 : 3));
+        expect(h.repo.saves.last.answer, 'B');
+        expect(h.repo.saves.last.clientSeq, includeSecondQuestion ? 4 : 3);
+        expect(h.repo.submitted, ['attempt']);
+        expect(h.cubit.state, const QuizSubmitted(_report));
+      });
+    }
 
     test(
       'PRC-03: submitting freezes answer changes, marks and navigation',

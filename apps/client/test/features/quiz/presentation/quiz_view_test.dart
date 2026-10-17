@@ -186,6 +186,22 @@ void main() {
     verify(cubit.submit).called(1);
   });
 
+  testWidgets('PRC-03: terminal save error does not promise another retry', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      _cubit(
+        _running().copyWith(
+          saveError: const AppError(ErrorCodes.invalidInput, 'secret'),
+        ),
+      ),
+    );
+    expect(find.text('Not saved — return to the topic'), findsOneWidget);
+    expect(find.text('Not saved — retrying'), findsNothing);
+    expect(find.textContaining('secret'), findsNothing);
+  });
+
   testWidgets('PRC-03: Submit quiz requires the existing confirmation', (
     tester,
   ) async {
@@ -219,6 +235,25 @@ void main() {
     );
     expect(find.text('Result destination'), findsOneWidget);
     expect(router.routerDelegate.currentConfiguration.extra, same(_passed));
+  });
+
+  testWidgets('PRC-03: result replaces quiz and back returns to topic', (
+    tester,
+  ) async {
+    final stream = StreamController<QuizState>();
+    addTearDown(stream.close);
+    final cubit = _cubit(_running(), stream: stream.stream);
+    final router = await _pump(tester, cubit, fromTopic: true);
+    expect(router.canPop(), isTrue);
+    stream.add(const QuizSubmitted(_passed));
+    await tester.pumpAndSettle();
+    expect(find.text('Result destination'), findsOneWidget);
+    expect(router.canPop(), isTrue);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Topic destination'), findsOneWidget);
+    expect(find.byType(QuizView), findsNothing);
+    expect(router.canPop(), isFalse);
   });
 
   testWidgets('PRC-03: time up replaces confirmation only after success', (

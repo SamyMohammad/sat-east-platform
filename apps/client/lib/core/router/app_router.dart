@@ -15,6 +15,7 @@ import 'package:sat_east_client/features/course_map/presentation/screens/course_
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
+import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
@@ -113,6 +114,10 @@ GoRouter createRouter({
                       ),
                       GoRoute(
                         path: 'topics/:topicId/quiz',
+                        redirect: (context, state) =>
+                            state.extra == QuizEntry.startOrResume
+                            ? null
+                            : AppRoutes.topic(state.pathParameters['topicId']!),
                         builder: (context, state) => QuizScreen(
                           topicId: state.pathParameters['topicId']!,
                         ),

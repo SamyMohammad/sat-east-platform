@@ -332,6 +332,9 @@ begin
   if not found then
     raise exception 'invalid_input';
   end if;
+  if v_att.status = 'submitted' then
+    return v_att.meta -> 'report';
+  end if;
   perform private.expire_quiz(v_uid, v_att.topic_id);
   perform private.practice_access(v_uid, v_att.topic_id);
   select a.* into v_att from public.attempts a where a.id = p_attempt_id for update;

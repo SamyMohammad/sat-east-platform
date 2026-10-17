@@ -40,19 +40,55 @@ void _lifecycleCases() {
       expect(h.repo.submitted, isEmpty);
     });
 
-    test('PRC-03: close cancels the ticker and pending retry', () async {
-      h.repo.onSave = (_) async => const Failure(_network);
-      await h.cubit.start('topic');
-      expect(h.ticks.hasListener, isTrue);
-      h.cubit.select('A');
-      await _settle();
-      final state = h.cubit.state;
-      await h.cubit.close();
-      expect(h.ticks.hasListener, isFalse);
-      await h.tick(const Duration(seconds: 10));
-      expect(h.repo.saves, hasLength(1));
-      expect(h.cubit.state, state);
-    });
+    test(
+      'PRC-03: close sends one final save during backoff and cancels ticker',
+      () async {
+        h.repo.onSave = (_) async => const Failure(_network);
+        await h.cubit.start('topic');
+        expect(h.ticks.hasListener, isTrue);
+        h.cubit.select('A');
+        await _settle();
+        final state = h.cubit.state;
+        await h.cubit.close();
+        expect(h.ticks.hasListener, isFalse);
+        await h.tick(const Duration(seconds: 10));
+        expect(h.repo.saves, hasLength(2));
+        expect(h.repo.saves.last.answer, 'A');
+        expect(h.repo.saves.last.clientSeq, 2);
+        expect(h.cubit.state, state);
+      },
+    );
+
+    test(
+      'PRC-03: close fires latest queued snapshots without awaiting flight',
+      () async {
+        final first = Completer<Result<SaveOutcome>>();
+        final finalSave = Completer<Result<SaveOutcome>>();
+        h.repo.onSave = (_) =>
+            h.repo.saves.length == 1 ? first.future : finalSave.future;
+        await h.cubit.start('topic');
+        h.cubit.select('A');
+        h.cubit.select('B');
+        h.cubit.toggleMark();
+        h.cubit.next();
+        h.cubit.sprChanged('3');
+        final state = h.cubit.state;
+        await h.cubit.close();
+        expect(h.repo.saves, hasLength(3));
+        expect(h.repo.saves.map((s) => s.clientSeq), [1, 2, 3]);
+        expect(h.repo.saves[1].questionId, 'mcq');
+        expect(h.repo.saves[1].answer, 'B');
+        expect(h.repo.saves[1].marked, isTrue);
+        expect(h.repo.saves[2].questionId, 'spr');
+        expect(h.repo.saves[2].answer, '3');
+        first.complete(const Failure(_network));
+        finalSave.complete(const Failure(_network));
+        await _settle();
+        await h.tick(const Duration(seconds: 10));
+        expect(h.repo.saves, hasLength(3));
+        expect(h.cubit.state, state);
+      },
+    );
 
     test(
       'PRC-03: close during start prevents late emissions or ticker',

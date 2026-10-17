@@ -8,6 +8,7 @@ abstract final class QuizCopy {
   static const nextTopic = 'Next topic';
   static const backToCourse = 'Back to course';
   static const notSaved = 'Not saved — retrying';
+  static const saveStopped = 'Not saved — return to the topic';
   static const submitting = 'Submitting quiz…';
   static const submitError = "Couldn't submit your quiz. Try again.";
   static const retrySubmit = 'Retry submit';

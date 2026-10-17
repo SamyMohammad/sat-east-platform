@@ -63,12 +63,13 @@ Future<GoRouter> _pump(
   double width = 360,
   bool screen = false,
   QuizReport? report,
+  bool fromTopic = false,
 }) async {
   tester.view.physicalSize = Size(width, 800);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final router = GoRouter(
-    initialLocation: '/quiz',
+    initialLocation: fromTopic ? '/courses/topics/t1' : '/quiz',
     routes: [
       GoRoute(
         path: '/quiz',
@@ -107,6 +108,10 @@ Future<GoRouter> _pump(
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
+  if (fromTopic) {
+    unawaited(router.push<void>('/quiz'));
+    await tester.pumpAndSettle();
+  }
   return router;
 }
 

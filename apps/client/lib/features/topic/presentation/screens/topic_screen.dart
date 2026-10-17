@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
 import 'package:sat_east_client/features/topic/presentation/widgets/topic_content.dart';
@@ -104,7 +105,10 @@ class _TopicViewState extends State<TopicView> {
                   ),
                 ),
                 onQuiz: () => unawaited(
-                  context.push<void>(AppRoutes.quiz(widget.topicId)),
+                  context.push<void>(
+                    AppRoutes.quiz(widget.topicId),
+                    extra: QuizEntry.startOrResume,
+                  ),
                 ),
               ),
             },

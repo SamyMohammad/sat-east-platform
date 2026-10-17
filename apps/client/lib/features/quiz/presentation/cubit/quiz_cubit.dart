@@ -217,27 +217,26 @@ class QuizCubit extends Cubit<QuizState> {
   ) async {
     await saves.flushForSubmit();
     if (isClosed || generation != _generation) return;
+    final current = _running;
+    if (!_autoSubmitted &&
+        current != null &&
+        (_clock?.remaining ?? current.remaining) <= Duration.zero) {
+      _autoSubmitted = true;
+      emit(current.copyWith(remaining: Duration.zero));
+    }
+    if (!_autoSubmitted && saves.hasPending) {
+      _submissionFailed(
+        saves.error ?? const AppError(ErrorCodes.internal),
+        session,
+        saves,
+      );
+      return;
+    }
     final result = await _repository.submit(session.attemptId);
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Failure(:final error):
-        _submission = null;
-        final current = _running;
-        final clock = _clock;
-        if (current == null || clock == null) return;
-        final remaining = _autoSubmitted ? Duration.zero : clock.remaining;
-        if (remaining <= Duration.zero) _autoSubmitted = true;
-        emit(
-          current.copyWith(
-            remaining: remaining,
-            submitting: false,
-            submitError: error,
-          ),
-        );
-        if (remaining > Duration.zero) {
-          clock.show(session.questions[current.index].id);
-          saves.resume();
-        }
+        _submissionFailed(error, session, saves);
       case Success(:final value):
         saves.dispose();
         final cancelTicker = _tickSub?.cancel();
@@ -247,6 +246,30 @@ class QuizCubit extends Cubit<QuizState> {
           if (isClosed || generation != _generation) return;
         }
         emit(QuizSubmitted(value));
+    }
+  }
+
+  void _submissionFailed(
+    AppError error,
+    QuizSession session,
+    QuizSaveQueue saves,
+  ) {
+    _submission = null;
+    final current = _running;
+    final clock = _clock;
+    if (current == null || clock == null) return;
+    final remaining = _autoSubmitted ? Duration.zero : clock.remaining;
+    if (remaining <= Duration.zero) _autoSubmitted = true;
+    emit(
+      current.copyWith(
+        remaining: remaining,
+        submitting: false,
+        submitError: error,
+      ),
+    );
+    if (remaining > Duration.zero) {
+      clock.show(session.questions[current.index].id);
+      saves.resume();
     }
   }
 
@@ -264,6 +287,8 @@ class QuizCubit extends Cubit<QuizState> {
 
   @override
   Future<void> close() async {
+    _clock?.pause();
+    _saves?.flushOnClose();
     ++_generation;
     _saves?.dispose();
     final cancelTicker = _tickSub?.cancel();
