@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/env/env.dart';
@@ -15,6 +16,7 @@ import 'package:sat_east_client/features/course_map/presentation/screens/topic_s
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 abstract final class AppRoutes {
   static const home = '/';
@@ -52,11 +54,19 @@ GoRouter createRouter({
               _authRedirect(auth.state, state.uri.path, galleryEnabled),
     routes: [
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => AppShell(
-          selectedIndex: shell.currentIndex,
-          onDestinationSelected: (index) => shell.goBranch(index),
-          child: shell,
-        ),
+        builder: (context, state, shell) {
+          final appShell = AppShell(
+            selectedIndex: shell.currentIndex,
+            onDestinationSelected: (index) => shell.goBranch(index),
+            child: shell,
+          );
+          if (auth == null) return appShell;
+          return BlocSelector<AuthCubit, AuthState, bool>(
+            bloc: auth,
+            selector: (s) => s is AuthUnknown || s is AuthBusy,
+            builder: (_, busy) => busy ? const AppSplash() : appShell,
+          );
+        },
         branches: [
           for (final destination in AppShellDestination.values)
             StatefulShellBranch(
