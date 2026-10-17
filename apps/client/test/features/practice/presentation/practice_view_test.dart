@@ -80,6 +80,10 @@ Future<GoRouter> _pump(
         builder: (_, _) => const Scaffold(body: Text('Course map')),
       ),
       GoRoute(
+        path: '/courses/topics/topic-1',
+        builder: (_, _) => const Scaffold(body: Text('Topic destination')),
+      ),
+      GoRoute(
         path: '/practice',
         builder: (_, _) => Scaffold(
           body: screen
@@ -340,6 +344,24 @@ void main() {
     expect(find.text('You got 2 of 3 right on the first try.'), findsOneWidget);
     await tester.tap(find.text('Practice more'));
     verify(cubit.practiceMore).called(1);
+  });
+
+  testWidgets('PRC-03: summary Back to topic returns to the current topic', (
+    tester,
+  ) async {
+    final router = await _pump(
+      tester,
+      _cubit(const PracticeSummary(correctFirstTry: 2, total: 3)),
+    );
+    expect(find.text('Practice more'), findsOneWidget);
+    expect(find.text('Back to course'), findsOneWidget);
+    await tester.tap(find.text('Back to topic'));
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      '/courses/topics/topic-1',
+    );
+    expect(find.text('Topic destination'), findsOneWidget);
   });
 
   testWidgets('PRC-01: summary back returns to courses', (tester) async {

@@ -14,6 +14,7 @@ import 'package:sat_east_client/features/auth/presentation/screens/sign_up_scree
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
+import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_splash.dart';
@@ -22,6 +23,8 @@ abstract final class AppRoutes {
   static const home = '/';
   static const courses = '/courses';
   static String topic(String id) => '/courses/topics/$id';
+  static String practice(String id) => '/courses/topics/$id/practice';
+  static String quiz(String id) => '/courses/topics/$id/quiz';
   static const skills = '/skills';
   static const mockExams = '/mock-exams';
   static const profile = '/profile';
@@ -83,9 +86,19 @@ GoRouter createRouter({
                     _ => PlaceholderScreen(title: destination.label),
                   },
                   routes: [
-                    if (destination == AppShellDestination.courses)
+                    if (destination == AppShellDestination.courses) ...[
                       GoRoute(
                         path: 'topics/:topicId',
+                        builder: (context, state) => TopicScreen(
+                          topicId: state.pathParameters['topicId']!,
+                          title: switch (state.extra) {
+                            final String t => t,
+                            _ => null,
+                          },
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'topics/:topicId/practice',
                         builder: (context, state) => PracticeScreen(
                           topicId: state.pathParameters['topicId']!,
                           title: switch (state.extra) {
@@ -94,6 +107,7 @@ GoRouter createRouter({
                           },
                         ),
                       ),
+                    ],
                   ],
                 ),
               ],

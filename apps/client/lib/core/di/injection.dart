@@ -19,6 +19,10 @@ import 'package:sat_east_client/features/practice/data/datasources/practice_remo
 import 'package:sat_east_client/features/practice/data/repositories/practice_repository_impl.dart';
 import 'package:sat_east_client/features/practice/domain/repositories/practice_repository.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_cubit.dart';
+import 'package:sat_east_client/features/topic/data/datasources/topic_remote_data_source.dart';
+import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
+import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
+import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -80,6 +84,17 @@ void configureDependencies({
     )
     ..registerFactory<CourseMapCubit>(
       () => CourseMapCubit(getIt<CourseMapRepository>()),
+    )
+    ..registerLazySingleton<TopicRemoteDataSource>(
+      () => TopicRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<TopicRepository>(
+      () => TopicRepositoryImpl(getIt<TopicRemoteDataSource>()),
+    )
+    ..registerFactory<TopicCubit>(
+      () => TopicCubit(getIt<TopicRepository>()),
     )
     // Ruled exception to "cubits are factories": AuthCubit is app-wide
     // session state that the router also reads, so it must be one instance.
