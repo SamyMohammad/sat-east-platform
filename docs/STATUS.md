@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 3 — course map (slice 3/5) | [spec](superpowers/specs/2026-10-17-p1-course-map-design.md) | [plan](superpowers/plans/2026-10-17-p1-course-map.md) | `feat/P1-course-map` | #29 | in review |
+| P1 part 4 — practice (slice 4/5) | [spec](superpowers/specs/2026-10-17-p1-practice-design.md) | [plan](superpowers/plans/2026-10-17-p1-practice.md) | `feat/P1-practice` | — | in review |
 
 ## Next
 
@@ -26,6 +26,9 @@
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
+| Practice hardening (part 5) | `check_practice_answer`: advisory lock per (user, question) for the distinct `practice_count` check (parallel tabs can over-count by 1) and re-check question pool/status; matters once `practice_count` gates the quiz |
+| Practice rate limiting | `private.hit_rate_limit` (`docs/16`) not built; practice RPCs unthrottled |
+| Abandoned practice attempts | In-progress practice attempts are never closed; cleanup job later |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
 | Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
 | Manage devices | Manage-devices page + list-my-devices RPC deferred |
@@ -53,6 +56,7 @@
 | 6 | F-4 `QuestionView` PR 2 — quiz | #23 |
 | P1 | Slice 1/5 — staging demo seed | #26 |
 | P1 | Slice 2/5 — email login + device limit (staging login check pending, user) | #27 |
+| P1 | Slice 3/5 — course map (staging check pending, user) | #29 |
 | 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
