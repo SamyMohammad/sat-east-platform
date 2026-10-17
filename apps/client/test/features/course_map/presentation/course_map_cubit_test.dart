@@ -25,6 +25,62 @@ void main() {
 
   setUp(() => repo = _MockRepo());
 
+  test('L-1: latest overlapping refresh wins over a stale failure', () async {
+    final older = Completer<Result<CourseMap>>();
+    final newer = Completer<Result<CourseMap>>();
+    var calls = 0;
+    when(() => repo.getCourseMap()).thenAnswer(
+      (_) => calls++ == 0 ? older.future : newer.future,
+    );
+    final cubit = CourseMapCubit(repo);
+    addTearDown(cubit.close);
+    final first = cubit.load();
+    final second = cubit.load();
+    newer.complete(const Success(_map));
+    await second;
+    older.complete(const Failure(AppError(ErrorCodes.network)));
+    await first;
+    expect(cubit.state, const CourseMapLoaded(_map));
+  });
+
+  test(
+    'L-1: refresh keeps loaded content while the request is pending',
+    () async {
+      final pending = Completer<Result<CourseMap>>();
+      var calls = 0;
+      when(() => repo.getCourseMap()).thenAnswer(
+        (_) =>
+            calls++ == 0 ? Future.value(const Success(_map)) : pending.future,
+      );
+      final cubit = CourseMapCubit(repo);
+      addTearDown(cubit.close);
+      await cubit.load();
+      final refresh = cubit.load();
+      final duringRefresh = cubit.state;
+      pending.complete(const Success(_map));
+      await refresh;
+      expect(duringRefresh, const CourseMapLoaded(_map));
+      expect(cubit.state, const CourseMapLoaded(_map));
+    },
+  );
+
+  test(
+    'L-1: refresh failure is explicit after preserving loaded content',
+    () async {
+      var calls = 0;
+      when(() => repo.getCourseMap()).thenAnswer(
+        (_) async => calls++ == 0
+            ? const Success(_map)
+            : const Failure(AppError(ErrorCodes.network)),
+      );
+      final cubit = CourseMapCubit(repo);
+      addTearDown(cubit.close);
+      await cubit.load();
+      await cubit.load();
+      expect(cubit.state, const CourseMapFailed(AppError(ErrorCodes.network)));
+    },
+  );
+
   blocTest<CourseMapCubit, CourseMapState>(
     'L-1: load success emits Loading then Loaded',
     build: () {

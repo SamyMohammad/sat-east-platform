@@ -8,10 +8,14 @@ class CourseMapCubit extends Cubit<CourseMapState> {
 
   final CourseMapRepository _repository;
 
+  int _loadVersion = 0;
+
   Future<void> load() async {
-    emit(const CourseMapLoading());
-    final result = await _repository.getCourseMap();
     if (isClosed) return;
+    final version = ++_loadVersion;
+    if (state is! CourseMapLoaded) emit(const CourseMapLoading());
+    final result = await _repository.getCourseMap();
+    if (isClosed || version != _loadVersion) return;
     switch (result) {
       case Success(:final value):
         emit(CourseMapLoaded(value));

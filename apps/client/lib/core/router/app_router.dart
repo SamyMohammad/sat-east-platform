@@ -66,7 +66,13 @@ GoRouter createRouter({
         builder: (context, state, shell) {
           final appShell = AppShell(
             selectedIndex: shell.currentIndex,
-            onDestinationSelected: (index) => shell.goBranch(index),
+            onDestinationSelected: (index) => shell.goBranch(
+              index,
+              initialLocation:
+                  index == shell.currentIndex &&
+                  AppShellDestination.values[index] ==
+                      AppShellDestination.courses,
+            ),
             child: shell,
           );
           if (auth == null) return appShell;

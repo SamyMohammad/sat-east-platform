@@ -119,7 +119,7 @@ void main() {
         expect(find.text('Practice'), findsOneWidget);
         expect(find.byType(ExerciseHeader), findsOneWidget);
         expect(
-          find.textContaining('Rep 7 of 10 — Homework unlocks at 10'),
+          find.textContaining('Rep 7 of 10 — Quiz unlocks at 10'),
           findsOneWidget,
         );
         expect(find.text('Rep 7 of 10'), findsOneWidget);
