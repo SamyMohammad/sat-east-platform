@@ -43,6 +43,7 @@ GoRouter createRouter({
   AuthCubit? auth,
   Listenable? refresh,
 }) {
+  assert(refresh == null || auth != null, 'refresh requires auth');
   final galleryEnabled = !Env.isProd && (includeGallery ?? true);
   return GoRouter(
     initialLocation: initialLocation,

@@ -162,6 +162,13 @@ void main() {
       router.dispose();
     }
   });
+
+  test('P1-2: createRouter asserts that refresh requires auth', () {
+    expect(
+      () => createRouter(refresh: ValueNotifier<int>(0)),
+      throwsAssertionError,
+    );
+  });
 }
 
 void _viewport(WidgetTester tester, double width) {

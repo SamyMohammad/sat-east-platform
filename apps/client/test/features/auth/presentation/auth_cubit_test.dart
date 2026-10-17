@@ -918,6 +918,51 @@ void main() {
       expect(cubit.state, const AuthSignedOut());
     });
 
+    test('P1-2: two back-to-back null users sign out once', () async {
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+
+      users
+        ..add(null)
+        ..add(null);
+      await pumpEventQueue();
+
+      expect(states, [const AuthSignedOut()]);
+      verify(() => reporter.clearUser()).called(1);
+    });
+
+    test('P1-2: a null user during sign-in does not sign out', () async {
+      final pending = Completer<Result<AppUser>>();
+      when(
+        () => auth.signIn(email: 'a@b.co', password: 'pw'),
+      ).thenAnswer((_) => pending.future);
+      final cubit = build();
+      addTearDown(cubit.close);
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+      await cubit.start();
+      await cubit.signOut();
+      await pumpEventQueue();
+      states.clear();
+
+      final signingIn = cubit.signIn('a@b.co', 'pw');
+      await pumpEventQueue();
+      expect(cubit.state, const AuthBusy());
+      users.add(null);
+      await pumpEventQueue();
+      pending.complete(const Success(_user));
+      await signingIn;
+      await pumpEventQueue();
+
+      expect(cubit.state, const AuthSignedIn(_user));
+      expect(states, [const AuthBusy(), const AuthSignedIn(_user)]);
+    });
+
     test('P1-2: a non-null user event changes nothing', () async {
       final cubit = build();
       addTearDown(cubit.close);

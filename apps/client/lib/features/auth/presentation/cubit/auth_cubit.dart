@@ -37,6 +37,9 @@ class AuthCubit extends Cubit<AuthState> {
   /// True while [signOut] runs; new operations are rejected meanwhile.
   bool _signingOut = false;
 
+  /// True while a session loss is being handled; duplicate events are dropped.
+  bool _losingSession = false;
+
   /// Bumped by sign-out and close so in-flight work can detect it is stale.
   int _session = 0;
 
@@ -180,21 +183,29 @@ class AuthCubit extends Cubit<AuthState> {
 
   void _onUserChanged(AppUser? user) {
     // Our own sign-out also emits null; it handles its own state.
-    if (user != null || _signingOut) return;
+    if (user != null || _signingOut || _losingSession) return;
     final current = state;
     if (current is AuthSignedIn ||
         current is AuthDeviceGate ||
         current is AuthConfirmationSent) {
-      unawaited(_sessionLost());
+      unawaited(_sessionLost(_session));
     }
   }
 
-  Future<void> _sessionLost() async {
+  Future<void> _sessionLost(int gen) async {
+    // A newer sign-out, session loss or close already handled this event.
+    if (_stale(gen)) return;
+    _losingSession = true;
     _invalidateInFlight();
-    await _cancelTicker();
-    await _reporter.clearUser();
-    if (isClosed) return;
-    emit(const AuthSignedOut());
+    final mine = _session;
+    try {
+      await _cancelTicker();
+      await _reporter.clearUser();
+      if (_stale(mine)) return;
+      emit(const AuthSignedOut());
+    } finally {
+      _losingSession = false;
+    }
   }
 
   @override
