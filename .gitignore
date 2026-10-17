@@ -12,6 +12,9 @@ Thumbs.db
 # Local knowledge graph (regenerate with graphify update .)
 graphify-out/
 
+# Local Codex config holds MCP API keys.
+.codex/config.toml
+
 # Video pipeline output (ADR-002). Keys must never be committed.
 out/
 *.key.hex

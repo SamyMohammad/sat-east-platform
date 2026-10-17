@@ -23,6 +23,16 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 9. New functions are not executable by default — every RPC gets an explicit `grant execute ... to authenticated`.
 10. Every new SQL file starts from `supabase/templates/` and passes the review checklist in `docs/16` §2.
 
+## Engineering and Flutter rules
+Follow sections **A. Engineering rules** and **B. Flutter / Dart rules** in `CLAUDE.md`. They apply to you exactly as written (layers, `Result<T>` + `AppError`, Cubit conventions, no code generation, DI in `lib/core/di/injection.dart`, go_router only, shared code in `lib/core/` / `lib/shared/widgets/`).
+
+## When Claude delegates a task to you
+- Claude writes the plan; you implement **one plan task** exactly as briefed. Read the plan file and files the brief names before editing.
+- Write the tests first (TDD), then the code. Tests: deterministic, no real network or timers, one behavior per test; mocktail + bloc_test.
+- Stay in scope: no unrelated refactors, no new packages unless the brief allows it.
+- **Never commit, push or switch branches.** Claude reviews the diff and commits.
+- Run the gates from the brief and report honestly what passed, what failed, and anything you could not run.
+
 ## Conventions
 - Requirement IDs (e.g. `PRC-03`) from `docs/02-prd.md` in PR titles and test names.
 - Error codes from `docs/07` §9.
