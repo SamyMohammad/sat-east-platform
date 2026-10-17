@@ -1,6 +1,6 @@
 # P1 slice part 5 — Quiz + unlock — design
 
-Status: draft 2026-10-17 (awaiting approval; builder check done). Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 5). Story: `docs/03` L-6. Reqs: PRC-03 (no spiral / blueprint yet), PRC-04, PRC-05 (quiz autosave + resume), LRN-01 (practice → quiz gate; video, notes, homework not in the slice), LRN-02 (practice + quiz rules), LRN-03 (pass unlocks next), LRN-04 (cooldown only). Screens: `docs/04` S-15 (topic page, slice version), S-22 (quiz player), S-21 (result, score only).
+Status: approved 2026-10-17. Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 5). Story: `docs/03` L-6. Reqs: PRC-03 (no spiral / blueprint yet), PRC-04, PRC-05 (quiz autosave + resume), LRN-01 (practice → quiz gate; video, notes, homework not in the slice), LRN-02 (practice + quiz rules), LRN-03 (pass unlocks next), LRN-04 (cooldown only). Screens: `docs/04` S-15 (topic page, slice version), S-22 (quiz player), S-21 (result, score only).
 Tier **L** (`docs/15` §2): grading, scoring, unlocking → this spec, pgTAP, `/security-review`.
 
 ## Goal
