@@ -61,6 +61,8 @@ parts/                    stem column, margin note, light header, footer,
 - Stem and explanation through `MathText` (mixed RTL/LTR, rule 8).
 
 ## 6. API change — `check_practice_answer` (docs/07 §2)
+Superseded by `2026-10-17-p1-practice-design.md` §1.4: `reveal` dropped; server reveals on wrong try 2.
+
 `check_practice_answer(question_id, answer, time_ms, reveal bool default false)`:
 - correct → `is_correct = true`, `key`, `explanation`.
 - wrong and `reveal = false` → `is_correct = false`, `hint`, `misconception` for the chosen answer (when present). **No key, no explanation.**
