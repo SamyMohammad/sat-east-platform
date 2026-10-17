@@ -23,6 +23,7 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `get_attempt_review` | attempt_id | questions + keys + explanations + my answers | only if submitted |
 | `register_device` | fingerprint, platform?, label? | `ok` + device_id, or `limit_reached` + devices + changes_left | called by the `register-device` EF (§8) |
 | `remove_device` | device_id | changes_left | `device_limit` when the 30-day allowance is used (§8) |
+| `list_my_devices` | p_fingerprint text | `{devices: [{id, label, platform, last_seen_at, created_at, is_current}], changes_left}` | AUTH-04; authenticated only; caller's non-revoked devices ordered by `last_seen_at desc nulls last`, then `created_at desc`; `is_current` matches the supplied fingerprint, which is never returned; allowance uses `device_changes_30d` minus the caller's changes strictly within the last 30 days, clamped to zero (same allowance as `remove_device`); errors `not_authenticated`, `invalid_input` (null/blank fingerprint) |
 | `device_status` | fingerprint | `active` / `revoked` / `unknown` | polled every minute (§8) |
 | `teacher_list_devices` / `teacher_revoke_device` / `teacher_reset_devices` | user_id / device_id / user_id | devices / ok / ok | teacher only, audited (AUTH-05) |
 | `tag_error_type` | attempt_id, question_id, error_type | ok | |
