@@ -15,9 +15,12 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
+import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 import '../../features/auth/presentation/screens/auth_screen_harness.dart';
+import 'fake_course_map_cubit.dart';
 
 const _user = AppUser(id: 'u1', email: 'a@b.co');
 const _device = Device(id: 'd1', platform: 'web', label: 'Chrome on Windows');
@@ -91,6 +94,9 @@ Future<GoRouter> _pump(
 }
 
 void main() {
+  setUp(registerFakeCourseMapCubit);
+  tearDown(unregisterFakeCourseMapCubit);
+
   // (state, start location, expected location)
   final rules = <(String, AuthState, String, String)>[
     ('Unknown stays on /', _unknown, AppRoutes.home, AppRoutes.home),
@@ -320,6 +326,33 @@ void main() {
       await _pumpFrames(tester);
 
       expect(_path(router), AppRoutes.signUp);
+    });
+  });
+
+  group('P1-2: shell splash while auth is unknown', () {
+    for (final entry in {'unknown': _unknown, 'busy': _busy}.entries) {
+      testWidgets('P1-2: ${entry.key} at /courses shows splash only', (
+        tester,
+      ) async {
+        await _pump(tester, _Harness(entry.value), AppRoutes.courses, 1280);
+
+        expect(find.byType(AppSplash), findsOneWidget);
+        expect(find.byType(CourseMapScreen), findsNothing);
+      });
+    }
+
+    testWidgets('P1-2: signed in replaces the splash with the shell', (
+      tester,
+    ) async {
+      final harness = _Harness(_unknown);
+      await _pump(tester, harness, AppRoutes.courses, 1280);
+      expect(find.byType(AppSplash), findsOneWidget);
+
+      harness.emit(_signedIn);
+      await _pumpFrames(tester);
+
+      expect(find.byType(AppSplash), findsNothing);
+      expect(find.byType(CourseMapScreen), findsOneWidget);
     });
   });
 

@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/env/env.dart';
@@ -10,13 +11,17 @@ import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_s
 import 'package:sat_east_client/features/auth/presentation/screens/device_gate_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
+import 'package:sat_east_client/features/course_map/presentation/screens/topic_stub_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 abstract final class AppRoutes {
   static const home = '/';
   static const courses = '/courses';
+  static String topic(String id) => '/courses/topics/$id';
   static const skills = '/skills';
   static const mockExams = '/mock-exams';
   static const profile = '/profile';
@@ -38,6 +43,7 @@ GoRouter createRouter({
   AuthCubit? auth,
   Listenable? refresh,
 }) {
+  assert(refresh == null || auth != null, 'refresh requires auth');
   final galleryEnabled = !Env.isProd && (includeGallery ?? true);
   return GoRouter(
     initialLocation: initialLocation,
@@ -49,22 +55,45 @@ GoRouter createRouter({
               _authRedirect(auth.state, state.uri.path, galleryEnabled),
     routes: [
       StatefulShellRoute.indexedStack(
-        builder: (context, state, shell) => AppShell(
-          selectedIndex: shell.currentIndex,
-          onDestinationSelected: (index) => shell.goBranch(index),
-          child: shell,
-        ),
+        builder: (context, state, shell) {
+          final appShell = AppShell(
+            selectedIndex: shell.currentIndex,
+            onDestinationSelected: (index) => shell.goBranch(index),
+            child: shell,
+          );
+          if (auth == null) return appShell;
+          // AuthBusy is only emitted at boot/sign-in/sign-up, never while on
+          // shell paths; emitting it while signed in would unmount the shell
+          // and reset the branch stacks.
+          return BlocSelector<AuthCubit, AuthState, bool>(
+            bloc: auth,
+            selector: (s) => s is AuthUnknown || s is AuthBusy,
+            builder: (_, busy) => busy ? const AppSplash() : appShell,
+          );
+        },
         branches: [
           for (final destination in AppShellDestination.values)
             StatefulShellBranch(
               routes: [
                 GoRoute(
                   path: _pathFor(destination),
-                  builder: (context, state) => PlaceholderScreen(
-                    title: destination == AppShellDestination.home
-                        ? null
-                        : destination.label,
-                  ),
+                  builder: (context, state) => switch (destination) {
+                    AppShellDestination.courses => const CourseMapScreen(),
+                    AppShellDestination.home => const PlaceholderScreen(),
+                    _ => PlaceholderScreen(title: destination.label),
+                  },
+                  routes: [
+                    if (destination == AppShellDestination.courses)
+                      GoRoute(
+                        path: 'topics/:topicId',
+                        builder: (context, state) => TopicStubScreen(
+                          title: switch (state.extra) {
+                            final String t => t,
+                            _ => null,
+                          },
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

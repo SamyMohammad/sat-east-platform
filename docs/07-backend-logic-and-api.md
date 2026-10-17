@@ -11,7 +11,7 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 |------|--------|---------|-------|
 | `get_catalogue` | country? | published courses + topic count, free topic, price in the visitor's currency | S-01; callable by `anon` (PAY-01) |
 | `get_course_page` | slug, country? | course + units → published topics (free flag) + `full` price | S-02; callable by `anon`; unknown/unpublished slug → `invalid_input` |
-| `get_course_map` | course_id | units/topics with lock state + step status | single call for the map screen |
+| `get_course_map` | slug? | course + `continue` topic + units → published topics with `status` (`completed`/`open`/`locked`), `sort_label`, `locked_reason`/`after_title`; authenticated only | S-14, LRN-01/03; slug null → caller's latest enrolment; errors `not_authenticated`, `invalid_input`, `not_enrolled`, `access_expired` (no map without active access); step status added with video/notes steps |
 | `save_video_progress` | asset_id, from_s, to_s, position_s | pct | merges watched ranges; marks step at ≥ 80% |
 | `mark_notes_opened` | asset_id | ok | |
 | `get_practice_questions` | topic_id, subtopic_id?, difficulty?, limit | questions (no keys) | practice pool; prefers unseen |
@@ -49,6 +49,8 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `cron-*` | Every minute: `cron-expire-attempts` (auto-submit timed attempts past deadline + grace). Nightly: expire enrollments, inactivity nudges, mastery decay, live reminders |
 
 ## 2. Unlock state machine
+
+`get_course_map` is the read side of this state machine.
 
 ```
 Topic t for user u:

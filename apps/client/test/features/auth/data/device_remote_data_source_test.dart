@@ -10,7 +10,7 @@ import 'package:sat_east_client/features/auth/domain/entities/device_registratio
 import 'package:sat_east_client/features/auth/domain/entities/device_status.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'fakes.dart';
+import '../../../core/fakes/fake_rpc.dart';
 
 void main() {
   late FakeRpc rpc;

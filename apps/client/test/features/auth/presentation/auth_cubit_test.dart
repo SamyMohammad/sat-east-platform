@@ -918,6 +918,125 @@ void main() {
       expect(cubit.state, const AuthSignedOut());
     });
 
+    test('P1-2: two back-to-back null users sign out once', () async {
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+
+      users
+        ..add(null)
+        ..add(null);
+      await pumpEventQueue();
+
+      expect(states, [const AuthSignedOut()]);
+      verify(() => reporter.clearUser()).called(1);
+    });
+
+    test('P1-2: a second real loss after re-sign-in signs out again', () async {
+      when(
+        () => auth.signIn(email: 'a@b.co', password: 'pw'),
+      ).thenAnswer((_) async => const Success(_user));
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+
+      users.add(null);
+      await pumpEventQueue();
+      await cubit.signIn('a@b.co', 'pw');
+      await pumpEventQueue();
+      expect(cubit.state, const AuthSignedIn(_user));
+      users.add(null);
+      await pumpEventQueue();
+
+      expect(states, [
+        const AuthSignedOut(),
+        const AuthBusy(),
+        const AuthSignedIn(_user),
+        const AuthSignedOut(),
+      ]);
+      verify(() => reporter.clearUser()).called(2);
+    });
+
+    test('P1-2: clearUser throwing still signs out and reports', () async {
+      when(
+        () => reporter.captureError(
+          any<Object>(),
+          any(),
+          hint: any(named: 'hint'),
+        ),
+      ).thenAnswer((_) async {});
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      when(() => reporter.clearUser()).thenThrow(StateError('boom'));
+
+      users.add(null);
+      await pumpEventQueue();
+
+      expect(cubit.state, const AuthSignedOut());
+      verify(
+        () => reporter.captureError(
+          any<Object>(),
+          any(),
+          hint: any(named: 'hint'),
+        ),
+      ).called(1);
+    });
+
+    test('P1-2: operations are rejected while a session loss runs', () async {
+      final pending = Completer<void>();
+      when(() => reporter.clearUser()).thenAnswer((_) => pending.future);
+      when(
+        () => devices.status(),
+      ).thenAnswer((_) async => const Success(DeviceStatus.active));
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+
+      users.add(null);
+      await pumpEventQueue();
+      await cubit.checkDevice();
+      pending.complete();
+      await pumpEventQueue();
+
+      verifyNever(() => devices.status());
+      expect(cubit.state, const AuthSignedOut());
+    });
+
+    test('P1-2: a null user during sign-in does not sign out', () async {
+      final pending = Completer<Result<AppUser>>();
+      when(
+        () => auth.signIn(email: 'a@b.co', password: 'pw'),
+      ).thenAnswer((_) => pending.future);
+      final cubit = build();
+      addTearDown(cubit.close);
+      final states = <AuthState>[];
+      final sub = cubit.stream.listen(states.add);
+      addTearDown(sub.cancel);
+      await cubit.start();
+      await cubit.signOut();
+      await pumpEventQueue();
+      states.clear();
+
+      final signingIn = cubit.signIn('a@b.co', 'pw');
+      await pumpEventQueue();
+      expect(cubit.state, const AuthBusy());
+      users.add(null);
+      await pumpEventQueue();
+      pending.complete(const Success(_user));
+      await signingIn;
+      await pumpEventQueue();
+
+      expect(cubit.state, const AuthSignedIn(_user));
+      expect(states, [const AuthBusy(), const AuthSignedIn(_user)]);
+    });
+
     test('P1-2: a non-null user event changes nothing', () async {
       final cubit = build();
       addTearDown(cubit.close);

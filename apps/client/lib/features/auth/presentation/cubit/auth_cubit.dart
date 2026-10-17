@@ -37,6 +37,9 @@ class AuthCubit extends Cubit<AuthState> {
   /// True while [signOut] runs; new operations are rejected meanwhile.
   bool _signingOut = false;
 
+  /// True while a session loss is being handled; duplicate events are dropped.
+  bool _losingSession = false;
+
   /// Bumped by sign-out and close so in-flight work can detect it is stale.
   int _session = 0;
 
@@ -180,21 +183,45 @@ class AuthCubit extends Cubit<AuthState> {
 
   void _onUserChanged(AppUser? user) {
     // Our own sign-out also emits null; it handles its own state.
-    if (user != null || _signingOut) return;
+    if (user != null || _signingOut || _losingSession) return;
     final current = state;
     if (current is AuthSignedIn ||
         current is AuthDeviceGate ||
         current is AuthConfirmationSent) {
-      unawaited(_sessionLost());
+      unawaited(_sessionLost(_session));
     }
   }
 
-  Future<void> _sessionLost() async {
+  Future<void> _sessionLost(int gen) async {
+    // Defensive: only guards against close. Duplicate events are dropped by
+    // [_losingSession] in [_onUserChanged], not by this check.
+    if (_stale(gen)) return;
+    _losingSession = true;
     _invalidateInFlight();
-    await _cancelTicker();
-    await _reporter.clearUser();
-    if (isClosed) return;
-    emit(const AuthSignedOut());
+    final mine = _session;
+    Object? failure;
+    StackTrace? failureTrace;
+    try {
+      await _cancelTicker();
+      await _reporter.clearUser();
+    } on Object catch (e, st) {
+      // Cleanup failed, but the session is gone: the user must still be
+      // signed out. Report after emitting.
+      failure = e;
+      failureTrace = st;
+    }
+    try {
+      if (!_stale(mine)) emit(const AuthSignedOut());
+    } finally {
+      _losingSession = false;
+    }
+    if (failure != null) {
+      await _reporter.captureError(
+        failure,
+        failureTrace,
+        hint: 'AuthCubit session loss cleanup',
+      );
+    }
   }
 
   @override
@@ -215,7 +242,7 @@ class AuthCubit extends Cubit<AuthState> {
   bool _stale(int gen) => isClosed || gen != _session;
 
   Future<void> _guarded(Future<void> Function(int gen) body) async {
-    if (_inFlight || _signingOut) return;
+    if (_inFlight || _signingOut || _losingSession) return;
     _inFlight = true;
     final gen = _session;
     try {

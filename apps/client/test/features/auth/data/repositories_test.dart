@@ -14,6 +14,7 @@ import 'package:sat_east_client/features/auth/domain/entities/device_status.dart
 import 'package:sat_east_client/features/auth/domain/entities/sign_up_outcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show PostgrestException;
 
+import '../../../core/fakes/fake_rpc.dart';
 import 'fakes.dart';
 
 class MockAuthRemoteDataSource extends Mock implements AuthRemoteDataSource {}

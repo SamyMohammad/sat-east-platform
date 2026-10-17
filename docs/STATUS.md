@@ -2,13 +2,13 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-16
+> Last updated: 2026-10-17
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 2 — login + device limit (slice 2/5) | [spec](superpowers/specs/2026-10-16-p1-login-design.md) | [plan](superpowers/plans/2026-10-16-p1-login.md) | `feat/P1-login` | #27 | in review |
+| P1 part 3 — course map (slice 3/5) | [spec](superpowers/specs/2026-10-17-p1-course-map-design.md) | [plan](superpowers/plans/2026-10-17-p1-course-map.md) | `feat/P1-course-map` | #29 | in review |
 
 ## Next
 
@@ -26,6 +26,8 @@
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
+| Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
+| Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
 | Manage devices | Manage-devices page + list-my-devices RPC deferred |
 | register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |
 | Login type size | Login screens use labelLarge 14/600 vs design 13/600 |
@@ -50,6 +52,7 @@
 | 6 | F-4 `QuestionView` PR 1 — practice + homework | #22 |
 | 6 | F-4 `QuestionView` PR 2 — quiz | #23 |
 | P1 | Slice 1/5 — staging demo seed | #26 |
+| P1 | Slice 2/5 — email login + device limit (staging login check pending, user) | #27 |
 | 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
