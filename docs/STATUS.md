@@ -29,6 +29,7 @@
 | Practice hardening (part 5) | `check_practice_answer`: advisory lock per (user, question) for the distinct `practice_count` check (parallel tabs can over-count by 1) and re-check question pool/status; matters once `practice_count` gates the quiz |
 | Practice rate limiting | `private.hit_rate_limit` (`docs/16`) not built; practice RPCs unthrottled |
 | Abandoned practice attempts | In-progress practice attempts are never closed; cleanup job later |
+| Auth Site URL | Staging Site URL was the default `localhost:3000` (confirmation link redirected there). Set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, staging dashboard; repeat for prod |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
 | Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
 | Manage devices | Manage-devices page + list-my-devices RPC deferred |

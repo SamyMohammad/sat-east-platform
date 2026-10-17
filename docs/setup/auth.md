@@ -3,6 +3,14 @@
 Decisions (docs/02 AUTH notes): email confirmation is on in staging and prod, and Google sign-in
 is coded in A-1 but shown only once the steps below are done.
 
+## 0. Site URL (every hosted project, before the first sign-up)
+Supabase dashboard → Authentication → URL Configuration:
+- **Site URL** = the web app URL (staging `https://sat-staging.pages.dev`; prod: its domain).
+- **Redirect URLs** add `<web app URL>/**`.
+
+The default Site URL is `http://localhost:3000`. If it is left as is, the confirmation link still
+confirms the email, but it then redirects to localhost and shows "This site can't be reached".
+
 ## 1. Email sender (SMTP), needed before beta
 Supabase's built-in mailer is rate-limited and meant only for testing.
 1. Create a sender account, e.g. Resend (docs/05 lists it for receipts). Verify the sending domain.
