@@ -1,13 +1,11 @@
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
+import 'package:sat_east_client/core/supabase/rpc_caller.dart';
 import 'package:sat_east_client/features/auth/data/models/device_model.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_registration.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_status.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-typedef RpcCaller =
-    Future<Object?> Function(String fn, Map<String, Object?> params);
 
 const _malformed = AppError(ErrorCodes.internal, 'malformed rpc payload');
 

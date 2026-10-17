@@ -6,6 +6,9 @@ abstract final class ErrorCodes {
   static const deviceLimit = 'device_limit';
   static const rateLimited = 'rate_limited';
   static const internal = 'internal';
+  static const notEnrolled = 'not_enrolled';
+  static const accessExpired = 'access_expired';
+  static const topicLocked = 'topic_locked';
 
   // Client-only (GoTrue / transport).
   static const invalidCredentials = 'invalid_credentials';
@@ -21,6 +24,9 @@ abstract final class ErrorCodes {
     deviceLimit,
     rateLimited,
     internal,
+    notEnrolled,
+    accessExpired,
+    topicLocked,
   };
 
   /// Whether [code] is a `docs/07` §9 server code.

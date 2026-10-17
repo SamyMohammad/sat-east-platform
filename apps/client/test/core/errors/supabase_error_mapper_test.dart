@@ -78,6 +78,15 @@ void main() {
       });
     }
 
+    for (final code in ['not_enrolled', 'access_expired', 'topic_locked']) {
+      test('L-1: mapPostgrestException keeps $code', () {
+        expect(
+          mapPostgrestException(PostgrestException(message: code)).code,
+          code,
+        );
+      });
+    }
+
     test('P1-2: maps unknown message to internal', () {
       final error = mapPostgrestException(
         const PostgrestException(message: 'relation x does not exist'),
