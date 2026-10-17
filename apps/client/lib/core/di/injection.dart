@@ -14,6 +14,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/course_map/data/datasources/course_map_remote_data_source.dart';
 import 'package:sat_east_client/features/course_map/data/repositories/course_map_repository_impl.dart';
 import 'package:sat_east_client/features/course_map/domain/repositories/course_map_repository.dart';
+import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -61,6 +62,9 @@ void configureDependencies({
     )
     ..registerLazySingleton<CourseMapRepository>(
       () => CourseMapRepositoryImpl(getIt<CourseMapRemoteDataSource>()),
+    )
+    ..registerFactory<CourseMapCubit>(
+      () => CourseMapCubit(getIt<CourseMapRepository>()),
     )
     // Ruled exception to "cubits are factories": AuthCubit is app-wide
     // session state that the router also reads, so it must be one instance.
