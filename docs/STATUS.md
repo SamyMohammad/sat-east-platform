@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 4 — practice (slice 4/5) | [spec](superpowers/specs/2026-10-17-p1-practice-design.md) | [plan](superpowers/plans/2026-10-17-p1-practice.md) | `feat/P1-practice` | — | in review |
+| P1 part 4 — practice (slice 4/5) | [spec](superpowers/specs/2026-10-17-p1-practice-design.md) | [plan](superpowers/plans/2026-10-17-p1-practice.md) | `feat/P1-practice` | #30 | in review |
 
 ## Next
 
