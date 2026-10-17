@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 3 — course map (slice 3/5) | [spec](superpowers/specs/2026-10-17-p1-course-map-design.md) | [plan](superpowers/plans/2026-10-17-p1-course-map.md) | `feat/P1-course-map` | — | in review |
+| P1 part 3 — course map (slice 3/5) | [spec](superpowers/specs/2026-10-17-p1-course-map-design.md) | [plan](superpowers/plans/2026-10-17-p1-course-map.md) | `feat/P1-course-map` | #29 | in review |
 
 ## Next
 
