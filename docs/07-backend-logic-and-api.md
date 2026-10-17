@@ -26,7 +26,7 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `device_status` | fingerprint | `active` / `revoked` / `unknown` | polled every minute (§8) |
 | `teacher_list_devices` / `teacher_revoke_device` / `teacher_reset_devices` | user_id / device_id / user_id | devices / ok / ok | teacher only, audited (AUTH-05) |
 | `tag_error_type` | attempt_id, question_id, error_type | ok | |
-| `teacher_unlock` | user_id, topic_id | ok | teacher only, audited |
+| `teacher_unlock_topic` | p_student_id uuid, p_topic_id uuid | `{topic_id, unlocked_at, unlocked_by}` | LRN-05 (L-9); teacher only; target must be a student and topic must be published; preserves existing progress and the first unlock timestamp/teacher; audits `topic.unlock` only on the first unlock; errors `not_authenticated`, `forbidden`, `invalid_input`; executable by `authenticated`, not `anon` |
 | `teacher_matrix` | course_id, filters | rows | completion matrix (ANL-05) |
 | `teacher_class_insights` | course_id, topic_id? | stats | ANL-06 |
 
