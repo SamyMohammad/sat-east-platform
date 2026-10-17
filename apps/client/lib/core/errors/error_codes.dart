@@ -9,6 +9,7 @@ abstract final class ErrorCodes {
   static const notEnrolled = 'not_enrolled';
   static const accessExpired = 'access_expired';
   static const topicLocked = 'topic_locked';
+  static const poolExhausted = 'pool_exhausted';
 
   // Client-only (GoTrue / transport).
   static const invalidCredentials = 'invalid_credentials';
@@ -27,6 +28,7 @@ abstract final class ErrorCodes {
     notEnrolled,
     accessExpired,
     topicLocked,
+    poolExhausted,
   };
 
   /// Whether [code] is a `docs/07` §9 server code.

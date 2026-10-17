@@ -75,8 +75,10 @@ class QuestionHeader extends StatelessWidget {
 
     final Widget content;
     if (wide) {
-      content = SizedBox(
-        height: BookletSize.shellExpandedHeader,
+      content = ConstrainedBox(
+        constraints: const BoxConstraints(
+          minHeight: BookletSize.shellExpandedHeader,
+        ),
         child: Padding(
           padding: const EdgeInsetsDirectional.only(
             start: BookletSpace.s3,
