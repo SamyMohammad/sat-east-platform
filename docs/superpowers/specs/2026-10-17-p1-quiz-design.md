@@ -35,7 +35,7 @@ Used by `get_topic` and `start_quiz`. Access as in practice (`private.practice_a
 | `available` | otherwise |
 Always also carries `best_score_pct` (`quiz_best_score` or null) and `passed` (`quiz_passed_at is not null`). A completed (passed) topic may be re-taken; a retake never removes the pass.
 
-### 1.5 Lazy expiry — `private.expire_quiz(p_attempt_id)`
+### 1.5 Lazy expiry — `private.expire_quiz(p_uid, p_topic_id)`
 An in-progress quiz whose `deadline + save_grace_s` has passed is graded and submitted exactly as `submit_attempt` does (§1.8), with `submitted_at = deadline`. Called by `get_topic`, `start_quiz`, `save_answer` and `submit_attempt` for the caller's quiz attempts of that topic **before the access check** (*Claude's call*). Grading an overdue attempt needs no access, and it is stamped at the deadline, so the score is the same whenever it runs. **Limit (ruling during build):** when the same call then raises `access_expired` / `not_enrolled` / `topic_locked`, Postgres rolls the expiry back with it; such an attempt stays `in_progress` until the student's next successful call (access restored) or the future `cron-expire-attempts`, and is then graded at its deadline with the same result. (`cron-expire-attempts` replaces it later.)
 
 **Access on in-quiz calls (*Claude's call*):** `save_answer` and a manual `submit_attempt` run expiry first, then the practice access check (`access_expired` / `not_enrolled` / `topic_locked` stop them) — consistent with "no access, no course". A quiz cut off this way is graded by lazy expiry at its deadline.
@@ -66,7 +66,7 @@ Full `docs/07` §1 signature now (*Claude's call*), so homework and mock reuse i
 ### 1.9 `public.submit_attempt(p_attempt_id uuid) → jsonb`
 - Attempt: caller's, `kind='quiz'` (other kinds → `invalid_input` for now). Already `submitted` → return the stored report (idempotent).
 - Grade every `attempt_questions` row with `private.grade_answer` (unanswered = wrong); write `attempt_answers.is_correct`; `score_raw` = correct, `score_total` = n, `score_pct = round(100 * raw / total, 2)`; `status='submitted'`, `submitted_at = least(now(), deadline)`.
-- `passed = score_pct >= pass_mark`. `topic_progress` upsert: `quiz_best_score = greatest(existing, score_pct)`; pass → `quiz_passed_at = coalesce(quiz_passed_at, now())`; fail → `quiz_last_failed_at = now()` (a fail never clears a pass).
+- `passed = score_pct >= pass_mark`. `topic_progress` upsert: `quiz_best_score = greatest(existing, score_pct)`; pass → `quiz_passed_at = coalesce(quiz_passed_at, <submitted_at>)`; fail → `quiz_last_failed_at = <submitted_at>`, `retake_at = <submitted_at> + cooldown_h` (a fail never clears a pass). `<submitted_at>` is the deadline for a lazily expired attempt, so the cooldown counts from the deadline.
 - Unlock needs no extra write: `private.topic_states` already opens the next topic when this one is completed (`docs/07` §2). `compute_unlocks` is not built.
 - Report: `{ "score_raw", "score_total", "score_pct", "pass_mark", "passed", "next_topic": {"id","title"} | null, "retake_at": <timestamp> | null }` — `next_topic` = the next topic in course order when it is now open; `retake_at` set on a fail. No keys (review list is out of scope).
 
