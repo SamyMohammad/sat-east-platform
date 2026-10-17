@@ -14,6 +14,9 @@ import 'package:sat_east_client/features/auth/presentation/screens/sign_up_scree
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
+import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
+import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
+import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
@@ -25,6 +28,7 @@ abstract final class AppRoutes {
   static String topic(String id) => '/courses/topics/$id';
   static String practice(String id) => '/courses/topics/$id/practice';
   static String quiz(String id) => '/courses/topics/$id/quiz';
+  static String quizResult(String id) => '/courses/topics/$id/quiz/result';
   static const skills = '/skills';
   static const mockExams = '/mock-exams';
   static const profile = '/profile';
@@ -105,6 +109,23 @@ GoRouter createRouter({
                             final String t => t,
                             _ => null,
                           },
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'topics/:topicId/quiz',
+                        builder: (context, state) => QuizScreen(
+                          topicId: state.pathParameters['topicId']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'topics/:topicId/quiz/result',
+                        redirect: (context, state) => state.extra is QuizReport
+                            ? null
+                            : AppRoutes.topic(state.pathParameters['topicId']!),
+                        builder: (context, state) => QuizResultScreen(
+                          topicId: state.pathParameters['topicId']!,
+                          // The redirect above requires a report.
+                          report: state.extra! as QuizReport,
                         ),
                       ),
                     ],
