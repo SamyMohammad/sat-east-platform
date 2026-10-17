@@ -8,11 +8,11 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 part 4 — practice (slice 4/5) | [spec](superpowers/specs/2026-10-17-p1-practice-design.md) | [plan](superpowers/plans/2026-10-17-p1-practice.md) | `feat/P1-practice` | #30 | in review |
+| P1 part 5 — quiz + unlock (slice 5/5) | [spec](superpowers/specs/2026-10-17-p1-quiz-design.md) | [plan](superpowers/plans/2026-10-17-p1-quiz.md) | `feat/P1-quiz` | #32 | in review |
 
 ## Next
 
-1. Phase 1 vertical slice: login → course → topic → practice → quiz → unlock, on staging.
+1. Phase 1 vertical slice: finish the staging check after #32 merges (login → course → topic → practice → quiz → unlock).
 2. Sprint S1 UI (auth, profile, device limit, catalogue, course page) — backend already in PR #11.
 
 ## Open
@@ -26,7 +26,7 @@
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
-| Practice hardening (part 5) | `check_practice_answer`: advisory lock per (user, question) for the distinct `practice_count` check (parallel tabs can over-count by 1) and re-check question pool/status; matters once `practice_count` gates the quiz |
+| Quiz follow-ups | Spiral + difficulty blueprint, answer review (`get_attempt_review`), targeted review set after a fail, `cron-expire-attempts`; quiz repeats on the 12-question demo pools (accepted for the slice) |
 | Practice rate limiting | `private.hit_rate_limit` (`docs/16`) not built; practice RPCs unthrottled |
 | Abandoned practice attempts | In-progress practice attempts are never closed; cleanup job later |
 | Auth Site URL | Staging Site URL was the default `localhost:3000` (confirmation link redirected there). Set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, staging dashboard; repeat for prod |
@@ -58,6 +58,7 @@
 | P1 | Slice 1/5 — staging demo seed | #26 |
 | P1 | Slice 2/5 — email login + device limit (staging login check pending, user) | #27 |
 | P1 | Slice 3/5 — course map (staging check pending, user) | #29 |
+| P1 | Slice 4/5 — practice (staging check pending, user) | #30 |
 | 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |

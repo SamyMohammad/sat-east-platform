@@ -1,19 +1,33 @@
-import 'package:flutter/material.dart';
+import 'dart:async';
 
+import 'package:bloc_test/bloc_test.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:mocktail/mocktail.dart';
 
+import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
-import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
+import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
+import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart';
+import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart';
+import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
+import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
+import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
+import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
+import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 
 import 'fake_course_map_cubit.dart';
 import 'fake_practice_cubit.dart';
+import 'fake_topic_cubit.dart';
+
+part 'fake_quiz_cubit.dart';
 
 void main() {
   final destinations = [
@@ -24,10 +38,138 @@ void main() {
     (AppRoutes.profile, 'Profile'),
   ];
 
+  setUp(registerFakeTopicCubit);
+  tearDown(unregisterFakeTopicCubit);
   setUp(registerFakeCourseMapCubit);
   tearDown(unregisterFakeCourseMapCubit);
   setUp(registerFakePracticeCubit);
   tearDown(unregisterFakePracticeCubit);
+  setUp(registerFakeQuizCubit);
+  tearDown(unregisterFakeQuizCubit);
+
+  test('PRC-03: quiz result helper preserves the topic ID', () {
+    expect(AppRoutes.quizResult('x'), '/courses/topics/x/quiz/result');
+  });
+
+  for (final width in [360.0, 1280.0]) {
+    testWidgets('PRC-03: cold quiz route returns to its topic at $width', (
+      tester,
+    ) async {
+      var started = '';
+      await registerFakeQuizCubit(onStart: (id) => started = id);
+      _viewport(tester, width);
+      final router = createRouter(initialLocation: AppRoutes.quiz('x'));
+      addTearDown(router.dispose);
+      await _pumpRouter(tester, router);
+      expect(find.byType(QuizScreen), findsNothing);
+      expect(find.byType(TopicScreen), findsOneWidget);
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        AppRoutes.topic('x'),
+      );
+      expect(started, isEmpty);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('PRC-03: explicit quiz entry starts its topic at $width', (
+      tester,
+    ) async {
+      var started = '';
+      await registerFakeQuizCubit(onStart: (id) => started = id);
+      _viewport(tester, width);
+      final router = createRouter(initialLocation: AppRoutes.topic('x'));
+      addTearDown(router.dispose);
+      await _pumpRouter(tester, router);
+      unawaited(
+        router.push<void>(AppRoutes.quiz('x'), extra: QuizEntry.startOrResume),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<QuizScreen>(find.byType(QuizScreen)).topicId, 'x');
+      expect(started, 'x');
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+
+    testWidgets('PRC-03: quiz result route accepts its report at $width', (
+      tester,
+    ) async {
+      const report = QuizReport(
+        scoreRaw: 9,
+        scoreTotal: 12,
+        scorePct: 75,
+        passMark: 70,
+        passed: true,
+        nextTopic: null,
+        retakeAt: null,
+      );
+      _viewport(tester, width);
+      final router = createRouter();
+      addTearDown(router.dispose);
+      await _pumpRouter(tester, router);
+      router.go(AppRoutes.quizResult('x'), extra: report);
+      await tester.pumpAndSettle();
+      final screen = tester.widget<QuizResultScreen>(
+        find.byType(QuizResultScreen),
+      );
+      expect(screen.topicId, 'x');
+      expect(screen.report, same(report));
+      expect(find.text('Quiz passed'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
+  testWidgets('PRC-03: wrong quiz extra returns to topic without starting', (
+    tester,
+  ) async {
+    var starts = 0;
+    await registerFakeQuizCubit(onStart: (_) => starts++);
+    _viewport(tester, 360);
+    final router = createRouter();
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    router.go(AppRoutes.quiz('x'), extra: 'start');
+    await tester.pumpAndSettle();
+    expect(find.byType(TopicScreen), findsOneWidget);
+    expect(find.byType(QuizScreen), findsNothing);
+    expect(starts, 0);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('PRC-03: cold result link returns to the topic', (tester) async {
+    _viewport(tester, 360);
+    final router = createRouter(initialLocation: AppRoutes.quizResult('x'));
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.topic('x'),
+    );
+    expect(find.byType(TopicScreen), findsOneWidget);
+    expect(find.byType(QuizScreen), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('PRC-03: wrong result extra returns to the topic', (
+    tester,
+  ) async {
+    _viewport(tester, 360);
+    final router = createRouter();
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    router.go(AppRoutes.quizResult('x'), extra: 'not a report');
+    await tester.pumpAndSettle();
+    expect(
+      router.routeInformationProvider.value.uri.path,
+      AppRoutes.topic('x'),
+    );
+    expect(find.byType(TopicScreen), findsOneWidget);
+    expect(find.byType(QuizResultScreen), findsNothing);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   for (final width in [360.0, 768.0, 1280.0]) {
     for (var index = 0; index < destinations.length; index++) {
@@ -98,11 +240,11 @@ void main() {
     }
   });
 
-  testWidgets('PRC-01: /courses/topics/x opens practice cold', (
+  testWidgets('PRC-01: /courses/topics/x/practice opens practice cold', (
     tester,
   ) async {
     _viewport(tester, 1280);
-    final router = createRouter(initialLocation: AppRoutes.topic('x'));
+    final router = createRouter(initialLocation: AppRoutes.practice('x'));
     try {
       await _pumpRouter(tester, router);
       final screen = tester.widget<PracticeScreen>(find.byType(PracticeScreen));
@@ -128,7 +270,7 @@ void main() {
       final router = createRouter();
       try {
         await _pumpRouter(tester, router);
-        router.go(AppRoutes.topic('x'), extra: 42);
+        router.go(AppRoutes.practice('x'), extra: 42);
         await tester.pumpAndSettle();
         expect(
           tester.widget<PracticeScreen>(find.byType(PracticeScreen)).title,
@@ -156,7 +298,7 @@ void main() {
       tester,
     ) async {
       _viewport(tester, width);
-      final router = createRouter(initialLocation: AppRoutes.topic('x'));
+      final router = createRouter(initialLocation: AppRoutes.practice('x'));
       try {
         await tester.pumpWidget(
           MaterialApp.router(
@@ -180,11 +322,11 @@ void main() {
     });
   }
 
-  testWidgets('PRC-01: locked topic cold link shows access copy', (
+  testWidgets('PRC-03: locked topic cold link shows access copy', (
     tester,
   ) async {
-    await registerFakePracticeCubit(
-      state: const PracticeFailed(AppError(ErrorCodes.topicLocked)),
+    await registerFakeTopicCubit(
+      state: const TopicFailed(AppError(ErrorCodes.topicLocked)),
     );
     _viewport(tester, 360);
     final router = createRouter(initialLocation: AppRoutes.topic('locked'));
@@ -201,7 +343,7 @@ void main() {
     }
   });
 
-  testWidgets('L-1: navigating to a topic with a title extra shows it', (
+  testWidgets('PRC-03: navigating to a topic passes its title extra', (
     tester,
   ) async {
     _viewport(tester, 1280);
@@ -211,12 +353,80 @@ void main() {
       router.go(AppRoutes.topic('x'), extra: 'Systems');
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 100));
-      expect(find.text('Systems'), findsOneWidget);
+      expect(
+        tester.widget<TopicScreen>(find.byType(TopicScreen)).title,
+        'Systems',
+      );
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());
       router.dispose();
     }
   });
+
+  test(
+    'PRC-03: route helpers preserve topic, practice and future quiz paths',
+    () {
+      expect(AppRoutes.topic('x'), '/courses/topics/x');
+      expect(AppRoutes.practice('x'), '/courses/topics/x/practice');
+      expect(AppRoutes.quiz('x'), '/courses/topics/x/quiz');
+    },
+  );
+
+  testWidgets(
+    'PRC-03: cold topic route opens TopicScreen without title extra',
+    (tester) async {
+      _viewport(tester, 360);
+      final router = createRouter(initialLocation: AppRoutes.topic('x'));
+      addTearDown(router.dispose);
+      await _pumpRouter(tester, router);
+      final screen = tester.widget<TopicScreen>(find.byType(TopicScreen));
+      expect(screen.topicId, 'x');
+      expect(screen.title, isNull);
+      expect(find.byType(PracticeScreen), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+    },
+  );
+
+  testWidgets('PRC-03: non-string topic extra is ignored', (tester) async {
+    _viewport(tester, 360);
+    final router = createRouter();
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    router.go(AppRoutes.topic('x'), extra: 42);
+    await tester.pumpAndSettle();
+    expect(tester.widget<TopicScreen>(find.byType(TopicScreen)).title, isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  for (final back in ['pop', 'go']) {
+    testWidgets('PRC-03: topic reloads when practice returns via $back', (
+      tester,
+    ) async {
+      var loads = 0;
+      await registerFakeTopicCubit(onLoad: (_) => loads++);
+      _viewport(tester, 1280);
+      final router = createRouter(initialLocation: AppRoutes.topic('t1'));
+      addTearDown(router.dispose);
+      await _pumpRouter(tester, router);
+      expect(loads, 1);
+      final practiceButton = find.ancestor(
+        of: find.text('Practice'),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+      );
+      await tester.tap(practiceButton);
+      await tester.pumpAndSettle();
+      expect(find.byType(PracticeScreen), findsOneWidget);
+      if (back == 'pop') {
+        router.pop();
+      } else {
+        router.go(AppRoutes.topic('t1'));
+      }
+      await tester.pumpAndSettle();
+      expect(find.byType(TopicScreen), findsOneWidget);
+      expect(loads, 2);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
 
   testWidgets('F-4: /gallery is routed by default in the dev flavor', (
     tester,

@@ -63,6 +63,7 @@ class PracticeView extends StatelessWidget {
             onPracticeMore: () =>
                 unawaited(context.read<PracticeCubit>().practiceMore()),
             onBack: () => context.go(AppRoutes.courses),
+            onBackToTopic: () => context.go(AppRoutes.topic(topicId)),
           ),
         ),
       },

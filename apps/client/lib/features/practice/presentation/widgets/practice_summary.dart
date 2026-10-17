@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/presentation/learning_copy.dart';
 import 'package:sat_east_client/features/practice/presentation/practice_copy.dart';
 import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -10,6 +11,7 @@ class PracticeSummaryView extends StatelessWidget {
     required this.total,
     required this.onPracticeMore,
     required this.onBack,
+    required this.onBackToTopic,
     super.key,
   });
 
@@ -17,6 +19,7 @@ class PracticeSummaryView extends StatelessWidget {
   final int total;
   final VoidCallback onPracticeMore;
   final VoidCallback onBack;
+  final VoidCallback onBackToTopic;
 
   @override
   Widget build(BuildContext context) => BookletStatusFrame(
@@ -25,6 +28,11 @@ class PracticeSummaryView extends StatelessWidget {
     message: PracticeCopy.summaryBody(correctFirstTry, total),
     actions: [
       LoadingButton(label: PracticeCopy.moreButton, onPressed: onPracticeMore),
+      LoadingButton(
+        label: LearningCopy.backToTopic,
+        onPressed: onBackToTopic,
+        variant: BookletButtonVariant.secondary,
+      ),
       LoadingButton(
         label: PracticeCopy.backButton,
         onPressed: onBack,

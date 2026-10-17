@@ -6,8 +6,7 @@ abstract final class PracticeCopy {
   static const summaryTitle = 'Practice complete';
   static const moreButton = 'Practice more';
   static const backButton = 'Back to course';
-  static const lockedBody =
-      'This topic is locked. Pass the previous quiz first.';
+  static const String lockedBody = LearningCopy.lockedBody;
   static const emptyBody = 'No practice questions yet.';
   static const errorTitle = "Couldn't load practice";
   static const checkError = "Couldn't check your answer. Try again.";

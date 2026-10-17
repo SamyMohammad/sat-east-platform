@@ -8,6 +8,19 @@ import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
+  for (final code in [
+    'practice_needed',
+    'cooldown_active',
+    'deadline_passed',
+  ]) {
+    test('PRC-03: preserves quiz server error $code', () {
+      expect(
+        mapPostgrestException(PostgrestException(message: code)).code,
+        code,
+      );
+    });
+  }
+
   group('P1-2: mapAuthException', () {
     const cases = <String, String>{
       'invalid_credentials': ErrorCodes.invalidCredentials,

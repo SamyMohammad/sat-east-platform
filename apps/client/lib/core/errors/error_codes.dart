@@ -10,6 +10,9 @@ abstract final class ErrorCodes {
   static const accessExpired = 'access_expired';
   static const topicLocked = 'topic_locked';
   static const poolExhausted = 'pool_exhausted';
+  static const practiceNeeded = 'practice_needed';
+  static const cooldownActive = 'cooldown_active';
+  static const deadlinePassed = 'deadline_passed';
 
   // Client-only (GoTrue / transport).
   static const invalidCredentials = 'invalid_credentials';
@@ -29,6 +32,9 @@ abstract final class ErrorCodes {
     accessExpired,
     topicLocked,
     poolExhausted,
+    practiceNeeded,
+    cooldownActive,
+    deadlinePassed,
   };
 
   /// Whether [code] is a `docs/07` §9 server code.

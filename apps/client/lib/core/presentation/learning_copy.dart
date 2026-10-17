@@ -1,4 +1,7 @@
 abstract final class LearningCopy {
+  static const backToTopic = 'Back to topic';
+  static const lockedBody =
+      'This topic is locked. Pass the previous quiz first.';
   static const notEnrolledTitle = 'No course yet';
   static const notEnrolledBody = "You're not enrolled in a course yet.";
   static const expiredTitle = 'Access ended';
