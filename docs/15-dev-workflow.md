@@ -65,7 +65,7 @@ Later sprints pick up the rest of the playbook: Outbox sync (S4, 16 §3), rate l
 | **3. Plan** | Turn the story into small tasks: migration → RPC/EF → tests → repo → cubit → screen. | Plan mode on, then `/superpowers:writing-plans` — saves a plan file you approve. Check every library API the plan relies on with **context7** first. |
 | **4. Branch** | `feat/L-6-quiz-unlock` from `main`. | Ask Claude, or the `git-expert` agent |
 | **5. Backend** | Copy a template from `supabase/templates/`, then migration in `supabase/migrations/`, RLS + pgTAP test in `supabase/tests/`, RPC or Edge Function. Check it with the review checklist (`16` §2). Grading/unlock/money logic is **server-side only**. | `/supabase:supabase` skill (+ **context7** for supabase-js / Deno APIs in Edge Functions) → then `supabase db reset` + `supabase test db` |
-| **6. Flutter** | Scaffold the feature (data/domain/presentation), cubit with sealed states, screen. Write the test first. | `/flutter-feature` (scaffold) · `/flutter-code-quality:state-management` · `/superpowers:test-driven-development` · `test-writer` agent for bloc/widget tests · **context7** before using any package API (bloc, go_router, supabase_flutter, get_it) |
+| **6. Flutter** | Scaffold the feature (data/domain/presentation), cubit with sealed states, screen. Write the test first. | `/flutter-feature` (scaffold) · `/flutter-code-quality:state-management` · `/superpowers:test-driven-development` · Codex implements each plan task, tests first (`codex-delegate`, see §2 *Delegating to Codex*); `test-writer` / `implementer` (Sonnet) only as fallback · **context7** before using any package API (bloc, go_router, supabase_flutter, get_it) |
 | **7. Verify** | Format, analyze (infos fatal), tests, forbidden patterns. Run on web at 360 + 1280 px. | `/flutter-code-quality:review-gate` · `/flutter-code-quality:responsive-adaptive` · `/superpowers:verification-before-completion` |
 | **8. Review** | Independent review: architecture, security (keys never leak!), performance. | `code-reviewer` agent · `/security-review` for auth/payment/RLS stories |
 | **9. Ship** | Commit, PR titled with the IDs: `PRC-03 LRN-03: timed quiz unlocks next topic`. Claude pushes and opens the PR. Merge when CI is green. Update the graph. | `/caveman:caveman-commit` or `git-expert` agent · `gh pr create` / `gh pr checks --watch` (gh CLI, already authenticated) · `pr-reviewer` agent · `graphify update .` |
@@ -85,6 +85,20 @@ Not every story needs every step. Pick the tier when you pick the story, and say
 | **L** | Grading, unlocking, scoring, payments, enrollment, devices, RLS, exam engine | Full loop + design spec in `superpowers/specs/` + pgTAP + `/security-review` |
 
 Plan a whole sprint's related stories together when they share data or repositories; one plan, split into independent tasks.
+
+### Delegating to Codex (Claude plans, Codex implements)
+
+Claude's quota goes to thinking: brainstorm, plan, review. Codex does the typing (steps 5–6).
+
+1. **Brief per plan task.** Claude writes a short brief that points Codex at the plan file and task number and lists the files to read, instead of pasting them. It also gives the scope, what not to touch, the gate commands, "tests first" and "do not commit". Codex reads `AGENTS.md` automatically.
+2. **Dispatch** with the `codex-delegate` skill (`relay.mjs`, in the background). Claude waits for the notification and does not poll.
+3. **Review.** Claude re-runs the gates itself, reads `git diff --stat` and then the changed hunks against the brief, and never trusts Codex's own "gates passed".
+4. **Fix** in the same Codex session (`--session <threadId>`) with a short delta brief.
+5. **Land.** Claude commits; Codex never commits.
+
+**Fallback:** if `codex` is unavailable, out of quota, or fails the same task twice, Claude switches to the `implementer` / `test-writer` agents (Sonnet) and says so.
+
+**Sandbox limits:** Codex runs with `workspace-write` and no network. Gates that need the network or Docker (`flutter pub get`, `scripts/db-test.ps1`) run with `--network-access`, or Claude runs them during review.
 
 ### Parallel agents
 
