@@ -10,6 +10,8 @@ import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_s
 import 'package:sat_east_client/features/auth/presentation/screens/device_gate_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
+import 'package:sat_east_client/features/course_map/presentation/screens/topic_stub_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
@@ -17,6 +19,7 @@ import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.d
 abstract final class AppRoutes {
   static const home = '/';
   static const courses = '/courses';
+  static String topic(String id) => '/courses/topics/$id';
   static const skills = '/skills';
   static const mockExams = '/mock-exams';
   static const profile = '/profile';
@@ -60,11 +63,23 @@ GoRouter createRouter({
               routes: [
                 GoRoute(
                   path: _pathFor(destination),
-                  builder: (context, state) => PlaceholderScreen(
-                    title: destination == AppShellDestination.home
-                        ? null
-                        : destination.label,
-                  ),
+                  builder: (context, state) => switch (destination) {
+                    AppShellDestination.courses => const CourseMapScreen(),
+                    AppShellDestination.home => const PlaceholderScreen(),
+                    _ => PlaceholderScreen(title: destination.label),
+                  },
+                  routes: [
+                    if (destination == AppShellDestination.courses)
+                      GoRoute(
+                        path: 'topics/:topicId',
+                        builder: (context, state) => TopicStubScreen(
+                          title: switch (state.extra) {
+                            final String t => t,
+                            _ => null,
+                          },
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),

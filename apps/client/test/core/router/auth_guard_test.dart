@@ -18,6 +18,7 @@ import 'package:sat_east_client/features/auth/presentation/screens/sign_in_scree
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 
 import '../../features/auth/presentation/screens/auth_screen_harness.dart';
+import 'fake_course_map_cubit.dart';
 
 const _user = AppUser(id: 'u1', email: 'a@b.co');
 const _device = Device(id: 'd1', platform: 'web', label: 'Chrome on Windows');
@@ -91,6 +92,9 @@ Future<GoRouter> _pump(
 }
 
 void main() {
+  setUp(registerFakeCourseMapCubit);
+  tearDown(unregisterFakeCourseMapCubit);
+
   // (state, start location, expected location)
   final rules = <(String, AuthState, String, String)>[
     ('Unknown stays on /', _unknown, AppRoutes.home, AppRoutes.home),

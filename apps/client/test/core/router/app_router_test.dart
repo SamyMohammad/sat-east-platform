@@ -7,6 +7,8 @@ import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 
+import 'fake_course_map_cubit.dart';
+
 void main() {
   final destinations = [
     (AppRoutes.home, 'Home'),
@@ -15,6 +17,9 @@ void main() {
     (AppRoutes.mockExams, 'Mock exams'),
     (AppRoutes.profile, 'Profile'),
   ];
+
+  setUp(registerFakeCourseMapCubit);
+  tearDown(unregisterFakeCourseMapCubit);
 
   for (final width in [360.0, 768.0, 1280.0]) {
     for (var index = 0; index < destinations.length; index++) {
@@ -79,6 +84,21 @@ void main() {
         expect(_selectedIndex(tester), 3);
         expect(tester.takeException(), isNull);
       }
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  testWidgets('L-1: /courses/topics/x opens the topic stub cold', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.topic('x'));
+    try {
+      await _pumpRouter(tester, router);
+      expect(find.text('Topic'), findsOneWidget);
+      expect(find.text('Practice is coming next.'), findsOneWidget);
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());
       router.dispose();
