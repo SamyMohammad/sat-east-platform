@@ -12,8 +12,8 @@ import 'package:sat_east_client/features/auth/presentation/screens/device_gate_s
 import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
-import 'package:sat_east_client/features/course_map/presentation/screens/topic_stub_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_splash.dart';
@@ -86,10 +86,11 @@ GoRouter createRouter({
                     if (destination == AppShellDestination.courses)
                       GoRoute(
                         path: 'topics/:topicId',
-                        builder: (context, state) => TopicStubScreen(
+                        builder: (context, state) => PracticeScreen(
+                          topicId: state.pathParameters['topicId']!,
                           title: switch (state.extra) {
                             final String t => t,
-                            _ => null,
+                            _ => 'Practice',
                           },
                         ),
                       ),

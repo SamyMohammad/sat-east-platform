@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart';
+import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 
 import 'fake_course_map_cubit.dart';
+import 'fake_practice_cubit.dart';
 
 void main() {
   final destinations = [
@@ -20,6 +25,8 @@ void main() {
 
   setUp(registerFakeCourseMapCubit);
   tearDown(unregisterFakeCourseMapCubit);
+  setUp(registerFakePracticeCubit);
+  tearDown(unregisterFakePracticeCubit);
 
   for (final width in [360.0, 768.0, 1280.0]) {
     for (var index = 0; index < destinations.length; index++) {
@@ -90,15 +97,92 @@ void main() {
     }
   });
 
-  testWidgets('L-1: /courses/topics/x opens the topic stub cold', (
+  testWidgets('PRC-01: /courses/topics/x opens practice cold', (
     tester,
   ) async {
     _viewport(tester, 1280);
     final router = createRouter(initialLocation: AppRoutes.topic('x'));
     try {
       await _pumpRouter(tester, router);
-      expect(find.text('Topic'), findsOneWidget);
-      expect(find.text('Practice is coming next.'), findsOneWidget);
+      final screen = tester.widget<PracticeScreen>(find.byType(PracticeScreen));
+      expect(screen.topicId, 'x');
+      expect(screen.title, 'Practice');
+      expect(find.text('Solve the equation.'), findsOneWidget);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  testWidgets('PRC-01: non-string topic extra defaults to Practice', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter();
+    try {
+      await _pumpRouter(tester, router);
+      router.go(AppRoutes.topic('x'), extra: 42);
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<PracticeScreen>(find.byType(PracticeScreen)).title,
+        'Practice',
+      );
+      expect(tester.takeException(), isNull);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  for (final (width, scale) in [
+    (360.0, 1.0),
+    (1280.0, 1.0),
+    (360.0, 2.0),
+    (1280.0, 2.0),
+  ]) {
+    testWidgets('PRC-01: practice route fits $width at ${scale}x text scale', (
+      tester,
+    ) async {
+      _viewport(tester, width);
+      final router = createRouter(initialLocation: AppRoutes.topic('x'));
+      try {
+        await tester.pumpWidget(
+          MaterialApp.router(
+            theme: AppTheme.light(),
+            routerConfig: router,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: TextScaler.linear(scale),
+              ),
+              child: child!,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(PracticeScreen), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      } finally {
+        await tester.pumpWidget(const SizedBox.shrink());
+        router.dispose();
+      }
+    });
+  }
+
+  testWidgets('PRC-01: locked topic cold link shows access copy', (
+    tester,
+  ) async {
+    await registerFakePracticeCubit(
+      state: const PracticeFailed(AppError(ErrorCodes.topicLocked)),
+    );
+    _viewport(tester, 360);
+    final router = createRouter(initialLocation: AppRoutes.topic('locked'));
+    try {
+      await _pumpRouter(tester, router);
+      expect(
+        find.text('This topic is locked. Pass the previous quiz first.'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());
       router.dispose();
