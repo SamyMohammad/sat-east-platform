@@ -1,6 +1,6 @@
 # P1 slice part 4 — Practice — design
 
-Status: draft 2026-10-17 (awaiting approval; builder check done). Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 4). Story: `docs/03` L-4 (slice subset). Reqs: PRC-01 (no filters yet), PRC-04 (time per question), LRN-02 (practice count). Screens: `docs/04` S-19 (practice question player). Contract: `docs/07` §1 (`get_practice_questions`, `check_practice_answer`) and the reveal rule in [`2026-10-14-f4-questionview-design.md`](2026-10-14-f4-questionview-design.md) §6.
+Status: approved 2026-10-17. Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 4). Story: `docs/03` L-4 (slice subset). Reqs: PRC-01 (no filters yet), PRC-04 (time per question), LRN-02 (practice count). Screens: `docs/04` S-19 (practice question player). Contract: `docs/07` §1 (`get_practice_questions`, `check_practice_answer`) and the reveal rule in [`2026-10-14-f4-questionview-design.md`](2026-10-14-f4-questionview-design.md) §6.
 Tier **L** (`docs/15` §2): grading and access → this spec, pgTAP, `/security-review`.
 
 ## Goal
