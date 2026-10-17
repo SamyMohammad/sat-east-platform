@@ -40,6 +40,7 @@ class PracticeCubit extends Cubit<PracticeState> {
   void select(String label) {
     final current = _answering;
     if (current == null ||
+        current.checkError != null ||
         current.set.questions[current.index].kind != PracticeKind.mcq ||
         current.selected == label) {
       return;
@@ -50,6 +51,7 @@ class PracticeCubit extends Cubit<PracticeState> {
   void sprChanged(String text) {
     final current = _answering;
     if (current == null ||
+        current.checkError != null ||
         current.set.questions[current.index].kind != PracticeKind.spr ||
         current.sprText == text) {
       return;
@@ -64,7 +66,7 @@ class PracticeCubit extends Cubit<PracticeState> {
     final question = current.set.questions[current.index];
     final answer = switch (question.kind) {
       PracticeKind.mcq => current.selected ?? '',
-      PracticeKind.spr => current.sprText,
+      PracticeKind.spr => current.sprText.trim(),
     };
     if (answer.trim().isEmpty) return;
     final generation = _generation;
@@ -86,7 +88,14 @@ class PracticeCubit extends Cubit<PracticeState> {
     if (isClosed || generation != _generation) return;
     switch (result) {
       case Failure(:final error):
-        emit(_updated(current, checkError: error));
+        emit(
+          switch (error.code) {
+            ErrorCodes.topicLocked ||
+            ErrorCodes.accessExpired ||
+            ErrorCodes.notEnrolled => PracticeFailed(error),
+            _ => _updated(current, checkError: error),
+          },
+        );
       case Success(:final value):
         _shownAt = checkedAt;
         switch (value) {

@@ -194,7 +194,7 @@ void main() {
   }
 
   for (final step in <PracticeStep>[const Answering(), _missed]) {
-    for (final code in [ErrorCodes.network, ErrorCodes.accessExpired]) {
+    for (final code in [ErrorCodes.network, ErrorCodes.internal]) {
       final firstTry = step is MissedOnce ? 'A' : null;
       blocTest<PracticeCubit, PracticeState>(
         'PRC-01: $code restores ${step.runtimeType} '
@@ -247,59 +247,112 @@ void main() {
     }
   }
 
-  blocTest<PracticeCubit, PracticeState>(
-    'PRC-01: changing an MCQ answer clears checkError',
-    build: () {
-      checks([const Failure(_network)]);
-      return build();
-    },
-    act: (c) async {
-      await c.start('topic');
-      c.select('A');
-      await c.check();
-      c.select('B');
-    },
-    skip: 5,
-    expect: () => [_progress(selected: 'B')],
-  );
+  for (final afterMiss in [false, true]) {
+    for (final isSpr in [false, true]) {
+      test(
+        'PRC-01: failed ${isSpr ? 'SPR' : 'MCQ'} check locks the answer '
+        'and retries it after ${afterMiss ? 'MissedOnce' : 'Answering'}',
+        () async {
+          checks([
+            if (isSpr) const Success(_correct),
+            if (afterMiss) const Success(_miss),
+            const Failure(_network),
+            const Success(_correctSecond),
+          ]);
+          final c = build();
+          addTearDown(c.close);
+          await c.start('topic');
+          if (isSpr) {
+            c.select('A');
+            await c.check();
+            c.next();
+          }
+          void answer(String value) {
+            if (isSpr) {
+              c.sprChanged(value);
+            } else {
+              c.select(value);
+            }
+          }
 
-  blocTest<PracticeCubit, PracticeState>(
-    'PRC-01: SPR change clears checkError and check sends raw text',
-    build: () {
-      checks([
-        const Success(_correct),
-        const Failure(_network),
-        const Success(_revealed),
-      ]);
-      return build();
-    },
-    act: (c) async {
-      await c.start('topic');
-      c.select('A');
-      await c.check();
-      c
-        ..next()
-        ..sprChanged('old');
-      await c.check();
-      c.sprChanged(' 1/2 ');
-      await c.check();
-    },
-    skip: 9,
-    expect: () => [
-      _progress(index: 1, sprText: ' 1/2 '),
-      _progress(
-        index: 1,
-        sprText: ' 1/2 ',
-        feedback: const Checking(),
-      ),
-      _progress(
-        index: 1,
-        sprText: ' 1/2 ',
-        feedback: const Done(_revealed),
-      ),
-    ],
-    verify: (_) => checked(' 1/2 ', questionId: 'q2').called(1),
-  );
+          if (afterMiss) {
+            answer(isSpr ? '1' : 'B');
+            await c.check();
+          }
+          answer(isSpr ? '5' : 'A');
+          await c.check();
+          final failed = c.state as PracticeInProgress;
+          expect(failed.checkError, _network);
+          expect(
+            failed.feedback,
+            afterMiss ? isA<MissedOnce>() : isA<Answering>(),
+          );
+          answer(isSpr ? '6' : 'B');
+          expect(c.state, failed);
+          await c.check();
+          checked(isSpr ? '5' : 'A', questionId: isSpr ? 'q2' : 'q1').called(2);
+          expect((c.state as PracticeInProgress).checkError, isNull);
+        },
+      );
+    }
+  }
+
+  for (final afterMiss in [false, true]) {
+    for (final code in [
+      ErrorCodes.topicLocked,
+      ErrorCodes.accessExpired,
+      ErrorCodes.notEnrolled,
+    ]) {
+      blocTest<PracticeCubit, PracticeState>(
+        'PRC-01: check $code ends practice after '
+        '${afterMiss ? 'MissedOnce' : 'Answering'}',
+        build: () {
+          checks([
+            if (afterMiss) const Success(_miss),
+            Failure(AppError(code)),
+          ]);
+          return build();
+        },
+        act: (c) async {
+          await c.start('topic');
+          c.select('A');
+          if (afterMiss) {
+            await c.check();
+            c.select('B');
+          }
+          await c.check();
+        },
+        skip: afterMiss ? 7 : 4,
+        expect: () => [PracticeFailed(AppError(code))],
+      );
+    }
+  }
+
+  test('PRC-01: SPR checks and missed answers use trimmed text', () async {
+    checks([
+      const Success(_correct),
+      const Success(_miss),
+      const Success(_miss),
+    ]);
+    final c = build();
+    addTearDown(c.close);
+    await c.start('topic');
+    c.select('A');
+    await c.check();
+    c
+      ..next()
+      ..sprChanged(' 5 ');
+    await c.check();
+    var current = c.state as PracticeInProgress;
+    expect(current.firstTry, '5');
+    expect((current.feedback as MissedOnce).missed, '5');
+    c.sprChanged('5 ');
+    await c.check();
+    current = c.state as PracticeInProgress;
+    expect(current.firstTry, '5');
+    expect((current.feedback as MissedOnce).missed, '5');
+    checked('5', questionId: 'q2').called(2);
+  });
 
   blocTest<PracticeCubit, PracticeState>(
     'PRC-01: next advances and clears answers, feedback and firstTry',

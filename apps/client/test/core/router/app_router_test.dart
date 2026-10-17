@@ -10,6 +10,7 @@ import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
+import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 
 import 'fake_course_map_cubit.dart';
 import 'fake_practice_cubit.dart';
@@ -106,7 +107,11 @@ void main() {
       await _pumpRouter(tester, router);
       final screen = tester.widget<PracticeScreen>(find.byType(PracticeScreen));
       expect(screen.topicId, 'x');
-      expect(screen.title, 'Practice');
+      expect(screen.title, isNull);
+      expect(
+        tester.widget<QuestionView>(find.byType(QuestionView)).title,
+        'Practice',
+      );
       expect(find.text('Solve the equation.'), findsOneWidget);
     } finally {
       await tester.pumpWidget(const SizedBox.shrink());
@@ -114,25 +119,32 @@ void main() {
     }
   });
 
-  testWidgets('PRC-01: non-string topic extra defaults to Practice', (
-    tester,
-  ) async {
-    _viewport(tester, 1280);
-    final router = createRouter();
-    try {
-      await _pumpRouter(tester, router);
-      router.go(AppRoutes.topic('x'), extra: 42);
-      await tester.pumpAndSettle();
-      expect(
-        tester.widget<PracticeScreen>(find.byType(PracticeScreen)).title,
-        'Practice',
-      );
-      expect(tester.takeException(), isNull);
-    } finally {
-      await tester.pumpWidget(const SizedBox.shrink());
-      router.dispose();
-    }
-  });
+  testWidgets(
+    'PRC-01: non-string topic extra uses the practice screen default',
+    (
+      tester,
+    ) async {
+      _viewport(tester, 1280);
+      final router = createRouter();
+      try {
+        await _pumpRouter(tester, router);
+        router.go(AppRoutes.topic('x'), extra: 42);
+        await tester.pumpAndSettle();
+        expect(
+          tester.widget<PracticeScreen>(find.byType(PracticeScreen)).title,
+          isNull,
+        );
+        expect(
+          tester.widget<QuestionView>(find.byType(QuestionView)).title,
+          'Practice',
+        );
+        expect(tester.takeException(), isNull);
+      } finally {
+        await tester.pumpWidget(const SizedBox.shrink());
+        router.dispose();
+      }
+    },
+  );
 
   for (final (width, scale) in [
     (360.0, 1.0),

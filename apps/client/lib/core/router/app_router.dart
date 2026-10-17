@@ -90,7 +90,7 @@ GoRouter createRouter({
                           topicId: state.pathParameters['topicId']!,
                           title: switch (state.extra) {
                             final String t => t,
-                            _ => 'Practice',
+                            _ => null,
                           },
                         ),
                       ),
