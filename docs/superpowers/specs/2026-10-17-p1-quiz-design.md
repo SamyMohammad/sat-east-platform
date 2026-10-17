@@ -1,6 +1,6 @@
 # P1 slice part 5 — Quiz + unlock — design
 
-Status: draft 2026-10-17 (awaiting approval). Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 5). Story: `docs/03` L-6. Reqs: PRC-03 (no spiral / blueprint yet), PRC-04, PRC-05 (quiz autosave + resume), LRN-01 (practice → quiz gate; video, notes, homework not in the slice), LRN-02 (practice + quiz rules), LRN-03 (pass unlocks next), LRN-04 (cooldown only). Screens: `docs/04` S-15 (topic page, slice version), S-22 (quiz player), S-21 (result, score only).
+Status: draft 2026-10-17 (awaiting approval; builder check done). Parent: [`2026-10-16-p1-slice-demo-seed-design.md`](2026-10-16-p1-slice-demo-seed-design.md) (slice overview, part 5). Story: `docs/03` L-6. Reqs: PRC-03 (no spiral / blueprint yet), PRC-04, PRC-05 (quiz autosave + resume), LRN-01 (practice → quiz gate; video, notes, homework not in the slice), LRN-02 (practice + quiz rules), LRN-03 (pass unlocks next), LRN-04 (cooldown only). Screens: `docs/04` S-15 (topic page, slice version), S-22 (quiz player), S-21 (result, score only).
 Tier **L** (`docs/15` §2): grading, scoring, unlocking → this spec, pgTAP, `/security-review`.
 
 ## Goal
@@ -36,7 +36,9 @@ Used by `get_topic` and `start_quiz`. Access as in practice (`private.practice_a
 Always also carries `best_score_pct` (`quiz_best_score` or null) and `passed` (`quiz_passed_at is not null`). A completed (passed) topic may be re-taken; a retake never removes the pass.
 
 ### 1.5 Lazy expiry — `private.expire_quiz(p_attempt_id)`
-An in-progress quiz whose `deadline + save_grace_s` has passed is graded and submitted exactly as `submit_attempt` does (§1.8), with `submitted_at = deadline`. Called by `quiz_state`, `start_quiz`, `save_answer` and `submit_attempt` for the caller's quiz attempts of that topic before deciding anything. (`cron-expire-attempts` replaces it later.)
+An in-progress quiz whose `deadline + save_grace_s` has passed is graded and submitted exactly as `submit_attempt` does (§1.8), with `submitted_at = deadline`. Called by `get_topic`, `start_quiz`, `save_answer` and `submit_attempt` for the caller's quiz attempts of that topic **before the access check** (*Claude's call*): grading an overdue attempt needs no access, so a student who loses access mid-quiz still gets the attempt closed and scored at its deadline instead of leaving it `in_progress` forever. (`cron-expire-attempts` replaces it later.)
+
+**Access on in-quiz calls (*Claude's call*):** `save_answer` and a manual `submit_attempt` run expiry first, then the practice access check (`access_expired` / `not_enrolled` / `topic_locked` stop them) — consistent with "no access, no course". A quiz cut off this way is graded by lazy expiry at its deadline.
 
 ### 1.6 `public.get_topic(p_topic_id uuid) → jsonb`
 `{ "id", "title", "slug", "sort_label", "status": "open|completed", "practice": {"count", "min"}, "quiz": <quiz_state> }`. `locked` topic → `topic_locked`. `sort_label` from `private.topic_states`.
@@ -54,11 +56,12 @@ An in-progress quiz whose `deadline + save_grace_s` has passed is graded and sub
 ```
 No keys, explanations, hints, misconceptions, or `is_correct`.
 
-### 1.8 `public.save_answer(p_attempt_id uuid, p_question_id uuid, p_answer text, p_marked boolean, p_client_seq int) → jsonb`
+### 1.8 `public.save_answer(p_attempt_id uuid, p_question_id uuid, p_answer text, p_time_ms int, p_marked boolean, p_eliminated text[], p_client_seq int) → jsonb`
+Full `docs/07` §1 signature now (*Claude's call*), so homework and mock reuse it without a breaking change.
 - Attempt: caller's, `kind='quiz'`, `in_progress`, contains the question → else `invalid_input`; §1.5 first; after `deadline + save_grace_s` → `deadline_passed`.
 - `p_answer` null clears the answer; > 32 chars → `invalid_input`.
-- Upsert `attempt_answers(answer = {"value": p_answer}, marked_for_review, client_seq, answered_at)`; a call whose `p_client_seq` ≤ the stored one is ignored (returns `{"ok": true, "stale": true}`). `is_correct` stays null until submit. Returns `{"ok": true}`.
-- No `time_ms` in the slice (QuestionView quiz mode has no per-question timer); PRC-04 for quizzes is deferred and noted in STATUS.
+- Upsert `attempt_answers(answer = {"value": p_answer}, time_ms = clamp(p_time_ms, 0, 3600000) (total time on the question so far, client-measured), marked_for_review, eliminated = to_jsonb(p_eliminated), client_seq, answered_at)`; a call whose `p_client_seq` ≤ the stored one is ignored (returns `{"ok": true, "stale": true}`). `is_correct` stays null until submit. Returns `{"ok": true}`.
+- The client measures time per question (time the question is on screen, summed across visits) from its injected clock; the server only clamps and stores it (PRC-04).
 
 ### 1.9 `public.submit_attempt(p_attempt_id uuid) → jsonb`
 - Attempt: caller's, `kind='quiz'` (other kinds → `invalid_input` for now). Already `submitted` → return the stored report (idempotent).
@@ -97,14 +100,18 @@ Cubit tests: start (create + resume restores answers, marks, index 0), each erro
 - **Staging check (the slice exit):** enrolled demo student → 1.1 topic page: Quiz disabled → 10 practice questions → Quiz enabled → start, answer some, reload the tab → resumes with answers and the timer still counting → submit: ≥ 9/12 (75%) passes → course map shows 1.1 completed and 1.2 open; a failing attempt shows the retake time and 1.2 stays locked. 360 and 1280 px.
 - `docs/07` (§1 rows, §9 `practice_needed`), `docs/STATUS.md` (slice done; deferred list).
 
+### Repeat questions (decided by the user 2026-10-17)
+The demo seed has 12 quiz questions per topic and `quiz_size` is 12, so every retake shows the same questions in a new order. Accepted for the slice (demo content); `docs/07` §3 "never repeat" holds once real pools are larger than `quiz_size`. The pgTAP unseen-first case uses a fixture pool larger than `quiz_size`. Noted in STATUS.
+
 ## 4. Calls made by Claude (check these)
 - Names: `start_quiz` (not generic `start_attempt`), generic `save_answer` and `submit_attempt` (quiz-only for now).
 - New settings `quiz_size` 12, `quiz_time_per_q_s` 90, `quiz_warn_s` 300; new error code `practice_needed`.
 - Topic page sits between the map and practice/quiz; the quiz gate is practice only (homework is not in the slice).
 - Lazy expiry instead of the cron job; a submit after the deadline is stamped at the deadline.
-- No per-question time for quizzes in the slice.
+- `save_answer` takes the full `docs/07` signature (`time_ms`, `eliminated`) now.
+- Overdue quizzes are graded before any access check; in-quiz saves/submits still require access.
 - Retakes allowed after a pass; best score kept; a fail never removes a pass.
 - Result shows score only; answer review later.
 
 ## 5. Deferred (STATUS Open)
-Spiral + difficulty blueprint; answer review (`get_attempt_review`); targeted review set; `cron-expire-attempts`; quiz per-question time; rate limiting.
+Quiz repeats on the 12-question demo pools; spiral + difficulty blueprint; answer review (`get_attempt_review`); targeted review set; `cron-expire-attempts`; rate limiting.
