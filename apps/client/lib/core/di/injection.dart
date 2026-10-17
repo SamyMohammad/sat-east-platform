@@ -18,6 +18,7 @@ import 'package:sat_east_client/features/course_map/presentation/cubit/course_ma
 import 'package:sat_east_client/features/practice/data/datasources/practice_remote_data_source.dart';
 import 'package:sat_east_client/features/practice/data/repositories/practice_repository_impl.dart';
 import 'package:sat_east_client/features/practice/domain/repositories/practice_repository.dart';
+import 'package:sat_east_client/features/practice/presentation/cubit/practice_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -73,6 +74,9 @@ void configureDependencies({
     )
     ..registerLazySingleton<PracticeRepository>(
       () => PracticeRepositoryImpl(getIt<PracticeRemoteDataSource>()),
+    )
+    ..registerFactory<PracticeCubit>(
+      () => PracticeCubit(getIt<PracticeRepository>(), DateTime.now),
     )
     ..registerFactory<CourseMapCubit>(
       () => CourseMapCubit(getIt<CourseMapRepository>()),
