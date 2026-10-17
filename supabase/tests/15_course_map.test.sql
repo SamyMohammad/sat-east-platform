@@ -1,10 +1,11 @@
 -- LRN-01 / LRN-03 — get_course_map (docs/07 §1.1, §2). Spec: docs/superpowers/specs/2026-10-17-p1-course-map-design.md §1.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(34);
+select plan(35);
 
--- courses.code is an enum with unique values (SAT, EST); this test needs three courses.
-alter table public.courses drop constraint courses_code_key;
+-- courses.code is an enum (SAT/EST) with a unique constraint; this fixture needs three courses,
+-- so drop the constraint for this transaction only (rolled back at the end).
+alter table public.courses drop constraint if exists courses_code_key;
 
 select tests.create_supabase_user('a');
 select tests.create_supabase_user('b');
@@ -99,6 +100,7 @@ select is(pg_temp.tp('c') ->> 'status', 'locked', 'L-1: topic after an unpublish
 select is(pg_temp.tp('d') ->> 'status', 'open',   'L-1: free preview topic is open');
 select is(pg_temp.tp('e') ->> 'status', 'locked', 'L-1: unit-less topic is locked');
 select is(pg_temp.tp('c') ->> 'after_title', 'B', 'L-1: unpublished topics are skipped as previous');
+select is(pg_temp.tp('e') ->> 'after_title', 'D', 'L-1: unit-less topic names the previous topic across units');
 select is(pg_temp.tp('b') ->> 'after_title', 'A', 'L-1: locked topic names the previous topic');
 select is(pg_temp.tp('b') ->> 'locked_reason', 'previous_quiz', 'L-1: locked_reason is previous_quiz');
 select is(pg_temp.tp('a') ->> 'sort_label', '1.1', 'L-1: label A');
@@ -122,7 +124,7 @@ select tests.authenticate_as('a');
 select is(pg_temp.tp('a') ->> 'status', 'completed', 'L-1: passed quiz -> completed');
 select is(pg_temp.tp('b') ->> 'status', 'open',      'L-1: topic after a passed quiz is open');
 select is(public.get_course_map('cm-course') #>> '{continue,slug}', 'b', 'L-1: continue moves to the next open topic');
-select is(pg_temp.tp('a') ->> 'locked_reason', null, 'L-1: completed topic has no locked_reason');
+select is(pg_temp.tp('a') -> 'locked_reason', 'null'::jsonb, 'L-1: completed topic has a JSON-null locked_reason');
 
 -- Another student's progress has no effect.
 select tests.authenticate_as('b');

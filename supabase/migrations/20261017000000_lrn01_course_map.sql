@@ -41,7 +41,7 @@ begin
     select e.* into v_enr
     from public.enrollments e
     where e.user_id = v_uid
-    order by e.starts_at desc
+    order by e.starts_at desc, e.created_at desc, e.id
     limit 1;
     if not found then
       raise exception 'not_enrolled';
