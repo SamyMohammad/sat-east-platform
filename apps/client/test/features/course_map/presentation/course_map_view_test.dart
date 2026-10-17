@@ -139,9 +139,17 @@ void main() {
   ) async {
     final handle = tester.ensureSemantics();
     await _pump(tester, CourseMapLoaded(_map()));
-    expect(find.bySemanticsLabel('1.1 Linear equations, completed'), findsOne);
+    expect(
+      find.bySemanticsLabel('1.1 Linear equations, completed, Free'),
+      findsOne,
+    );
     expect(find.bySemanticsLabel('1.2 Systems, open'), findsOne);
-    expect(find.bySemanticsLabel('2.1 Quadratics, locked'), findsOne);
+    expect(
+      find.bySemanticsLabel(
+        '2.1 Quadratics, locked, Pass the Systems quiz to unlock',
+      ),
+      findsOne,
+    );
     handle.dispose();
   });
 
@@ -177,6 +185,13 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('topic:t3'), findsNothing);
     expect(find.text('SAT Math'), findsOneWidget);
+  });
+
+  testWidgets('L-1: tapping a completed row goes to its topic', (tester) async {
+    await _pump(tester, CourseMapLoaded(_map()));
+    await tester.tap(find.text('Linear equations'));
+    await tester.pumpAndSettle();
+    expect(find.text('topic:t1'), findsOneWidget);
   });
 
   testWidgets('L-1: tapping an open row goes to its topic', (tester) async {

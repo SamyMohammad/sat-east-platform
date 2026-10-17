@@ -6,6 +6,9 @@ abstract final class CourseMapCopy {
   static const continueEyebrow = 'Continue where you left off';
   static const continueButton = 'Continue';
   static const freeChip = 'Free';
+  static const statusCompleted = 'completed';
+  static const statusOpen = 'open';
+  static const statusLocked = 'locked';
   static const emptyTitle = 'No topics yet';
   static const emptyBody = 'This course has no topics yet.';
   static const notEnrolledTitle = 'No course yet';

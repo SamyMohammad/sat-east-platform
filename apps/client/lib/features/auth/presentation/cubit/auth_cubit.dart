@@ -193,18 +193,34 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   Future<void> _sessionLost(int gen) async {
-    // A newer sign-out, session loss or close already handled this event.
+    // Defensive: only guards against close. Duplicate events are dropped by
+    // [_losingSession] in [_onUserChanged], not by this check.
     if (_stale(gen)) return;
     _losingSession = true;
     _invalidateInFlight();
     final mine = _session;
+    Object? failure;
+    StackTrace? failureTrace;
     try {
       await _cancelTicker();
       await _reporter.clearUser();
-      if (_stale(mine)) return;
-      emit(const AuthSignedOut());
+    } on Object catch (e, st) {
+      // Cleanup failed, but the session is gone: the user must still be
+      // signed out. Report after emitting.
+      failure = e;
+      failureTrace = st;
+    }
+    try {
+      if (!_stale(mine)) emit(const AuthSignedOut());
     } finally {
       _losingSession = false;
+    }
+    if (failure != null) {
+      await _reporter.captureError(
+        failure,
+        failureTrace,
+        hint: 'AuthCubit session loss cleanup',
+      );
     }
   }
 
@@ -226,7 +242,7 @@ class AuthCubit extends Cubit<AuthState> {
   bool _stale(int gen) => isClosed || gen != _session;
 
   Future<void> _guarded(Future<void> Function(int gen) body) async {
-    if (_inFlight || _signingOut) return;
+    if (_inFlight || _signingOut || _losingSession) return;
     _inFlight = true;
     final gen = _session;
     try {

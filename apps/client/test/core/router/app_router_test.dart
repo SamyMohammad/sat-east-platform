@@ -105,6 +105,23 @@ void main() {
     }
   });
 
+  testWidgets('L-1: navigating to a topic with a title extra shows it', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter();
+    try {
+      await _pumpRouter(tester, router);
+      router.go(AppRoutes.topic('x'), extra: 'Systems');
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(find.text('Systems'), findsOneWidget);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
   testWidgets('F-4: /gallery is routed by default in the dev flavor', (
     tester,
   ) async {

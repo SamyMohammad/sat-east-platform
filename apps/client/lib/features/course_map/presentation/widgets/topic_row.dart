@@ -104,9 +104,23 @@ class TopicRow extends StatelessWidget {
       ),
     );
 
+    final statusWord = switch (status) {
+      TopicStatus.completed => CourseMapCopy.statusCompleted,
+      TopicStatus.open => CourseMapCopy.statusOpen,
+      TopicStatus.locked => CourseMapCopy.statusLocked,
+    };
+    // The row hides its children from semantics, so the label must carry
+    // everything a sighted user sees: status, the lock reason and the chip.
+    final label = [
+      '${topic.sortLabel} ${topic.title}',
+      statusWord,
+      ?lockLine,
+      if (topic.isFreePreview) CourseMapCopy.freeChip,
+    ].join(', ');
+
     return Semantics(
       container: true,
-      label: '${topic.sortLabel} ${topic.title}, ${status.name}',
+      label: label,
       button: !locked,
       enabled: !locked,
       excludeSemantics: true,

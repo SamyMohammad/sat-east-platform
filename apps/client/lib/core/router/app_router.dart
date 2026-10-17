@@ -62,6 +62,9 @@ GoRouter createRouter({
             child: shell,
           );
           if (auth == null) return appShell;
+          // AuthBusy is only emitted at boot/sign-in/sign-up, never while on
+          // shell paths; emitting it while signed in would unmount the shell
+          // and reset the branch stacks.
           return BlocSelector<AuthCubit, AuthState, bool>(
             bloc: auth,
             selector: (s) => s is AuthUnknown || s is AuthBusy,
