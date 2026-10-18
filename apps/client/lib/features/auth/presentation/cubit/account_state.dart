@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
 
 sealed class AccountState extends Equatable {
@@ -22,13 +23,16 @@ final class AccountLoaded extends AccountState {
     this.profile,
     List<Device> devices,
     this.changesLeft, {
+    List<MyEnrollment> enrollments = const [],
     this.busy = false,
     this.error,
     this.passwordSaved = false,
-  }) : devices = List.unmodifiable(devices);
+  }) : devices = List.unmodifiable(devices),
+       enrollments = List.unmodifiable(enrollments);
 
   final MyProfile profile;
   final List<Device> devices;
+  final List<MyEnrollment> enrollments;
   final int changesLeft;
   final bool busy;
   final AppError? error;
@@ -38,6 +42,7 @@ final class AccountLoaded extends AccountState {
   List<Object?> get props => [
     profile,
     devices,
+    enrollments,
     changesLeft,
     busy,
     error,

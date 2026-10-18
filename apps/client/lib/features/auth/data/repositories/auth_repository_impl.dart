@@ -1,6 +1,7 @@
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
 import 'package:sat_east_client/features/auth/domain/entities/sign_up_outcome.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/auth_repository.dart';
@@ -29,6 +30,10 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<Result<MyProfile>> getMyProfile() => _remote.getMyProfile();
+
+  @override
+  Future<Result<List<MyEnrollment>>> listMyEnrollments() =>
+      _remote.listMyEnrollments();
 
   @override
   Future<Result<AppUser>> signIn({
