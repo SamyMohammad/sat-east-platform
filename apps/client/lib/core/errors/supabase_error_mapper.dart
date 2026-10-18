@@ -14,8 +14,12 @@ AppError mapAuthException(AuthException e) {
     'email_not_confirmed' => ErrorCodes.emailNotConfirmed,
     'user_already_exists' || 'email_exists' => ErrorCodes.emailTaken,
     'weak_password' => ErrorCodes.weakPassword,
+    'session_not_found' ||
+    'session_expired' ||
+    'refresh_token_not_found' => ErrorCodes.notAuthenticated,
     'over_request_rate_limit' ||
     'over_email_send_rate_limit' => ErrorCodes.rateLimited,
+    null when e is AuthSessionMissingException => ErrorCodes.notAuthenticated,
     null when e is AuthRetryableFetchException => ErrorCodes.network,
     _ => ErrorCodes.internal,
   };

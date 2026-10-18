@@ -19,6 +19,7 @@ abstract final class ErrorCodes {
   static const emailNotConfirmed = 'email_not_confirmed';
   static const emailTaken = 'email_taken';
   static const weakPassword = 'weak_password';
+  static const linkExpired = 'link_expired';
   static const network = 'network';
 
   static const _serverCodes = <String>{

@@ -5,6 +5,7 @@ import 'package:sat_east_client/features/auth/data/datasources/device_info.dart'
 import 'package:sat_east_client/features/auth/data/datasources/device_remote_data_source.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_registration.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_status.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_devices.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/device_repository.dart';
 
 class DeviceRepositoryImpl implements DeviceRepository {
@@ -17,6 +18,15 @@ class DeviceRepositoryImpl implements DeviceRepository {
   final DeviceIdStore _idStore;
   final DeviceInfo _info;
   final DeviceRemoteDataSource _remote;
+
+  @override
+  Future<Result<MyDevices>> listMine() async {
+    try {
+      return await _remote.listMine(fingerprint: await _idStore.read());
+    } on Object catch (e) {
+      return Failure(mapUnknownError(e));
+    }
+  }
 
   @override
   Future<Result<DeviceRegistration>> register() async {

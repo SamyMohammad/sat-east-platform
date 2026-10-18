@@ -9,7 +9,7 @@ import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/domain/entities/sign_up_outcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class MockGoTrueClient extends Mock implements GoTrueClient {}
+import 'fakes.dart';
 
 User _user({
   String id = 'u1',

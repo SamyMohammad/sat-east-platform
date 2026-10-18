@@ -1,5 +1,9 @@
+import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_id_store.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_info.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class MockGoTrueClient extends Mock implements GoTrueClient {}
 
 class FakeDeviceIdStore implements DeviceIdStore {
   FakeDeviceIdStore(this.id, {this.error});
