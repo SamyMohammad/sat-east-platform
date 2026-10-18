@@ -161,9 +161,9 @@ select ok(not exists (select 1 from attempt_review_ctx, jsonb_array_elements(v -
   where k = 'unlocked' and (q ? 'key' or q ? 'explanation_md')), 'PRC-03: teacher unlock still omits all keys and explanations');
 select is((select v #> '{summary,keys_visible}' from attempt_review_ctx where k = 'passed_other'), 'true'::jsonb,
   'PRC-03: passed topic exposes keys');
-select is(pg_temp.question('passed_other', '00000000-0000-0000-0000000022e1') -> 'key', '{"choice":"B"}'::jsonb,
+select is(pg_temp.question('passed_other', '00000000-0000-0000-0000-0000000022e1') -> 'key', '{"choice":"B"}'::jsonb,
   'PRC-03: passed review uses the MCQ choice key shape');
-select is(pg_temp.question('passed_other', '00000000-0000-0000-0000000022e2') -> 'key', '{"text":"1/2"}'::jsonb,
+select is(pg_temp.question('passed_other', '00000000-0000-0000-0000-0000000022e2') -> 'key', '{"text":"1/2"}'::jsonb,
   'PRC-03: passed review uses the first accepted SPR form');
 select is((select count(*)::int from attempt_review_ctx, jsonb_array_elements(v -> 'questions') q
   where k = 'passed_other' and q ?& array['key','explanation_md'] and q ->> 'explanation_md' is not null),
