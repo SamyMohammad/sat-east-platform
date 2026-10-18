@@ -24,6 +24,21 @@ User _user({String? email = 'student@example.com'}) => User(
 );
 
 void main() {
+  test(
+    'AUTH-06: installed SDK replays recovery to a late subscriber',
+    () async {
+      final liveAuth = GoTrueClient(autoRefreshToken: false);
+      addTearDown(liveAuth.dispose);
+      // Characterizes the pinned SDK's replay without a network auth exchange.
+      // ignore: invalid_use_of_internal_member
+      liveAuth.notifyAllSubscribers(AuthChangeEvent.passwordRecovery);
+      final lateSource = AuthRemoteDataSource(
+        liveAuth,
+        client: MockSupabaseClient(),
+      );
+      expect(await lateSource.passwordRecovery.take(1).toList(), hasLength(1));
+    },
+  );
   late MockGoTrueClient auth;
   late AuthRemoteDataSource source;
 

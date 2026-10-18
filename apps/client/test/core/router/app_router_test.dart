@@ -13,6 +13,7 @@ import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/set_new_password_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
@@ -29,6 +30,7 @@ import 'package:sat_east_client/shared/widgets/question_view/question_view.dart'
 
 import '../../features/auth/presentation/screens/auth_screen_harness.dart'
     as auth_screens;
+import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
 import 'fake_practice_cubit.dart';
 import 'fake_topic_cubit.dart';
@@ -36,6 +38,17 @@ import 'fake_topic_cubit.dart';
 part 'fake_quiz_cubit.dart';
 
 void main() {
+  setUp(registerFakeAccountCubit);
+  tearDown(unregisterFakeAccountCubit);
+  testWidgets('S-34: Profile route builds My account', (tester) async {
+    _viewport(tester, 360);
+    final router = createRouter(initialLocation: AppRoutes.profile);
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    expect(find.byType(AccountScreen), findsOneWidget);
+    expect(tester.takeException(), isNull);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
   for (final width in [360.0, 1280.0]) {
     for (final (path, type, state) in [
       (AppRoutes.forgotPassword, ForgotPasswordScreen, const AuthSignedOut()),

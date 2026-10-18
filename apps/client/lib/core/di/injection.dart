@@ -11,6 +11,7 @@ import 'package:sat_east_client/features/auth/data/repositories/auth_repository_
 import 'package:sat_east_client/features/auth/data/repositories/device_repository_impl.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/device_repository.dart';
+import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/course_map/data/datasources/course_map_remote_data_source.dart';
 import 'package:sat_east_client/features/course_map/data/repositories/course_map_repository_impl.dart';
@@ -123,5 +124,8 @@ void configureDependencies({
         getIt<DeviceRepository>(),
         getIt<ErrorReporter>(),
       ),
+    )
+    ..registerFactory<AccountCubit>(
+      () => AccountCubit(getIt<AuthRepository>(), getIt<DeviceRepository>()),
     );
 }

@@ -67,6 +67,22 @@ void main() {
       AuthCubit(auth, devices, reporter, ticker: (_) => ticks.stream);
 
   group('AUTH-06: password recovery', () {
+    test(
+      'AUTH-06: replayed expiry is handled before startup registration',
+      () async {
+        when(() => auth.passwordRecovery).thenAnswer(
+          (_) => Stream<void>.error(const AppError(ErrorCodes.linkExpired)),
+        );
+        final cubit = build();
+        addTearDown(cubit.close);
+        await cubit.start();
+        expect(
+          cubit.state,
+          const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)),
+        );
+        verifyNever(() => devices.register());
+      },
+    );
     for (final code in [ErrorCodes.linkExpired, ErrorCodes.network]) {
       test(
         'AUTH-06: recovery stream handles $code without uncaught errors',
@@ -79,7 +95,10 @@ void main() {
             initialUri: Uri.parse('https://app.test/?flow=recovery'),
           );
           addTearDown(cubit.close);
+          when(() => auth.currentUser).thenReturn(null);
           await cubit.start();
+          recovery.add(null);
+          await pumpEventQueue();
           recovery.addError(AppError(code));
           await pumpEventQueue();
           expect(
@@ -158,8 +177,11 @@ void main() {
     );
 
     test(
-      'AUTH-06: startup marker waits for recovery before registration',
+      'AUTH-06: replayed recovery precedes startup registration',
       () async {
+        when(
+          () => auth.passwordRecovery,
+        ).thenAnswer((_) => Stream<void>.value(null));
         final cubit = AuthCubit(
           auth,
           devices,
@@ -171,6 +193,23 @@ void main() {
         await cubit.start();
         expect(cubit.state, const AuthRecovery());
         verifyNever(() => devices.register());
+      },
+    );
+
+    test(
+      'AUTH-06: stale marker without code or event restores signed in',
+      () async {
+        final cubit = AuthCubit(
+          auth,
+          devices,
+          reporter,
+          ticker: (_) => ticks.stream,
+          initialUri: Uri.parse('https://app.test/?flow=recovery'),
+        );
+        addTearDown(cubit.close);
+        await cubit.start();
+        expect(cubit.state, const AuthSignedIn(_user));
+        verify(() => devices.register()).called(1);
       },
     );
 

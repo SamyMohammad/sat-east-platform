@@ -57,6 +57,9 @@ class AuthCubit extends Cubit<AuthState> {
       (_) => _onRecovery(),
       onError: _onRecoveryError,
     );
+    // The SDK queues its replayed auth event when the listener subscribes.
+    await Future<void>.value();
+    if (isClosed) return;
     // Watch the session for the cubit's whole life: if it disappears while
     // signed in (token revoked, expired refresh), the user is signed out.
     _userSub ??= _auth.userChanges.listen(_onUserChanged);
@@ -68,9 +71,7 @@ class AuthCubit extends Cubit<AuthState> {
           _invalidateInFlight();
           emit(const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)));
           return;
-        case RecoveryRequested():
-          _onRecovery();
-        case RecoveryNone():
+        case RecoveryRequested() || RecoveryNone():
           break;
       }
     }
@@ -131,11 +132,15 @@ class AuthCubit extends Cubit<AuthState> {
   }
 
   void _onRecoveryError(Object error) {
-    if (isClosed || _signingOut || state is! AuthRecovery) return;
-    _invalidateInFlight();
+    if (isClosed || _signingOut) return;
     final failure = error is AppError
         ? error
         : const AppError(ErrorCodes.internal);
+    if (state is! AuthRecovery &&
+        !(state is AuthUnknown && failure.code == ErrorCodes.linkExpired)) {
+      return;
+    }
+    _invalidateInFlight();
     if (failure.code == ErrorCodes.linkExpired ||
         failure.code == ErrorCodes.notAuthenticated) {
       _expiredRecovery = true;

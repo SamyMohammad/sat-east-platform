@@ -7,6 +7,7 @@ import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/device_gate_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/forgot_password_screen.dart';
@@ -92,6 +93,7 @@ GoRouter createRouter({
                   builder: (context, state) => switch (destination) {
                     AppShellDestination.courses => const CourseMapScreen(),
                     AppShellDestination.home => const PlaceholderScreen(),
+                    AppShellDestination.profile => const AccountScreen(),
                     _ => PlaceholderScreen(title: destination.label),
                   },
                   routes: [
