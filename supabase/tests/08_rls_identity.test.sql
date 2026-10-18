@@ -15,11 +15,11 @@ insert into public.notifications (user_id, kind) values
 
 select tests.authenticate_as('student_a');
 select is((select count(*)::int from public.profiles), 1, 'NFR-08: student sees only own profile');
-select lives_ok($$ update public.profiles set full_name = 'A Two' where id = auth.uid() $$,
-                'NFR-08: student updates own full_name');
+select lives_ok($$ update public.profiles set phone = '0100' where id = auth.uid() $$,
+                'NFR-08: student updates own phone (full_name is locked, AUTH-04)');
 select throws_ok($$ update public.profiles set role = 'teacher' where id = auth.uid() $$, '42501', null,
                  'NFR-08: student cannot change own role');
-select is_empty($$ update public.profiles set full_name = 'x' where id <> auth.uid() returning id $$,
+select is_empty($$ update public.profiles set phone = 'x' where id <> auth.uid() returning id $$,
                 'NFR-08: student cannot update another profile');
 select is((select count(*)::int from public.devices), 1, 'NFR-08: student sees only own devices');
 select lives_ok($$ update public.notifications set read_at = now() where user_id = auth.uid() $$,

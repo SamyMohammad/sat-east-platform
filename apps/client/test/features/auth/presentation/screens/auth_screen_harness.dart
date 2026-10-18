@@ -23,6 +23,8 @@ const List<String> _paths = [
   AppRoutes.signUp,
   AppRoutes.checkInbox,
   AppRoutes.devices,
+  AppRoutes.forgotPassword,
+  AppRoutes.resetPassword,
 ];
 
 /// A mock cubit that reports [state] and accepts every command.
@@ -32,6 +34,8 @@ MockAuthCubit mockCubit(AuthState state) {
   when(() => cubit.signIn(any(), any())).thenAnswer((_) async {});
   when(() => cubit.signUp(any(), any(), any())).thenAnswer((_) async {});
   when(() => cubit.removeDevice(any())).thenAnswer((_) async {});
+  when(() => cubit.requestPasswordReset(any())).thenAnswer((_) async {});
+  when(() => cubit.setNewPassword(any())).thenAnswer((_) async {});
   when(cubit.signOut).thenAnswer((_) async {});
   when(cubit.checkDevice).thenAnswer((_) async {});
   when(cubit.acknowledgeConfirmation).thenAnswer((_) async {});

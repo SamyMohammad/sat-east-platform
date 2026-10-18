@@ -12,13 +12,18 @@ class CheckInboxScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AuthCard(
     children: [
-      BlocSelector<AuthCubit, AuthState, String>(
-        selector: (state) => state is AuthConfirmationSent ? state.email : '',
-        builder: (context, email) => BookletStatusFrame(
+      BlocSelector<AuthCubit, AuthState, (String, bool)>(
+        selector: (state) => (
+          state is AuthConfirmationSent ? state.email : '',
+          state is AuthResetLinkSent,
+        ),
+        builder: (context, info) => BookletStatusFrame(
           icon: Icons.mark_email_unread_outlined,
           title: 'Check your inbox',
-          message:
-              'We sent a confirmation link to $email. Open it, then sign in.',
+          message: info.$2
+              ? 'If an account exists for that email, we sent a reset link.'
+              : 'We sent a confirmation link to ${info.$1}. '
+                    'Open it, then sign in.',
           actions: [
             LoadingButton(
               label: 'Back to sign in',

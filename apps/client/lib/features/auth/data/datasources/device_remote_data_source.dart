@@ -5,6 +5,7 @@ import 'package:sat_east_client/core/supabase/rpc_caller.dart';
 import 'package:sat_east_client/features/auth/data/models/device_model.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_registration.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_status.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_devices.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 const _malformed = AppError(ErrorCodes.internal, 'malformed rpc payload');
@@ -14,6 +15,12 @@ class DeviceRemoteDataSource {
   DeviceRemoteDataSource(this._rpc);
 
   final RpcCaller _rpc;
+
+  Future<Result<MyDevices>> listMine({required String fingerprint}) => _call(
+    'list_my_devices',
+    {'p_fingerprint': fingerprint},
+    _parseMyDevices,
+  );
 
   Future<Result<DeviceRegistration>> register({
     required String fingerprint,
@@ -85,5 +92,24 @@ class DeviceRemoteDataSource {
       default:
         return null;
     }
+  }
+
+  MyDevices? _parseMyDevices(Object? raw) {
+    if (raw is! Map) return null;
+    final changes = raw['changes_left'];
+    final devices = raw['devices'];
+    if (changes is! int || changes < 0 || devices is! List) return null;
+    return MyDevices(
+      changesLeft: changes,
+      devices: [
+        for (final device in devices)
+          if (device is Map &&
+              device['is_current'] is bool &&
+              device['created_at'] is String)
+            DeviceModel.fromJson(device.cast<String, Object?>())
+          else
+            throw const FormatException('malformed account device'),
+      ],
+    );
   }
 }

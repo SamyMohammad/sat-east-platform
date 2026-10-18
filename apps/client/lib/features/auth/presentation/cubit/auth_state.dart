@@ -32,6 +32,28 @@ final class AuthBusy extends AuthState {
   const AuthBusy();
 }
 
+final class AuthRecovery extends AuthState {
+  const AuthRecovery({this.error, this.saving = false});
+
+  final AppError? error;
+  final bool saving;
+
+  @override
+  List<Object?> get props => [error, saving];
+}
+
+final class AuthResetLinkSent extends AuthState {
+  const AuthResetLinkSent(this.email);
+
+  final String email;
+
+  @override
+  bool? get stringify => false;
+
+  @override
+  List<Object?> get props => [email];
+}
+
 final class AuthConfirmationSent extends AuthState {
   const AuthConfirmationSent(this.email);
 

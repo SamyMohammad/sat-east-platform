@@ -9,6 +9,8 @@ String authErrorCopy(String code) => switch (code) {
     'Confirm your email first. Check your inbox for the link.',
   ErrorCodes.network => 'No connection. Check your internet and try again.',
   ErrorCodes.rateLimited => 'Too many attempts. Wait a minute and try again.',
+  ErrorCodes.linkExpired => 'This link has expired. Request a new one.',
+  ErrorCodes.weakPassword => 'Choose a stronger password.',
   _ => 'Something went wrong. Try again.',
 };
 

@@ -7,6 +7,9 @@ is coded in A-1 but shown only once the steps below are done.
 Supabase dashboard → Authentication → URL Configuration:
 - **Site URL** = the web app URL (staging `https://sat-staging.pages.dev`; prod: its domain).
 - **Redirect URLs** add `<web app URL>/**`.
+- Also add `<web app URL>/?flow=recovery` for password reset; staging:
+  `https://sat-staging.pages.dev/?flow=recovery`. Native reset deep links are
+  deferred until the store builds.
 
 The default Site URL is `http://localhost:3000`. If it is left as is, the confirmation link still
 confirms the email, but it then redirects to localhost and shows "This site can't be reached".
