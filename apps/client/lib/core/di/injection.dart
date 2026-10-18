@@ -3,6 +3,10 @@ import 'package:hive_ce/hive.dart';
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
 import 'package:sat_east_client/core/time/ticker.dart';
+import 'package:sat_east_client/features/activation/data/datasources/activation_remote_data_source.dart';
+import 'package:sat_east_client/features/activation/data/repositories/activation_repository_impl.dart';
+import 'package:sat_east_client/features/activation/domain/repositories/activation_repository.dart';
+import 'package:sat_east_client/features/activation/presentation/cubit/activation_cubit.dart';
 import 'package:sat_east_client/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_id_store.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_info.dart';
@@ -127,5 +131,16 @@ void configureDependencies({
     )
     ..registerFactory<AccountCubit>(
       () => AccountCubit(getIt<AuthRepository>(), getIt<DeviceRepository>()),
+    )
+    ..registerLazySingleton<ActivationRemoteDataSource>(
+      () => ActivationRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<ActivationRepository>(
+      () => ActivationRepositoryImpl(getIt<ActivationRemoteDataSource>()),
+    )
+    ..registerFactory<ActivationCubit>(
+      () => ActivationCubit(getIt<ActivationRepository>()),
     );
 }

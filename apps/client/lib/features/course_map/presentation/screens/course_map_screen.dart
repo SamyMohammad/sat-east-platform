@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
+import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
@@ -128,9 +130,11 @@ class _Failed extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => switch (error.code) {
-    ErrorCodes.notEnrolled => const EmptyState(
+    ErrorCodes.notEnrolled => EmptyState(
       title: CourseMapCopy.notEnrolledTitle,
       message: CourseMapCopy.notEnrolledBody,
+      actionLabel: 'Enter activation code',
+      onAction: () => context.go(AppRoutes.activate),
     ),
     ErrorCodes.accessExpired => const EmptyState(
       title: CourseMapCopy.expiredTitle,

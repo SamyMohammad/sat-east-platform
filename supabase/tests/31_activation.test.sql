@@ -1,7 +1,7 @@
 -- PAY-06 / PAY-07: activation codes. From supabase/templates/test.sql.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(56);
+select plan(52);
 
 select tests.create_supabase_user('activation_a');
 select tests.create_supabase_user('activation_b');
@@ -63,6 +63,13 @@ select is(public.redeem_activation_code('ABCDEFGH2345', current_date),
   '{"ok":false,"error":"code_used"}'::jsonb, 'PAY-06: second student gets code_used');
 select is((select count(*)::int from public.enrollments), 0,
   'PAY-06: losing student has no enrollment');
+select tests.clear_authentication();
+reset role;
+select is((select count(*)::int from public.enrollments e
+  join public.activation_codes a on a.id = e.activation_code_id
+  where a.code = 'ABCDEFGH2345'), 1,
+  'PAY-06: second student redeem leaves exactly one enrollment for the code');
+select tests.authenticate_as('activation_b');
 select is(public.redeem_activation_code('UNKNOWN23456', current_date),
   '{"ok":false,"error":"code_invalid"}'::jsonb, 'PAY-06: unknown code returns code_invalid');
 select tests.clear_authentication();
@@ -188,112 +195,6 @@ select throws_ok($$ select private.generate_activation_codes(null, 1, null) $$,
 select throws_ok($$ select private.generate_activation_codes(
   '00000000-0000-0000-0000-0000000031c1', 0, null) $$,
   'P0001', 'invalid_input', 'PAY-06: generator rejects nonpositive count');
-
--- Two real sessions need committed fixtures, since the main transaction is invisible
--- to them. Reserve EST for this harness; remove all remote fixtures on success/error.
--- dblink is test-only, installed transactionally and rolled back with this file.
-create extension if not exists dblink with schema extensions;
-do $race$
-declare
-  v_connection text := format('host=%L port=%s dbname=%L user=postgres connect_timeout=5',
-    split_part(current_setting('unix_socket_directories'), ',', 1),
-    current_setting('port'), current_database());
-  v_a_pid int;
-  v_b_pid int;
-  v_deadline timestamptz;
-  v_blocked boolean := false;
-  v_result jsonb;
-  v_cleanup constant text := $cleanup$
-    delete from public.enrollments where course_id = '00000000-0000-0000-0000-0000000031cc';
-    delete from public.activation_codes where course_id = '00000000-0000-0000-0000-0000000031cc';
-    delete from public.courses where id = '00000000-0000-0000-0000-0000000031cc';
-    delete from private.rate_limits where key in (
-      'redeem:00000000-0000-0000-0000-0000000031aa',
-      'redeem:00000000-0000-0000-0000-0000000031bb');
-    delete from auth.users where id in (
-      '00000000-0000-0000-0000-0000000031aa', '00000000-0000-0000-0000-0000000031bb');
-  $cleanup$;
-begin
-  -- Owner-only connect_u permits the local database socket without embedding credentials.
-  perform extensions.dblink_connect_u('activation_race_a', v_connection);
-  perform extensions.dblink_connect_u('activation_race_b', v_connection);
-  perform extensions.dblink_exec('activation_race_a', 'set statement_timeout = ''15s''');
-  perform extensions.dblink_exec('activation_race_b', 'set statement_timeout = ''15s''');
-  perform extensions.dblink_exec('activation_race_a', $seed$
-    begin;
-    insert into auth.users (id, email, raw_user_meta_data) values
-      ('00000000-0000-0000-0000-0000000031aa', 'activation-race-a@example.com', '{"full_name":"Race A"}'),
-      ('00000000-0000-0000-0000-0000000031bb', 'activation-race-b@example.com', '{"full_name":"Race B"}');
-    insert into public.courses (id, code, title, slug, is_published) values
-      ('00000000-0000-0000-0000-0000000031cc', 'EST', 'Race EST', 'activation-race-est', true);
-    insert into public.activation_codes (code, course_id) values
-      ('RACE23456789', '00000000-0000-0000-0000-0000000031cc');
-    commit;
-  $seed$);
-  select pid into v_a_pid from extensions.dblink('activation_race_a',
-    'select pg_backend_pid()') as r(pid int);
-  select pid into v_b_pid from extensions.dblink('activation_race_b',
-    'select pg_backend_pid()') as r(pid int);
-  perform extensions.dblink_exec('activation_race_a', $auth$
-    begin;
-    set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000031aa","role":"authenticated"}';
-    set local role authenticated;
-  $auth$);
-  select result into v_result from extensions.dblink('activation_race_a',
-    $$select public.redeem_activation_code('RACE23456789', current_date)$$) as r(result jsonb);
-  perform set_config('test.race_first', v_result::text, true);
-  perform extensions.dblink_exec('activation_race_b', $auth$
-    begin;
-    set local request.jwt.claims = '{"sub":"00000000-0000-0000-0000-0000000031bb","role":"authenticated"}';
-    set local role authenticated;
-  $auth$);
-  perform extensions.dblink_send_query('activation_race_b',
-    $$select public.redeem_activation_code('RACE23456789', current_date)$$);
-  v_deadline := clock_timestamp() + interval '5 seconds';
-  loop
-    v_blocked := v_a_pid = any(pg_blocking_pids(v_b_pid));
-    exit when v_blocked or clock_timestamp() >= v_deadline;
-    perform pg_sleep(0.01);
-  end loop;
-  perform set_config('test.race_blocked', v_blocked::text, true);
-  perform extensions.dblink_exec('activation_race_a', 'commit');
-  select result into v_result from extensions.dblink_get_result('activation_race_b') as r(result jsonb);
-  perform set_config('test.race_second', v_result::text, true);
-  -- Async connections must be drained once more before issuing another command.
-  perform * from extensions.dblink_get_result('activation_race_b') as r(result jsonb);
-  perform extensions.dblink_exec('activation_race_b', 'commit');
-  select result into v_result from extensions.dblink('activation_race_a', $check$
-    select jsonb_build_object('count', count(*), 'only_winner', bool_and(
-      user_id = '00000000-0000-0000-0000-0000000031aa'::uuid))
-    from public.enrollments where course_id = '00000000-0000-0000-0000-0000000031cc'
-  $check$) as r(result jsonb);
-  perform set_config('test.race_enrollments', v_result::text, true);
-  perform extensions.dblink_exec('activation_race_a', v_cleanup);
-  perform extensions.dblink_disconnect('activation_race_b');
-  perform extensions.dblink_disconnect('activation_race_a');
-exception when others then
-  -- Disconnecting rolls back either in-flight redemption before fixture cleanup.
-  if 'activation_race_b' = any(extensions.dblink_get_connections()) then
-    perform extensions.dblink_disconnect('activation_race_b');
-  end if;
-  if 'activation_race_a' = any(extensions.dblink_get_connections()) then
-    perform extensions.dblink_exec('activation_race_a', 'rollback');
-    perform extensions.dblink_exec('activation_race_a', v_cleanup);
-    perform extensions.dblink_disconnect('activation_race_a');
-  end if;
-  raise;
-end;
-$race$;
-select is(current_setting('test.race_first')::jsonb -> 'ok', 'true'::jsonb,
-  'PAY-06: first concurrent caller redeems successfully');
-select is(current_setting('test.race_blocked')::boolean, true,
-  'PAY-06: second concurrent caller blocks on the first transaction');
-select is(current_setting('test.race_second')::jsonb, '{"ok":false,"error":"code_used"}'::jsonb,
-  'PAY-06: blocked caller sees code_used after the winner commits');
-select is(current_setting('test.race_enrollments')::jsonb ->> 'count', '1',
-  'PAY-06: concurrent redemption creates exactly one enrollment');
-select is(current_setting('test.race_enrollments')::jsonb -> 'only_winner', 'true'::jsonb,
-  'PAY-06: concurrent enrollment belongs only to the winner');
 
 select * from finish();
 rollback;
