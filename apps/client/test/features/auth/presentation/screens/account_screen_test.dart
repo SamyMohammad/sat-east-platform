@@ -9,6 +9,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_state.dart';
@@ -74,6 +75,156 @@ void main() {
   }
 
   for (final (name, size) in viewports) {
+    testWidgets('AUTH-02: account shows enrollment dates at $name', (
+      tester,
+    ) async {
+      final target = DateTime(2027, 3, 15);
+      final expires = DateTime.utc(2027, 3, 30, 23, 30);
+      await pump(
+        tester,
+        size,
+        AccountLoaded(
+          _profile,
+          const [],
+          2,
+          enrollments: [
+            MyEnrollment(
+              courseTitle: 'SAT Math',
+              targetTestDate: target,
+              expiresAt: expires,
+              isExpired: false,
+            ),
+          ],
+        ),
+      );
+      final localizations = MaterialLocalizations.of(
+        tester.element(find.byType(AccountView)),
+      );
+      final expectedTarget = localizations.formatShortDate(target);
+      final expectedExpiry = localizations.formatShortDate(expires.toLocal());
+
+      await tester.ensureVisible(find.text('Course'));
+      expect(find.text('Course'), findsOneWidget);
+      expect(find.text('SAT Math'), findsOneWidget);
+      expect(find.text('Test date'), findsOneWidget);
+      expect(find.text(expectedTarget), findsOneWidget);
+      expect(expectedTarget, contains(target.year.toString()));
+      expect(find.text('Access until'), findsOneWidget);
+      expect(find.text(expectedExpiry), findsOneWidget);
+      expect(find.text('Access ended'), findsNothing);
+      expect(
+        find.text('Contact your teacher to change your test date.'),
+        findsOneWidget,
+      );
+      for (final field in tester.widgetList<TextField>(
+        find.byType(TextField),
+      )) {
+        expect(
+          field.controller?.text,
+          isNot(anyOf('SAT Math', expectedTarget, expectedExpiry)),
+        );
+      }
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('AUTH-02: expired enrollment without a date at $name', (
+      tester,
+    ) async {
+      final expires = DateTime.utc(2026, 10, 17);
+      await pump(
+        tester,
+        size,
+        AccountLoaded(
+          _profile,
+          const [],
+          2,
+          enrollments: [
+            MyEnrollment(
+              courseTitle: 'EST Math',
+              targetTestDate: null,
+              expiresAt: expires,
+              isExpired: true,
+            ),
+          ],
+        ),
+      );
+      final localizations = MaterialLocalizations.of(
+        tester.element(find.byType(AccountView)),
+      );
+
+      await tester.ensureVisible(find.text('Course'));
+      expect(find.text('EST Math'), findsOneWidget);
+      expect(find.text('Access ended'), findsOneWidget);
+      expect(
+        find.text(localizations.formatShortDate(expires.toLocal())),
+        findsOneWidget,
+      );
+      expect(find.text('Test date'), findsNothing);
+      expect(find.text('Access until'), findsNothing);
+      expect(
+        find.text('Contact your teacher to change your test date.'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('AUTH-02: all enrollments share one course section at $name', (
+      tester,
+    ) async {
+      await pump(
+        tester,
+        size,
+        AccountLoaded(
+          _profile,
+          const [],
+          2,
+          enrollments: [
+            MyEnrollment(
+              courseTitle: 'SAT Math',
+              targetTestDate: DateTime(2027, 3, 15),
+              expiresAt: DateTime.utc(2027, 3, 30),
+              isExpired: false,
+            ),
+            MyEnrollment(
+              courseTitle: 'EST Math',
+              targetTestDate: null,
+              expiresAt: DateTime.utc(2027, 4, 30),
+              isExpired: true,
+            ),
+          ],
+        ),
+      );
+
+      await tester.ensureVisible(find.text('Course'));
+      expect(find.text('Course'), findsOneWidget);
+      expect(find.text('SAT Math'), findsOneWidget);
+      expect(find.text('EST Math'), findsOneWidget);
+      expect(find.text('Test date'), findsOneWidget);
+      expect(find.text('Access until'), findsOneWidget);
+      expect(find.text('Access ended'), findsOneWidget);
+      expect(
+        find.text('Contact your teacher to change your test date.'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('AUTH-02: no enrollments hides the course section at $name', (
+      tester,
+    ) async {
+      await pump(tester, size, AccountLoaded(_profile, const [], 2));
+
+      expect(find.text('Course'), findsNothing);
+      expect(find.text('Test date'), findsNothing);
+      expect(find.text('Access until'), findsNothing);
+      expect(find.text('Access ended'), findsNothing);
+      expect(
+        find.text('Contact your teacher to change your test date.'),
+        findsNothing,
+      );
+      expect(find.text('Student Name'), findsOneWidget);
+    });
+
     testWidgets('S-34: saved password clears both fields at $name', (
       tester,
     ) async {

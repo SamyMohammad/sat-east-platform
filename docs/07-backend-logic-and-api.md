@@ -26,6 +26,7 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `remove_device` | device_id | changes_left | `device_limit` when the 30-day allowance is used (§8) |
 | `list_my_devices` | p_fingerprint text | `{devices: [{id, label, platform, last_seen_at, created_at, is_current}], changes_left}` | AUTH-04; authenticated only; caller's non-revoked devices ordered by `last_seen_at desc nulls last`, then `created_at desc`; `is_current` matches the supplied fingerprint, which is never returned; allowance uses `device_changes_30d` minus the caller's changes strictly within the last 30 days, clamped to zero (same allowance as `remove_device`); errors `not_authenticated`, `invalid_input` (null/blank fingerprint) |
 | `device_status` | fingerprint | `active` / `revoked` / `unknown` | polled every minute (§8) |
+| `redeem_activation_code` | p_code text, p_target_test_date date | `{ok:true, course_id, course_slug, course_title, target_test_date, expires_at}` or `{ok:false, error}` | PAY-06/07; authenticated only; trims, uppercases and removes dashes/spaces; published courses only; locks the code and creates one active enrollment atomically; any existing enrollment status blocks reuse of the course; returned errors `code_invalid`, `code_used`, `already_enrolled` retain the quota increment; raised errors `not_authenticated`, `invalid_input`, `rate_limited`; per-user `settings.rate_redeem_per_min` (5) per minute; test date from yesterday through today + `settings.test_date_max_days` (548), inclusive; access window in §7 |
 | `teacher_list_devices` / `teacher_revoke_device` / `teacher_reset_devices` | user_id / device_id / user_id | devices / ok / ok | teacher only, audited (AUTH-05) |
 | `tag_error_type` | attempt_id, question_id, error_type | ok | |
 | `teacher_unlock_topic` | p_student_id uuid, p_topic_id uuid | `{topic_id, unlocked_at, unlocked_by}` | LRN-05 (L-9); teacher only; target must be a student and topic must be published; preserves existing progress and the first unlock timestamp/teacher; audits `topic.unlock` only on the first unlock; errors `not_authenticated`, `forbidden`, `invalid_input`; executable by `authenticated`, not `anon` |
@@ -46,7 +47,6 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `register-device` | Validate device fingerprint against limit; insert/revoke; returns `ok` or `limit_reached` + device list |
 | `create-checkout` | Compute price (currency, coupon), create `orders(pending)`, create Paymob payment intention, return checkout URL |
 | `payment-webhook` | Verify Paymob HMAC; idempotent on `gateway_txn_id`; mark order paid; create/extend enrollment; send receipt |
-| `redeem-code` | Activation code → enrollment |
 | `video-otp` | Check access; return short-lived signed R2 HLS playlist + key URL and watermark text (name, phone, short id). Upgrade: VdoCipher OTP (ADR-002) |
 | `pdf-url` | Check access; return Storage signed URL (TTL 5 min). Client downloads once and opens from memory. Optional per-student stamp (short id, not name) streamed by the EF — see `docs/spikes/2026-10-08-pdf-viewer.md` |
 | `assemble-mock` | Build mock forms for a template + set_no (teacher) or pick next unseen form for a student |
@@ -138,7 +138,17 @@ log everything for teacher review.
 - Prices stored as minor units. `create-checkout` recomputes the amount server-side (never trusts client).
 - Webhook: verify HMAC → `insert ... on conflict (gateway_txn_id) do nothing` → if new and success:
   create enrollment (or extend for renewal: `expires_at = greatest(expires_at, new_target + grace)`, `mock_set_no += 1`).
-- Access window (Proposed): `expires_at = max(target_test_date + grace_days(14), now() + min_days(60))`.
+- **Activation codes (PAY-06):** call `redeem_activation_code` directly as an RPC; no Edge
+  Function or third-party secret is needed. Business failures are returned as `{ok:false,error}`
+  so wrong guesses count toward the quota; the sixth attempt in one minute raises `rate_limited`.
+  An existing enrollment in any status returns `already_enrolled` and leaves the code unused.
+  Code generation is SQL-editor only: [activation-code setup](setup/activation-codes.md).
+- **Access window (PAY-07):** activation uses `greatest((target_test_date +
+  settings.access_grace_days + 1)::timestamp at time zone 'UTC', now() +
+  make_interval(days => settings.access_min_days))`. Defaults are 14 grace days and a 60-day
+  minimum: access lasts through the end of the grace day, with expiration at the following
+  midnight UTC, or the minimum window if later. The server computes and stores the window.
+  Test date is read-only for students after activation; teacher changes and paid renewals follow later.
 - Reconciliation cron: orders `pending` > 1h → query gateway status.
 - Webhook matches the order by the **signed** gateway order id + amount + currency (never by
   `merchant_order_id`). A declined attempt keeps the order `pending` (the gateway allows a retry).
@@ -174,7 +184,13 @@ log everything for teacher review.
 ## 9. Error codes
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
 `practice_needed` (practice_count below settings.practice_min), `review_needed` (finish the review set before a quiz retake), `attempt_not_submitted` (quiz review requires a submitted attempt), `attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,
-`rate_limited`, `payment_invalid`, `invalid_key` (malformed answer key — content error), `internal` (Edge Functions only — unexpected failure).
+`rate_limited`, `payment_invalid`, `code_invalid` (unknown code or unpublished course),
+`code_used` (already redeemed), `already_enrolled` (any existing enrollment for the course),
+`invalid_key` (malformed answer key — content error), `internal` (Edge Functions only — unexpected failure).
+
+`redeem_activation_code` returns `code_invalid`, `code_used` and `already_enrolled` inside
+`{ok:false,error}`; these are successful SQL transactions that retain the rate-limit increment.
+Its authentication, input-validation and rate-limit errors are raised with the code as the message.
 
 Client-only codes (GoTrue / transport; never returned by an RPC or Edge Function):
 `invalid_credentials`, `email_not_confirmed`, `email_taken`, `weak_password`, `network`. `rate_limited` is reused for GoTrue rate limits.

@@ -10,6 +10,7 @@ import 'package:sat_east_client/features/auth/data/datasources/device_remote_dat
 import 'package:sat_east_client/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:sat_east_client/features/auth/data/repositories/device_repository_impl.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_devices.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -91,6 +92,32 @@ void main() {
       ).thenAnswer((_) => Stream<void>.value(null));
       expect(await repository.passwordRecovery.toList(), hasLength(1));
     });
+
+    for (final code in <String?>[
+      null,
+      ErrorCodes.notAuthenticated,
+      ErrorCodes.forbidden,
+      ErrorCodes.network,
+      ErrorCodes.internal,
+    ]) {
+      test('AUTH-02: enrollments return ${code ?? 'success'}', () async {
+        final expected = code == null
+            ? Success<List<MyEnrollment>>([
+                MyEnrollment(
+                  courseTitle: 'SAT Math',
+                  targetTestDate: null,
+                  expiresAt: DateTime.utc(2027, 3, 30),
+                  isExpired: false,
+                ),
+              ])
+            : Failure<List<MyEnrollment>>(AppError(code));
+        when(
+          () => remote.listMyEnrollments(),
+        ).thenAnswer((_) async => expected);
+
+        expect(await repository.listMyEnrollments(), same(expected));
+      });
+    }
   });
 
   group('AUTH-04: account device repository', () {

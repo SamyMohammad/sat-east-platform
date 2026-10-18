@@ -2,13 +2,14 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-18
+> Last updated: 2026-10-18 (night)
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| P1 slice staging fixes | — | — | `fix/P1-staging-check` | — | in progress |
+| Lane 1b — activation code + test date (PAY-06, AUTH-02, PAY-07) | [spec](superpowers/specs/2026-10-18-p1-lane1b-activation-design.md) | — | `feat/P1-lane1b-activation` | — | spec in review |
+| P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
 
@@ -16,8 +17,8 @@ Up to 3 lanes at once, each in its own `git worktree` branched from `main` (neve
 
 | Lane | Scope | Write set |
 |------|-------|-----------|
-| 1 — Student UI (Flutter) | A-2 profile, A-3 manage devices, A-5 password reset, P-1 course page (backend in #11) | `lib/features/auth`, `lib/features/catalogue` |
-| 2 — Backend only | L-7 review set + `get_attempt_review`, L-9 teacher unlock, `cron-expire-attempts`, `private.hit_rate_limit`, practice_count advisory lock | `supabase/` only |
+| 1 — Student UI (Flutter) | 1a account (#37, done) → 1b activation code + test date → 1c catalogue + course page (P-1). Google sign-in (A-1) deferred | `lib/features/auth`, `lib/features/activation`, `lib/features/catalogue` |
+| 2 — Backend only | **Done** (#35, #36) | — |
 | 3 — Teacher area (Flutter) | C-1 topics builder, C-7 settings, then C-4/C-5 question import + editor | `lib/features/teacher/*` |
 
 Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml`, migration timestamps, `docs/07` §9 error codes, this file.
@@ -38,13 +39,12 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
-| Quiz follow-ups | Spiral + difficulty blueprint, answer review (`get_attempt_review`), targeted review set after a fail, `cron-expire-attempts`; quiz repeats on the 12-question demo pools (accepted for the slice) |
-| Practice rate limiting | `private.hit_rate_limit` (`docs/16`) not built; practice RPCs unthrottled |
-| Abandoned practice attempts | In-progress practice attempts are never closed; cleanup job later |
+| Quiz follow-ups | Spiral + difficulty blueprint; review-set UI (S-23) and attempt-review UI; quiz repeats on the 12-question demo pools (accepted for the slice) |
+| Rate-limit rollback | `private.hit_rate_limit` counts only calls that don't raise (a raise rolls back the increment). Fine for practice/quiz RPCs; guess-style RPCs must return errors instead of raising (lane 1b `redeem_activation_code` does) |
 | Auth Site URL | Staging Site URL was the default `localhost:3000` (confirmation link redirected there). Set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, staging dashboard; repeat for prod |
+| Password reset redirect | Add `<site>/?flow=recovery` to Supabase Redirect URLs on staging and prod (`docs/setup/auth.md` §0) — user |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
 | Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
-| Manage devices | Manage-devices page + list-my-devices RPC deferred |
 | register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |
 | Login type size | Login screens use labelLarge 14/600 vs design 13/600 |
 | Login a11y | Verify AuthTextField semantics with a screen reader on staging |
@@ -74,6 +74,10 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | P1 | Slice 5/5 — quiz + unlock (staging check pending, user) | #32 |
 | — | Auth Site URL setup doc | #31 |
 | 6 | F-4 design gallery (staging `#/gallery` checked) — Phase 0 UI exit | #24 |
+| Lanes | STATUS parallel lanes | #33 |
+| Lane 2a | Expiry cron, rate limits, teacher unlock (LRN-05) | #35 |
+| Lane 2b | Review set after a fail (LRN-04), `get_attempt_review` | #36 |
+| Lane 1a | Password reset (web), My account, name locked (AUTH-06, AUTH-04) | #37 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
 | S1 (early) | AUTH-04/05 device limit, PAY-01/04 catalogue backend | #11 |

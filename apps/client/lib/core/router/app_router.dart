@@ -5,6 +5,7 @@ import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
+import 'package:sat_east_client/features/activation/presentation/screens/activate_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
@@ -28,6 +29,7 @@ import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 abstract final class AppRoutes {
   static const home = '/';
+  static const activate = '/activate';
   static const courses = '/courses';
   static String topic(String id) => '/courses/topics/$id';
   static String practice(String id) => '/courses/topics/$id/practice';
@@ -145,6 +147,10 @@ GoRouter createRouter({
               ],
             ),
         ],
+      ),
+      GoRoute(
+        path: AppRoutes.activate,
+        builder: (context, state) => const ActivateScreen(),
       ),
       GoRoute(
         path: AppRoutes.signIn,

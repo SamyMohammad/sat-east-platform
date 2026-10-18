@@ -4,18 +4,21 @@ import 'package:flutter/foundation.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
+import 'package:sat_east_client/features/auth/data/models/my_enrollment_model.dart';
 import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
 import 'package:sat_east_client/features/auth/domain/entities/sign_up_outcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-/// GoTrue access. Catches every exception and maps it to an [AppError].
+/// GoTrue and own-account reads. Maps boundary exceptions to an [AppError].
 class AuthRemoteDataSource {
   AuthRemoteDataSource(
     this._auth, {
     required this._client,
     bool isWeb = kIsWeb,
     Uri? baseUri,
+    this._now = DateTime.now,
   }) : _resetRedirectTo = isWeb
            ? '${(baseUri ?? Uri.base).origin}/?flow=recovery'
            : null;
@@ -23,6 +26,7 @@ class AuthRemoteDataSource {
   final GoTrueClient _auth;
   final SupabaseClient _client;
   final String? _resetRedirectTo;
+  final DateTime Function() _now;
 
   AppUser? get currentUser => _toUser(_auth.currentUser);
 
@@ -103,6 +107,35 @@ class AuthRemoteDataSource {
       return Failure(mapPostgrestException(e));
     } on AuthException catch (e) {
       return Failure(mapAuthException(e));
+    } on Object catch (e) {
+      return Failure(mapUnknownError(e));
+    }
+  }
+
+  Future<Result<List<MyEnrollment>>> listMyEnrollments() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        return const Failure(AppError(ErrorCodes.notAuthenticated));
+      }
+      final rows = await _client
+          .from('enrollments')
+          .select('target_test_date, expires_at, status, courses(title)')
+          .eq('user_id', user.id)
+          .order('expires_at', ascending: false);
+      final now = _now();
+      final enrollments = <MyEnrollment>[];
+      for (final row in rows) {
+        final enrollment = myEnrollmentFromJson(row, now);
+        if (enrollment != null) enrollments.add(enrollment);
+      }
+      return Success(List.unmodifiable(enrollments));
+    } on PostgrestException catch (e) {
+      return Failure(mapPostgrestException(e));
+    } on AuthException catch (e) {
+      return Failure(mapAuthException(e));
+    } on FormatException {
+      return const Failure(AppError(ErrorCodes.internal));
     } on Object catch (e) {
       return Failure(mapUnknownError(e));
     }

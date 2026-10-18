@@ -27,7 +27,21 @@ class AccountCubit extends Cubit<AccountState> {
           case Failure(:final error):
             emit(AccountError(error));
           case Success(:final value):
-            emit(AccountLoaded(info, value.devices, value.changesLeft));
+            final enrollments = await _auth.listMyEnrollments();
+            if (isClosed) return;
+            switch (enrollments) {
+              case Failure(:final error):
+                emit(AccountError(error));
+              case Success(value: final courses):
+                emit(
+                  AccountLoaded(
+                    info,
+                    value.devices,
+                    value.changesLeft,
+                    enrollments: courses,
+                  ),
+                );
+            }
         }
     }
   });
@@ -103,6 +117,7 @@ class AccountCubit extends Cubit<AccountState> {
         current.profile,
         devices ?? current.devices,
         changesLeft ?? current.changesLeft,
+        enrollments: current.enrollments,
         busy: busy,
         error: error,
         passwordSaved: passwordSaved,

@@ -10,6 +10,7 @@ import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_state.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sat_east_client/features/auth/presentation/widgets/account_courses.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/account_devices.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/account_password_form.dart';
 import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
@@ -91,6 +92,8 @@ class AccountView extends StatelessWidget {
             ),
             Text(state.profile.email),
             const Text('Contact your teacher to change your name.'),
+            if (state.enrollments.isNotEmpty)
+              AccountCourses(enrollments: state.enrollments),
             if (state.error case final error?)
               BookletBanner(
                 message: error.code == ErrorCodes.deviceLimit

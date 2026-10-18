@@ -7,6 +7,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_devices.dart';
+import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/device_repository.dart';
@@ -22,6 +23,12 @@ const _current = Device(id: 'current', label: 'Laptop', isCurrent: true);
 const _other = Device(id: 'other', label: 'Phone');
 const _network = AppError(ErrorCodes.network);
 final _loaded = AccountLoaded(_profile, const [_current, _other], 2);
+final _enrollment = MyEnrollment(
+  courseTitle: 'SAT Math',
+  targetTestDate: DateTime(2027, 3, 15),
+  expiresAt: DateTime.utc(2027, 3, 30),
+  isExpired: false,
+);
 
 void main() {
   late _Auth auth;
@@ -30,6 +37,9 @@ void main() {
     auth = _Auth();
     devices = _Devices();
     when(auth.getMyProfile).thenAnswer((_) async => const Success(_profile));
+    when(auth.listMyEnrollments).thenAnswer(
+      (_) async => const Success<List<MyEnrollment>>([]),
+    );
     when(devices.listMine).thenAnswer(
       (_) async =>
           Success(MyDevices(devices: const [_current, _other], changesLeft: 2)),
@@ -42,6 +52,169 @@ void main() {
     ).thenAnswer((_) async => const Success(1));
   });
   AccountCubit build() => AccountCubit(auth, devices);
+
+  blocTest<AccountCubit, AccountState>(
+    'AUTH-02: load includes current enrollments',
+    setUp: () => when(auth.listMyEnrollments).thenAnswer(
+      (_) async => Success([_enrollment]),
+    ),
+    build: build,
+    act: (c) => c.load(),
+    expect: () => [
+      const AccountLoading(),
+      AccountLoaded(
+        _profile,
+        const [_current, _other],
+        2,
+        enrollments: [_enrollment],
+      ),
+    ],
+    verify: (_) => verify(auth.listMyEnrollments).called(1),
+  );
+
+  blocTest<AccountCubit, AccountState>(
+    'AUTH-02: load without enrollments still loads the account',
+    build: build,
+    act: (c) => c.load(),
+    expect: () => [const AccountLoading(), _loaded],
+    verify: (_) => verify(auth.listMyEnrollments).called(1),
+  );
+
+  for (final code in [
+    ErrorCodes.network,
+    ErrorCodes.notAuthenticated,
+    ErrorCodes.forbidden,
+    ErrorCodes.internal,
+  ]) {
+    blocTest<AccountCubit, AccountState>(
+      'AUTH-02: enrollment load $code reports failure',
+      setUp: () => when(auth.listMyEnrollments).thenAnswer(
+        (_) async => Failure<List<MyEnrollment>>(AppError(code)),
+      ),
+      build: build,
+      act: (c) => c.load(),
+      expect: () => [const AccountLoading(), AccountError(AppError(code))],
+    );
+  }
+
+  for (final fails in [false, true]) {
+    blocTest<AccountCubit, AccountState>(
+      'AUTH-02: password update failure=$fails preserves enrollments',
+      setUp: () {
+        when(() => auth.updatePassword('Password1')).thenAnswer(
+          (_) async =>
+              fails ? const Failure<void>(_network) : const Success<void>(null),
+        );
+      },
+      build: build,
+      seed: () => AccountLoaded(
+        _profile,
+        const [_current, _other],
+        2,
+        enrollments: [_enrollment],
+      ),
+      act: (c) => c.changePassword('Password1'),
+      expect: () => [
+        AccountLoaded(
+          _profile,
+          const [_current, _other],
+          2,
+          enrollments: [_enrollment],
+          busy: true,
+        ),
+        AccountLoaded(
+          _profile,
+          const [_current, _other],
+          2,
+          enrollments: [_enrollment],
+          passwordSaved: !fails,
+          error: fails ? _network : null,
+        ),
+      ],
+      verify: (_) => verifyNever(auth.listMyEnrollments),
+    );
+
+    blocTest<AccountCubit, AccountState>(
+      'AUTH-02: device removal failure=$fails preserves enrollments',
+      setUp: () {
+        when(() => devices.remove('other')).thenAnswer(
+          (_) async => fails ? const Failure<int>(_network) : const Success(1),
+        );
+        when(devices.listMine).thenAnswer(
+          (_) async =>
+              Success(MyDevices(devices: const [_current], changesLeft: 1)),
+        );
+      },
+      build: build,
+      seed: () => AccountLoaded(
+        _profile,
+        const [_current, _other],
+        2,
+        enrollments: [_enrollment],
+      ),
+      act: (c) => c.removeDevice('other'),
+      expect: () => [
+        AccountLoaded(
+          _profile,
+          const [_current, _other],
+          2,
+          enrollments: [_enrollment],
+          busy: true,
+        ),
+        AccountLoaded(
+          _profile,
+          fails ? const [_current, _other] : const [_current],
+          fails ? 2 : 1,
+          enrollments: [_enrollment],
+          error: fails ? _network : null,
+        ),
+      ],
+      verify: (_) => verifyNever(auth.listMyEnrollments),
+    );
+  }
+
+  test('AUTH-02: close suppresses late enrollment results', () async {
+    final pending = Completer<Result<List<MyEnrollment>>>();
+    final requested = Completer<void>();
+    when(auth.listMyEnrollments).thenAnswer((_) {
+      requested.complete();
+      return pending.future;
+    });
+    final cubit = build();
+    final loading = cubit.load();
+    await requested.future;
+    await cubit.close();
+    pending.complete(Success([_enrollment]));
+
+    await loading;
+
+    expect(cubit.state, const AccountLoading());
+  });
+
+  test('AUTH-02: loaded enrollments are immutable snapshots', () {
+    final source = [_enrollment];
+    final loaded = AccountLoaded(_profile, const [], 2, enrollments: source);
+    source.clear();
+
+    expect(loaded.enrollments, [_enrollment]);
+    expect(loaded.enrollments.clear, throwsUnsupportedError);
+  });
+
+  test('AUTH-02: enrollment changes participate in state equality', () {
+    final first = AccountLoaded(_profile, const [], 2);
+    final second = AccountLoaded(
+      _profile,
+      const [],
+      2,
+      enrollments: [_enrollment],
+    );
+
+    expect(first, isNot(second));
+    expect(
+      second,
+      AccountLoaded(_profile, const [], 2, enrollments: [_enrollment]),
+    );
+  });
 
   blocTest<AccountCubit, AccountState>(
     'S-34: load fetches profile and devices',
