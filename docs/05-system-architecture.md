@@ -87,8 +87,8 @@ lib/
 | Component | Responsibility |
 |-----------|----------------|
 | Postgres + RLS | All data; policies per role (06 §4) |
-| RPC functions (SQL) | `start_attempt`, `save_answer`, `submit_attempt`, `compute_unlocks`, analytics aggregation |
-| Edge Functions | Three "fat" functions (16 §8): `api` (Hono router: checkout, redeem-code, video-otp, pdf-url, register-device, import-questions, assemble-mock, send-email/push helpers) · `payment-webhook` · `ai-tutor` (streaming) |
+| RPC functions (SQL) | `start_attempt`, `save_answer`, `submit_attempt`, `compute_unlocks`, `redeem_activation_code`, analytics aggregation |
+| Edge Functions | Three "fat" functions (16 §8): `api` (Hono router: checkout, video-otp, pdf-url, register-device, import-questions, assemble-mock, send-email/push helpers) · `payment-webhook` · `ai-tutor` (streaming) |
 | Storage buckets | `notes` (private), `question-images` (public-read via CDN, unguessable paths), `book` (private) |
 | pg_cron | nightly analytics rollups, inactivity nudges, access expiry, cleanup |
 | Realtime | teacher dashboard live updates (optional) |

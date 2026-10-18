@@ -266,10 +266,12 @@ on the RLS helpers (`is_teacher`, `has_access`, `has_access_topic`).
 - **Rule:** grading, unlocking, scoring, analytics → Postgres functions. EFs only for secrets and
   third parties (Paymob, VdoCipher, LLM, email, FCM).
 - **Three "fat" functions** (fewer cold starts, shared code):
-  - `api` — Hono router: `/checkout`, `/redeem-code`, `/video-otp`, `/pdf-url`, `/register-device`, `/import-questions`, `/assemble-mock`
+  - `api` — Hono router: `/checkout`, `/video-otp`, `/pdf-url`, `/register-device`, `/import-questions`, `/assemble-mock`
   - `payment-webhook` — isolated (public, HMAC-verified)
   - `ai-tutor` — isolated (streams SSE, LLM timeout, per-day cap)
 - `EdgeRuntime.waitUntil()` for receipts/emails after responding to the webhook.
+- Activation codes use the `redeem_activation_code` RPC (PAY-06/07); no external secret is
+  required. Business errors return `{ok:false,error}` so wrong guesses retain rate-limit increments.
 - **Question import in batches** of 200 per call with a progress bar in T-07 (no queue needed yet).
 
 ## 9. SMS OTP — deferred
