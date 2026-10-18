@@ -34,7 +34,7 @@ void main() {
 
   setUp(() {
     auth = MockGoTrueClient();
-    source = AuthRemoteDataSource(auth);
+    source = AuthRemoteDataSource(auth, client: MockSupabaseClient());
   });
 
   group('P1-2: signIn', () {

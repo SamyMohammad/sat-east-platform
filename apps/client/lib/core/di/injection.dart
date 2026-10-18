@@ -51,7 +51,10 @@ void configureDependencies({
     ..registerLazySingleton<DeviceIdStore>(() => DeviceIdStore(deviceBox))
     ..registerLazySingleton<DeviceInfo>(DeviceInfo.new)
     ..registerLazySingleton<AuthRemoteDataSource>(
-      () => AuthRemoteDataSource(getIt<SupabaseClient>().auth),
+      () => AuthRemoteDataSource(
+        getIt<SupabaseClient>().auth,
+        client: getIt<SupabaseClient>(),
+      ),
     )
     ..registerLazySingleton<DeviceRemoteDataSource>(
       () => DeviceRemoteDataSource(

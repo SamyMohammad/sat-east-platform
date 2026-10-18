@@ -2,15 +2,19 @@ import 'dart:async';
 
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/set_new_password_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
@@ -23,6 +27,8 @@ import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.da
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 
+import '../../features/auth/presentation/screens/auth_screen_harness.dart'
+    as auth_screens;
 import 'fake_course_map_cubit.dart';
 import 'fake_practice_cubit.dart';
 import 'fake_topic_cubit.dart';
@@ -30,6 +36,33 @@ import 'fake_topic_cubit.dart';
 part 'fake_quiz_cubit.dart';
 
 void main() {
+  for (final width in [360.0, 1280.0]) {
+    for (final (path, type, state) in [
+      (AppRoutes.forgotPassword, ForgotPasswordScreen, const AuthSignedOut()),
+      (AppRoutes.resetPassword, SetNewPasswordScreen, const AuthRecovery()),
+    ]) {
+      testWidgets('S-03: $path builds its auth screen at $width', (
+        tester,
+      ) async {
+        _viewport(tester, width);
+        final router = createRouter(initialLocation: path);
+        addTearDown(router.dispose);
+        await tester.pumpWidget(
+          BlocProvider<AuthCubit>.value(
+            value: auth_screens.mockCubit(state),
+            child: MaterialApp.router(
+              theme: AppTheme.light(),
+              routerConfig: router,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(type), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+  }
   final destinations = [
     (AppRoutes.home, 'Home'),
     (AppRoutes.courses, 'Courses'),

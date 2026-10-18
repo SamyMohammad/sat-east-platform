@@ -5,6 +5,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MockGoTrueClient extends Mock implements GoTrueClient {}
 
+class MockSupabaseClient extends Mock implements SupabaseClient {}
+
 class FakeDeviceIdStore implements DeviceIdStore {
   FakeDeviceIdStore(this.id, {this.error});
 

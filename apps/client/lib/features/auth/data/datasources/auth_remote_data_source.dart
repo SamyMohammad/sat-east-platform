@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
@@ -11,7 +13,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthRemoteDataSource {
   AuthRemoteDataSource(
     this._auth, {
-    this._client,
+    required this._client,
     bool isWeb = kIsWeb,
     Uri? baseUri,
   }) : _resetRedirectTo = isWeb
@@ -19,7 +21,7 @@ class AuthRemoteDataSource {
            : null;
 
   final GoTrueClient _auth;
-  final SupabaseClient? _client;
+  final SupabaseClient _client;
   final String? _resetRedirectTo;
 
   AppUser? get currentUser => _toUser(_auth.currentUser);
@@ -29,9 +31,30 @@ class AuthRemoteDataSource {
       .handleError((Object _) {})
       .distinct();
 
-  Stream<void> get passwordRecovery => _auth.onAuthStateChange
-      .where((state) => state.event == AuthChangeEvent.passwordRecovery)
-      .map<void>((_) {});
+  Stream<void> get passwordRecovery => _auth.onAuthStateChange.transform(
+    StreamTransformer<AuthState, void>.fromHandlers(
+      handleData: (state, sink) {
+        if (state.event == AuthChangeEvent.passwordRecovery) sink.add(null);
+      },
+      handleError: (error, stack, sink) {
+        final mapped = switch (error) {
+          AuthPKCEGrantCodeExchangeError() => const AppError(
+            ErrorCodes.linkExpired,
+          ),
+          AuthException(
+            code: 'otp_expired' ||
+                'access_denied' ||
+                'flow_state_expired' ||
+                'flow_state_not_found',
+          ) =>
+            const AppError(ErrorCodes.linkExpired),
+          AuthException() => mapAuthException(error),
+          _ => mapUnknownError(error),
+        };
+        sink.addError(mapped, stack);
+      },
+    ),
+  );
 
   Future<Result<void>> requestPasswordReset(String email) async {
     try {
@@ -66,7 +89,7 @@ class AuthRemoteDataSource {
       if (email == null || email.isEmpty) {
         return const Failure(AppError(ErrorCodes.internal));
       }
-      final profile = await (_client ?? Supabase.instance.client)
+      final profile = await _client
           .from('profiles')
           .select('full_name')
           .eq('id', user.id)

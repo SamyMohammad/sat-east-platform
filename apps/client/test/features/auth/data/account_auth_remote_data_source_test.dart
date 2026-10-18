@@ -30,13 +30,14 @@ void main() {
   setUpAll(() => registerFallbackValue(UserAttributes()));
   setUp(() {
     auth = MockGoTrueClient();
-    source = AuthRemoteDataSource(auth);
+    source = AuthRemoteDataSource(auth, client: MockSupabaseClient());
   });
 
   group('AUTH-06: requestPasswordReset', () {
     test('AUTH-06: web reset uses the origin and recovery marker', () async {
       source = AuthRemoteDataSource(
         auth,
+        client: MockSupabaseClient(),
         isWeb: true,
         baseUri: Uri.parse('https://app.test/?old=value#/sign-in'),
       );
@@ -105,6 +106,32 @@ void main() {
       });
     }
   });
+
+  for (final (error, code) in <(Object, String)>[
+    (
+      const AuthApiException('expired', code: 'otp_expired'),
+      ErrorCodes.linkExpired,
+    ),
+    (
+      const AuthApiException('expired', code: 'flow_state_expired'),
+      ErrorCodes.linkExpired,
+    ),
+    (const AuthPKCEGrantCodeExchangeError('used'), ErrorCodes.linkExpired),
+    (AuthRetryableFetchException(), ErrorCodes.network),
+    (StateError('unexpected'), ErrorCodes.internal),
+  ]) {
+    test('AUTH-06: recovery stream maps $error to $code', () async {
+      final events = StreamController<AuthState>();
+      addTearDown(events.close);
+      when(() => auth.onAuthStateChange).thenAnswer((_) => events.stream);
+      final assertion = expectLater(
+        source.passwordRecovery,
+        emitsError(isA<AppError>().having((e) => e.code, 'code', code)),
+      );
+      events.addError(error);
+      await assertion;
+    });
+  }
 
   group('AUTH-06: updatePassword', () {
     test(

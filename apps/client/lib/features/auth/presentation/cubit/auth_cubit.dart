@@ -8,6 +8,7 @@ import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_registration.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device_status.dart';
 import 'package:sat_east_client/features/auth/domain/entities/sign_up_outcome.dart';
+import 'package:sat_east_client/features/auth/domain/recovery_link.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/auth_repository.dart';
 import 'package:sat_east_client/features/auth/domain/repositories/device_repository.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
@@ -19,8 +20,10 @@ class AuthCubit extends Cubit<AuthState> {
     this._devices,
     this._reporter, {
     Stream<void> Function(Duration)? ticker,
+    Uri? initialUri,
     this._checkEvery = const Duration(seconds: 60),
   }) : _ticker = ticker ?? Stream<void>.periodic,
+       _initialRecovery = RecoveryLink.parse(initialUri ?? Uri.base),
        super(const AuthUnknown());
 
   final AuthRepository _auth;
@@ -28,9 +31,13 @@ class AuthCubit extends Cubit<AuthState> {
   final ErrorReporter _reporter;
   final Stream<void> Function(Duration) _ticker;
   final Duration _checkEvery;
+  final RecoveryLinkResult _initialRecovery;
 
   StreamSubscription<void>? _tickSub;
   StreamSubscription<AppUser?>? _userSub;
+  StreamSubscription<void>? _recoverySub;
+  bool _startupHandled = false;
+  bool _expiredRecovery = false;
   Future<void>? _pendingSignOut;
   bool _inFlight = false;
 
@@ -45,9 +52,29 @@ class AuthCubit extends Cubit<AuthState> {
 
   /// Restores the session, registers the device, then routes by outcome.
   Future<void> start() async {
+    if (isClosed) return;
+    _recoverySub ??= _auth.passwordRecovery.listen(
+      (_) => _onRecovery(),
+      onError: _onRecoveryError,
+    );
     // Watch the session for the cubit's whole life: if it disappears while
     // signed in (token revoked, expired refresh), the user is signed out.
     _userSub ??= _auth.userChanges.listen(_onUserChanged);
+    if (!_startupHandled) {
+      _startupHandled = true;
+      switch (_initialRecovery) {
+        case RecoveryExpired():
+          _expiredRecovery = true;
+          _invalidateInFlight();
+          emit(const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)));
+          return;
+        case RecoveryRequested():
+          _onRecovery();
+        case RecoveryNone():
+          break;
+      }
+    }
+    if (state is AuthRecovery || _expiredRecovery) return;
     if (_inFlight || _signingOut) return;
     final user = _auth.currentUser;
     if (user == null) {
@@ -58,6 +85,64 @@ class AuthCubit extends Cubit<AuthState> {
       emit(const AuthBusy());
       await _register(user, gen);
     });
+  }
+
+  Future<void> requestPasswordReset(String email) => _guarded((gen) async {
+    emit(const AuthBusy());
+    final result = await _auth.requestPasswordReset(email);
+    if (_stale(gen)) return;
+    switch (result) {
+      case Success():
+        _expiredRecovery = false;
+        emit(AuthResetLinkSent(email));
+      case Failure(:final error):
+        emit(AuthSignedOut(error: error));
+    }
+  });
+
+  Future<void> setNewPassword(String password) async {
+    if (state is! AuthRecovery) return;
+    await _guarded((gen) async {
+      emit(const AuthRecovery(saving: true));
+      final result = await _auth.updatePassword(password);
+      if (_stale(gen)) return;
+      switch (result) {
+        case Success():
+          await _register(_auth.currentUser, gen);
+        case Failure(:final error):
+          if (error.code == ErrorCodes.notAuthenticated ||
+              error.code == ErrorCodes.linkExpired) {
+            _expiredRecovery = true;
+            emit(const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)));
+          } else {
+            emit(AuthRecovery(error: error));
+          }
+      }
+    });
+  }
+
+  void _onRecovery() {
+    if (isClosed || _signingOut || _expiredRecovery || state is AuthRecovery) {
+      return;
+    }
+    _invalidateInFlight();
+    unawaited(_cancelTicker());
+    emit(const AuthRecovery());
+  }
+
+  void _onRecoveryError(Object error) {
+    if (isClosed || _signingOut || state is! AuthRecovery) return;
+    _invalidateInFlight();
+    final failure = error is AppError
+        ? error
+        : const AppError(ErrorCodes.internal);
+    if (failure.code == ErrorCodes.linkExpired ||
+        failure.code == ErrorCodes.notAuthenticated) {
+      _expiredRecovery = true;
+      emit(const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)));
+    } else {
+      emit(AuthRecovery(error: failure));
+    }
   }
 
   Future<void> signIn(String email, String password) => _guarded((gen) async {
@@ -151,13 +236,16 @@ class AuthCubit extends Cubit<AuthState> {
   void clearError() {
     final current = state;
     if (current is AuthSignedOut && current.error != null) {
+      _expiredRecovery = false;
       emit(AuthSignedOut(reason: current.reason));
     }
   }
 
   /// Leaves the check-inbox screen: back to the signed-out state.
   void acknowledgeConfirmation() {
-    if (state is AuthConfirmationSent) emit(const AuthSignedOut());
+    if (state is AuthConfirmationSent || state is AuthResetLinkSent) {
+      emit(const AuthSignedOut());
+    }
   }
 
   /// Overlapping calls share one sign-out; the first reason wins.
@@ -187,6 +275,7 @@ class AuthCubit extends Cubit<AuthState> {
     final current = state;
     if (current is AuthSignedIn ||
         current is AuthDeviceGate ||
+        current is AuthRecovery ||
         current is AuthConfirmationSent) {
       unawaited(_sessionLost(_session));
     }
@@ -196,6 +285,7 @@ class AuthCubit extends Cubit<AuthState> {
     // Defensive: only guards against close. Duplicate events are dropped by
     // [_losingSession] in [_onUserChanged], not by this check.
     if (_stale(gen)) return;
+    final recovering = state is AuthRecovery;
     _losingSession = true;
     _invalidateInFlight();
     final mine = _session;
@@ -211,7 +301,14 @@ class AuthCubit extends Cubit<AuthState> {
       failureTrace = st;
     }
     try {
-      if (!_stale(mine)) emit(const AuthSignedOut());
+      if (!_stale(mine)) {
+        _expiredRecovery = recovering;
+        emit(
+          AuthSignedOut(
+            error: recovering ? const AppError(ErrorCodes.linkExpired) : null,
+          ),
+        );
+      }
     } finally {
       _losingSession = false;
     }
@@ -229,6 +326,8 @@ class AuthCubit extends Cubit<AuthState> {
     _invalidateInFlight();
     await _userSub?.cancel();
     _userSub = null;
+    await _recoverySub?.cancel();
+    _recoverySub = null;
     await _cancelTicker();
     return super.close();
   }
@@ -242,7 +341,7 @@ class AuthCubit extends Cubit<AuthState> {
   bool _stale(int gen) => isClosed || gen != _session;
 
   Future<void> _guarded(Future<void> Function(int gen) body) async {
-    if (_inFlight || _signingOut || _losingSession) return;
+    if (isClosed || _inFlight || _signingOut || _losingSession) return;
     _inFlight = true;
     final gen = _session;
     try {
