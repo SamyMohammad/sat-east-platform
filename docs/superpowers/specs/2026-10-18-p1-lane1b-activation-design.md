@@ -32,13 +32,21 @@ Migration `20261018400000_lane1b_activation.sql`, test `supabase/tests/31_activa
   → `{course_id, course_slug, course_title, target_test_date, expires_at}`.
   - auth → `hit_rate_limit('redeem:'||uid, rate_redeem_per_min, 60)` → validate input.
   - Code normalised: trim, upper-case, dashes/spaces removed.
-  - Date must be `>= current_date` and `<= current_date + test_date_max_days` → else `invalid_input`.
-  - Lock the code row `for update`. Unknown → `code_invalid`; already redeemed → `code_used`.
-  - Caller already has an enrolment for that course (any status) → `already_enrolled`; the code stays
-    unused.
+  - Date must be `>= current_date - 1` (tolerates clients ahead of UTC; today is a valid test date)
+    and `<= current_date + test_date_max_days` → else `invalid_input`.
+  - Lock the code row `for update`. Unknown, or its course not published → `code_invalid`; already
+    redeemed → `code_used`.
+  - Caller already has an enrolment for that course (any status — `unique(user_id, course_id)`) →
+    `already_enrolled`; the code stays unused. Expired/refunded students are the teacher's to handle
+    in the beta (renewal is P-7).
+  - **Guess failures are returned, not raised (Claude's call):** a raise rolls back the
+    `hit_rate_limit` increment, so wrong guesses would never count. `code_invalid`, `code_used` and
+    `already_enrolled` come back as `{ok: false, error: '<code>'}` (transaction commits, counter
+    sticks); success is `{ok: true, ...}`. `not_authenticated`, `invalid_input`, `rate_limited` are
+    still raised. The client maps both shapes to `AppError`.
   - Insert `enrollments (user_id, course_id, activation_code_id, status 'active', target_test_date,
-    starts_at now(), expires_at = greatest(target_test_date + access_grace_days, now() +
-    access_min_days))`; mark the code `redeemed_by`, `redeemed_at`. One transaction.
+    starts_at now(), expires_at = greatest((target_test_date + access_grace_days + 1)::timestamptz,
+    now() + access_min_days days))` — i.e. through the end of the grace day, UTC; mark the code `redeemed_by`, `redeemed_at`. One transaction.
   - New error codes `code_invalid`, `code_used`, `already_enrolled` → `docs/07` §9.
 - `private.generate_activation_codes(p_course_id uuid, p_count int, p_note text) returns setof text`
   — 12-character codes from an unambiguous alphabet (no 0/O/1/I/L), unique, `created_by` null;
@@ -50,6 +58,8 @@ Migration `20261018400000_lane1b_activation.sql`, test `supabase/tests/31_activa
 
 ## 4. Client
 
+- Success navigates to `/` (the map already opens the caller's latest enrolment). The
+  `access_expired` state gets no activation action (teacher handles it in the beta).
 - Route `/activate` (signed-in only, outside the course shell or as a plain page — builder's choice
   matching the existing auth/shell patterns). Course map's "No course yet" empty state gets a primary
   action **"Enter activation code"** → `/activate`.
@@ -59,9 +69,10 @@ Migration `20261018400000_lane1b_activation.sql`, test `supabase/tests/31_activa
   `code_used` "That code has already been used.", `already_enrolled` "You're already enrolled in this
   course.", `rate_limited` "Too many tries. Wait a minute and try again.", `invalid_input` on the date
   "Pick a test date in the next 18 months.".
-- **My account:** new read-only "Course" section per active enrolment: course title, "Test date",
-  "Access until"; note "Contact your teacher to change your test date." Read through the existing
-  `enrollments` RLS ("student selects own") joined to the course title, in the data layer.
+- **My account:** new read-only "Course" section per enrolment: course title, "Test date",
+  "Access until" (or "Access ended" when expired); note "Contact your teacher to change your test date." Read through the existing
+  `enrollments` RLS ("student selects own") with a PostgREST embed of the course title (only
+  published courses are visible, which matches redeem's rule), in the data layer.
 - Feature folder `lib/features/activation/` (data/domain/presentation); `ActivationCubit` (factory).
   The account section extends `lib/features/auth` account code.
 
@@ -74,7 +85,8 @@ Migration `20261018400000_lane1b_activation.sql`, test `supabase/tests/31_activa
 
 ## 6. Reserved names
 
-Migration `20261018400000_lane1b_*`; pgTAP `31_`; route `/activate`; settings above; error codes
+Also update `docs/05` §7 and `docs/16` §8 where `redeem-code` is listed as an Edge Function.
+Settings seeded `on conflict (key) do nothing`. Migration `20261018400000_lane1b_*`; pgTAP `31_`; route `/activate`; settings above; error codes
 above; DI append-only.
 
 ## 7. Left to the builder
