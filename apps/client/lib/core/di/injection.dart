@@ -38,6 +38,10 @@ import 'package:sat_east_client/features/teacher/course_builder/data/datasources
 import 'package:sat_east_client/features/teacher/course_builder/data/repositories/course_builder_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/repositories/course_builder_repository.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/settings/data/datasources/teacher_settings_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/settings/data/repositories/teacher_settings_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/settings/domain/repositories/teacher_settings_repository.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/topic/data/datasources/topic_remote_data_source.dart';
 import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
 import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
@@ -174,5 +178,18 @@ void configureDependencies({
     )
     ..registerFactory<CourseBuilderCubit>(
       () => CourseBuilderCubit(getIt<CourseBuilderRepository>()),
+    )
+    ..registerLazySingleton<TeacherSettingsRemoteDataSource>(
+      () => TeacherSettingsRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<TeacherSettingsRepository>(
+      () => TeacherSettingsRepositoryImpl(
+        getIt<TeacherSettingsRemoteDataSource>(),
+      ),
+    )
+    ..registerFactory<TeacherSettingsCubit>(
+      () => TeacherSettingsCubit(getIt<TeacherSettingsRepository>()),
     );
 }

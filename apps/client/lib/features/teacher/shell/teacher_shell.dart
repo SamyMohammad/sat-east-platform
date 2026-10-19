@@ -48,6 +48,9 @@ class _TeacherNavigation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final settingsSelected =
+        GoRouter.maybeOf(context) != null &&
+        GoRouterState.of(context).uri.path == '/teacher/settings';
     return ListView(
       padding: const EdgeInsets.all(BookletSpace.s3),
       children: [
@@ -57,7 +60,7 @@ class _TeacherNavigation extends StatelessWidget {
         ),
         const SizedBox(height: BookletSpace.s6),
         ListTile(
-          selected: true,
+          selected: !settingsSelected,
           selectedTileColor: theme.colorScheme.primaryContainer,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
@@ -66,13 +69,15 @@ class _TeacherNavigation extends StatelessWidget {
           title: const Text('Course builder'),
           onTap: () => _go(context, '/teacher'),
         ),
-        const Tooltip(
-          message: 'Coming soon',
-          child: ListTile(
-            enabled: false,
-            leading: Icon(Icons.settings_outlined),
-            title: Text('Settings'),
+        ListTile(
+          selected: settingsSelected,
+          selectedTileColor: theme.colorScheme.primaryContainer,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
           ),
+          leading: const Icon(Icons.settings_outlined),
+          title: const Text('Settings'),
+          onTap: () => _go(context, '/teacher/settings'),
         ),
         const Divider(),
         ListTile(
