@@ -153,6 +153,7 @@ class QuestionBody extends StatelessWidget {
         : column;
 
     return SingleChildScrollView(
+      key: ValueKey(question.id),
       padding: EdgeInsets.fromLTRB(
         compact ? BookletSpace.s4 : BookletSpace.s8,
         BookletSpace.s6,

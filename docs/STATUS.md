@@ -2,13 +2,13 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-18 (night)
+> Last updated: 2026-10-19
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| Lane 1b — activation code + test date (PAY-06, AUTH-02, PAY-07) | [spec](superpowers/specs/2026-10-18-p1-lane1b-activation-design.md) | — | `feat/P1-lane1b-activation` | — | spec in review |
+| Lane 1c — catalogue + course page (P-1) | — | — | — | — | next: brainstorm |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
@@ -17,7 +17,7 @@ Up to 3 lanes at once, each in its own `git worktree` branched from `main` (neve
 
 | Lane | Scope | Write set |
 |------|-------|-----------|
-| 1 — Student UI (Flutter) | 1a account (#37, done) → 1b activation code + test date → 1c catalogue + course page (P-1). Google sign-in (A-1) deferred | `lib/features/auth`, `lib/features/activation`, `lib/features/catalogue` |
+| 1 — Student UI (Flutter) | 1a account (#37, done) → 1b activation code + test date (#38, done) → 1c catalogue + course page (P-1). Google sign-in (A-1) deferred | `lib/features/auth`, `lib/features/activation`, `lib/features/catalogue` |
 | 2 — Backend only | **Done** (#35, #36) | — |
 | 3 — Teacher area (Flutter) | C-1 topics builder, C-7 settings, then C-4/C-5 question import + editor | `lib/features/teacher/*` |
 
@@ -78,6 +78,7 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | Lane 2a | Expiry cron, rate limits, teacher unlock (LRN-05) | #35 |
 | Lane 2b | Review set after a fail (LRN-04), `get_attempt_review` | #36 |
 | Lane 1a | Password reset (web), My account, name locked (AUTH-06, AUTH-04) | #37 |
+| Lane 1b | Activation code + test date (PAY-06, AUTH-02, PAY-07) | #38 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
 | S1 (early) | AUTH-04/05 device limit, PAY-01/04 catalogue backend | #11 |

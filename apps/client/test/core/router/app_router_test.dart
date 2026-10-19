@@ -93,6 +93,169 @@ void main() {
   setUp(registerFakeQuizCubit);
   tearDown(unregisterFakeQuizCubit);
 
+  const passedReport = QuizReport(
+    scoreRaw: 9,
+    scoreTotal: 12,
+    scorePct: 75,
+    passMark: 70,
+    passed: true,
+    nextTopic: null,
+    retakeAt: null,
+  );
+  for (final (page, path, extra) in <(String, String, Object?)>[
+    ('topic', AppRoutes.topic('x'), null),
+    ('practice', AppRoutes.practice('x'), null),
+    ('quiz', AppRoutes.quiz('x'), QuizEntry.startOrResume),
+    ('quiz result', AppRoutes.quizResult('x'), passedReport),
+  ]) {
+    for (final back in ['pop', 'go', 'Courses tab']) {
+      testWidgets('L-1: staging courses reloads after $page via $back', (
+        tester,
+      ) async {
+        var loads = 0;
+        await registerFakeCourseMapCubit(onLoad: () => loads++);
+        _viewport(tester, 1280);
+        final router = createRouter(initialLocation: AppRoutes.courses);
+        addTearDown(router.dispose);
+        await _pumpRouter(tester, router);
+        expect(loads, 1);
+        unawaited(router.push<void>(path, extra: extra));
+        await tester.pumpAndSettle();
+        expect(
+          router.routerDelegate.currentConfiguration.last.matchedLocation,
+          path,
+        );
+        if (page == 'quiz result') {
+          expect(find.text('Quiz passed'), findsOneWidget);
+        }
+        expect(loads, 1);
+        if (back == 'pop') {
+          router.pop();
+        } else if (back == 'go') {
+          router.go(AppRoutes.courses);
+        } else {
+          await tester.tap(
+            find.descendant(
+              of: _navigationFinder(),
+              matching: find.text('Courses'),
+            ),
+          );
+        }
+        await tester.pumpAndSettle();
+        expect(
+          router.routerDelegate.currentConfiguration.last.matchedLocation,
+          AppRoutes.courses,
+        );
+        expect(loads, 2);
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+  }
+
+  testWidgets('L-1: staging courses reloads after switching shell branches', (
+    tester,
+  ) async {
+    var loads = 0;
+    await registerFakeCourseMapCubit(onLoad: () => loads++);
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.courses);
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    router.go(AppRoutes.skills);
+    await tester.pumpAndSettle();
+    expect(loads, 1);
+    await tester.tap(
+      find.descendant(
+        of: _navigationFinder(),
+        matching: find.text('Courses'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(loads, 2);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('L-1: staging reselecting visible Courses reloads the map', (
+    tester,
+  ) async {
+    var loads = 0;
+    await registerFakeCourseMapCubit(onLoad: () => loads++);
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.courses);
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    expect(loads, 1);
+    await tester.tap(
+      find.descendant(
+        of: _navigationFinder(),
+        matching: find.text('Courses'),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(loads, 2);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('PRC-01: staging cold topic Practice button uses loaded title', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.topic('t1'));
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    await tester.tap(
+      find.ancestor(
+        of: find.text('Practice'),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<QuestionView>(find.byType(QuestionView)).title,
+      'Linear equations',
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('PRC-01: staging topic Practice button preserves topic title', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter();
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    router.go(AppRoutes.topic('x'), extra: 'Linear equations');
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.ancestor(
+        of: find.text('Practice'),
+        matching: find.byWidgetPredicate((w) => w is ButtonStyleButton),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(
+      tester.widget<QuestionView>(find.byType(QuestionView)).title,
+      'Linear equations',
+    );
+    expect(find.text('Linear equations'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  testWidgets('F-4: staging cold courses link highlights Courses sidebar', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.courses);
+    addTearDown(router.dispose);
+    await _pumpRouter(tester, router);
+    expect(_selectedIndex(tester), 1);
+    expect(
+      find.descendant(of: _navigationFinder(), matching: find.text('Courses')),
+      findsOneWidget,
+    );
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   test('PRC-03: quiz result helper preserves the topic ID', () {
     expect(AppRoutes.quizResult('x'), '/courses/topics/x/quiz/result');
   });

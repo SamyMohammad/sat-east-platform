@@ -135,7 +135,7 @@ class QuestionView extends StatelessWidget {
     PracticeMode(:final rep, :final repTarget) => QuestionHeader(
       title: title,
       modeLabel: 'Practice',
-      progressLabel: 'Rep $rep of $repTarget — Homework unlocks at $repTarget',
+      progressLabel: 'Rep $rep of $repTarget — Quiz unlocks at $repTarget',
       done: rep,
       total: repTarget,
       onBack: onBack,

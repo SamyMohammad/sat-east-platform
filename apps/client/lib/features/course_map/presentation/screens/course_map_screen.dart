@@ -7,6 +7,7 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/router/route_refresh_listener.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
@@ -38,14 +39,18 @@ class CourseMapView extends StatelessWidget {
   const CourseMapView({super.key});
 
   @override
-  Widget build(BuildContext context) =>
-      BlocBuilder<CourseMapCubit, CourseMapState>(
-        builder: (context, state) => switch (state) {
-          CourseMapLoading() => const _Padded(child: BookletSkeleton()),
-          CourseMapLoaded(:final map) => _Loaded(map: map),
-          CourseMapFailed(:final error) => _Failed(error: error),
-        },
-      );
+  Widget build(BuildContext context) => RouteRefreshListener(
+    location: AppRoutes.courses,
+    refreshOnReselect: true,
+    onRefresh: () => unawaited(context.read<CourseMapCubit>().load()),
+    child: BlocBuilder<CourseMapCubit, CourseMapState>(
+      builder: (context, state) => switch (state) {
+        CourseMapLoading() => const _Padded(child: BookletSkeleton()),
+        CourseMapLoaded(:final map) => _Loaded(map: map),
+        CourseMapFailed(:final error) => _Failed(error: error),
+      },
+    ),
+  );
 }
 
 class _Padded extends StatelessWidget {

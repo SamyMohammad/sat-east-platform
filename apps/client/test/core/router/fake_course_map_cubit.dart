@@ -9,7 +9,7 @@ class _FakeCourseMapCubit extends MockCubit<CourseMapState>
 
 /// Registers a loading [CourseMapCubit] fake so router tests that render
 /// `/courses` resolve it from `getIt`. Pair with [unregisterFakeCourseMapCubit].
-Future<void> registerFakeCourseMapCubit() async {
+Future<void> registerFakeCourseMapCubit({void Function()? onLoad}) async {
   await unregisterFakeCourseMapCubit();
   getIt.registerFactory<CourseMapCubit>(() {
     final cubit = _FakeCourseMapCubit();
@@ -18,7 +18,7 @@ Future<void> registerFakeCourseMapCubit() async {
       const Stream<CourseMapState>.empty(),
       initialState: const CourseMapLoading(),
     );
-    when(cubit.load).thenAnswer((_) async {});
+    when(cubit.load).thenAnswer((_) async => onLoad?.call());
     when(cubit.close).thenAnswer((_) async {});
     return cubit;
   });
