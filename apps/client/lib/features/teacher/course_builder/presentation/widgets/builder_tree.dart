@@ -65,6 +65,38 @@ class BuilderTree extends StatelessWidget {
     await cubit.setFlags(topic.id, isPublished: !topic.isPublished);
   }
 
+  Future<void> _delete(
+    BuildContext context,
+    NodeKind kind,
+    String id,
+    String code,
+    String title,
+  ) async {
+    final cubit = context.read<CourseBuilderCubit>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete'),
+        content: Text(
+          "Delete $code $title? This can't be undone.",
+          textDirection: detectTextDirection('Delete $code $title'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (!context.mounted || confirmed != true) return;
+    await cubit.delete(kind, id);
+  }
+
   Widget _units(BuildContext context) {
     final tree = loaded.tree!;
     final cubit = context.read<CourseBuilderCubit>();
@@ -87,7 +119,13 @@ class BuilderTree extends StatelessWidget {
             busy: loaded.busyId != null,
             handle: handle,
             onRename: (title) => cubit.rename(NodeKind.unit, unit.id, title),
-            onDelete: () => cubit.delete(NodeKind.unit, unit.id),
+            onDelete: () => _delete(
+              context,
+              NodeKind.unit,
+              unit.id,
+              '${index + 1}',
+              unit.title,
+            ),
             onMoveUp: up,
             onMoveDown: down,
             addLabel: 'Add topic',
@@ -132,7 +170,13 @@ class BuilderTree extends StatelessWidget {
               handle: handle,
               onRename: (title) =>
                   cubit.rename(NodeKind.topic, topic.id, title),
-              onDelete: () => cubit.delete(NodeKind.topic, topic.id),
+              onDelete: () => _delete(
+                context,
+                NodeKind.topic,
+                topic.id,
+                code,
+                topic.title,
+              ),
               onMoveUp: up,
               onMoveDown: down,
               addLabel: 'Add subtopic',
@@ -177,7 +221,13 @@ class BuilderTree extends StatelessWidget {
         handle: handle,
         onRename: (title) =>
             cubit.rename(NodeKind.subtopic, subtopic.id, title),
-        onDelete: () => cubit.delete(NodeKind.subtopic, subtopic.id),
+        onDelete: () => _delete(
+          context,
+          NodeKind.subtopic,
+          subtopic.id,
+          '$prefix.${index + 1}',
+          subtopic.title,
+        ),
         onMoveUp: up,
         onMoveDown: down,
       ),
