@@ -24,6 +24,7 @@ import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
+import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
@@ -82,17 +83,21 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: '${AppRoutes.catalogue}/:slug',
-        builder: (context, state) => CoursePageScreen(
-          slug: state.pathParameters['slug']!,
-        ),
+        builder: (context, state) =>
+            CoursePageScreen(slug: state.pathParameters['slug']!),
       ),
       GoRoute(
         path: AppRoutes.teacher,
-        builder: (context, state) => const TeacherShell(),
+        builder: (context, state) =>
+            const TeacherShell(child: CourseBuilderScreen()),
       ),
       GoRoute(
         path: '${AppRoutes.teacher}/courses/:courseId',
-        builder: (context, state) => const TeacherShell(),
+        builder: (context, state) => TeacherShell(
+          child: CourseBuilderScreen(
+            courseId: state.pathParameters['courseId'],
+          ),
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {

@@ -34,6 +34,10 @@ import 'package:sat_east_client/features/quiz/data/datasources/quiz_remote_data_
 import 'package:sat_east_client/features/quiz/data/repositories/quiz_repository_impl.dart';
 import 'package:sat_east_client/features/quiz/domain/repositories/quiz_repository.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart';
+import 'package:sat_east_client/features/teacher/course_builder/data/datasources/course_builder_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/course_builder/data/repositories/course_builder_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/course_builder/domain/repositories/course_builder_repository.dart';
+import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
 import 'package:sat_east_client/features/topic/data/datasources/topic_remote_data_source.dart';
 import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
 import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
@@ -122,9 +126,7 @@ void configureDependencies({
     ..registerLazySingleton<TopicRepository>(
       () => TopicRepositoryImpl(getIt<TopicRemoteDataSource>()),
     )
-    ..registerFactory<TopicCubit>(
-      () => TopicCubit(getIt<TopicRepository>()),
-    )
+    ..registerFactory<TopicCubit>(() => TopicCubit(getIt<TopicRepository>()))
     // Ruled exception to "cubits are factories": AuthCubit is app-wide
     // session state that the router also reads, so it must be one instance.
     ..registerLazySingleton<AuthCubit>(
@@ -161,5 +163,16 @@ void configureDependencies({
     )
     ..registerFactory<CoursePageCubit>(
       () => CoursePageCubit(getIt<CatalogueRepository>()),
+    )
+    ..registerLazySingleton<CourseBuilderRemoteDataSource>(
+      () => CourseBuilderRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<CourseBuilderRepository>(
+      () => CourseBuilderRepositoryImpl(getIt<CourseBuilderRemoteDataSource>()),
+    )
+    ..registerFactory<CourseBuilderCubit>(
+      () => CourseBuilderCubit(getIt<CourseBuilderRepository>()),
     );
 }
