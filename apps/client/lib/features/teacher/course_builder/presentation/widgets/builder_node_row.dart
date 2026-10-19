@@ -221,7 +221,14 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
         widget.isPublished! ? Icons.check_circle_outline : Icons.edit_outlined,
         size: BookletSize.iconStatus,
       ),
-      label: Text(widget.isPublished! ? 'Published' : 'Draft'),
+      label: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Text(
+          widget.isPublished! ? 'Published' : 'Draft',
+          maxLines: 1,
+          softWrap: false,
+        ),
+      ),
     ),
   );
   @override

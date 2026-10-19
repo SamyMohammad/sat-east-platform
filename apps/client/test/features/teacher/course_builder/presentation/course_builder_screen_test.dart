@@ -52,7 +52,7 @@ Future<void> openMenu(WidgetTester tester, String id) async {
 }
 
 void main() {
-  for (final width in [360.0, 1280.0]) {
+  for (final width in [360.0, 768.0, 1280.0]) {
     testWidgets('C-1: numbered tree fits $width', (tester) async {
       await pumpBuilder(tester, width: width);
       expect(find.text('1.1'), findsOneWidget);
@@ -60,6 +60,11 @@ void main() {
       expect(find.text('Linear equations'), findsOneWidget);
       expect(find.text('Draft'), findsWidgets);
       expect(find.text('Published'), findsWidgets);
+      for (final label in ['Draft', 'Published']) {
+        final text = tester.widget<Text>(find.text(label).first);
+        expect(text.maxLines, 1);
+        expect(text.softWrap, isFalse);
+      }
       expect(tester.takeException(), isNull);
     });
   }
@@ -92,16 +97,39 @@ void main() {
     expect(title.textDirection, TextDirection.rtl);
     expect(find.text('2 subtopics'), findsOneWidget);
   });
-  testWidgets('C-1: delete unused node triggers mutation', (tester) async {
-    final repo = await pumpBuilder(tester);
-    await openMenu(tester, 't2');
-    await tester.tap(find.text('Delete'));
-    await tester.pumpAndSettle();
-    expect(repo.calls.where((c) => c.$1 == 'delete').single.$2, {
-      'kind': 'topic',
-      'id': 't2',
+  for (final (kind, id, code, title) in [
+    ('unit', 'u2', '2', 'Geometry'),
+    ('topic', 't2', '1.2', 'Quadratics'),
+    ('subtopic', 's1', '1.1.1', 'Basics'),
+  ]) {
+    testWidgets('C-1: deleting $kind requires confirmation', (tester) async {
+      final repo = await pumpBuilder(tester);
+      await openMenu(tester, id);
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsOneWidget);
+      expect(
+        find.text("Delete $code $title? This can't be undone."),
+        findsOneWidget,
+      );
+      expect(repo.calls.where((call) => call.$1 == 'delete'), isEmpty);
+
+      await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(repo.calls.where((call) => call.$1 == 'delete'), isEmpty);
+
+      await openMenu(tester, id);
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
+      await tester.pumpAndSettle();
+      final call = repo.calls.where((call) => call.$1 == 'delete').single;
+      expect(call.$2, equals({'kind': kind, 'id': id}));
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(tester.takeException(), isNull);
     });
-  });
+  }
   testWidgets('C-1: unpublish does not ask publish confirmation', (
     tester,
   ) async {
