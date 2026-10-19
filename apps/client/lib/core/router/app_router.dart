@@ -24,6 +24,8 @@ import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
+import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
@@ -49,6 +51,7 @@ abstract final class AppRoutes {
   static const checkInbox = '/check-inbox';
   static const devices = '/devices';
   static const forgotPassword = '/forgot-password';
+  static const teacher = '/teacher';
   static const resetPassword = '/reset-password';
 }
 
@@ -80,8 +83,20 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: '${AppRoutes.catalogue}/:slug',
-        builder: (context, state) => CoursePageScreen(
-          slug: state.pathParameters['slug']!,
+        builder: (context, state) =>
+            CoursePageScreen(slug: state.pathParameters['slug']!),
+      ),
+      GoRoute(
+        path: AppRoutes.teacher,
+        builder: (context, state) =>
+            const TeacherShell(child: CourseBuilderScreen()),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacher}/courses/:courseId',
+        builder: (context, state) => TeacherShell(
+          child: CourseBuilderScreen(
+            courseId: state.pathParameters['courseId'],
+          ),
         ),
       ),
       StatefulShellRoute.indexedStack(
@@ -222,6 +237,11 @@ String? _authRedirect(AuthState state, String path, bool galleryEnabled) {
   }
   if (state is AuthSignedOut && state.error?.code == ErrorCodes.linkExpired) {
     return path == AppRoutes.forgotPassword ? null : AppRoutes.forgotPassword;
+  }
+  if (state is AuthSignedIn &&
+      !state.user.isTeacher &&
+      (path == AppRoutes.teacher || path.startsWith('${AppRoutes.teacher}/'))) {
+    return AppRoutes.home;
   }
   if (galleryEnabled && path == AppRoutes.gallery) return null;
   if ((state is AuthSignedOut || state is AuthSignedIn) && _isPublic(path)) {

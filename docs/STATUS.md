@@ -2,13 +2,14 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-19
+> Last updated: 2026-10-19 (evening)
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
 | Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
+| Lane 3a — teacher area + course builder (C-1, ADM-01) | [spec](superpowers/specs/2026-10-19-p1-lane3-teacher-builder-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane3a-course-builder.md) | `feat/P1-lane3-teacher-builder` | #40 | in review |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
@@ -19,7 +20,7 @@ Up to 3 lanes at once, each in its own `git worktree` branched from `main` (neve
 |------|-------|-----------|
 | 1 — Student UI (Flutter) | 1a account (#37, done) → 1b activation code + test date (#38, done) → 1c catalogue + course page (P-1). Google sign-in (A-1) deferred | `lib/features/auth`, `lib/features/activation`, `lib/features/catalogue` |
 | 2 — Backend only | **Done** (#35, #36) | — |
-| 3 — Teacher area (Flutter) | C-1 topics builder, C-7 settings, then C-4/C-5 question import + editor | `lib/features/teacher/*` |
+| 3 — Teacher area (Flutter) | 3a C-1 course builder (#40) → 3b C-7 settings → 3c C-4/C-5 question import + editor | `lib/features/teacher/*` |
 
 Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml`, migration timestamps, `docs/07` §9 error codes, this file.
 - Lanes only append to DI and the router; each plan reserves its migration names and error codes up front.

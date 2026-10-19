@@ -30,6 +30,26 @@ class AuthRemoteDataSource {
 
   AppUser? get currentUser => _toUser(_auth.currentUser);
 
+  /// Resolves role before restoring an authenticated session.
+  Future<AppUser?> getCurrentUser() => _withRole(_auth.currentUser);
+
+  Future<AppUser?> _withRole(User? user) async {
+    if (user == null) return null;
+    var isTeacher = false;
+    try {
+      final profile = await _client
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .maybeSingle();
+      isTeacher = profile?['role'] == 'teacher';
+    } on Object {
+      // Role lookup is optional: retain the session with no teacher access.
+      isTeacher = false;
+    }
+    return AppUser(id: user.id, email: user.email ?? '', isTeacher: isTeacher);
+  }
+
   Stream<AppUser?> get userChanges => _auth.onAuthStateChange
       .map((state) => _toUser(state.session?.user))
       .handleError((Object _) {})
@@ -150,7 +170,7 @@ class AuthRemoteDataSource {
         email: email,
         password: password,
       );
-      final user = _toUser(response.user ?? response.session?.user);
+      final user = await _withRole(response.user ?? response.session?.user);
       if (user == null) return const Failure(AppError(ErrorCodes.internal));
       return Success(user);
     } on AuthException catch (e) {

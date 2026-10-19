@@ -27,6 +27,7 @@ import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
+import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
@@ -34,6 +35,7 @@ import 'package:sat_east_client/shared/widgets/question_view/question_view.dart'
 import '../../features/auth/presentation/screens/auth_screen_harness.dart'
     as auth_screens;
 import '../../features/catalogue/catalogue_fixtures.dart';
+import '../../features/teacher/course_builder/builder_fixtures.dart';
 import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
 import 'fake_practice_cubit.dart';
@@ -42,6 +44,83 @@ import 'fake_topic_cubit.dart';
 part 'fake_quiz_cubit.dart';
 
 void main() {
+  setUp(() {
+    getIt.registerFactory<CourseBuilderCubit>(
+      () => CourseBuilderCubit(FakeBuilderRepository()),
+    );
+  });
+  tearDown(() => getIt.unregister<CourseBuilderCubit>());
+
+  for (final path in ['/teacher', '/teacher/courses/c1']) {
+    for (final role in ['teacher', 'student', 'signedOut']) {
+      testWidgets('ADM-01: $role opening $path is role gated', (tester) async {
+        final state = role == 'signedOut'
+            ? const AuthSignedOut()
+            : AuthSignedIn(
+                AppUser(id: 'u1', email: 'email', isTeacher: role == 'teacher'),
+              );
+        final auth = auth_screens.mockCubit(state);
+        final refresh = ValueNotifier(0);
+        addTearDown(refresh.dispose);
+        final router = createRouter(
+          initialLocation: path,
+          auth: auth,
+          refresh: refresh,
+        );
+        addTearDown(() async {
+          await tester.pumpWidget(const SizedBox.shrink());
+          await tester.pumpAndSettle();
+          router.dispose();
+        });
+        await tester.pumpWidget(
+          BlocProvider<AuthCubit>.value(
+            value: auth,
+            child: MaterialApp.router(
+              theme: AppTheme.light(),
+              routerConfig: router,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          router.routeInformationProvider.value.uri.path,
+          role == 'teacher'
+              ? '/teacher/courses/c1'
+              : role == 'student'
+              ? '/'
+              : '/sign-in',
+        );
+        if (role == 'teacher') {
+          expect(find.text('Linear equations'), findsOneWidget);
+          expect(find.text('Coming in the next step.'), findsNothing);
+          expect(_navigationFinder(), findsNothing);
+        }
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+  }
+
+  testWidgets('ADM-01: /teachers is not a teacher path', (tester) async {
+    final auth = auth_screens.mockCubit(
+      const AuthSignedIn(AppUser(id: 'u1', email: 'email')),
+    );
+    final refresh = ValueNotifier(0);
+    addTearDown(refresh.dispose);
+    final router = createRouter(
+      initialLocation: '/teachers',
+      auth: auth,
+      refresh: refresh,
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    );
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, '/teachers');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
   for (final path in ['/catalogue', '/catalogue/sat-math']) {
     for (final (state, target) in <(AuthState, String)>[
       (const AuthSignedOut(), path),
@@ -787,7 +866,15 @@ void _viewport(WidgetTester tester, double width) {
 
 Future<void> _pumpRouter(WidgetTester tester, GoRouter router) async {
   await tester.pumpWidget(
-    MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    BlocProvider<AuthCubit>.value(
+      value: auth_screens.mockCubit(
+        const AuthSignedIn(AppUser(id: 'u1', email: 'email')),
+      ),
+      child: MaterialApp.router(
+        theme: AppTheme.light(),
+        routerConfig: router,
+      ),
+    ),
   );
   await tester.pumpAndSettle();
 }

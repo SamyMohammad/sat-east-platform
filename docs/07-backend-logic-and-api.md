@@ -30,6 +30,18 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `teacher_list_devices` / `teacher_revoke_device` / `teacher_reset_devices` | user_id / device_id / user_id | devices / ok / ok | teacher only, audited (AUTH-05) |
 | `tag_error_type` | attempt_id, question_id, error_type | ok | |
 | `teacher_unlock_topic` | p_student_id uuid, p_topic_id uuid | `{topic_id, unlocked_at, unlocked_by}` | LRN-05 (L-9); teacher only; target must be a student and topic must be published; preserves existing progress and the first unlock timestamp/teacher; audits `topic.unlock` only on the first unlock; errors `not_authenticated`, `forbidden`, `invalid_input`; executable by `authenticated`, not `anon` |
+| `teacher_list_courses` | none | `[{id,code,title,slug,is_published}]` ordered by sort | C-1 / ADM-01; teacher only, includes unpublished courses |
+| `teacher_get_course_tree` | p_course_id uuid | `{course:{id,title,code},units:[{id,title,sort,in_use,topics:[{id,title,slug,sort,is_published,is_free_preview,subtopic_count,in_use,subtopics:[{id,title,sort,in_use}]}]}]}` | C-1 / ADM-01; teacher only, includes drafts; unknown course: `invalid_input`; each level ordered by sort |
+| `teacher_upsert_unit` | p_id uuid, p_course_id uuid, p_title text | `{id}` | C-1 / ADM-01; teacher only; null id appends, otherwise renames within the same parent; trimmed title 1-120 chars |
+| `teacher_upsert_topic` | p_id uuid, p_unit_id uuid, p_title text | `{id}` | C-1 / ADM-01; teacher only; null id appends a draft, otherwise renames within the same unit; course derived from unit; trimmed title 1-120 chars; unaccented ASCII slug unique per course with -2/-3 suffixes, unchanged on rename |
+| `teacher_upsert_subtopic` | p_id uuid, p_topic_id uuid, p_title text | `{id}` | C-1 / ADM-01; teacher only; null id appends, otherwise renames within the same topic; trimmed title 1-120 chars |
+| `teacher_reorder` | p_kind text, p_parent_id uuid, p_ids uuid[] | `{ok:true}` | C-1 / ADM-01; teacher only; kind is unit/topic/subtopic; locks parent; IDs must match all current children exactly (no duplicates or nulls), else `invalid_input`; atomic sort 1..n |
+| `teacher_delete_node` | p_kind text, p_id uuid | `{ok:true}` | C-1 / ADM-01; teacher only; `in_use` for any child or FK reference, `invalid_input` for unknown kind/id |
+| `teacher_set_topic_flags` | p_id uuid, p_is_published boolean, p_is_free_preview boolean | `{is_published,is_free_preview}` | C-1 / ADM-01; teacher only; null flag preserves its value; unknown id: `invalid_input` |
+
+Course-builder RPCs require authentication (`not_authenticated`) and teacher role (`forbidden`).
+Only `authenticated` has execute permission; `anon` has none. Every successful builder write
+records actor, action, entity, entity_id and before/after diff in `audit_log`.
 | `teacher_matrix` | course_id, filters | rows | completion matrix (ANL-05) |
 | `teacher_class_insights` | course_id, topic_id? | stats | ANL-06 |
 
@@ -182,6 +194,7 @@ log everything for teacher review.
 - Registration and removal lock the caller's `profiles` row, so parallel calls cannot overshoot the limit.
 
 ## 9. Error codes
+`in_use` (course-builder deletion blocked by children or FK references),
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
 `practice_needed` (practice_count below settings.practice_min), `review_needed` (finish the review set before a quiz retake), `attempt_not_submitted` (quiz review requires a submitted attempt), `attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,
 `rate_limited`, `payment_invalid`, `code_invalid` (unknown code or unpublished course),

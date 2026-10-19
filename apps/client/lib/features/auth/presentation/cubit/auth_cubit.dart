@@ -84,7 +84,7 @@ class AuthCubit extends Cubit<AuthState> {
     }
     await _guarded((gen) async {
       emit(const AuthBusy());
-      await _register(user, gen);
+      await _register(await _auth.getCurrentUser(), gen);
     });
   }
 
@@ -109,7 +109,7 @@ class AuthCubit extends Cubit<AuthState> {
       if (_stale(gen)) return;
       switch (result) {
         case Success():
-          await _register(_auth.currentUser, gen);
+          await _register(await _auth.getCurrentUser(), gen);
         case Failure(:final error):
           if (error.code == ErrorCodes.notAuthenticated ||
               error.code == ErrorCodes.linkExpired) {
@@ -175,7 +175,7 @@ class AuthCubit extends Cubit<AuthState> {
           case Success(value: SignUpOutcome.confirmationSent):
             emit(AuthConfirmationSent(email));
           case Success(value: SignUpOutcome.signedIn):
-            await _register(_auth.currentUser, gen);
+            await _register(await _auth.getCurrentUser(), gen);
           case Failure(:final error):
             emit(AuthSignedOut(error: error));
         }
@@ -196,7 +196,7 @@ class AuthCubit extends Cubit<AuthState> {
       if (_stale(gen)) return;
       switch (result) {
         case Success():
-          await _register(_auth.currentUser, gen);
+          await _register(await _auth.getCurrentUser(), gen);
         case Failure(:final error):
           emit(
             AuthDeviceGate(
@@ -362,6 +362,7 @@ class AuthCubit extends Cubit<AuthState> {
     int gen, {
     bool keepStateOnFailure = false,
   }) async {
+    if (_stale(gen)) return;
     if (user == null) {
       await _cancelTicker();
       if (_stale(gen)) return;

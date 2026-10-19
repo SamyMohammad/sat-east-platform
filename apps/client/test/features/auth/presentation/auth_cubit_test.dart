@@ -54,6 +54,7 @@ void main() {
     addTearDown(recovery.close);
     when(() => auth.passwordRecovery).thenAnswer((_) => recovery.stream);
 
+    when(auth.getCurrentUser).thenAnswer((_) async => auth.currentUser);
     when(() => auth.currentUser).thenReturn(_user);
     when(() => auth.signOut()).thenAnswer((_) async => const Success(null));
     when(() => reporter.setUser(any())).thenAnswer((_) async {});
@@ -65,6 +66,37 @@ void main() {
 
   AuthCubit build() =>
       AuthCubit(auth, devices, reporter, ticker: (_) => ticks.stream);
+
+  const teacher = AppUser(id: 'u1', email: 'a@b.co', isTeacher: true);
+  for (final action in ['restore', 'signIn', 'signUp']) {
+    test('ADM-01: $action carries teacher role into signed-in state', () async {
+      when(auth.getCurrentUser).thenAnswer((_) async => teacher);
+      when(
+        () => auth.signIn(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => const Success(teacher));
+      when(
+        () => auth.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          fullName: any(named: 'fullName'),
+        ),
+      ).thenAnswer((_) async => const Success(SignUpOutcome.signedIn));
+      final cubit = build();
+      addTearDown(cubit.close);
+      switch (action) {
+        case 'restore':
+          await cubit.start();
+        case 'signIn':
+          await cubit.signIn('email', 'pw');
+        case 'signUp':
+          await cubit.signUp('email', 'pw', 'name');
+      }
+      expect((cubit.state as AuthSignedIn).user.isTeacher, isTrue);
+    });
+  }
 
   group('AUTH-06: password recovery', () {
     test(
