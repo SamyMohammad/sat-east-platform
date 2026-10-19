@@ -16,6 +16,10 @@ void main() {
           GoRoute(path: '/', builder: (_, _) => const Text('Student app')),
           GoRoute(path: '/teacher', builder: (_, _) => const TeacherShell()),
           GoRoute(
+            path: '/teacher/settings',
+            builder: (_, _) => const TeacherShell(child: Text('Settings body')),
+          ),
+          GoRoute(
             path: '/teacher/courses/:courseId',
             builder: (_, _) => const TeacherShell(),
           ),
@@ -40,9 +44,31 @@ void main() {
       final settings = tester.widget<ListTile>(
         find.widgetWithText(ListTile, 'Settings'),
       );
-      expect(settings.enabled, isFalse);
-      expect(settings.onTap, isNull);
-      expect(find.byTooltip('Coming soon'), findsOneWidget);
+      expect(settings.enabled, isTrue);
+      expect(settings.onTap, isNotNull);
+      expect(find.byTooltip('Coming soon'), findsNothing);
+      await tester.tap(find.widgetWithText(ListTile, 'Settings'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/teacher/settings',
+      );
+      if (width < 1024) {
+        await tester.tap(find.byTooltip('Open navigation menu'));
+        await tester.pumpAndSettle();
+      }
+      expect(
+        tester
+            .widget<ListTile>(find.widgetWithText(ListTile, 'Settings'))
+            .selected,
+        isTrue,
+      );
+      expect(
+        tester
+            .widget<ListTile>(find.widgetWithText(ListTile, 'Course builder'))
+            .selected,
+        isFalse,
+      );
       await tester.tap(find.widgetWithText(ListTile, 'Course builder'));
       await tester.pumpAndSettle();
       expect(router.routeInformationProvider.value.uri.path, '/teacher');

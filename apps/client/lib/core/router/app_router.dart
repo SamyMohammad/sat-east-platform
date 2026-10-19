@@ -25,6 +25,7 @@ import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
@@ -52,6 +53,7 @@ abstract final class AppRoutes {
   static const devices = '/devices';
   static const forgotPassword = '/forgot-password';
   static const teacher = '/teacher';
+  static const teacherSettings = '/teacher/settings';
   static const resetPassword = '/reset-password';
 }
 
@@ -97,6 +99,12 @@ GoRouter createRouter({
           child: CourseBuilderScreen(
             courseId: state.pathParameters['courseId'],
           ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherSettings,
+        builder: (context, state) => const TeacherShell(
+          child: TeacherSettingsScreen(),
         ),
       ),
       StatefulShellRoute.indexedStack(

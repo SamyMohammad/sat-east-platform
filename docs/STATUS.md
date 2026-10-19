@@ -2,14 +2,14 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-19 (evening)
+> Last updated: 2026-10-20
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
 | Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
-| Lane 3a — teacher area + course builder (C-1, ADM-01) | [spec](superpowers/specs/2026-10-19-p1-lane3-teacher-builder-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane3a-course-builder.md) | `feat/P1-lane3-teacher-builder` | #40 | in review |
+| Lane 3b — teacher settings (C-7, ADM-06) | [spec](superpowers/specs/2026-10-19-p1-lane3-teacher-builder-design.md) | [plan](superpowers/plans/2026-10-20-p1-lane3b-settings.md) | `feat/P1-lane3b-settings` | #42 | in review |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
@@ -20,7 +20,7 @@ Up to 3 lanes at once, each in its own `git worktree` branched from `main` (neve
 |------|-------|-----------|
 | 1 — Student UI (Flutter) | 1a account (#37, done) → 1b activation code + test date (#38, done) → 1c catalogue + course page (P-1). Google sign-in (A-1) deferred | `lib/features/auth`, `lib/features/activation`, `lib/features/catalogue` |
 | 2 — Backend only | **Done** (#35, #36) | — |
-| 3 — Teacher area (Flutter) | 3a C-1 course builder (#40) → 3b C-7 settings → 3c C-4/C-5 question import + editor | `lib/features/teacher/*` |
+| 3 — Teacher area (Flutter) | 3a C-1 course builder (#40, #41, done) → 3b C-7 settings (#42) → 3c C-4/C-5 question import + editor | `lib/features/teacher/*` |
 
 Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml`, migration timestamps, `docs/07` §9 error codes, this file.
 - Lanes only append to DI and the router; each plan reserves its migration names and error codes up front.
@@ -80,6 +80,8 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | Lane 2a | Expiry cron, rate limits, teacher unlock (LRN-05) | #35 |
 | Lane 2b | Review set after a fail (LRN-04), `get_attempt_review` | #36 |
 | Lane 1a | Password reset (web), My account, name locked (AUTH-06, AUTH-04) | #37 |
+| Lane 1c | Catalogue + course page (P-1, PAY-01) | #39 |
+| Lane 3a | Teacher area + course builder (C-1, ADM-01), staging-checked | #40, #41 |
 | Lane 1b | Activation code + test date (PAY-06, AUTH-02, PAY-07) | #38 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |
 | 9–10 | Spike: PDF viewer · F-5 observability | #10 |
