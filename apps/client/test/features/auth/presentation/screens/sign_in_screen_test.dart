@@ -96,6 +96,16 @@ void main() {
         expect(find.text('route:/sign-up'), findsOneWidget);
       });
 
+      testWidgets('PAY-01: Browse courses goes to public catalogue', (
+        tester,
+      ) async {
+        await pump(tester, const AuthSignedOut());
+        await tester.ensureVisible(find.text('Browse courses'));
+        await tester.tap(find.text('Browse courses'));
+        await tester.pumpAndSettle();
+        expect(find.text('route:/catalogue'), findsOneWidget);
+      });
+
       const errorCopy = <String, String>{
         ErrorCodes.invalidCredentials:
             "That email and password don't match. Check both for typos.",

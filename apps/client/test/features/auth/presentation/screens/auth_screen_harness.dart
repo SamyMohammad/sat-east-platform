@@ -19,6 +19,7 @@ const viewports = <(String, Size)>[
 ];
 
 const List<String> _paths = [
+  AppRoutes.catalogue,
   AppRoutes.signIn,
   AppRoutes.signUp,
   AppRoutes.checkInbox,

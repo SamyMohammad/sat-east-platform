@@ -17,6 +17,11 @@ import 'package:sat_east_client/features/auth/domain/repositories/auth_repositor
 import 'package:sat_east_client/features/auth/domain/repositories/device_repository.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sat_east_client/features/catalogue/data/datasources/catalogue_remote_data_source.dart';
+import 'package:sat_east_client/features/catalogue/data/repositories/catalogue_repository_impl.dart';
+import 'package:sat_east_client/features/catalogue/domain/repositories/catalogue_repository.dart';
+import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_cubit.dart';
+import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/course_map/data/datasources/course_map_remote_data_source.dart';
 import 'package:sat_east_client/features/course_map/data/repositories/course_map_repository_impl.dart';
 import 'package:sat_east_client/features/course_map/domain/repositories/course_map_repository.dart';
@@ -142,5 +147,19 @@ void configureDependencies({
     )
     ..registerFactory<ActivationCubit>(
       () => ActivationCubit(getIt<ActivationRepository>()),
+    )
+    ..registerLazySingleton<CatalogueRemoteDataSource>(
+      () => CatalogueRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<CatalogueRepository>(
+      () => CatalogueRepositoryImpl(getIt<CatalogueRemoteDataSource>()),
+    )
+    ..registerFactory<CatalogueCubit>(
+      () => CatalogueCubit(getIt<CatalogueRepository>()),
+    )
+    ..registerFactory<CoursePageCubit>(
+      () => CoursePageCubit(getIt<CatalogueRepository>()),
     );
 }
