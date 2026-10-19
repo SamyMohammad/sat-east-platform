@@ -40,7 +40,7 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 9. **Suggest agents proactively (MUST)** — don't wait to be asked:
    - `debugger` — any bug, crash, failing test or unexpected behavior.
    - `code-reviewer` — always offer it after `/flutter-code-review` passes, before the PR.
-   - `test-writer` — code added or changed without tests. Test files are written by this agent (a project hook asks before any `*_test.dart` Write).
+   - `test-writer` — code added or changed without tests. Test files are written by the implementer: Codex via `codex-delegate` (tests first), or `test-writer` on the Sonnet fallback (a project hook asks before any `*_test.dart` Write from Claude).
    - `git-expert` — branch, commit, PR, merge conflict, rebase.
 
 ## B. Flutter / Dart rules
@@ -76,7 +76,7 @@ Library docs & GitHub:
 
 Skills by task:
 - Scaffold feature: `flutter-feature` · Cubit/Bloc: `flutter-code-quality:state-management` · architecture: `flutter-code-quality:architecture`.
-- Tests: `dart-flutter:flutter-add-widget-test`, `dart-flutter:dart-add-unit-test`, `dart-flutter:flutter-add-integration-test`, `dart-flutter:dart-generate-test-mocks`, `flutter-design-fidelity:golden-tests`; `test-writer` agent for bloc/widget tests.
+- Tests: `dart-flutter:flutter-add-widget-test`, `dart-flutter:dart-add-unit-test`, `dart-flutter:flutter-add-integration-test`, `dart-flutter:dart-generate-test-mocks`, `flutter-design-fidelity:golden-tests`; Codex writes tests in delegated tasks, `test-writer` agent on the Sonnet fallback.
 - Routing / JSON / l10n: `dart-flutter:flutter-setup-declarative-routing`, `dart-flutter:flutter-implement-json-serialization`, `dart-flutter:flutter-setup-localization`.
 - Layout & UI: `flutter-code-quality:responsive-adaptive`, `dart-flutter:flutter-fix-layout-issues`, `flutter-code-quality:a11y-and-rtl` (mixed Arabic/English, rule 8), `flutter-design-fidelity:design-tokens` / `figma-to-widget` / `visual-verification`.
 - Debugging: `dart-flutter:dart-fix-runtime-errors`, `dart-flutter:dart-resolve-package-conflicts`, `debugger` agent.
