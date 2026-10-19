@@ -3,6 +3,7 @@ abstract final class ErrorCodes {
   static const notAuthenticated = 'not_authenticated';
   static const forbidden = 'forbidden';
   static const invalidInput = 'invalid_input';
+  static const inUse = 'in_use';
   static const deviceLimit = 'device_limit';
   static const rateLimited = 'rate_limited';
   static const internal = 'internal';
@@ -29,6 +30,7 @@ abstract final class ErrorCodes {
     notAuthenticated,
     forbidden,
     invalidInput,
+    inUse,
     deviceLimit,
     rateLimited,
     internal,
