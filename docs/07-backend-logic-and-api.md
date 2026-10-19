@@ -14,19 +14,22 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `get_course_map` | slug? | course + `continue` topic + units → published topics with `status` (`completed`/`open`/`locked`), `sort_label`, `locked_reason`/`after_title`; authenticated only | S-14, LRN-01/03; slug null → caller's latest enrolment; errors `not_authenticated`, `invalid_input`, `not_enrolled`, `access_expired` (no map without active access); step status added with video/notes steps |
 | `save_video_progress` | asset_id, from_s, to_s, position_s | pct | merges watched ranges; marks step at ≥ 80% |
 | `mark_notes_opened` | asset_id | ok | |
-| `get_practice_questions` | topic_id | `attempt_id`, `rep_target`, questions (`id`, `type`, `difficulty`, `stem_md`, `choices[label, body_md]`; no keys, explanations, hints or misconceptions) | PRC-01; creates a `practice` attempt; draws `settings.practice_min` published practice-pool questions, never-seen first then random (fewer if the pool is smaller); errors `not_authenticated`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`, `pool_exhausted`; subtopic/difficulty filters later |
-| `check_practice_answer` | attempt_id, question_id, answer, time_ms | `is_correct`, `try`; correct or wrong try 2: `key` (`{choice}` / `{text}` = first accepted form) + `explanation_md`; wrong try 1: `hint_md`, `misconception_md` for the chosen MCQ choice (always null for SPR) | PRC-01/04, LRN-02; server decides reveal (no `reveal` param); tries stored in `attempt_answers.answer.tries`; an answer equal to the last try is replayed (nothing logged); a third try → `invalid_input`; `practice_count` +1 on try 1 of a question never answered in practice before; spec `2026-10-17-p1-practice-design.md` §1.4 |
-| `get_topic` | topic_id | `id`, `title`, `slug`, `sort_label`, `status` (`open`/`completed`), `practice: {count,min}`, `quiz: {state,practice_count,practice_min,best_score_pct,passed,attempt_id?,available_at?}` | PRC-03; state priority: in_progress, practice_needed, cooldown, available; lazy expiry before active-access/lock check |
-| `start_quiz` | topic_id | `attempt_id`, `title`, `time_limit_s`, `deadline`, `server_now`, `warn_s`, `questions[{id,type,difficulty,stem_md,choices[{label,body_md}]}]`, `answers[{question_id,answer,marked}]`, `client_seq` | PRC-03; quiz entry point (generic start_attempt is deferred); resumes the same in-progress attempt; draws settings.quiz_size published quiz-pool questions, unseen first; practice_needed/cooldown_active gates; no grading content |
-| `save_answer` | attempt_id uuid, question_id uuid, answer text, time_ms int, marked boolean, eliminated text[], client_seq int | `{ok:true}` or `{ok:true,stale:true}` | PRC-03/04; own in-progress quiz only; null clears answer; >32 characters invalid; total time clamped to 0..3600000; sequence less than or equal to stored ignored; lazy expiry before active-access check; after deadline + settings.save_grace_s returns deadline_passed; no grading until submit |
-| `submit_attempt` | attempt_id uuid | `{score_raw,score_total,score_pct,pass_mark,passed,next_topic:{id,title} \| null,retake_at}` | PRC-03, LRN-03; quiz only; grades saved MCQ/SPR, unanswered wrong; stores report for idempotent replay; updates best/pass/failure timestamps; topic_states implicitly unlocks next topic; lazy expiry before active-access check; no keys or answer review; mastery later |
-| `get_attempt_review` | attempt_id | questions + keys + explanations + my answers | only if submitted |
+| `get_practice_questions` | topic_id | `attempt_id`, `rep_target`, questions (`id`, `type`, `difficulty`, `stem_md`, `choices[label, body_md]`; no keys, explanations, hints or misconceptions) | PRC-01; creates a `practice` attempt; draws `settings.practice_min` published practice-pool questions, never-seen first then random (fewer if the pool is smaller); errors `not_authenticated`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`, `pool_exhausted`; subtopic/difficulty filters later; per-user quota `settings.rate_start_per_min` per minute; quota exceeded returns `rate_limited` |
+| `start_review` | p_topic_id uuid | `attempt_id`, `rep_target`, `questions` (same safe shape as get_practice_questions), `answered` (final question ids) | LRN-04 (L-7); resumes the current review or draws settings.review_per_skill (default 2) published practice questions per missed skill, capped at settings.review_max (default 10), unseen first; fills shortages from the topic practice pool; untagged misses get one review_per_skill batch; errors `not_authenticated`, `invalid_input` (review not required), `not_enrolled`, `access_expired`, `topic_locked`, `pool_exhausted`, `rate_limited`; per-user quota `settings.rate_start_per_min` per minute |
+| `check_practice_answer` | attempt_id, question_id, answer, time_ms | `is_correct`, `try`; correct or wrong try 2: `key` (`{choice}` / `{text}` = first accepted form) + `explanation_md`; wrong try 1: `hint_md`, `misconception_md` for the chosen MCQ choice (always null for SPR) | PRC-01/04, LRN-02/04; accepts own in-progress practice or review attempts; submitted reviews allow saved-answer replay only; review answers never increase practice_count; the last final answer (correct or try 2) submits a review; server decides reveal (no `reveal` param); tries stored in `attempt_answers.answer.tries`; an answer equal to the last try is replayed (nothing logged); a third try → `invalid_input`; `practice_count` +1 on try 1 of a question never answered in practice before; spec `2026-10-17-p1-practice-design.md` §1.4; question must belong to the attempt's topic; per-user quota `settings.rate_answer_per_min` per minute; quota exceeded returns `rate_limited` |
+| `get_topic` | topic_id | `id`, `title`, `slug`, `sort_label`, `status` (`open`/`completed`), `practice: {count,min}`, `quiz: {state,practice_count,practice_min,best_score_pct,passed,attempt_id?,available_at?,review:{required,attempt_id,answered,total}}` | PRC-03; state priority: in_progress, practice_needed, review_needed, cooldown, available; review_needed includes available_at while cooldown runs; lazy expiry before active-access/lock check |
+| `start_quiz` | topic_id | `attempt_id`, `title`, `time_limit_s`, `deadline`, `server_now`, `warn_s`, `questions[{id,type,difficulty,stem_md,choices[{label,body_md}]}]`, `answers[{question_id,answer,marked}]`, `client_seq` | PRC-03; quiz entry point (generic start_attempt is deferred); resumes the same in-progress attempt; draws settings.quiz_size published quiz-pool questions, unseen first; practice_needed/review_needed/cooldown_active gates; review is required after a fail until completed, unless the topic quiz was passed; teacher unlock does not bypass review; no grading content; per-user quota `settings.rate_start_per_min` per minute; quota exceeded returns `rate_limited` |
+| `save_answer` | attempt_id uuid, question_id uuid, answer text, time_ms int, marked boolean, eliminated text[], client_seq int | `{ok:true}` or `{ok:true,stale:true}` | PRC-03/04; own in-progress quiz only; null clears answer; >32 characters invalid; total time clamped to 0..3600000; sequence less than or equal to stored ignored; lazy expiry before active-access check; after deadline + settings.save_grace_s returns deadline_passed; no grading until submit; per-user quota `settings.rate_save_per_min` per minute; quota exceeded returns `rate_limited` |
+| `submit_attempt` | attempt_id uuid | `{score_raw,score_total,score_pct,pass_mark,passed,next_topic:{id,title} \| null,retake_at}` | PRC-03, LRN-03; quiz only; grades saved MCQ/SPR, unanswered wrong; stores report for idempotent replay; updates best/pass/failure timestamps; topic_states implicitly unlocks next topic; lazy expiry before active-access check; no keys or answer review; mastery later; per-user quota `settings.rate_submit_per_min` per minute; quota exceeded returns `rate_limited` |
+| `get_attempt_review` | p_attempt_id uuid | `{summary:{score_raw,score_total,score_pct,pass_mark,passed,keys_visible}, questions:[{id,type,stem_md,choices:[{label,body_md}],my_answer,is_correct,time_ms,skills:[{code,name}],key?,explanation_md?}]}` | PRC-03; own submitted quiz only; questions ordered by frozen position; summary uses the stored report; key (`{choice}` / `{text}` = first accepted SPR form) and explanation_md are absent unless the owner has passed this topic's quiz, including on earlier failed attempts; teacher unlock is not a pass; errors `not_authenticated`, `invalid_input` (null/unknown/non-quiz), `forbidden` (another owner's quiz), `attempt_not_submitted`; executable by `authenticated`, not `anon` |
 | `register_device` | fingerprint, platform?, label? | `ok` + device_id, or `limit_reached` + devices + changes_left | called by the `register-device` EF (§8) |
 | `remove_device` | device_id | changes_left | `device_limit` when the 30-day allowance is used (§8) |
+| `list_my_devices` | p_fingerprint text | `{devices: [{id, label, platform, last_seen_at, created_at, is_current}], changes_left}` | AUTH-04; authenticated only; caller's non-revoked devices ordered by `last_seen_at desc nulls last`, then `created_at desc`; `is_current` matches the supplied fingerprint, which is never returned; allowance uses `device_changes_30d` minus the caller's changes strictly within the last 30 days, clamped to zero (same allowance as `remove_device`); errors `not_authenticated`, `invalid_input` (null/blank fingerprint) |
 | `device_status` | fingerprint | `active` / `revoked` / `unknown` | polled every minute (§8) |
+| `redeem_activation_code` | p_code text, p_target_test_date date | `{ok:true, course_id, course_slug, course_title, target_test_date, expires_at}` or `{ok:false, error}` | PAY-06/07; authenticated only; trims, uppercases and removes dashes/spaces; published courses only; locks the code and creates one active enrollment atomically; any existing enrollment status blocks reuse of the course; returned errors `code_invalid`, `code_used`, `already_enrolled` retain the quota increment; raised errors `not_authenticated`, `invalid_input`, `rate_limited`; per-user `settings.rate_redeem_per_min` (5) per minute; test date from yesterday through today + `settings.test_date_max_days` (548), inclusive; access window in §7 |
 | `teacher_list_devices` / `teacher_revoke_device` / `teacher_reset_devices` | user_id / device_id / user_id | devices / ok / ok | teacher only, audited (AUTH-05) |
 | `tag_error_type` | attempt_id, question_id, error_type | ok | |
-| `teacher_unlock` | user_id, topic_id | ok | teacher only, audited |
+| `teacher_unlock_topic` | p_student_id uuid, p_topic_id uuid | `{topic_id, unlocked_at, unlocked_by}` | LRN-05 (L-9); teacher only; target must be a student and topic must be published; preserves existing progress and the first unlock timestamp/teacher; audits `topic.unlock` only on the first unlock; errors `not_authenticated`, `forbidden`, `invalid_input`; executable by `authenticated`, not `anon` |
 | `teacher_matrix` | course_id, filters | rows | completion matrix (ANL-05) |
 | `teacher_class_insights` | course_id, topic_id? | stats | ANL-06 |
 
@@ -44,14 +47,13 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `register-device` | Validate device fingerprint against limit; insert/revoke; returns `ok` or `limit_reached` + device list |
 | `create-checkout` | Compute price (currency, coupon), create `orders(pending)`, create Paymob payment intention, return checkout URL |
 | `payment-webhook` | Verify Paymob HMAC; idempotent on `gateway_txn_id`; mark order paid; create/extend enrollment; send receipt |
-| `redeem-code` | Activation code → enrollment |
 | `video-otp` | Check access; return short-lived signed R2 HLS playlist + key URL and watermark text (name, phone, short id). Upgrade: VdoCipher OTP (ADR-002) |
 | `pdf-url` | Check access; return Storage signed URL (TTL 5 min). Client downloads once and opens from memory. Optional per-student stamp (short id, not name) streamed by the EF — see `docs/spikes/2026-10-08-pdf-viewer.md` |
 | `assemble-mock` | Build mock forms for a template + set_no (teacher) or pick next unseen form for a student |
 | `ai-tutor` | Grounded LLM answer (see §6) |
 | `import-questions` | Validate and upsert pipeline JSON (teacher) |
 | `send-email` | Templates via Resend |
-| `cron-*` | Every minute: `cron-expire-attempts` (auto-submit timed attempts past deadline + grace). Nightly: expire enrollments, inactivity nudges, mastery decay, live reminders |
+| `cron-*` | Every minute: `expire-attempts` → `private.expire_overdue_attempts()` (submit overdue quizzes at their deadline after `save_grace_s`). Daily at 02:00 UTC: `nightly-cleanup` → `private.nightly_cleanup()` (abandon practice inactive for `practice_stale_h`, default 24 hours; purge rate-limit windows older than one day). Planned: expire enrollments, inactivity nudges, mastery decay, live reminders |
 
 ## 2. Unlock state machine
 
@@ -136,7 +138,17 @@ log everything for teacher review.
 - Prices stored as minor units. `create-checkout` recomputes the amount server-side (never trusts client).
 - Webhook: verify HMAC → `insert ... on conflict (gateway_txn_id) do nothing` → if new and success:
   create enrollment (or extend for renewal: `expires_at = greatest(expires_at, new_target + grace)`, `mock_set_no += 1`).
-- Access window (Proposed): `expires_at = max(target_test_date + grace_days(14), now() + min_days(60))`.
+- **Activation codes (PAY-06):** call `redeem_activation_code` directly as an RPC; no Edge
+  Function or third-party secret is needed. Business failures are returned as `{ok:false,error}`
+  so wrong guesses count toward the quota; the sixth attempt in one minute raises `rate_limited`.
+  An existing enrollment in any status returns `already_enrolled` and leaves the code unused.
+  Code generation is SQL-editor only: [activation-code setup](setup/activation-codes.md).
+- **Access window (PAY-07):** activation uses `greatest((target_test_date +
+  settings.access_grace_days + 1)::timestamp at time zone 'UTC', now() +
+  make_interval(days => settings.access_min_days))`. Defaults are 14 grace days and a 60-day
+  minimum: access lasts through the end of the grace day, with expiration at the following
+  midnight UTC, or the minimum window if later. The server computes and stores the window.
+  Test date is read-only for students after activation; teacher changes and paid renewals follow later.
 - Reconciliation cron: orders `pending` > 1h → query gateway status.
 - Webhook matches the order by the **signed** gateway order id + amount + currency (never by
   `merchant_order_id`). A declined attempt keeps the order `pending` (the gateway allows a retry).
@@ -171,8 +183,14 @@ log everything for teacher review.
 
 ## 9. Error codes
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
-`practice_needed` (practice_count below settings.practice_min), `attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,
-`rate_limited`, `payment_invalid`, `invalid_key` (malformed answer key — content error), `internal` (Edge Functions only — unexpected failure).
+`practice_needed` (practice_count below settings.practice_min), `review_needed` (finish the review set before a quiz retake), `attempt_not_submitted` (quiz review requires a submitted attempt), `attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,
+`rate_limited`, `payment_invalid`, `code_invalid` (unknown code or unpublished course),
+`code_used` (already redeemed), `already_enrolled` (any existing enrollment for the course),
+`invalid_key` (malformed answer key — content error), `internal` (Edge Functions only — unexpected failure).
+
+`redeem_activation_code` returns `code_invalid`, `code_used` and `already_enrolled` inside
+`{ok:false,error}`; these are successful SQL transactions that retain the rate-limit increment.
+Its authentication, input-validation and rate-limit errors are raised with the code as the message.
 
 Client-only codes (GoTrue / transport; never returned by an RPC or Edge Function):
 `invalid_credentials`, `email_not_confirmed`, `email_taken`, `weak_password`, `network`. `rate_limited` is reused for GoTrue rate limits.

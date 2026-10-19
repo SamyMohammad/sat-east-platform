@@ -1,14 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:sat_east_client/core/env/env.dart';
+import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
+import 'package:sat_east_client/features/activation/presentation/screens/activate_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/device_gate_screen.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/forgot_password_screen.dart';
+import 'package:sat_east_client/features/auth/presentation/screens/set_new_password_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
@@ -25,6 +29,7 @@ import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 abstract final class AppRoutes {
   static const home = '/';
+  static const activate = '/activate';
   static const courses = '/courses';
   static String topic(String id) => '/courses/topics/$id';
   static String practice(String id) => '/courses/topics/$id/practice';
@@ -38,6 +43,8 @@ abstract final class AppRoutes {
   static const signUp = '/sign-up';
   static const checkInbox = '/check-inbox';
   static const devices = '/devices';
+  static const forgotPassword = '/forgot-password';
+  static const resetPassword = '/reset-password';
 }
 
 /// [refresh] is owned (and disposed) by the caller; when omitted with [auth],
@@ -94,6 +101,7 @@ GoRouter createRouter({
                   builder: (context, state) => switch (destination) {
                     AppShellDestination.courses => const CourseMapScreen(),
                     AppShellDestination.home => const PlaceholderScreen(),
+                    AppShellDestination.profile => const AccountScreen(),
                     _ => PlaceholderScreen(title: destination.label),
                   },
                   routes: [
@@ -147,12 +155,24 @@ GoRouter createRouter({
         ],
       ),
       GoRoute(
+        path: AppRoutes.activate,
+        builder: (context, state) => const ActivateScreen(),
+      ),
+      GoRoute(
         path: AppRoutes.signIn,
         builder: (context, state) => const SignInScreen(),
       ),
       GoRoute(
         path: AppRoutes.signUp,
         builder: (context, state) => const SignUpScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (context, state) => const ForgotPasswordScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.resetPassword,
+        builder: (context, state) => const SetNewPasswordScreen(),
       ),
       GoRoute(
         path: AppRoutes.checkInbox,
@@ -172,16 +192,28 @@ GoRouter createRouter({
   );
 }
 
-const _signedOutPaths = <String>{AppRoutes.signIn, AppRoutes.signUp};
+const _signedOutPaths = <String>{
+  AppRoutes.signIn,
+  AppRoutes.signUp,
+  AppRoutes.forgotPassword,
+  AppRoutes.resetPassword,
+};
 
 /// Returns the location to move to, or null to stay. Never loops: every
 /// target is a fixed point of the same function for that state.
 String? _authRedirect(AuthState state, String path, bool galleryEnabled) {
+  if (state is AuthRecovery) {
+    return path == AppRoutes.resetPassword ? null : AppRoutes.resetPassword;
+  }
+  if (state is AuthSignedOut && state.error?.code == ErrorCodes.linkExpired) {
+    return path == AppRoutes.forgotPassword ? null : AppRoutes.forgotPassword;
+  }
   if (galleryEnabled && path == AppRoutes.gallery) return null;
   return switch (state) {
     AuthUnknown() || AuthBusy() => null,
+    AuthRecovery() => null,
     AuthSignedOut() => _signedOutPaths.contains(path) ? null : AppRoutes.signIn,
-    AuthConfirmationSent() =>
+    AuthConfirmationSent() || AuthResetLinkSent() =>
       path == AppRoutes.checkInbox ? null : AppRoutes.checkInbox,
     AuthDeviceGate() => path == AppRoutes.devices ? null : AppRoutes.devices,
     AuthSignedIn() =>

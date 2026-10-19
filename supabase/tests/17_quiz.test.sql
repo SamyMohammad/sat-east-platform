@@ -146,6 +146,12 @@ begin
   end loop;
 end;
 $$;
+create function pg_temp.complete_review(p_user text, p_topic_id uuid)
+returns void language sql set search_path = '' as $$
+  insert into public.attempts (user_id, kind, course_id, topic_id, status, submitted_at)
+  select tests.get_supabase_uid(p_user), 'review', t.course_id, t.id, 'submitted', pg_catalog.now()
+  from public.topics t where t.id = p_topic_id
+$$;
 grant execute on function pg_temp.q(int), pg_temp.att(text), pg_temp.first_q(text), pg_temp.fill(text, int) to authenticated;
 
 select tests.clear_authentication();
@@ -178,6 +184,7 @@ insert into public.topic_progress (user_id, topic_id, practice_count)
   cross join public.topics t where t.course_id = '00000000-0000-0000-0000-0000000017c1';
 update public.topic_progress set quiz_last_failed_at = now()
   where user_id = tests.get_supabase_uid('quiz_student') and topic_id = '00000000-0000-0000-0000-0000000017d1';
+select pg_temp.complete_review('quiz_student', '00000000-0000-0000-0000-0000000017d1');
 select tests.authenticate_as('quiz_student');
 select is(public.get_topic('00000000-0000-0000-0000-0000000017d1') #>> '{quiz,state}', 'cooldown', 'PRC-03: recent failure enters cooldown');
 select throws_ok($$ select public.start_quiz('00000000-0000-0000-0000-0000000017d1') $$, 'P0001', 'cooldown_active', 'PRC-03: cannot start inside cooldown');
@@ -191,7 +198,8 @@ update public.settings set value = '3' where key = 'quiz_size';
 select tests.authenticate_as('quiz_student');
 select is(public.get_topic('00000000-0000-0000-0000-0000000017d1'),
   jsonb_build_object('id', '00000000-0000-0000-0000-0000000017d1', 'title', 'T1', 'slug', 'quiz-t1', 'sort_label', '1.1', 'status', 'open',
-    'practice', jsonb_build_object('count', 10, 'min', 10), 'quiz', jsonb_build_object('state', 'available', 'practice_count', 10, 'practice_min', 10, 'best_score_pct', null, 'passed', false)),
+    'practice', jsonb_build_object('count', 10, 'min', 10), 'quiz', jsonb_build_object('state', 'available', 'practice_count', 10, 'practice_min', 10, 'best_score_pct', null, 'passed', false,
+      'review', jsonb_build_object('required', false, 'attempt_id', null, 'answered', 0, 'total', 0))),
   'PRC-03: topic shape and available state at practice_min after cooldown');
 insert into ctx values ('unseen', public.start_quiz('00000000-0000-0000-0000-0000000017d1'));
 select is((select array_agg((q ->> 'id')::uuid order by q ->> 'id') from ctx, jsonb_array_elements(v -> 'questions') q where k = 'unseen'),
@@ -329,6 +337,7 @@ reset role;
 select is((select status = 'submitted' and score_raw = 9 from public.attempts where id = pg_temp.att('expiry_start')), true,
   'PRC-03: successful start persists lazy grading of previous answers');
 update public.attempts set started_at = now() - make_interval(secs => time_limit_s + 31) where id = pg_temp.att('after_expiry');
+select pg_temp.complete_review('quiz_expiry', '00000000-0000-0000-0000-0000000017d1');
 select tests.authenticate_as('quiz_expiry');
 select throws_ok($$ select public.start_quiz('00000000-0000-0000-0000-0000000017d1') $$, 'P0001', 'cooldown_active', 'PRC-03: start expires overdue quiz before cooldown check');
 select is(public.get_topic('00000000-0000-0000-0000-0000000017d1') #>> '{quiz,state}', 'cooldown',

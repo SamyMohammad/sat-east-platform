@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/app.dart';
+import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
@@ -204,6 +206,62 @@ void main() {
   ];
 
   for (final width in [360.0, 1280.0]) {
+    for (final path in [
+      AppRoutes.home,
+      AppRoutes.topic('test'),
+      AppRoutes.signIn,
+      AppRoutes.forgotPassword,
+      AppRoutes.gallery,
+      AppRoutes.resetPassword,
+    ]) {
+      testWidgets('AUTH-06: recovery guards $path at $width', (tester) async {
+        final router = await _pump(
+          tester,
+          _Harness(const AuthRecovery()),
+          path,
+          width,
+          includeGallery: true,
+        );
+        expect(_path(router), AppRoutes.resetPassword);
+        expect(tester.takeException(), isNull);
+      });
+    }
+    for (final path in [AppRoutes.forgotPassword, AppRoutes.resetPassword]) {
+      testWidgets('S-03: signed out allows $path at $width', (tester) async {
+        final router = await _pump(tester, _Harness(_signedOut), path, width);
+        expect(_path(router), path);
+        expect(tester.takeException(), isNull);
+      });
+    }
+    testWidgets('AUTH-06: expired reset redirects to forgot at $width', (
+      tester,
+    ) async {
+      final router = await _pump(
+        tester,
+        _Harness(
+          const AuthSignedOut(
+            error: AppError(ErrorCodes.linkExpired),
+          ),
+        ),
+        AppRoutes.resetPassword,
+        width,
+      );
+      expect(_path(router), AppRoutes.forgotPassword);
+      expect(
+        find.text('This link has expired. Request a new one.'),
+        findsOneWidget,
+      );
+      expect(find.text('Choose a new password'), findsNothing);
+    });
+    testWidgets('AUTH-06: late recovery refreshes the signed-out route', (
+      tester,
+    ) async {
+      final harness = _Harness(_signedOut);
+      final router = await _pump(tester, harness, AppRoutes.signIn, width);
+      harness.emit(const AuthRecovery());
+      await _pumpFrames(tester);
+      expect(_path(router), AppRoutes.resetPassword);
+    });
     group('P1-2: auth redirect at $width', () {
       for (final (title, state, start, expected) in rules) {
         testWidgets('P1-2: $title', (tester) async {

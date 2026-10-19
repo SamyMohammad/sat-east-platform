@@ -39,6 +39,7 @@ void main() {
   late MockErrorReporter reporter;
   late StreamController<void> ticks;
   late StreamController<AppUser?> users;
+  late StreamController<void> recovery;
 
   setUp(() {
     auth = MockAuthRepository();
@@ -49,6 +50,9 @@ void main() {
     users = StreamController<AppUser?>.broadcast();
     addTearDown(users.close);
     when(() => auth.userChanges).thenAnswer((_) => users.stream);
+    recovery = StreamController<void>.broadcast();
+    addTearDown(recovery.close);
+    when(() => auth.passwordRecovery).thenAnswer((_) => recovery.stream);
 
     when(() => auth.currentUser).thenReturn(_user);
     when(() => auth.signOut()).thenAnswer((_) async => const Success(null));
@@ -61,6 +65,307 @@ void main() {
 
   AuthCubit build() =>
       AuthCubit(auth, devices, reporter, ticker: (_) => ticks.stream);
+
+  group('AUTH-06: password recovery', () {
+    test(
+      'AUTH-06: replayed expiry is handled before startup registration',
+      () async {
+        when(() => auth.passwordRecovery).thenAnswer(
+          (_) => Stream<void>.error(const AppError(ErrorCodes.linkExpired)),
+        );
+        final cubit = build();
+        addTearDown(cubit.close);
+        await cubit.start();
+        expect(
+          cubit.state,
+          const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)),
+        );
+        verifyNever(() => devices.register());
+      },
+    );
+    for (final code in [ErrorCodes.linkExpired, ErrorCodes.network]) {
+      test(
+        'AUTH-06: recovery stream handles $code without uncaught errors',
+        () async {
+          final cubit = AuthCubit(
+            auth,
+            devices,
+            reporter,
+            ticker: (_) => ticks.stream,
+            initialUri: Uri.parse('https://app.test/?flow=recovery'),
+          );
+          addTearDown(cubit.close);
+          when(() => auth.currentUser).thenReturn(null);
+          await cubit.start();
+          recovery.add(null);
+          await pumpEventQueue();
+          recovery.addError(AppError(code));
+          await pumpEventQueue();
+          expect(
+            cubit.state,
+            code == ErrorCodes.linkExpired
+                ? const AuthSignedOut(error: AppError(ErrorCodes.linkExpired))
+                : const AuthRecovery(error: AppError(ErrorCodes.network)),
+          );
+          verifyNever(() => devices.register());
+        },
+      );
+    }
+    blocTest<AuthCubit, AuthState>(
+      'AUTH-06: acknowledging a reset link returns to sign in',
+      build: build,
+      seed: () => const AuthResetLinkSent('a@b.co'),
+      act: (c) => c.acknowledgeConfirmation(),
+      expect: () => [const AuthSignedOut()],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'AUTH-06: a password save outside recovery does nothing',
+      build: build,
+      seed: () => const AuthSignedOut(),
+      act: (c) => c.setNewPassword('Password1'),
+      expect: () => <AuthState>[],
+      verify: (_) => verifyNever(() => auth.updatePassword(any())),
+    );
+
+    test('AUTH-06: late recovery invalidates pending registration', () async {
+      final pending = Completer<Result<DeviceRegistration>>();
+      when(() => devices.register()).thenAnswer((_) => pending.future);
+      final cubit = build();
+      addTearDown(cubit.close);
+      final starting = cubit.start();
+      recovery.add(null);
+      await pumpEventQueue();
+      pending.complete(const Success<DeviceRegistration>(_allowed));
+      await starting;
+      expect(cubit.state, const AuthRecovery());
+      verifyNever(() => reporter.setUser(any()));
+    });
+
+    test('AUTH-06: closed recovery ignores a pending password save', () async {
+      final pending = Completer<Result<void>>();
+      when(() => auth.currentUser).thenReturn(null);
+      when(
+        () => auth.updatePassword('Password1'),
+      ).thenAnswer((_) => pending.future);
+      final cubit = build();
+      await cubit.start();
+      recovery.add(null);
+      await pumpEventQueue();
+      final saving = cubit.setNewPassword('Password1');
+      await cubit.close();
+      pending.complete(const Success<void>(null));
+      await saving;
+      verifyNever(() => devices.register());
+      expect(cubit.state, const AuthRecovery(saving: true));
+    });
+    test(
+      'AUTH-06: late recovery replaces SignedOut without registering',
+      () async {
+        when(() => auth.currentUser).thenReturn(null);
+        final cubit = build();
+        addTearDown(cubit.close);
+        await cubit.start();
+        expect(cubit.state, const AuthSignedOut());
+        recovery.add(null);
+        await pumpEventQueue();
+        expect(cubit.state, const AuthRecovery());
+        await cubit.start();
+        expect(cubit.state, const AuthRecovery());
+        verifyNever(() => devices.register());
+      },
+    );
+
+    test(
+      'AUTH-06: replayed recovery precedes startup registration',
+      () async {
+        when(
+          () => auth.passwordRecovery,
+        ).thenAnswer((_) => Stream<void>.value(null));
+        final cubit = AuthCubit(
+          auth,
+          devices,
+          reporter,
+          ticker: (_) => ticks.stream,
+          initialUri: Uri.parse('https://app.test/?flow=recovery&code=test'),
+        );
+        addTearDown(cubit.close);
+        await cubit.start();
+        expect(cubit.state, const AuthRecovery());
+        verifyNever(() => devices.register());
+      },
+    );
+
+    test(
+      'AUTH-06: stale marker without code or event restores signed in',
+      () async {
+        final cubit = AuthCubit(
+          auth,
+          devices,
+          reporter,
+          ticker: (_) => ticks.stream,
+          initialUri: Uri.parse('https://app.test/?flow=recovery'),
+        );
+        addTearDown(cubit.close);
+        await cubit.start();
+        expect(cubit.state, const AuthSignedIn(_user));
+        verify(() => devices.register()).called(1);
+      },
+    );
+
+    for (final url in [
+      'https://app.test/?flow=recovery&error_code=otp_expired',
+      'https://app.test/#error=access_denied',
+    ]) {
+      test('AUTH-06: expired startup URL produces link_expired $url', () async {
+        final cubit = AuthCubit(
+          auth,
+          devices,
+          reporter,
+          ticker: (_) => ticks.stream,
+          initialUri: Uri.parse(url),
+        );
+        addTearDown(cubit.close);
+        await cubit.start();
+        recovery.add(null);
+        await pumpEventQueue();
+        expect(
+          cubit.state,
+          const AuthSignedOut(
+            error: AppError(ErrorCodes.linkExpired),
+          ),
+        );
+        verifyNever(() => devices.register());
+      });
+    }
+
+    for (final email in ['known@example.com', 'unknown@example.com']) {
+      blocTest<AuthCubit, AuthState>(
+        'AUTH-06: reset request succeeds identically for $email',
+        setUp: () => when(
+          () => auth.requestPasswordReset(email),
+        ).thenAnswer((_) async => const Success<void>(null)),
+        build: build,
+        seed: () => const AuthSignedOut(),
+        act: (c) => c.requestPasswordReset(email),
+        expect: () => [const AuthBusy(), AuthResetLinkSent(email)],
+        verify: (_) => verifyNever(() => devices.register()),
+      );
+    }
+
+    for (final code in [ErrorCodes.rateLimited, ErrorCodes.network]) {
+      blocTest<AuthCubit, AuthState>(
+        'AUTH-06: reset request exposes $code',
+        setUp: () => when(
+          () => auth.requestPasswordReset('a@b.co'),
+        ).thenAnswer((_) async => Failure<void>(AppError(code))),
+        build: build,
+        seed: () => const AuthSignedOut(),
+        act: (c) => c.requestPasswordReset('a@b.co'),
+        expect: () => [const AuthBusy(), AuthSignedOut(error: AppError(code))],
+      );
+    }
+
+    blocTest<AuthCubit, AuthState>(
+      'AUTH-06: successful password save resumes device registration',
+      setUp: () => when(
+        () => auth.updatePassword('Password1'),
+      ).thenAnswer((_) async => const Success<void>(null)),
+      build: build,
+      seed: () => const AuthRecovery(),
+      act: (c) => c.setNewPassword('Password1'),
+      expect: () => [
+        const AuthRecovery(saving: true),
+        const AuthSignedIn(_user),
+      ],
+      verify: (_) => verify(() => devices.register()).called(1),
+    );
+
+    for (final code in [
+      ErrorCodes.weakPassword,
+      ErrorCodes.rateLimited,
+      ErrorCodes.network,
+    ]) {
+      blocTest<AuthCubit, AuthState>(
+        'AUTH-06: failed password save preserves recovery with $code',
+        setUp: () => when(
+          () => auth.updatePassword('Password1'),
+        ).thenAnswer((_) async => Failure<void>(AppError(code))),
+        build: build,
+        seed: () => const AuthRecovery(),
+        act: (c) => c.setNewPassword('Password1'),
+        expect: () => [
+          const AuthRecovery(saving: true),
+          AuthRecovery(error: AppError(code)),
+        ],
+        verify: (_) => verifyNever(() => devices.register()),
+      );
+    }
+
+    blocTest<AuthCubit, AuthState>(
+      'AUTH-06: lost recovery session asks for a new link',
+      setUp: () => when(() => auth.updatePassword('Password1')).thenAnswer(
+        (_) async => const Failure<void>(
+          AppError(ErrorCodes.notAuthenticated),
+        ),
+      ),
+      build: build,
+      seed: () => const AuthRecovery(),
+      act: (c) => c.setNewPassword('Password1'),
+      expect: () => [
+        const AuthRecovery(saving: true),
+        const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)),
+      ],
+    );
+
+    test('AUTH-06: pending save cannot register or save twice', () async {
+      final pending = Completer<Result<void>>();
+      when(
+        () => auth.updatePassword('Password1'),
+      ).thenAnswer((_) => pending.future);
+      when(() => auth.currentUser).thenReturn(null);
+      final cubit = build();
+      addTearDown(cubit.close);
+      await cubit.start();
+      recovery.add(null);
+      await pumpEventQueue();
+      final saving = cubit.setNewPassword('Password1');
+      await cubit.setNewPassword('Password1');
+      verifyNever(() => devices.register());
+      verify(() => auth.updatePassword('Password1')).called(1);
+      when(() => auth.currentUser).thenReturn(_user);
+      pending.complete(const Success<void>(null));
+      await saving;
+      expect(cubit.state, const AuthSignedIn(_user));
+    });
+
+    test(
+      'AUTH-06: close cancels recovery and ignores late reset completion',
+      () async {
+        final pending = Completer<Result<void>>();
+        when(() => auth.currentUser).thenReturn(null);
+        when(
+          () => auth.requestPasswordReset('a@b.co'),
+        ).thenAnswer((_) => pending.future);
+        final cubit = build();
+        await cubit.start();
+        expect(recovery.hasListener, isTrue);
+        final sending = cubit.requestPasswordReset('a@b.co');
+        await cubit.close();
+        pending.complete(const Success<void>(null));
+        await sending;
+        expect(recovery.hasListener, isFalse);
+        expect(cubit.state, const AuthBusy());
+      },
+    );
+
+    test('AUTH-06: reset confirmation keeps email out of logs', () {
+      expect(
+        const AuthResetLinkSent('a@b.co').toString(),
+        isNot(contains('a@b.co')),
+      );
+    });
+  });
 
   group('P1-2: start', () {
     blocTest<AuthCubit, AuthState>(

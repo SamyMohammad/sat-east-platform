@@ -13,12 +13,16 @@ abstract final class ErrorCodes {
   static const practiceNeeded = 'practice_needed';
   static const cooldownActive = 'cooldown_active';
   static const deadlinePassed = 'deadline_passed';
+  static const codeInvalid = 'code_invalid';
+  static const codeUsed = 'code_used';
+  static const alreadyEnrolled = 'already_enrolled';
 
   // Client-only (GoTrue / transport).
   static const invalidCredentials = 'invalid_credentials';
   static const emailNotConfirmed = 'email_not_confirmed';
   static const emailTaken = 'email_taken';
   static const weakPassword = 'weak_password';
+  static const linkExpired = 'link_expired';
   static const network = 'network';
 
   static const _serverCodes = <String>{
@@ -35,6 +39,9 @@ abstract final class ErrorCodes {
     practiceNeeded,
     cooldownActive,
     deadlinePassed,
+    codeInvalid,
+    codeUsed,
+    alreadyEnrolled,
   };
 
   /// Whether [code] is a `docs/07` §9 server code.

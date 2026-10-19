@@ -93,6 +93,11 @@ class _SignInScreenState extends State<SignInScreen> {
           ),
         ),
         const AuthFooterLink(
+          prompt: '',
+          linkLabel: 'Forgot password?',
+          path: AppRoutes.forgotPassword,
+        ),
+        const AuthFooterLink(
           prompt: 'New here?',
           linkLabel: 'Create an account',
           path: AppRoutes.signUp,

@@ -85,6 +85,10 @@ Future<void> _pump(
     initialLocation: '/courses',
     routes: [
       GoRoute(
+        path: '/activate',
+        builder: (context, _) => const Scaffold(body: Text('activation form')),
+      ),
+      GoRoute(
         path: '/courses',
         builder: (context, _) => Scaffold(
           body: BlocProvider<CourseMapCubit>.value(
@@ -254,10 +258,7 @@ void main() {
       await _pump(tester, CourseMapFailed(AppError(code)));
       expect(find.text(title), findsOneWidget);
       expect(find.text(body), findsOneWidget);
-      expect(
-        find.text('Retry'),
-        retry.isEmpty ? findsNothing : findsOneWidget,
-      );
+      expect(find.text('Retry'), retry.isEmpty ? findsNothing : findsOneWidget);
     });
   }
 
@@ -268,4 +269,26 @@ void main() {
     await tester.pump();
     verify(cubit.retry).called(1);
   });
+
+  testWidgets('S-10: unenrolled student can enter an activation code', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      const CourseMapFailed(AppError(ErrorCodes.notEnrolled)),
+    );
+
+    await tester.tap(find.text('Enter activation code'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('activation form'), findsOneWidget);
+  });
+
+  for (final code in [ErrorCodes.accessExpired, ErrorCodes.network]) {
+    testWidgets('S-10: $code has no activation action', (tester) async {
+      await _pump(tester, CourseMapFailed(AppError(code)));
+
+      expect(find.text('Enter activation code'), findsNothing);
+    });
+  }
 }
