@@ -7,6 +7,7 @@ import 'package:sat_east_client/features/auth/domain/entities/sign_up_outcome.da
 
 abstract interface class AuthRepository {
   AppUser? get currentUser;
+  Future<AppUser?> getCurrentUser();
   Stream<AppUser?> get userChanges;
   Stream<void> get passwordRecovery;
   Future<Result<void>> requestPasswordReset(String email);
