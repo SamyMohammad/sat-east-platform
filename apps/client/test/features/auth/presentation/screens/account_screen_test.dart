@@ -4,10 +4,12 @@ import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
@@ -72,6 +74,72 @@ void main() {
       ),
     );
     await tester.pump();
+  }
+
+  testWidgets('ADM-01: teacher account link opens teacher area', (
+    tester,
+  ) async {
+    auth = mockCubit(
+      const AuthSignedIn(
+        AppUser(id: 'u1', email: 'email', isTeacher: true),
+      ),
+    );
+    whenListen(
+      account,
+      const Stream<AccountState>.empty(),
+      initialState: AccountLoaded(_profile, const [], 2),
+    );
+    final router = GoRouter(
+      initialLocation: '/profile',
+      routes: [
+        GoRoute(
+          path: '/profile',
+          builder: (_, _) => const Scaffold(body: AccountView()),
+        ),
+        GoRoute(
+          path: '/teacher',
+          builder: (_, _) => const Text('Teacher destination'),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<AccountCubit>.value(value: account),
+          BlocProvider<AuthCubit>.value(value: auth),
+        ],
+        child: MaterialApp.router(
+          theme: AppTheme.light(),
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Teacher area'));
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, '/teacher');
+    expect(find.text('Teacher destination'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
+
+  for (final isTeacher in [false, true]) {
+    testWidgets('ADM-01: account teacher link visibility $isTeacher', (
+      tester,
+    ) async {
+      auth = mockCubit(
+        AuthSignedIn(AppUser(id: 'u1', email: 'email', isTeacher: isTeacher)),
+      );
+      await pump(
+        tester,
+        const Size(360, 800),
+        AccountLoaded(_profile, const [], 2),
+      );
+      expect(
+        find.text('Teacher area'),
+        isTeacher ? findsOneWidget : findsNothing,
+      );
+    });
   }
 
   for (final (name, size) in viewports) {

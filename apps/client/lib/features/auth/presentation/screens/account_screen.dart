@@ -2,14 +2,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_state.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
+import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/account_courses.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/account_devices.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/account_password_form.dart';
@@ -84,6 +87,18 @@ class AccountView extends StatelessWidget {
             Text(
               'My account',
               style: Theme.of(context).textTheme.headlineSmall,
+            ),
+            BlocSelector<AuthCubit, AuthState, bool>(
+              selector: (state) =>
+                  state is AuthSignedIn && state.user.isTeacher,
+              builder: (context, isTeacher) => isTeacher
+                  ? ListTile(
+                      leading: const Icon(Icons.school_outlined),
+                      title: const Text('Teacher area'),
+                      trailing: const Icon(Icons.chevron_right),
+                      onTap: () => context.go(AppRoutes.teacher),
+                    )
+                  : const SizedBox.shrink(),
             ),
             Text('Profile', style: Theme.of(context).textTheme.titleLarge),
             Text(
