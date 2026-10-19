@@ -85,6 +85,10 @@ Future<void> _pump(
     initialLocation: '/courses',
     routes: [
       GoRoute(
+        path: '/catalogue',
+        builder: (context, _) => const Scaffold(body: Text('catalogue page')),
+      ),
+      GoRoute(
         path: '/activate',
         builder: (context, _) => const Scaffold(body: Text('activation form')),
       ),
@@ -115,6 +119,16 @@ Future<void> _pump(
 }
 
 void main() {
+  testWidgets('PAY-01: unenrolled student can browse courses', (tester) async {
+    await _pump(
+      tester,
+      const CourseMapFailed(AppError(ErrorCodes.notEnrolled)),
+    );
+    expect(find.text('Enter activation code'), findsOneWidget);
+    await tester.tap(find.text('Browse courses'));
+    await tester.pumpAndSettle();
+    expect(find.text('catalogue page'), findsOneWidget);
+  });
   for (final (name, size) in [
     ('360x800', const Size(360, 800)),
     ('1280x800', const Size(1280, 800)),

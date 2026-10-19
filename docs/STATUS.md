@@ -8,7 +8,7 @@
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
-| Lane 1c — catalogue + course page (P-1) | — | — | — | — | next: brainstorm |
+| Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
@@ -43,6 +43,7 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | Rate-limit rollback | `private.hit_rate_limit` counts only calls that don't raise (a raise rolls back the increment). Fine for practice/quiz RPCs; guess-style RPCs must return errors instead of raising (lane 1b `redeem_activation_code` does) |
 | Auth Site URL | Staging Site URL was the default `localhost:3000` (confirmation link redirected there). Set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, staging dashboard; repeat for prod |
 | Password reset redirect | Add `<site>/?flow=recovery` to Supabase Redirect URLs on staging and prod (`docs/setup/auth.md` §0) — user |
+| Free topic access | Course page shows a Free badge only; opening a free topic without an enrolment is its own later story (user, 2026-10-19) |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
 | Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
 | register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |

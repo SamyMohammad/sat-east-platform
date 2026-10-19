@@ -11,11 +11,14 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/forgot_password_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/set_new_password_screen.dart';
+import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_cubit.dart';
+import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
@@ -30,6 +33,7 @@ import 'package:sat_east_client/shared/widgets/question_view/question_view.dart'
 
 import '../../features/auth/presentation/screens/auth_screen_harness.dart'
     as auth_screens;
+import '../../features/catalogue/catalogue_fixtures.dart';
 import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
 import 'fake_practice_cubit.dart';
@@ -38,6 +42,77 @@ import 'fake_topic_cubit.dart';
 part 'fake_quiz_cubit.dart';
 
 void main() {
+  for (final path in ['/catalogue', '/catalogue/sat-math']) {
+    for (final (state, target) in <(AuthState, String)>[
+      (const AuthSignedOut(), path),
+      (const AuthSignedIn(AppUser(id: 'u1', email: 'a@b.co')), path),
+      (const AuthConfirmationSent('a@b.co'), '/check-inbox'),
+      (const AuthDeviceGate(devices: [], changesLeft: 1), '/devices'),
+      (const AuthRecovery(), '/reset-password'),
+      (const AuthResetLinkSent('a@b.co'), '/check-inbox'),
+      (
+        const AuthSignedOut(error: AppError(ErrorCodes.linkExpired)),
+        '/forgot-password',
+      ),
+    ]) {
+      testWidgets('PAY-01: $state on $path routes to $target', (tester) async {
+        final repo = FakeCatalogueRepository()
+          ..page = const Failure(AppError(ErrorCodes.invalidInput));
+        getIt
+          ..registerFactory<CatalogueCubit>(() => CatalogueCubit(repo))
+          ..registerFactory<CoursePageCubit>(() => CoursePageCubit(repo));
+        addTearDown(() async {
+          await getIt.unregister<CatalogueCubit>();
+          await getIt.unregister<CoursePageCubit>();
+        });
+        final auth = auth_screens.mockCubit(state);
+        final refresh = ValueNotifier(0);
+        addTearDown(refresh.dispose);
+        final router = createRouter(
+          initialLocation: path,
+          auth: auth,
+          refresh: refresh,
+        );
+        addTearDown(router.dispose);
+        await tester.pumpWidget(
+          BlocProvider<AuthCubit>.value(
+            value: auth,
+            child: MaterialApp.router(
+              theme: AppTheme.light(),
+              routerConfig: router,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(router.routeInformationProvider.value.uri.path, target);
+        expect(tester.takeException(), isNull);
+        await tester.pumpWidget(const SizedBox.shrink());
+      });
+    }
+  }
+  testWidgets('PAY-01: catalogue-x is not public', (tester) async {
+    final auth = auth_screens.mockCubit(const AuthSignedOut());
+    final refresh = ValueNotifier(0);
+    addTearDown(refresh.dispose);
+    final router = createRouter(
+      initialLocation: '/catalogue-x',
+      auth: auth,
+      refresh: refresh,
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      BlocProvider<AuthCubit>.value(
+        value: auth,
+        child: MaterialApp.router(
+          theme: AppTheme.light(),
+          routerConfig: router,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, '/sign-in');
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
   setUp(registerFakeAccountCubit);
   tearDown(unregisterFakeAccountCubit);
   testWidgets('S-34: Profile route builds My account', (tester) async {

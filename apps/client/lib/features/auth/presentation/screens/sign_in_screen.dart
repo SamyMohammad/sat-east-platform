@@ -102,6 +102,11 @@ class _SignInScreenState extends State<SignInScreen> {
           linkLabel: 'Create an account',
           path: AppRoutes.signUp,
         ),
+        const AuthFooterLink(
+          prompt: '',
+          linkLabel: 'Browse courses',
+          path: AppRoutes.catalogue,
+        ),
       ],
     );
   }

@@ -15,6 +15,8 @@ import 'package:sat_east_client/features/auth/presentation/screens/forgot_passwo
 import 'package:sat_east_client/features/auth/presentation/screens/set_new_password_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:sat_east_client/features/catalogue/presentation/screens/catalogue_screen.dart';
+import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
@@ -28,6 +30,9 @@ import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.d
 import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 abstract final class AppRoutes {
+  static const catalogue = '/catalogue';
+  static String coursePage(String slug) =>
+      '$catalogue/${Uri.encodeComponent(slug)}';
   static const home = '/';
   static const activate = '/activate';
   static const courses = '/courses';
@@ -69,6 +74,16 @@ GoRouter createRouter({
         : (context, state) =>
               _authRedirect(auth.state, state.uri.path, galleryEnabled),
     routes: [
+      GoRoute(
+        path: AppRoutes.catalogue,
+        builder: (context, state) => const CatalogueScreen(),
+      ),
+      GoRoute(
+        path: '${AppRoutes.catalogue}/:slug',
+        builder: (context, state) => CoursePageScreen(
+          slug: state.pathParameters['slug']!,
+        ),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {
           final appShell = AppShell(
@@ -209,6 +224,9 @@ String? _authRedirect(AuthState state, String path, bool galleryEnabled) {
     return path == AppRoutes.forgotPassword ? null : AppRoutes.forgotPassword;
   }
   if (galleryEnabled && path == AppRoutes.gallery) return null;
+  if ((state is AuthSignedOut || state is AuthSignedIn) && _isPublic(path)) {
+    return null;
+  }
   return switch (state) {
     AuthUnknown() || AuthBusy() => null,
     AuthRecovery() => null,
@@ -235,3 +253,6 @@ String _pathFor(AppShellDestination destination) => switch (destination) {
   AppShellDestination.mockExams => AppRoutes.mockExams,
   AppShellDestination.profile => AppRoutes.profile,
 };
+
+bool _isPublic(String path) =>
+    path == AppRoutes.catalogue || path.startsWith('${AppRoutes.catalogue}/');

@@ -140,6 +140,8 @@ class _Failed extends StatelessWidget {
       message: CourseMapCopy.notEnrolledBody,
       actionLabel: 'Enter activation code',
       onAction: () => context.go(AppRoutes.activate),
+      secondaryActionLabel: 'Browse courses',
+      onSecondaryAction: () => context.go(AppRoutes.catalogue),
     ),
     ErrorCodes.accessExpired => const EmptyState(
       title: CourseMapCopy.expiredTitle,

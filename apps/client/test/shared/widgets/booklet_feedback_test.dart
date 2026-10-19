@@ -40,6 +40,47 @@ Future<void> _pump(
 }
 
 void main() {
+  testWidgets('PAY-01: empty state keeps both actions independent', (
+    tester,
+  ) async {
+    var primary = 0;
+    var secondary = 0;
+    await _pump(
+      tester,
+      EmptyState(
+        title: 'No course yet',
+        message: 'Choose a course.',
+        actionLabel: 'Enter activation code',
+        onAction: () => primary++,
+        secondaryActionLabel: 'Browse courses',
+        onSecondaryAction: () => secondary++,
+      ),
+    );
+    expect(
+      tester.getTopLeft(find.text('Browse courses')).dy,
+      greaterThan(tester.getBottomLeft(find.text('Enter activation code')).dy),
+    );
+    await tester.tap(find.text('Browse courses'));
+    expect(secondary, 1);
+    expect(primary, 0);
+    await tester.tap(find.text('Enter activation code'));
+    expect(primary, 1);
+  });
+  test('PAY-01: secondary empty action requires label and callback', () {
+    expect(
+      () => EmptyState(
+        title: 'Empty',
+        message: 'None',
+        secondaryActionLabel: 'Browse',
+      ),
+      throwsAssertionError,
+    );
+    expect(
+      () =>
+          EmptyState(title: 'Empty', message: 'None', onSecondaryAction: () {}),
+      throwsAssertionError,
+    );
+  });
   for (final sheet in [false, true]) {
     testWidgets(
       'F-4: ${sheet ? 'sheet' : 'dialog'} returns builder dismissal result',
