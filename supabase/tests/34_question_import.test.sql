@@ -91,10 +91,12 @@ select ok((public.teacher_import_questions(jsonb_build_array(pg_temp.import_mcq(
 from unnest(array['external_ref','course_codes','topic_slug','subtopic_slug','type','difficulty','stem_md','key','pool','status']) f;
 select is(public.teacher_import_questions('[]',true),'{"ok":true,"rows":0,"new":0,"updated":0,"errors":[],"truncated":false}'::jsonb,'QB-05: empty batch is a no-op');
 select tests.clear_authentication();
+reset role;
 update public.settings set value='1' where key='import_max_rows';
 select tests.authenticate_as('import_teacher');
 select ok((public.teacher_import_questions(jsonb_build_array(pg_temp.import_mcq(),pg_temp.import_spr()),false)->'errors') @> '[{"row":0,"problem":"too_many_rows"}]','QB-05: configured limit is honored');
 select tests.clear_authentication();
+reset role;
 update public.settings set value='500' where key='import_max_rows';
 select tests.authenticate_as('import_teacher');
 -- Real writes and reimport replacement.
@@ -105,6 +107,7 @@ select is((select image_paths from public.questions where external_ref='TEST-IMP
 select is((select diff from public.audit_log where actor=auth.uid() and action='questions.import'),'{"created":2,"updated":0,"refs":["TEST-IMP-MCQ","TEST-IMP-SPR"]}'::jsonb,'QB-05: one batch audit');
 select set_config('test.import_id',(select id::text from public.questions where external_ref='TEST-IMP-MCQ'),true);
 select tests.clear_authentication();
+reset role;
 update public.questions set updated_at='2020-01-01' where external_ref='TEST-IMP-MCQ';
 select is((select correct_answer from private.question_keys where question_id=current_setting('test.import_id')::uuid),'{"choice":"B"}'::jsonb,'QB-05: private key written');
 select tests.authenticate_as('import_teacher');
@@ -116,6 +119,7 @@ select is((select array_agg(c.label::text order by c.label) from public.question
 select is((select count(*)::int from public.question_courses where question_id=current_setting('test.import_id')::uuid),1,'QB-05: courses replaced');
 select is((select s.code from public.question_skills qs join public.skills s on s.id=qs.skill_id where question_id=current_setting('test.import_id')::uuid),'TEST.IMP.TWO','QB-05: skills replaced');
 select tests.clear_authentication();
+reset role;
 select is((select correct_answer from private.question_keys where question_id=current_setting('test.import_id')::uuid),'{"choice":"C"}'::jsonb,'QB-05: key upserted');
 select tests.authenticate_as('import_teacher');
 select is(public.teacher_import_questions((select jsonb_agg(pg_temp.import_spr()||jsonb_build_object('external_ref','TEST-BULK-'||i)) from generate_series(1,500) i),true)->>'new','500','QB-05: 500 rows in one call');
