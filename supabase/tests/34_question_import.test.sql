@@ -91,10 +91,12 @@ select ok((public.teacher_import_questions(jsonb_build_array(pg_temp.import_mcq(
 from unnest(array['external_ref','course_codes','topic_slug','subtopic_slug','type','difficulty','stem_md','key','pool','status']) f;
 select is(public.teacher_import_questions('[]',true),'{"ok":true,"rows":0,"new":0,"updated":0,"errors":[],"truncated":false}'::jsonb,'QB-05: empty batch is a no-op');
 select tests.clear_authentication();
+reset role;
 update public.settings set value='1' where key='import_max_rows';
 select tests.authenticate_as('import_teacher');
 select ok((public.teacher_import_questions(jsonb_build_array(pg_temp.import_mcq(),pg_temp.import_spr()),false)->'errors') @> '[{"row":0,"problem":"too_many_rows"}]','QB-05: configured limit is honored');
 select tests.clear_authentication();
+reset role;
 update public.settings set value='500' where key='import_max_rows';
 select tests.authenticate_as('import_teacher');
 -- Real writes and reimport replacement.
