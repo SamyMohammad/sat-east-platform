@@ -2,14 +2,14 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-20
+> Last updated: 2026-10-22
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
 | Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
-| Lane 3b — teacher settings (C-7, ADM-06) | [spec](superpowers/specs/2026-10-19-p1-lane3-teacher-builder-design.md) | [plan](superpowers/plans/2026-10-20-p1-lane3b-settings.md) | `feat/P1-lane3b-settings` | #42 | in review |
+| Lane 3c-1 — question import (C-4, QB-05) | [spec](superpowers/specs/2026-10-21-p1-lane3c-question-bank-design.md) | [plan](superpowers/plans/2026-10-22-p1-lane3c1-question-import.md) | `feat/P1-lane3c-question-bank` | — | in review |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
@@ -20,7 +20,7 @@ Up to 3 lanes at once, each in its own `git worktree` branched from `main` (neve
 |------|-------|-----------|
 | 1 — Student UI (Flutter) | 1a account (#37, done) → 1b activation code + test date (#38, done) → 1c catalogue + course page (P-1). Google sign-in (A-1) deferred | `lib/features/auth`, `lib/features/activation`, `lib/features/catalogue` |
 | 2 — Backend only | **Done** (#35, #36) | — |
-| 3 — Teacher area (Flutter) | 3a C-1 course builder (#40, #41, done) → 3b C-7 settings (#42) → 3c C-4/C-5 question import + editor | `lib/features/teacher/*` |
+| 3 — Teacher area (Flutter) | 3a C-1 course builder (#40, #41, done) → 3b C-7 settings (#42, #43, done) → 3c-1 import → 3c C-4/C-5 question import + editor | `lib/features/teacher/*` |
 
 Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml`, migration timestamps, `docs/07` §9 error codes, this file.
 - Lanes only append to DI and the router; each plan reserves its migration names and error codes up front.
@@ -45,6 +45,7 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | Auth Site URL | Staging Site URL was the default `localhost:3000` (confirmation link redirected there). Set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, staging dashboard; repeat for prod |
 | Password reset redirect | Add `<site>/?flow=recovery` to Supabase Redirect URLs on staging and prod (`docs/setup/auth.md` §0) — user |
 | Free topic access | Course page shows a Free badge only; opening a free topic without an enrolment is its own later story (user, 2026-10-19) |
+| Skill taxonomy | Import rejects unknown skill codes; the teacher's taxonomy (`docs/09` §4) must be loaded into `skills` before real imports |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
 | Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
 | register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |
@@ -81,6 +82,7 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | Lane 2b | Review set after a fail (LRN-04), `get_attempt_review` | #36 |
 | Lane 1a | Password reset (web), My account, name locked (AUTH-06, AUTH-04) | #37 |
 | Lane 1c | Catalogue + course page (P-1, PAY-01) | #39 |
+| Lane 3b | Teacher settings (C-7, ADM-06), staging-checked | #42, #43 |
 | Lane 3a | Teacher area + course builder (C-1, ADM-01), staging-checked | #40, #41 |
 | Lane 1b | Activation code + test date (PAY-06, AUTH-02, PAY-07) | #38 |
 | 7–8 | Spikes: encrypted HLS, Paymob | #9 |

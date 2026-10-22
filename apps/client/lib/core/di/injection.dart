@@ -38,6 +38,12 @@ import 'package:sat_east_client/features/teacher/course_builder/data/datasources
 import 'package:sat_east_client/features/teacher/course_builder/data/repositories/course_builder_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/repositories/course_builder_repository.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/questions/data/datasources/question_import_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/questions/data/repositories/question_import_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/questions/data/services/file_picker.dart';
+import 'package:sat_east_client/features/teacher/questions/domain/repositories/question_import_repository.dart';
+import 'package:sat_east_client/features/teacher/questions/domain/services/file_picker_service.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/data/datasources/teacher_settings_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/settings/data/repositories/teacher_settings_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/repositories/teacher_settings_repository.dart';
@@ -191,5 +197,21 @@ void configureDependencies({
     )
     ..registerFactory<TeacherSettingsCubit>(
       () => TeacherSettingsCubit(getIt<TeacherSettingsRepository>()),
+    )
+    ..registerLazySingleton<FilePickerService>(createFilePicker)
+    ..registerLazySingleton<QuestionImportRemoteDataSource>(
+      () => QuestionImportRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<QuestionImportRepository>(
+      () =>
+          QuestionImportRepositoryImpl(getIt<QuestionImportRemoteDataSource>()),
+    )
+    ..registerFactory<QuestionImportCubit>(
+      () => QuestionImportCubit(
+        getIt<QuestionImportRepository>(),
+        getIt<FilePickerService>(),
+      ),
     );
 }

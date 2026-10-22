@@ -26,6 +26,9 @@ abstract final class ErrorCodes {
   static const linkExpired = 'link_expired';
   static const network = 'network';
 
+  /// The user dismissed a picker; callers keep their previous state.
+  static const cancelled = 'cancelled';
+
   static const _serverCodes = <String>{
     notAuthenticated,
     forbidden,

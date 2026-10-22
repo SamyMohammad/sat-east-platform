@@ -16,6 +16,10 @@ void main() {
           GoRoute(path: '/', builder: (_, _) => const Text('Student app')),
           GoRoute(path: '/teacher', builder: (_, _) => const TeacherShell()),
           GoRoute(
+            path: '/teacher/questions/import',
+            builder: (_, _) => const TeacherShell(child: Text('Import body')),
+          ),
+          GoRoute(
             path: '/teacher/settings',
             builder: (_, _) => const TeacherShell(child: Text('Settings body')),
           ),
@@ -68,6 +72,22 @@ void main() {
             .widget<ListTile>(find.widgetWithText(ListTile, 'Course builder'))
             .selected,
         isFalse,
+      );
+      await tester.tap(find.widgetWithText(ListTile, 'Questions'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/teacher/questions/import',
+      );
+      if (width < 1024) {
+        await tester.tap(find.byTooltip('Open navigation menu'));
+        await tester.pumpAndSettle();
+      }
+      expect(
+        tester
+            .widget<ListTile>(find.widgetWithText(ListTile, 'Questions'))
+            .selected,
+        isTrue,
       );
       await tester.tap(find.widgetWithText(ListTile, 'Course builder'));
       await tester.pumpAndSettle();

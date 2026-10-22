@@ -51,6 +51,9 @@ class _TeacherNavigation extends StatelessWidget {
     final settingsSelected =
         GoRouter.maybeOf(context) != null &&
         GoRouterState.of(context).uri.path == '/teacher/settings';
+    final questionsSelected =
+        GoRouter.maybeOf(context) != null &&
+        GoRouterState.of(context).uri.path.startsWith('/teacher/questions');
     return ListView(
       padding: const EdgeInsets.all(BookletSpace.s3),
       children: [
@@ -60,7 +63,7 @@ class _TeacherNavigation extends StatelessWidget {
         ),
         const SizedBox(height: BookletSpace.s6),
         ListTile(
-          selected: !settingsSelected,
+          selected: !settingsSelected && !questionsSelected,
           selectedTileColor: theme.colorScheme.primaryContainer,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
@@ -78,6 +81,16 @@ class _TeacherNavigation extends StatelessWidget {
           leading: const Icon(Icons.settings_outlined),
           title: const Text('Settings'),
           onTap: () => _go(context, '/teacher/settings'),
+        ),
+        ListTile(
+          selected: questionsSelected,
+          selectedTileColor: theme.colorScheme.primaryContainer,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
+          ),
+          leading: const Icon(Icons.quiz_outlined),
+          title: const Text('Questions'),
+          onTap: () => _go(context, '/teacher/questions/import'),
         ),
         const Divider(),
         ListTile(
