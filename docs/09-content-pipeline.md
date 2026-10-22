@@ -23,7 +23,7 @@ Draft items  status=draft
   │ 6. Teacher review in a spreadsheet / review UI
   ▼
 approved  → 7. Pool assignment (practice / quiz / mock_reserve)
-  │ 8. Import (import-questions EF) → status=published
+  │ 8. Import (teacher_import_questions RPC) → status=published
 ```
 
 ## 2. Tooling (lives in `tools/content-pipeline/`, Python)
@@ -34,7 +34,7 @@ approved  → 7. Pool assignment (practice / quiz / mock_reserve)
 | Structure / tag / solve | LLM with vision (page image + text) via API; batch processing; JSON-schema-constrained output |
 | Validate | Python validator: JSON schema, KaTeX/LaTeX render check, duplicate detection (normalised stem hash + embedding similarity) |
 | Review | Export to `.xlsx` (one row per question) **and** the in-app review queue (T-08) |
-| Import | Upload JSON to T-07 → `import-questions` EF |
+| Import | Upload JSON to T-07 → `teacher_import_questions(p_items, p_commit)` RPC (dry run, then atomic commit) |
 
 Cost/throughput: estimate LLM cost on a 400-question pilot before running all topics.
 
@@ -49,6 +49,8 @@ Cost/throughput: estimate LLM cost on a 400-question pilot before running all to
   "skill_codes": ["ALG.LIN.PARALLEL_PERP"],
   "type": "mcq",
   "difficulty": "M",
+  "pool": "practice",
+  "status": "published",
   "stem_md": "Line $\\ell$ has equation $y = 3x - 2$. Which line is perpendicular to $\\ell$?",
   "images": ["SAT-T05-0123-fig1.png"],
   "choices": [
@@ -67,6 +69,10 @@ Cost/throughput: estimate LLM cost on a 400-question pilot before running all to
   "solved_by": "ai_double_agree"
 }
 ```
+Required fields: `external_ref`, `course_codes`, `topic_slug`, `subtopic_slug`, `type`, `difficulty`, `stem_md`, `key`, `pool`, `status`.
+
+`pool`: `practice`, `quiz`, `mock_reserve`. `status`: `draft`, `solved`, `needs_review`, `approved`, `published`.
+
 SPR key: `"key": {"accepted": ["7/2", "3.5"], "tolerance": 0}`.
 
 (Example question above is illustrative — written for this spec, not from any source.)
