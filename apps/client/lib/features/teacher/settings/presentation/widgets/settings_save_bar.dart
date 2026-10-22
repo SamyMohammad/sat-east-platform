@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_state.dart';
+import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class SettingsSaveBar extends StatelessWidget {
   const SettingsSaveBar({super.key});
@@ -29,11 +30,12 @@ class SettingsSaveBar extends StatelessWidget {
                     onPressed: state.saving ? null : cubit.discard,
                     child: const Text('Discard'),
                   ),
-                  FilledButton(
+                  LoadingButton(
+                    label: 'Save changes',
+                    isLoading: state.saving,
                     onPressed: state.canSave
                         ? () => unawaited(cubit.save())
                         : null,
-                    child: const Text('Save changes'),
                   ),
                 ],
               ),

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -73,6 +75,24 @@ void main() {
       );
       expect(save.onPressed, isNull);
     }
+  });
+  testWidgets('ADM-06: save shows a spinner and blocks taps while saving', (
+    tester,
+  ) async {
+    final pending = Completer<Result<void>>();
+    final repo = await pumpSettings(tester)
+      ..pendingSave = pending.future;
+    await tester.enterText(passMark, '80');
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Save changes'));
+    await tester.pump();
+    expect(find.byType(CircularProgressIndicator), findsOneWidget);
+    await tester.tap(find.text('Save changes'), warnIfMissed: false);
+    await tester.pump();
+    expect(repo.saves, hasLength(1));
+    pending.complete(const Success(null));
+    await tester.pumpAndSettle();
+    expect(find.byType(CircularProgressIndicator), findsNothing);
   });
   testWidgets('ADM-06: discard restores controllers and clears dirty bar', (
     tester,
