@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/env/env.dart';
@@ -25,6 +25,7 @@ import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_import_screen.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
@@ -54,6 +55,7 @@ abstract final class AppRoutes {
   static const devices = '/devices';
   static const forgotPassword = '/forgot-password';
   static const teacher = '/teacher';
+  static const teacherQuestions = '/teacher/questions';
   static const teacherQuestionImport = '/teacher/questions/import';
   static const teacherSettings = '/teacher/settings';
   static const resetPassword = '/reset-password';
@@ -113,6 +115,23 @@ GoRouter createRouter({
         path: AppRoutes.teacherQuestionImport,
         builder: (context, state) =>
             const TeacherShell(child: QuestionImportScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherQuestions,
+        builder: (context, state) =>
+            const TeacherShell(child: QuestionBankScreen()),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacherQuestions}/new',
+        builder: (context, state) => const TeacherShell(
+          child: Center(child: Text('Editor coming next')),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacherQuestions}/:id',
+        builder: (context, state) => const TeacherShell(
+          child: Center(child: Text('Editor coming next')),
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {

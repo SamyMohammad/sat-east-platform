@@ -28,6 +28,7 @@ import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
@@ -38,6 +39,7 @@ import '../../features/auth/presentation/screens/auth_screen_harness.dart'
     as auth_screens;
 import '../../features/catalogue/catalogue_fixtures.dart';
 import '../../features/teacher/course_builder/builder_fixtures.dart';
+import '../../features/teacher/questions/bank_fixtures.dart';
 import '../../features/teacher/questions/import_fixtures.dart';
 import '../../features/teacher/settings/settings_fixtures.dart';
 import 'fake_account_cubit.dart';
@@ -58,17 +60,27 @@ void main() {
       )
       ..registerFactory<QuestionImportCubit>(
         () => QuestionImportCubit(FakeImportRepository(), FakeFilePicker()),
+      )
+      ..registerFactory<QuestionBankCubit>(
+        () => QuestionBankCubit(
+          FakeBankRepository(),
+          schedule: FakeBankScheduler().schedule,
+        ),
       );
   });
   tearDown(() => getIt.unregister<CourseBuilderCubit>());
   tearDown(() => getIt.unregister<TeacherSettingsCubit>());
   tearDown(() => getIt.unregister<QuestionImportCubit>());
+  tearDown(() => getIt.unregister<QuestionBankCubit>());
 
   for (final path in [
     '/teacher',
     '/teacher/courses/c1',
     '/teacher/settings',
     '/teacher/questions/import',
+    '/teacher/questions',
+    '/teacher/questions/new',
+    '/teacher/questions/q1',
   ]) {
     for (final role in ['teacher', 'student', 'signedOut']) {
       testWidgets('ADM-01: $role opening $path is role gated', (tester) async {
@@ -104,7 +116,7 @@ void main() {
           router.routeInformationProvider.value.uri.path,
           role == 'teacher'
               ? (path == '/teacher/settings' ||
-                        path == '/teacher/questions/import')
+                        path.startsWith('/teacher/questions'))
                     ? path
                     : '/teacher/courses/c1'
               : role == 'student'
@@ -114,7 +126,12 @@ void main() {
         if (role == 'teacher') {
           expect(
             find.text(
-              path == '/teacher/questions/import'
+              path == '/teacher/questions'
+                  ? 'Question bank'
+                  : (path == '/teacher/questions/new' ||
+                        path == '/teacher/questions/q1')
+                  ? 'Editor coming next'
+                  : path == '/teacher/questions/import'
                   ? 'Choose file'
                   : path == '/teacher/settings'
                   ? 'Pass mark'

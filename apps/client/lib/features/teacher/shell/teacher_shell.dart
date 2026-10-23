@@ -90,7 +90,7 @@ class _TeacherNavigation extends StatelessWidget {
           ),
           leading: const Icon(Icons.quiz_outlined),
           title: const Text('Questions'),
-          onTap: () => _go(context, '/teacher/questions/import'),
+          onTap: () => _go(context, '/teacher/questions'),
         ),
         const Divider(),
         ListTile(
