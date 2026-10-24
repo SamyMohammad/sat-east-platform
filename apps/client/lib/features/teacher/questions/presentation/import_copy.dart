@@ -8,6 +8,7 @@ String importErrorCopy(String code) => switch (code) {
 };
 
 String importProblemCopy(String problem) {
+  const mathDelimiters = r'\( \) or \[ \]';
   final parts = problem.split(':');
   final detail = parts.skip(1).join(':');
   return switch (parts.first) {
@@ -22,6 +23,7 @@ String importProblemCopy(String problem) {
     'spr_has_choices' => 'An SPR question cannot have choices.',
     'spr_key' => 'Use parseable accepted answers and a non-negative tolerance.',
     'duplicate_ref' => 'This reference appears more than once in the file.',
+    'latex_dollar' => 'Math must use $mathDelimiters, not \$\u2026\$.',
     'too_long' => '$detail is too long.',
     'bad_status_change' => 'This status change is not allowed.',
     'too_many_rows' => 'The file exceeds the server import limit.',

@@ -51,16 +51,16 @@ Cost/throughput: estimate LLM cost on a 400-question pilot before running all to
   "difficulty": "M",
   "pool": "practice",
   "status": "published",
-  "stem_md": "Line $\\ell$ has equation $y = 3x - 2$. Which line is perpendicular to $\\ell$?",
+  "stem_md": "Line \\(\\ell\\) has equation \\(y = 3x - 2\\). Which line is perpendicular to \\(\\ell\\)?",
   "images": ["SAT-T05-0123-fig1.png"],
   "choices": [
-    {"label": "A", "body_md": "$y = 3x + 1$"},
-    {"label": "B", "body_md": "$y = -3x + 1$"},
-    {"label": "C", "body_md": "$y = -\\tfrac{1}{3}x + 4$"},
-    {"label": "D", "body_md": "$y = \\tfrac{1}{3}x - 2$"}
+    {"label": "A", "body_md": "\\(y = 3x + 1\\)"},
+    {"label": "B", "body_md": "\\(y = -3x + 1\\)"},
+    {"label": "C", "body_md": "\\(y = -\\tfrac{1}{3}x + 4\\)"},
+    {"label": "D", "body_md": "\\(y = \\tfrac{1}{3}x - 2\\)"}
   ],
   "key": {"choice": "C"},
-  "explanation_md": "Perpendicular slopes multiply to $-1$, so the slope is $-\\tfrac13$ …",
+  "explanation_md": "Perpendicular slopes multiply to \\(-1\\), so the slope is \\(-\\tfrac13\\) …",
   "misconceptions": {"A": "used parallel slope", "B": "negated but did not take reciprocal", "D": "took reciprocal but not negative"},
   "hint_md": "What is the product of the slopes of perpendicular lines?",
   "desmos_friendly": false,
@@ -69,6 +69,8 @@ Cost/throughput: estimate LLM cost on a 400-question pilot before running all to
   "solved_by": "ai_double_agree"
 }
 ```
+Math must use \( \) / \[ \]. $ is plain text (prices); a $…$ pair containing LaTeX is rejected.
+
 Required fields: `external_ref`, `course_codes`, `topic_slug`, `subtopic_slug`, `type`, `difficulty`, `stem_md`, `key`, `pool`, `status`.
 
 `pool`: `practice`, `quiz`, `mock_reserve`. `status`: `draft`, `solved`, `needs_review`, `approved`, `published`.
