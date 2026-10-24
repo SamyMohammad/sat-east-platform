@@ -198,7 +198,7 @@ update public.settings set value = '3' where key = 'quiz_size';
 select tests.authenticate_as('quiz_student');
 select is(public.get_topic('00000000-0000-0000-0000-0000000017d1'),
   jsonb_build_object('id', '00000000-0000-0000-0000-0000000017d1', 'title', 'T1', 'slug', 'quiz-t1', 'sort_label', '1.1', 'status', 'open',
-    'notes', '[]'::jsonb, 'notes_done', true,
+    'videos', '[]'::jsonb, 'video_done', true, 'notes', '[]'::jsonb, 'notes_done', true,
     'practice', jsonb_build_object('count', 10, 'min', 10), 'quiz', jsonb_build_object('state', 'available', 'practice_count', 10, 'practice_min', 10, 'best_score_pct', null, 'passed', false,
       'review', jsonb_build_object('required', false, 'attempt_id', null, 'answered', 0, 'total', 0))),
   'PRC-03: topic shape and available state at practice_min after cooldown');

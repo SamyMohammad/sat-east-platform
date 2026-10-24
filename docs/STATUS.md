@@ -10,6 +10,7 @@
 |-------------|------|------|--------|----|-------|
 | Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
 | C-6 — question reports + review queue (QB-04, QB-08) | [spec](superpowers/specs/2026-10-24-p1-c6-review-queue-design.md) | [plan](superpowers/plans/2026-10-24-p1-c6-review-queue.md) | `feat/P1-c6-review-queue` | #52 | in review |
+| L-2a — protected video server (SEC-01, LRN-02, C-2) | [spec](superpowers/specs/2026-10-24-p1-l2-video-design.md) | [plan](superpowers/plans/2026-10-24-p1-l2a-video-server.md) | `feat/P1-l2-video` | #53 | in review |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
