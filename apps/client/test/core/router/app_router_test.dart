@@ -29,6 +29,7 @@ import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_s
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
@@ -40,6 +41,7 @@ import '../../features/auth/presentation/screens/auth_screen_harness.dart'
 import '../../features/catalogue/catalogue_fixtures.dart';
 import '../../features/teacher/course_builder/builder_fixtures.dart';
 import '../../features/teacher/questions/bank_fixtures.dart';
+import '../../features/teacher/questions/editor_fixtures.dart';
 import '../../features/teacher/questions/import_fixtures.dart';
 import '../../features/teacher/settings/settings_fixtures.dart';
 import 'fake_account_cubit.dart';
@@ -66,12 +68,16 @@ void main() {
           FakeBankRepository(),
           schedule: FakeBankScheduler().schedule,
         ),
+      )
+      ..registerFactory<QuestionEditorCubit>(
+        () => QuestionEditorCubit(FakeEditorRepository(), FakeBankRepository()),
       );
   });
   tearDown(() => getIt.unregister<CourseBuilderCubit>());
   tearDown(() => getIt.unregister<TeacherSettingsCubit>());
   tearDown(() => getIt.unregister<QuestionImportCubit>());
   tearDown(() => getIt.unregister<QuestionBankCubit>());
+  tearDown(() => getIt.unregister<QuestionEditorCubit>());
 
   for (final path in [
     '/teacher',
@@ -130,7 +136,7 @@ void main() {
                   ? 'Question bank'
                   : (path == '/teacher/questions/new' ||
                         path == '/teacher/questions/q1')
-                  ? 'Editor coming next'
+                  ? (path.endsWith('/new') ? 'New question' : 'Edit question')
                   : path == '/teacher/questions/import'
                   ? 'Choose file'
                   : path == '/teacher/settings'

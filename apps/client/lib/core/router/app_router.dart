@@ -26,6 +26,7 @@ import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_s
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_editor_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_import_screen.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
@@ -74,6 +75,18 @@ GoRouter createRouter({
 }) {
   assert(refresh == null || auth != null, 'refresh requires auth');
   final galleryEnabled = !Env.isProd && (includeGallery ?? true);
+  final newEditorKey = GlobalKey<QuestionEditorScreenState>();
+  final editorKey = GlobalKey<QuestionEditorScreenState>();
+  Future<bool> confirmEditorExit(
+    GlobalKey<QuestionEditorScreenState> key,
+  ) async {
+    if (auth != null) {
+      final session = auth.state;
+      if (session is! AuthSignedIn || !session.user.isTeacher) return true;
+    }
+    return await key.currentState?.confirmLeave() ?? true;
+  }
+
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable:
@@ -123,15 +136,19 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: '${AppRoutes.teacherQuestions}/new',
-        builder: (context, state) => const TeacherShell(
-          child: Center(child: Text('Editor coming next')),
-        ),
+        builder: (context, state) =>
+            TeacherShell(child: QuestionEditorScreen(key: newEditorKey)),
+        onExit: (context, state) => confirmEditorExit(newEditorKey),
       ),
       GoRoute(
         path: '${AppRoutes.teacherQuestions}/:id',
-        builder: (context, state) => const TeacherShell(
-          child: Center(child: Text('Editor coming next')),
+        builder: (context, state) => TeacherShell(
+          child: QuestionEditorScreen(
+            key: editorKey,
+            questionId: state.pathParameters['id'],
+          ),
         ),
+        onExit: (context, state) => confirmEditorExit(editorKey),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {

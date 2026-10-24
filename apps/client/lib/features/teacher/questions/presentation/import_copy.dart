@@ -23,6 +23,7 @@ String importProblemCopy(String problem) {
     'spr_key' => 'Use parseable accepted answers and a non-negative tolerance.',
     'duplicate_ref' => 'This reference appears more than once in the file.',
     'too_long' => '$detail is too long.',
+    'bad_status_change' => 'This status change is not allowed.',
     'too_many_rows' => 'The file exceeds the server import limit.',
     _ => 'This row needs correction.',
   };
