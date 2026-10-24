@@ -143,6 +143,16 @@ class PracticeCubit extends Cubit<PracticeState> {
     emit(PracticeInProgress(set: current.set, index: index));
   }
 
+  Future<Result<void>> report(String questionId, String reason, String? note) {
+    final current = state;
+    if (isClosed ||
+        current is! PracticeInProgress ||
+        current.set.questions[current.index].id != questionId) {
+      return Future.value(const Failure(AppError(ErrorCodes.invalidInput)));
+    }
+    return _repository.report(questionId, reason, note);
+  }
+
   Future<void> practiceMore() {
     final topicId = _topicId;
     return topicId == null ? Future<void>.value() : start(topicId);

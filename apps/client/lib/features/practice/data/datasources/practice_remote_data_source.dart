@@ -2,7 +2,6 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
 import 'package:sat_east_client/core/supabase/rpc_caller.dart';
-
 import 'package:sat_east_client/features/practice/data/models/practice_model.dart';
 import 'package:sat_east_client/features/practice/domain/entities/practice.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -23,6 +22,35 @@ class PracticeRemoteDataSource {
       return Failure(mapPostgrestException(e));
     } on FormatException {
       return const Failure(_malformed);
+    } on Object catch (e) {
+      return Failure(mapUnknownError(e));
+    }
+  }
+
+  Future<Result<void>> report(
+    String questionId,
+    String reason,
+    String? note,
+  ) async {
+    try {
+      final raw = await _rpc('report_question', {
+        'p_question_id': questionId,
+        'p_reason': reason,
+        'p_note': note,
+      });
+      if (raw is! Map<String, Object?>) return const Failure(_malformed);
+      if (raw['ok'] == false && raw['error'] == ErrorCodes.rateLimited) {
+        return const Failure(AppError(ErrorCodes.rateLimited));
+      }
+      if (raw['ok'] != true ||
+          raw['report_id'] is! String ||
+          (raw['report_id']! as String).trim().isEmpty ||
+          raw['existing'] is! bool) {
+        return const Failure(_malformed);
+      }
+      return const Success(null);
+    } on PostgrestException catch (e) {
+      return Failure(mapPostgrestException(e));
     } on Object catch (e) {
       return Failure(mapUnknownError(e));
     }
