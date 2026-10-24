@@ -24,7 +24,7 @@ Every `S-xx` / `T-xx` heading in the brief was found in the export (checked by t
 
 ## Open items
 
-- [ ] **Pass mark mismatch.** `Teacher Area A` shows quiz pass mark 70% ("Locked · needs 4.3 quiz at 70%", "Quiz 4.3 below 70%"). Spec says 75 (`docs/06` settings `pass_mark`, `docs/07` §2, PRD LRN-02). Implementation reads `settings.pass_mark`; fix the design copy or ignore the sample value.
+- [x] **Pass mark mismatch (resolved).** Keep settings.pass_mark (75); the 70% in the design is sample text.
 - [ ] **Device limit 2** in design matches `settings.device_limit = 2` (PRD AUTH-04). No action.
 - [ ] **Stuck / inactive rules** ("7+ days or 3 failed quizzes", "no lesson, homework or quiz activity") are design assumptions. Confirm with the teacher or PRD ANL-06 before implementing.
 - [x] **States check (done).** Each `* Overview.dc.html` lists its screen/state rows as data (`ROWS`). Checked against the brief deliverables: all required states exist (loading/empty/error/confirm where the brief asks; QuestionView practice empty lives in `QuestionView Practice`, not its Overview). Widths: QuestionView 360/768/1280, Public Pages 360 + 1440/1280, Teacher areas 1280 (+1440 where asked).
