@@ -9,7 +9,7 @@
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
 | Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
-| L-3 — protected notes + teacher upload (SEC-02, C-3) | [spec](superpowers/specs/2026-10-24-p1-l3-notes-design.md) | [plan](superpowers/plans/2026-10-24-p1-l3-notes.md) | `feat/P1-l3-notes` | #50 | in review |
+| C-6 — question reports + review queue (QB-04, QB-08) | [spec](superpowers/specs/2026-10-24-p1-c6-review-queue-design.md) | [plan](superpowers/plans/2026-10-24-p1-c6-review-queue.md) | `feat/P1-c6-review-queue` | #52 | in review |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
@@ -27,7 +27,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 - Only the router session edits this file, after a merge; other lanes rebase on `main` after each merge and re-run gates.
 - Run Flutter gates one lane at a time (`flutter test -j 2`, OOM otherwise). Open a draft PR early so CI runs pgTAP.
 
-Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teacher videos), C-6 review queue, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice staging check (login → course → topic → practice → quiz → unlock) is the user's.
+Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teacher videos), P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice staging check (login → course → topic → practice → quiz → unlock) is the user's.
 
 ## Open
 
@@ -43,6 +43,7 @@ Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teache
 | Password reset redirect | Add `<site>/?flow=recovery` to Supabase Redirect URLs on staging and prod (`docs/setup/auth.md` §0) — user |
 | Free topic access | Course page shows a Free badge only; opening a free topic without an enrolment is its own later story (user, 2026-10-19) |
 | Skill taxonomy | Import rejects unknown skill codes; the teacher's taxonomy (`docs/09` §4) must be loaded into `skills` before real imports |
+| Regrade after key fix | Fixing a key (editor / review queue) does not regrade past attempts; its own story |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
 | Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
 | register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |
@@ -79,6 +80,7 @@ Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teache
 | Lane 2b | Review set after a fail (LRN-04), `get_attempt_review` | #36 |
 | Lane 1a | Password reset (web), My account, name locked (AUTH-06, AUTH-04) | #37 |
 | Lane 1c | Catalogue + course page (P-1, PAY-01) | #39 |
+| L-3 | Protected notes + teacher upload (SEC-02, C-3), staging-checked; finished students exempt from the notes gate | #50, #51 |
 | Lane 3c-2 | Question bank + editor (C-5, QB-06), staging-checked; editor polish, LaTeX-$ guard | #46, #47, #49 |
 | — | Open product questions settled: pass mark 75, SPR zero fill, zero-answer copy | #48 |
 | Lane 3c-1 | Question import (C-4, QB-05), staging-checked | #44, #45 |

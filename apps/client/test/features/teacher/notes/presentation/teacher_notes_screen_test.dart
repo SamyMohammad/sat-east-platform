@@ -11,6 +11,7 @@ import 'package:sat_east_client/features/teacher/questions/domain/entities/picke
 import 'package:sat_east_client/features/teacher/questions/domain/services/file_picker_service.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 
+import '../../review/review_fixtures.dart';
 import '../notes_fixtures.dart';
 
 class _Picker implements FilePickerService {
@@ -50,6 +51,8 @@ Future<FakeTeacherNotesRepository> pumpNotes(
 }
 
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
   for (final width in [360.0, 1280.0]) {
     testWidgets(
       'C-3: notes manager fits $width and offers only topic subtopics',

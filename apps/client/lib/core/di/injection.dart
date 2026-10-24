@@ -64,6 +64,13 @@ import 'package:sat_east_client/features/teacher/questions/domain/services/file_
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
+import 'package:sat_east_client/features/teacher/review/data/datasources/review_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/review/data/repositories/review_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/review/domain/repositories/review_repository.dart';
+import 'package:sat_east_client/features/teacher/review/domain/usecases/review_actions.dart';
+import 'package:sat_east_client/features/teacher/review/presentation/cubit/review_counts_cubit.dart';
+import 'package:sat_east_client/features/teacher/review/presentation/cubit/review_queue_cubit.dart';
+import 'package:sat_east_client/features/teacher/review/presentation/cubit/review_reports_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/data/datasources/teacher_settings_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/settings/data/repositories/teacher_settings_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/repositories/teacher_settings_repository.dart';
@@ -322,5 +329,25 @@ void configureDependencies({
     )
     ..registerFactory<TeacherNotesCubit>(
       () => TeacherNotesCubit(getIt<TeacherNotesActions>()),
+    )
+    ..registerLazySingleton<ReviewRemoteDataSource>(
+      () => ReviewRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<ReviewRepository>(
+      () => ReviewRepositoryImpl(getIt<ReviewRemoteDataSource>()),
+    )
+    ..registerLazySingleton<ReviewActions>(
+      () => ReviewActions(getIt<ReviewRepository>()),
+    )
+    ..registerFactory<ReviewQueueCubit>(
+      () => ReviewQueueCubit(getIt<ReviewActions>()),
+    )
+    ..registerFactory<ReviewReportsCubit>(
+      () => ReviewReportsCubit(getIt<ReviewActions>()),
+    )
+    ..registerFactory<ReviewCountsCubit>(
+      () => ReviewCountsCubit(getIt<ReviewActions>()),
     );
 }

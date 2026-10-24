@@ -31,6 +31,7 @@ import 'package:sat_east_client/features/teacher/notes/presentation/screens/teac
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_editor_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_import_screen.dart';
+import 'package:sat_east_client/features/teacher/review/presentation/screens/review_queue_screen.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
@@ -66,6 +67,7 @@ abstract final class AppRoutes {
   static String teacherNotes(String courseId, String topicId) =>
       '/teacher/courses/$courseId/topics/$topicId/notes';
   static const teacherSettings = '/teacher/settings';
+  static const teacherReview = '/teacher/review';
   static const resetPassword = '/reset-password';
 }
 
@@ -124,6 +126,10 @@ GoRouter createRouter({
             courseId: state.pathParameters['courseId'],
           ),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherReview,
+        builder: (_, _) => const TeacherShell(child: ReviewQueueScreen()),
       ),
       GoRoute(
         path: AppRoutes.teacherSettings,

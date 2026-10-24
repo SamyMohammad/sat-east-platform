@@ -9,6 +9,7 @@ import 'package:sat_east_client/features/teacher/questions/presentation/cubit/qu
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_import_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 
+import '../../review/review_fixtures.dart';
 import '../import_fixtures.dart';
 
 Future<void> pumpImport(
@@ -39,6 +40,8 @@ Future<void> pumpImport(
 }
 
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
   for (final width in [360.0, 1280.0]) {
     testWidgets('QB-05: errors and disabled import fit $width', (tester) async {
       final repo = FakeImportRepository()..dryResult = Success(badReport);

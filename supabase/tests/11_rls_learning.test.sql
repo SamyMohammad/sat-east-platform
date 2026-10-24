@@ -76,9 +76,11 @@ select throws_ok($$ insert into public.topic_progress (user_id, topic_id, quiz_p
 select is_empty($$ update public.attempts set status = 'submitted'
                    where id = '00000000-0000-0000-0000-0000000000a1' returning id $$,
                 'NFR-07: student cannot submit an attempt directly (would expose answers)');
-select lives_ok($$ insert into public.question_reports (question_id, user_id, reason)
+-- C-6: reports go through report_question only (rate limit, access, one open per question).
+select throws_ok($$ insert into public.question_reports (question_id, user_id, reason)
                    values ('00000000-0000-0000-0000-0000000000f1', auth.uid(), 'typo') $$,
-                'NFR-08: student reports a question');
+                 '42501', null,
+                 'NFR-08: student cannot insert a report directly');
 
 select tests.authenticate_as('teacher');
 select is((select count(*)::int from public.attempt_answers), 3, 'NFR-08: teacher sees all answers');

@@ -11,6 +11,7 @@ import 'package:sat_east_client/features/teacher/course_builder/presentation/cub
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 
+import '../../review/review_fixtures.dart';
 import '../builder_fixtures.dart';
 
 Future<FakeBuilderRepository> pumpBuilder(
@@ -52,6 +53,8 @@ Future<void> openMenu(WidgetTester tester, String id) async {
 }
 
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
   testWidgets('C-3: topic Notes menu opens its teacher manager', (
     tester,
   ) async {
