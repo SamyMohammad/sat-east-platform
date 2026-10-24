@@ -16,7 +16,7 @@ void main() {
           GoRoute(path: '/', builder: (_, _) => const Text('Student app')),
           GoRoute(path: '/teacher', builder: (_, _) => const TeacherShell()),
           GoRoute(
-            path: '/teacher/questions/import',
+            path: '/teacher/questions',
             builder: (_, _) => const TeacherShell(child: Text('Import body')),
           ),
           GoRoute(
@@ -77,7 +77,7 @@ void main() {
       await tester.pumpAndSettle();
       expect(
         router.routeInformationProvider.value.uri.path,
-        '/teacher/questions/import',
+        '/teacher/questions',
       );
       if (width < 1024) {
         await tester.tap(find.byTooltip('Open navigation menu'));

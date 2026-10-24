@@ -38,11 +38,20 @@ import 'package:sat_east_client/features/teacher/course_builder/data/datasources
 import 'package:sat_east_client/features/teacher/course_builder/data/repositories/course_builder_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/repositories/course_builder_repository.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/questions/data/datasources/question_bank_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/questions/data/datasources/question_editor_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/questions/data/datasources/question_import_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/questions/data/repositories/question_bank_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/questions/data/repositories/question_editor_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/questions/data/repositories/question_import_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/questions/data/services/bank_timer_scheduler.dart';
 import 'package:sat_east_client/features/teacher/questions/data/services/file_picker.dart';
+import 'package:sat_east_client/features/teacher/questions/domain/repositories/question_bank_repository.dart';
+import 'package:sat_east_client/features/teacher/questions/domain/repositories/question_editor_repository.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/repositories/question_import_repository.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/services/file_picker_service.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/data/datasources/teacher_settings_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/settings/data/repositories/teacher_settings_repository_impl.dart';
@@ -212,6 +221,35 @@ void configureDependencies({
       () => QuestionImportCubit(
         getIt<QuestionImportRepository>(),
         getIt<FilePickerService>(),
+      ),
+    )
+    ..registerLazySingleton<QuestionBankRemoteDataSource>(
+      () => QuestionBankRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<QuestionBankRepository>(
+      () => QuestionBankRepositoryImpl(getIt<QuestionBankRemoteDataSource>()),
+    )
+    ..registerFactory<QuestionBankCubit>(
+      () => QuestionBankCubit(
+        getIt<QuestionBankRepository>(),
+        schedule: scheduleBankSearch,
+      ),
+    )
+    ..registerLazySingleton<QuestionEditorRemoteDataSource>(
+      () => QuestionEditorRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<QuestionEditorRepository>(
+      () =>
+          QuestionEditorRepositoryImpl(getIt<QuestionEditorRemoteDataSource>()),
+    )
+    ..registerFactory<QuestionEditorCubit>(
+      () => QuestionEditorCubit(
+        getIt<QuestionEditorRepository>(),
+        getIt<QuestionBankRepository>(),
       ),
     );
 }

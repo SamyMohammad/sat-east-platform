@@ -40,6 +40,10 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `teacher_set_topic_flags` | p_id uuid, p_is_published boolean, p_is_free_preview boolean | `{is_published,is_free_preview}` | C-1 / ADM-01; teacher only; null flag preserves its value; unknown id: `invalid_input` |
 | `teacher_get_settings` | none | `[{key,group,label,unit,min,max,value}]` in server spec order | C-7 / ADM-06; teacher only; exposes only editable keys and server-owned integer bounds |
 | `teacher_import_questions` | `p_items jsonb, p_commit boolean` | `{ok, rows, new, updated, errors, truncated}` | Teacher-only dry run or atomic import, keyed by external_ref; row problems returned, invalid commit rejected. |
+| `teacher_list_questions` | p_filter jsonb, p_page int | `{total,page,page_size,rows}` | C-5 / QB-06; teacher only; one-based pages; page size from bank_page_size; literal ILIKE search; no answer fields |
+| `teacher_get_question` | p_id uuid | Import-shaped row plus `{id,version,updated_at}`, including private key fields | C-5 / QB-06; teacher only; topic course first; unknown id: invalid_input |
+| `teacher_save_question` | p_id uuid, p_row jsonb, p_expected_version int | `{id,version}` or `{ok:false,errors}` | C-5 / QB-06; teacher only; shared import validation, lifecycle guard, locked expected-version check; version_conflict on stale update; safe per-question audit |
+| `teacher_list_topics_tree` | none | `[{course_code,topics:[{id,slug,title,subtopics}]}]` | C-5 / QB-06; teacher only; includes unpublished nodes; subtopic slug uses slugify(title) |
 | `teacher_update_settings` | p_values jsonb | `{ok:true,updated:[keys]}` | C-7 / ADM-06; teacher only; object patch, numeric integers in the private allow-list ranges; warning must be strictly below proposed quiz duration; locks patch keys and the quiz triple before validation; all-or-nothing; per-key `settings.update` audit with before/after and updated_at; empty object is a no-op; errors `not_authenticated`, `forbidden`, `invalid_input`; authenticated execute only |
 
 Teacher-only `teacher_*` RPCs may read/write keys for the teacher only.
@@ -200,6 +204,7 @@ log everything for teacher review.
 - Registration and removal lock the caller's `profiles` row, so parallel calls cannot overshoot the limit.
 
 ## 9. Error codes
+`version_conflict` (question changed since loading; reload before saving),
 `in_use` (course-builder deletion blocked by children or FK references),
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
 `practice_needed` (practice_count below settings.practice_min), `review_needed` (finish the review set before a quiz retake), `attempt_not_submitted` (quiz review requires a submitted attempt), `attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,

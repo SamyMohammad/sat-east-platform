@@ -4,6 +4,7 @@ abstract final class ErrorCodes {
   static const forbidden = 'forbidden';
   static const invalidInput = 'invalid_input';
   static const inUse = 'in_use';
+  static const versionConflict = 'version_conflict';
   static const deviceLimit = 'device_limit';
   static const rateLimited = 'rate_limited';
   static const internal = 'internal';
@@ -34,6 +35,7 @@ abstract final class ErrorCodes {
     forbidden,
     invalidInput,
     inUse,
+    versionConflict,
     deviceLimit,
     rateLimited,
     internal,
