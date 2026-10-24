@@ -27,6 +27,7 @@ import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/notes/presentation/screens/teacher_notes_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_editor_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_import_screen.dart';
@@ -62,6 +63,8 @@ abstract final class AppRoutes {
   static const teacher = '/teacher';
   static const teacherQuestions = '/teacher/questions';
   static const teacherQuestionImport = '/teacher/questions/import';
+  static String teacherNotes(String courseId, String topicId) =>
+      '/teacher/courses/$courseId/topics/$topicId/notes';
   static const teacherSettings = '/teacher/settings';
   static const resetPassword = '/reset-password';
 }
@@ -153,6 +156,15 @@ GoRouter createRouter({
           ),
         ),
         onExit: (context, state) => confirmEditorExit(editorKey),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/notes',
+        builder: (context, state) => TeacherShell(
+          child: TeacherNotesScreen(
+            courseId: state.pathParameters['courseId']!,
+            topicId: state.pathParameters['topicId']!,
+          ),
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {

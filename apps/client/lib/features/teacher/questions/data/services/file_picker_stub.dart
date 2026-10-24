@@ -6,6 +6,10 @@ FilePickerService createFilePicker() => StubFilePickerService();
 
 class StubFilePickerService implements FilePickerService {
   @override
+  Future<Result<PickedPdf>> pickPdf() async =>
+      const Failure(AppError('unsupported'));
+
+  @override
   Future<Result<PickedFile>> pickJson() async =>
       const Failure(AppError('unsupported'));
 }

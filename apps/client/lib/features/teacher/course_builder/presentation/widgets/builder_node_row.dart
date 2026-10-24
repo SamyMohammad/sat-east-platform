@@ -22,6 +22,7 @@ class BuilderNodeRow extends StatefulWidget {
     this.isPublished,
     this.isFreePreview,
     this.onPublish,
+    this.onNotes,
     this.onPreview,
     super.key,
   });
@@ -41,6 +42,7 @@ class BuilderNodeRow extends StatefulWidget {
   final bool? isPublished;
   final bool? isFreePreview;
   final VoidCallback? onPublish;
+  final VoidCallback? onNotes;
   final ValueChanged<bool>? onPreview;
   @override
   State<BuilderNodeRow> createState() => _BuilderNodeRowState();
@@ -139,6 +141,8 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
       ),
       items: [
         const PopupMenuItem(value: 'rename', child: Text('Rename')),
+        if (widget.onNotes != null)
+          const PopupMenuItem(value: 'notes', child: Text('Notes\u2026')),
         if (widget.onPublish != null)
           PopupMenuItem(
             value: 'publish',
@@ -168,6 +172,8 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
         });
       case 'publish':
         widget.onPublish?.call();
+      case 'notes':
+        widget.onNotes?.call();
       case 'delete':
         unawaited(widget.onDelete());
     }

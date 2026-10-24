@@ -31,6 +31,12 @@ abstract final class ErrorCodes {
   /// The user dismissed a picker; callers keep their previous state.
   static const cancelled = 'cancelled';
 
+  // Client-only notes upload checks (UX; the bucket re-validates).
+  static const notesPdfRequired = 'notes_pdf_required';
+  static const notesTooLarge = 'notes_too_large';
+  static const notesInvalidPdf = 'notes_invalid_pdf';
+  static const notesCleanupFailed = 'notes_cleanup_failed';
+
   static const _serverCodes = <String>{
     notAuthenticated,
     forbidden,

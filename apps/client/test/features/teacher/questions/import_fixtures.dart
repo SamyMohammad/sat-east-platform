@@ -51,6 +51,10 @@ class FakeImportRepository implements QuestionImportRepository {
 }
 
 class FakeFilePicker implements FilePickerService {
+  @override
+  Future<Result<PickedPdf>> pickPdf() async =>
+      const Failure(AppError('cancelled'));
+
   Result<PickedFile> result = const Success(
     PickedFile(name: 'bank.json', text: '[{"custom":[null,true,3.5]},null]'),
   );
