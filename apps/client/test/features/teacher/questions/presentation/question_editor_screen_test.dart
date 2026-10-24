@@ -15,6 +15,7 @@ import 'package:sat_east_client/shared/widgets/question_view/question_data.dart'
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
 
+import '../../review/review_fixtures.dart';
 import '../bank_fixtures.dart';
 import '../editor_fixtures.dart';
 
@@ -71,6 +72,44 @@ Future<GoRouter> pumpEditor(
 }
 
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
+  testWidgets(
+    'T-08: report resolution hides panel and preserves dirty editor',
+    (tester) async {
+      await unregisterReviewFakes();
+      final reports = FakeReviewRepository()..reportsValue = openReports;
+      registerReviewFakes(repository: reports);
+      final cubit = QuestionEditorCubit(
+        FakeEditorRepository(),
+        FakeBankRepository(),
+      );
+      await pumpEditor(tester, cubit);
+      expect(find.text('Reports'), findsOneWidget);
+      expect(find.text('Student name'), findsOneWidget);
+      expect(find.text('Answer key is wrong'), findsOneWidget);
+      expect(find.text('<b>Plain report</b>'), findsOneWidget);
+      cubit.editContent(stemMd: 'Changed draft');
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Mark fixed'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.widgetWithText(TextField, 'Optional note'),
+        'Resolved',
+      );
+      await tester.tap(
+        find.descendant(
+          of: find.byType(AlertDialog),
+          matching: find.widgetWithText(FilledButton, 'Mark fixed'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(reports.resolutions, [('q1', 'fixed', 'Resolved')]);
+      expect(find.text('Reports'), findsNothing);
+      expect(cubit.state.draft?.stemMd, 'Changed draft');
+      expect(cubit.state.isDirty, isTrue);
+    },
+  );
   for (final width in [360.0, 1280.0]) {
     testWidgets('QB-06: editor and real preview fit $width', (tester) async {
       await pumpEditor(

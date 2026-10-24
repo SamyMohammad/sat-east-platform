@@ -2,9 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/features/teacher/review/domain/entities/review.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 
+import '../review/review_fixtures.dart';
+
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
+  testWidgets('T-08: badge sums counts and refreshes on return', (
+    tester,
+  ) async {
+    await unregisterReviewFakes();
+    final repo = FakeReviewRepository()
+      ..countsValue = const ReviewCounts(reported: 2, needsReview: 3);
+    registerReviewFakes(repository: repo);
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1280, 900);
+    addTearDown(tester.view.reset);
+    final router = GoRouter(
+      initialLocation: '/teacher/review',
+      routes: [
+        GoRoute(
+          path: '/teacher/review',
+          builder: (_, _) => const TeacherShell(child: Text('Queue body')),
+        ),
+        GoRoute(
+          path: '/outside',
+          builder: (_, _) => const Scaffold(body: Text('Outside')),
+        ),
+      ],
+    );
+    addTearDown(() async {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    });
+    await tester.pumpWidget(
+      MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('5'), findsOneWidget);
+    expect(
+      tester.widget<ListTile>(find.widgetWithText(ListTile, 'Review')).selected,
+      isTrue,
+    );
+    final pushed = router.push<void>('/outside');
+    await tester.pumpAndSettle();
+    repo.countsValue = const ReviewCounts(reported: 1, needsReview: 0);
+    router.pop();
+    await pushed;
+    await tester.pumpAndSettle();
+    expect(find.text('1'), findsOneWidget);
+    expect(repo.countCalls, greaterThan(1));
+    await tester.tap(find.widgetWithText(ListTile, 'Review'));
+    await tester.pumpAndSettle();
+    expect(router.routeInformationProvider.value.uri.path, '/teacher/review');
+  });
   for (final width in [360.0, 1023.0, 1024.0, 1280.0]) {
     testWidgets('ADM-01: teacher shell navigation at $width', (tester) async {
       tester.view.devicePixelRatio = 1;

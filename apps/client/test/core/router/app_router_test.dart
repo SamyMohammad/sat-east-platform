@@ -46,6 +46,7 @@ import '../../features/teacher/notes/notes_fixtures.dart';
 import '../../features/teacher/questions/bank_fixtures.dart';
 import '../../features/teacher/questions/editor_fixtures.dart';
 import '../../features/teacher/questions/import_fixtures.dart';
+import '../../features/teacher/review/review_fixtures.dart';
 import '../../features/teacher/settings/settings_fixtures.dart';
 import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
@@ -56,6 +57,8 @@ import 'fake_topic_cubit.dart';
 part 'fake_quiz_cubit.dart';
 
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
   setUp(() {
     getIt
       ..registerFactory<TeacherNotesCubit>(
@@ -130,6 +133,7 @@ void main() {
     '/teacher/courses/c1',
     '/teacher/courses/c1/topics/t1/notes',
     '/teacher/settings',
+    '/teacher/review',
     '/teacher/questions/import',
     '/teacher/questions',
     '/teacher/questions/new',
@@ -168,7 +172,8 @@ void main() {
         expect(
           router.routeInformationProvider.value.uri.path,
           role == 'teacher'
-              ? (path == '/teacher/settings' ||
+              ? (path == '/teacher/review' ||
+                        path == '/teacher/settings' ||
                         path.startsWith('/teacher/questions') ||
                         path.endsWith('/notes'))
                     ? path
@@ -180,7 +185,9 @@ void main() {
         if (role == 'teacher') {
           expect(
             find.text(
-              path == '/teacher/questions'
+              path == '/teacher/review'
+                  ? 'Review queue'
+                  : path == '/teacher/questions'
                   ? 'Question bank'
                   : (path == '/teacher/questions/new' ||
                         path == '/teacher/questions/q1')

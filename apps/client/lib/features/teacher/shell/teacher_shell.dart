@@ -1,14 +1,54 @@
-import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'dart:async';
 
-class TeacherShell extends StatelessWidget {
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sat_east_client/core/di/injection.dart';
+import 'package:sat_east_client/core/router/route_refresh_listener.dart';
+import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/features/teacher/review/presentation/cubit/review_counts_cubit.dart';
+
+class TeacherShell extends StatefulWidget {
   const TeacherShell({super.key, this.child});
 
   final Widget? child;
 
   @override
-  Widget build(BuildContext context) => LayoutBuilder(
+  State<TeacherShell> createState() => _TeacherShellState();
+}
+
+class _TeacherShellState extends State<TeacherShell> {
+  late final ReviewCountsCubit _counts;
+  @override
+  void initState() {
+    super.initState();
+    _counts = getIt<ReviewCountsCubit>();
+    unawaited(_counts.refresh());
+  }
+
+  @override
+  void dispose() {
+    unawaited(_counts.close());
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final body = _shell(context);
+    return BlocProvider.value(
+      value: _counts,
+      child: GoRouter.maybeOf(context) == null
+          ? body
+          : RouteRefreshListener(
+              location: GoRouterState.of(context).uri.path,
+              refreshOnReselect: true,
+              onRefresh: () => unawaited(_counts.refresh()),
+              child: body,
+            ),
+    );
+  }
+
+  Widget _shell(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final expanded =
           BookletLayout.forWidth(constraints.maxWidth) ==
@@ -28,7 +68,7 @@ class TeacherShell extends StatelessWidget {
                 ),
                 const VerticalDivider(width: BookletStroke.thin),
               ],
-              Expanded(child: child ?? const _BuilderPlaceholder()),
+              Expanded(child: widget.child ?? const _BuilderPlaceholder()),
             ],
           ),
         ),
@@ -51,6 +91,9 @@ class _TeacherNavigation extends StatelessWidget {
     final settingsSelected =
         GoRouter.maybeOf(context) != null &&
         GoRouterState.of(context).uri.path == '/teacher/settings';
+    final reviewSelected =
+        GoRouter.maybeOf(context) != null &&
+        GoRouterState.of(context).uri.path == '/teacher/review';
     final questionsSelected =
         GoRouter.maybeOf(context) != null &&
         GoRouterState.of(context).uri.path.startsWith('/teacher/questions');
@@ -63,7 +106,7 @@ class _TeacherNavigation extends StatelessWidget {
         ),
         const SizedBox(height: BookletSpace.s6),
         ListTile(
-          selected: !settingsSelected && !questionsSelected,
+          selected: !settingsSelected && !questionsSelected && !reviewSelected,
           selectedTileColor: theme.colorScheme.primaryContainer,
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
@@ -91,6 +134,14 @@ class _TeacherNavigation extends StatelessWidget {
           leading: const Icon(Icons.quiz_outlined),
           title: const Text('Questions'),
           onTap: () => _go(context, '/teacher/questions'),
+        ),
+        ListTile(
+          selected: reviewSelected,
+          selectedTileColor: theme.colorScheme.primaryContainer,
+          leading: const Icon(Icons.fact_check_outlined),
+          title: const Text('Review'),
+          trailing: const _ReviewBadge(),
+          onTap: () => _go(context, '/teacher/review'),
         ),
         const Divider(),
         ListTile(
@@ -121,4 +172,32 @@ class _BuilderPlaceholder extends StatelessWidget {
       ],
     ),
   );
+}
+
+class _ReviewBadge extends StatelessWidget {
+  const _ReviewBadge();
+  @override
+  Widget build(BuildContext context) =>
+      BlocBuilder<ReviewCountsCubit, ReviewCountsState>(
+        builder: (context, state) {
+          if (state.error != null) {
+            return IconButton(
+              tooltip: 'Retry review count',
+              onPressed: () =>
+                  unawaited(context.read<ReviewCountsCubit>().refresh()),
+              icon: const Icon(Icons.refresh),
+            );
+          }
+          if (state.counts case final counts?) {
+            return counts.total == 0
+                ? const SizedBox.shrink()
+                : Badge.count(count: counts.total);
+          }
+          return const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          );
+        },
+      );
 }

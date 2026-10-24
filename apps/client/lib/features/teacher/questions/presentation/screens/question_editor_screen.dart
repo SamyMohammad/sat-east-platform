@@ -7,8 +7,8 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
-import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_form.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_preview.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_reports.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_save_bar.dart';
 
 class QuestionEditorScreen extends StatefulWidget {
@@ -132,7 +132,9 @@ class QuestionEditorScreenState extends State<QuestionEditorScreen> {
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
-                              child: SingleChildScrollView(child: EditorForm()),
+                              child: SingleChildScrollView(
+                                child: EditorWithReports(),
+                              ),
                             ),
                             SizedBox(width: BookletSpace.s4),
                             Expanded(child: EditorPreview()),
@@ -142,7 +144,7 @@ class QuestionEditorScreenState extends State<QuestionEditorScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              EditorForm(),
+                              EditorWithReports(),
                               SizedBox(height: 640, child: EditorPreview()),
                             ],
                           ),

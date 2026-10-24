@@ -11,6 +11,7 @@ import 'package:sat_east_client/features/teacher/questions/presentation/cubit/qu
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 
+import '../../review/review_fixtures.dart';
 import '../bank_fixtures.dart';
 
 Future<GoRouter> pumpBank(
@@ -62,6 +63,8 @@ Future<GoRouter> pumpBank(
 }
 
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
   for (final width in [360.0, 1280.0]) {
     testWidgets('QB-06: title stays at the top for one or 25 rows at $width', (
       tester,

@@ -11,6 +11,7 @@ import 'package:sat_east_client/features/teacher/settings/presentation/cubit/tea
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 
+import '../../review/review_fixtures.dart';
 import '../settings_fixtures.dart';
 
 Finder get passMark => find.byKey(const ValueKey('setting-pass_mark'));
@@ -46,6 +47,8 @@ Future<FakeTeacherSettingsRepository> pumpSettings(
 }
 
 void main() {
+  setUp(registerReviewFakes);
+  tearDown(unregisterReviewFakes);
   for (final width in [360.0, 1280.0]) {
     testWidgets('ADM-06: groups and server range fit $width', (tester) async {
       await pumpSettings(tester, width: width);
