@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/env/env.dart';
@@ -19,6 +19,8 @@ import 'package:sat_east_client/features/catalogue/presentation/screens/catalogu
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/notes/presentation/screens/notes_viewer_screen.dart'
+    deferred as notes_viewer;
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
@@ -43,6 +45,8 @@ abstract final class AppRoutes {
   static const activate = '/activate';
   static const courses = '/courses';
   static String topic(String id) => '/courses/topics/$id';
+  static String notes(String topicId, String assetId) =>
+      '/courses/topics/$topicId/notes/$assetId';
   static String practice(String id) => '/courses/topics/$id/practice';
   static String quiz(String id) => '/courses/topics/$id/quiz';
   static String quizResult(String id) => '/courses/topics/$id/quiz/result';
@@ -198,6 +202,13 @@ GoRouter createRouter({
                         ),
                       ),
                       GoRoute(
+                        path: 'topics/:topicId/notes/:assetId',
+                        builder: (context, state) => _DeferredNotesViewer(
+                          topicId: state.pathParameters['topicId']!,
+                          assetId: state.pathParameters['assetId']!,
+                        ),
+                      ),
+                      GoRoute(
                         path: 'topics/:topicId/practice',
                         builder: (context, state) => PracticeScreen(
                           topicId: state.pathParameters['topicId']!,
@@ -327,3 +338,50 @@ String _pathFor(AppShellDestination destination) => switch (destination) {
 
 bool _isPublic(String path) =>
     path == AppRoutes.catalogue || path.startsWith('${AppRoutes.catalogue}/');
+
+class _DeferredNotesViewer extends StatefulWidget {
+  const _DeferredNotesViewer({required this.topicId, required this.assetId});
+  final String topicId;
+  final String assetId;
+  @override
+  State<_DeferredNotesViewer> createState() => _DeferredNotesViewerState();
+}
+
+class _DeferredNotesViewerState extends State<_DeferredNotesViewer> {
+  late Future<void> _loaded;
+  @override
+  void initState() {
+    super.initState();
+    _loaded = notes_viewer.loadLibrary();
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<void>(
+    future: _loaded,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Couldn't load the notes viewer."),
+              TextButton(
+                onPressed: () => setState(() {
+                  _loaded = notes_viewer.loadLibrary();
+                }),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        );
+      }
+      if (snapshot.connectionState != ConnectionState.done) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return notes_viewer.NotesViewerScreen(
+        topicId: widget.topicId,
+        assetId: widget.assetId,
+      );
+    },
+  );
+}

@@ -90,6 +90,7 @@ class PracticeCubit extends Cubit<PracticeState> {
       case Failure(:final error):
         emit(
           switch (error.code) {
+            ErrorCodes.notesNeeded ||
             ErrorCodes.topicLocked ||
             ErrorCodes.accessExpired ||
             ErrorCodes.notEnrolled => PracticeFailed(error),

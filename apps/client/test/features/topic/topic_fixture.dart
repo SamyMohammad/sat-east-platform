@@ -16,6 +16,8 @@ Map<String, Object?> topicPayload({String state = 'available'}) => {
   'slug': 'linear-equations',
   'sort_label': '1.1',
   'status': 'open',
+  'notes': <Object?>[],
+  'notes_done': true,
   'practice': <String, Object?>{'count': 10, 'min': 10},
   'quiz': {
     'state': state,

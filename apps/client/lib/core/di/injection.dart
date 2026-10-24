@@ -26,6 +26,10 @@ import 'package:sat_east_client/features/course_map/data/datasources/course_map_
 import 'package:sat_east_client/features/course_map/data/repositories/course_map_repository_impl.dart';
 import 'package:sat_east_client/features/course_map/domain/repositories/course_map_repository.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
+import 'package:sat_east_client/features/notes/data/datasources/notes_remote_data_source.dart';
+import 'package:sat_east_client/features/notes/data/repositories/notes_repository_impl.dart';
+import 'package:sat_east_client/features/notes/domain/repositories/notes_repository.dart';
+import 'package:sat_east_client/features/notes/presentation/cubit/notes_viewer_cubit.dart';
 import 'package:sat_east_client/features/practice/data/datasources/practice_remote_data_source.dart';
 import 'package:sat_east_client/features/practice/data/repositories/practice_repository_impl.dart';
 import 'package:sat_east_client/features/practice/domain/repositories/practice_repository.dart';
@@ -250,6 +254,22 @@ void configureDependencies({
       () => QuestionEditorCubit(
         getIt<QuestionEditorRepository>(),
         getIt<QuestionBankRepository>(),
+      ),
+    )
+    ..registerLazySingleton<NotesRemoteDataSource>(
+      () => NotesRemoteDataSource(
+        (path) => getIt<SupabaseClient>().storage.from('notes').download(path),
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<NotesRepository>(
+      () => NotesRepositoryImpl(getIt<NotesRemoteDataSource>()),
+    )
+    ..registerFactory<NotesViewerCubit>(
+      () => NotesViewerCubit(
+        getIt<NotesRepository>(),
+        getIt<AuthRepository>(),
+        DateTime.now,
       ),
     );
 }

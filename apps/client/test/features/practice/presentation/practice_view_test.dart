@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
@@ -111,6 +110,14 @@ feedback.PracticeFeedback _feedback(WidgetTester tester) =>
     (_question(tester).mode as PracticeMode).feedback;
 
 void main() {
+  testWidgets('L-3: notes-needed practice copy', (tester) async {
+    await _pump(
+      tester,
+      _cubit(const PracticeFailed(AppError(ErrorCodes.notesNeeded))),
+    );
+    expect(find.text('Open the notes first.'), findsOneWidget);
+  });
+
   testWidgets('PRC-01: loading shows a skeleton', (tester) async {
     await _pump(tester, _cubit(const PracticeLoading()));
     expect(find.byType(BookletSkeleton), findsOneWidget);

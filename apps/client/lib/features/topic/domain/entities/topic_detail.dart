@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
 
 enum TopicStatus { open, completed }
 
@@ -11,6 +12,8 @@ class TopicDetail extends Equatable {
     required this.practiceCount,
     required this.practiceMin,
     required this.quiz,
+    this.notes = const [],
+    this.notesDone = true,
   });
 
   final String id;
@@ -20,6 +23,10 @@ class TopicDetail extends Equatable {
   final int practiceCount;
   final int practiceMin;
   final QuizStatus quiz;
+  final List<TopicNote> notes;
+  final bool notesDone;
+
+  bool get practiceLockedByNotes => notes.isNotEmpty && !notesDone;
 
   @override
   List<Object?> get props => [
@@ -30,6 +37,8 @@ class TopicDetail extends Equatable {
     practiceCount,
     practiceMin,
     quiz,
+    notes,
+    notesDone,
   ];
 }
 

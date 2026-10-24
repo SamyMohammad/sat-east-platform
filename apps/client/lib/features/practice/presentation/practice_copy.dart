@@ -14,7 +14,9 @@ abstract final class PracticeCopy {
   static String summaryBody(int correctFirstTry, int total) =>
       'You got $correctFirstTry of $total right on the first try.';
 
-  static String errorBody(String code) => code == ErrorCodes.network
+  static String errorBody(String code) => code == ErrorCodes.notesNeeded
+      ? 'Open the notes first.'
+      : code == ErrorCodes.network
       ? LearningCopy.networkBody
       : LearningCopy.genericBody;
 }
