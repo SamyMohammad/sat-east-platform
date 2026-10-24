@@ -17,10 +17,10 @@ insert into public.topics (id, course_id, title, slug, is_published, is_free_pre
   ('00000000-0000-0000-0000-0000000000d3', '00000000-0000-0000-0000-0000000000c1', 'Draft', 'draft', false, true);
 insert into public.subtopics (id, topic_id, title)
   values ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000d1', 'S1');
-insert into public.topic_assets (id, topic_id, kind, title) values
-  ('00000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-0000000000d1', 'video', 'Paid video'),
-  ('00000000-0000-0000-0000-0000000000b2', '00000000-0000-0000-0000-0000000000d2', 'video', 'Free video'),
-  ('00000000-0000-0000-0000-0000000000b3', '00000000-0000-0000-0000-0000000000d3', 'video', 'Draft video');
+insert into public.topic_assets (id, topic_id, kind, title, ready) values
+  ('00000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-0000000000d1', 'video', 'Paid video', true),
+  ('00000000-0000-0000-0000-0000000000b2', '00000000-0000-0000-0000-0000000000d2', 'video', 'Free video', true),
+  ('00000000-0000-0000-0000-0000000000b3', '00000000-0000-0000-0000-0000000000d3', 'video', 'Draft video', true);
 insert into public.video_chapters (asset_id, subtopic_id, start_s, label)
   values ('00000000-0000-0000-0000-0000000000b1', '00000000-0000-0000-0000-0000000000e1', 0, 'Intro');
 insert into public.live_sessions (course_id, title, starts_at, duration_min)

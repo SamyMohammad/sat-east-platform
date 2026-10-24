@@ -27,6 +27,9 @@ insert into public.topic_assets(id,topic_id,subtopic_id,kind,title,sort,storage_
  (pg_temp.n(33),pg_temp.n(12),null,'notes','Locked',1,pg_temp.n(12)||'/'||pg_temp.n(33)||'.pdf',2,true),
  (pg_temp.n(34),pg_temp.n(14),null,'notes','Pending',1,pg_temp.n(14)||'/'||pg_temp.n(34)||'.pdf',2,false),
  (pg_temp.n(36),pg_temp.n(11),null,'video','Video',1,pg_temp.n(11)||'/'||pg_temp.n(36)||'.pdf',null,true);
+-- Keep this ready video for the kind check without gating the notes scenarios.
+insert into public.video_progress(user_id,asset_id,pct)
+values(tests.get_supabase_uid('notes_student'),pg_temp.n(36),100);
 -- Inspect the installed Storage schema rather than guessing additional required columns.
 -- id/timestamps have defaults; bucket_id/name/owner are explicitly provided below.
 select is_empty($$select column_name from information_schema.columns
@@ -86,7 +89,7 @@ select is(public.get_topic(pg_temp.n(11))->'notes',jsonb_build_array(
  'L-3: get_topic lists ready notes in sort order');
 select is(public.get_topic(pg_temp.n(11))->'notes_done','false'::jsonb,'L-3: notes initially incomplete');
 select is((select array_agg(k order by k) from jsonb_object_keys(public.get_topic(pg_temp.n(11))-'notes'-'notes_done') k),
- array['id','practice','quiz','slug','sort_label','status','title'],'L-3: original topic keys unchanged');
+ array['id','practice','quiz','slug','sort_label','status','title','video_done','videos'],'L-3: topic keys include video fields');
 select lives_ok($$select public.mark_notes_opened(pg_temp.n(31))$$,'L-3: first open succeeds');
 select is(public.get_topic(pg_temp.n(11))->'notes_done','true'::jsonb,'L-3: opening any notes completes step');
 select lives_ok($$select public.get_practice_questions(pg_temp.n(11))$$,'L-3: practice unlocked');
