@@ -1,9 +1,11 @@
 -- C-4 / QB-05 / QB-06. From supabase/templates/rpc.sql.
 -- Internal validation helpers run inside the existing teacher-authorized RPCs.
 create or replace function private.has_dollar_latex(p_text text)
-returns boolean language sql immutable set search_path='' as $$
- select coalesce(p_text ~ $regex$\$[^$]*[\\^_{}][^$]*\$$regex$, false);
-$$;
+returns boolean language sql immutable set search_path='' as $fn$
+ -- A $...$ pair whose inside has a LaTeX signal (\ ^ _ { }). Plain-quoted:
+ -- a dollar-quoted pattern ending in \$ would close the outer body early.
+ select coalesce(p_text ~ '\$[^$]*[\\^_{}][^$]*\$', false);
+$fn$;
 revoke all on function private.has_dollar_latex(text) from public,anon,authenticated,service_role;
 
 create or replace function private.validate_question_row(p_row jsonb,p_index int)
