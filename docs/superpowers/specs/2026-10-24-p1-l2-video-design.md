@@ -111,3 +111,34 @@ Students watch each topic's video inside the app, protected (an encrypted HLS st
 - The player controls' layout, following `Learning Path.dc.html` / `Content and Help.dc.html`.
 - The watermark motion pattern: a slow drift, repositioned every N seconds, from settings.
 - Whether the CLI signs in with an email OTP or a local service-role key; it should be documented either way.
+
+## Amendments after code orientation (router, 2026-10-24)
+
+These override the matching lines above.
+
+- **A1 — `private.video_keys` already exists** (f2) with the columns `asset_id, key bytea, r2_prefix text not null`. It is altered, not created. There is **no IV column**: the IV sits in the playlist's `#EXT-X-KEY` line (or comes from the segment sequence number).
+- **A2 — Two-step register, like notes.**
+  1. `teacher_create_video_asset(topic, subtopic?, title, duration_s, size_mb)` reserves space under a lock (a `for update` on the cap setting row, so two creates can't race past 9 GB). It returns the id with `ready=false`. **The quota counts unready rows too.**
+  2. The CLI uploads to `videos/<id>/`.
+  3. `teacher_confirm_video_asset(id, key_hex)` stores the key and sets `ready`.
+  
+  The audit rows never contain the key.
+- **A3 — Delete runs in the EF, so the R2 bytes go too.** `POST /api/teacher/video-delete {asset_id}`:
+  1. It checks the caller is a teacher by calling `teacher_video_prefix(id)` as the caller.
+  2. It lists and deletes `videos/<id>/*` in R2.
+  3. Then it calls `teacher_delete_video(id)`, which deletes the progress, chapters, key and asset rows.
+  
+  The R2 delete is idempotent, so a retry is safe.
+- **A4 — App Check on `/video-otp`**, reusing `appCheckGate`, as docs/07 §8 requires.
+- **A5 — Access goes through one user-context RPC.** `video_playback_grant(asset_id)` runs as the caller, so `auth.uid()` and `device_allowed()` work. It checks access, the open topic, the device, `ready` and the provider. It returns the watermark fields (`full_name`, a short id = the first 6 hex characters of the uid in upper case) and the TTLs. The EF signs the token. Only the key read uses the service role. The token carries `iat`, so the key route enforces `video_key_ttl_s` and the playlists enforce `video_playlist_ttl_s`.
+- **A6 — EF plumbing.**
+  - `config.toml` gets `[functions.api] verify_jwt = false`.
+  - URLs are built from `SUPABASE_URL` + `/functions/v1/api/v/<token>/…`.
+  - CORS is added for the `/video-otp` and `/v/*` routes.
+  - **The R2 bucket needs a CORS rule allowing GET from the Pages and staging origins.** The user adds it in the dashboard.
+- **A7 — Where the gate is enforced.**
+  - `private.require_notes_opened` is redefined to check the video first (`video_needed`), then the notes. Practice (`get_practice_questions`, `check_practice_answer`) is therefore gated server-side without copying those bodies.
+  - Video before notes is **ordered by the client only**: reading notes early gives no advantage.
+  - New error code `video_needed`, added to docs/07 §9, the EF mirror and the client `ErrorCodes`.
+- **A8 — RLS.** The `topic_assets` student policy also requires `ready` for `kind='video'`. The new columns (`provider`, `size_mb`) get explicit column grants.
+- **A9 — `video-otp` rate limit:** `rate_video_otp_per_min` = 30. It is generous because the stall watchdog asks for a new OTP.
