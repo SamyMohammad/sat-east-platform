@@ -109,3 +109,9 @@ Do **not** wait for all 400/topic. For launch:
 - Disagreement rate of double-solve is unknown — measure on the pilot topic.
 - Plan for: 100% review of `needs_review`, plus a ~10% random sample of `solved` per topic; if the
   sample error rate > 2%, review that topic fully.
+
+## 9. Publishing a video
+
+Use the local [video publishing CLI](../tools/video-pipeline/README.md) to package a single
+540p encrypted HLS rendition, reserve storage quota, upload to R2 and confirm the asset.
+The README covers ffmpeg installation, teacher sign-in, offline dry-runs and failure cleanup.

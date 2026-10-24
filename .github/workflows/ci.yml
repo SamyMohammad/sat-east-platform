@@ -83,6 +83,7 @@ jobs:
         with:
           deno-version: 2.9.6
       - run: deno test -A supabase/functions/
+      - run: deno test -A tools/
       - run: deno check supabase/functions/*/index.ts supabase/templates/edge-function.ts
 
   deploy:

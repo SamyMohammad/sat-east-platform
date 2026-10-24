@@ -1,0 +1,10 @@
+{
+  "lock": false,
+  "tasks": {
+    "video:publish": "deno run -A cli.ts publish",
+    "video:quota": "deno run -A cli.ts quota",
+    "video:list": "deno run -A cli.ts list",
+    "video:delete": "deno run -A cli.ts delete",
+    "test": "deno test -A"
+  }
+}
