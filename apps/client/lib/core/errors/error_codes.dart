@@ -13,6 +13,7 @@ abstract final class ErrorCodes {
   static const topicLocked = 'topic_locked';
   static const poolExhausted = 'pool_exhausted';
   static const practiceNeeded = 'practice_needed';
+  static const notesNeeded = 'notes_needed';
   static const cooldownActive = 'cooldown_active';
   static const deadlinePassed = 'deadline_passed';
   static const codeInvalid = 'code_invalid';
@@ -44,6 +45,7 @@ abstract final class ErrorCodes {
     topicLocked,
     poolExhausted,
     practiceNeeded,
+    notesNeeded,
     cooldownActive,
     deadlinePassed,
     codeInvalid,

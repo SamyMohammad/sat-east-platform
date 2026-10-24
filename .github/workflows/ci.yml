@@ -47,7 +47,7 @@ jobs:
           version: 2.117.0
       # db + kong + postgrest for pgTAP and api-private-check. gotrue stays: without it
       # `supabase status` omits ANON_KEY / SERVICE_ROLE_KEY, which the check needs.
-      - run: supabase start -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+      - run: supabase start -x realtime,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
       - run: supabase test db
       - run: supabase db lint --fail-on error
       - run: pwsh scripts/api-private-check.ps1
