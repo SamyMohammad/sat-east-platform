@@ -33,9 +33,6 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 
 | Item | Notes |
 |------|-------|
-| Pass mark | Teacher Area A design shows 70%, `settings` default is 75% |
-| SPR `.0000` | Should trailing zeros grade correct for tiny keys like `1/30000`? |
-| Time-up copy | "Your 0 answers…" wording when nothing was answered |
 | Restyle | Move to a well-known design system — deferred until after the MVP ships to production |
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |

@@ -22,9 +22,17 @@ Future<void> showQuizTimeUpDialog(
     context,
     rootNavigator: true,
   ).popUntil((route) => route is! PopupRoute);
-  final body = answered == 1
-      ? 'Your 1 answer was saved and submitted automatically.'
-      : 'Your $answered answers were saved and submitted automatically.';
+  final body = switch (answered) {
+    0 =>
+      "Time's up. You didn't answer any questions, "
+          'so the quiz was submitted with no answers.',
+    1 =>
+      'Your 1 answer was saved and submitted automatically. '
+          'Unanswered questions count as incorrect.',
+    _ =>
+      'Your $answered answers were saved and submitted automatically. '
+          'Unanswered questions count as incorrect.',
+  };
   return showBookletDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -43,7 +51,7 @@ Future<void> showQuizTimeUpDialog(
               size: BookletSize.statusIcon,
               color: dialogContext.booklet.warning,
             ),
-            Text('$body Unanswered questions count as incorrect.'),
+            Text(body),
           ],
         ),
         actions: [

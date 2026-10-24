@@ -567,6 +567,19 @@ void main() {
   });
 
   group('time-up copy', () {
+    testWidgets('F-4: zero answers explains the empty submission', (t) async {
+      final calls = await _pumpHost(t, _wide);
+      await _openTimeUp(t, calls, answered: 0);
+
+      expect(
+        find.text(
+          "Time's up. You didn't answer any questions, "
+          'so the quiz was submitted with no answers.',
+        ),
+        findsOneWidget,
+      );
+    });
+
     testWidgets('F-4: singular answer', (t) async {
       final calls = await _pumpHost(t, _wide);
       await _openTimeUp(t, calls, answered: 1);

@@ -27,6 +27,9 @@ exam timing.** UI polish gets lighter coverage.
 | `.67` / `0.66` | 2/3 | incorrect (doesn't fill field) |
 | `3 1/2` | 7/2 | invalid → incorrect |
 | `100000` | 100000 | invalid (too long) |
+| `.0000` | 1/30000 | incorrect (zero fill for a nonzero key) |
+| `.0000` | 0 | correct (exact match) |
+| `.0000` | 1/30000, tolerance 0.0001 | correct (tolerance match) |
 | any of `["2","-5"]` | multi-key | correct |
 
 **Unlock & flow (LRN)**

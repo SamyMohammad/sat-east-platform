@@ -116,6 +116,7 @@ Precise rules (row 4, 2026-10-07):
   exactly the maximum length (5, or 6 with `-`) and equals the key truncated or rounded half away
   from zero at that many decimal places (`.666` for 2/3 is incorrect: 4 characters).
   Padding zeros do not count as filling: at most one `0` may precede the point (`00.67` is incorrect).
+- Zero fill: a filled answer whose value is 0 is incorrect when the key is not 0 (`.0000` for `1/30000`).
 - Values are exact rationals; tolerance is `|v − k| ≤ t`. Key values are not length-limited.
 - A key whose `accepted` is missing, empty, or holds any non-string or unparseable value, or whose
   `tolerance` is not a number, raises `invalid_key` before grading (for every answer).
