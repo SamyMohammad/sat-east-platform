@@ -41,8 +41,10 @@ class QuestionView extends StatelessWidget {
     this.onRetrySave,
     this.onToggleTimer,
     this.figureBuilder,
+    this.showNavigation = true,
   });
 
+  final bool showNavigation;
   final String title;
   final QuestionData question;
   final QuestionViewMode mode;
@@ -82,9 +84,9 @@ class QuestionView extends StatelessWidget {
           onNext: mode.forwardAction(onNext),
           child: Column(
             children: [
-              _header(context, layout),
+              if (showNavigation) _header(context, layout),
               Expanded(child: _bodyWithPanel(layout)),
-              _footer(context, layout),
+              if (showNavigation) _footer(context, layout),
             ],
           ),
         );

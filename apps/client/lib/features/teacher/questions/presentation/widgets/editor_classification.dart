@@ -7,6 +7,7 @@ import 'package:sat_east_client/features/teacher/questions/presentation/cubit/qu
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_dropdown.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_field.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_field_anchor.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_section.dart';
 
 typedef _Classification = ({
@@ -140,13 +141,16 @@ class EditorClassification extends StatelessWidget {
             problems: s.errors['pool'] ?? const [],
             onChanged: (v) => cubit.editClassification(pool: v ?? ''),
           ),
-          SwitchListTile(
-            contentPadding: EdgeInsets.zero,
-            title: const Text('Desmos friendly'),
-            value: s.desmos,
-            onChanged: s.enabled
-                ? (v) => cubit.editClassification(desmosFriendly: v)
-                : null,
+          EditorFieldAnchor(
+            field: 'desmos_friendly',
+            child: SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Desmos friendly'),
+              value: s.desmos,
+              onChanged: s.enabled
+                  ? (v) => cubit.editClassification(desmosFriendly: v)
+                  : null,
+            ),
           ),
           EditorDropdown(
             field: 'status',

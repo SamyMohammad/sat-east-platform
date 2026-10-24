@@ -25,33 +25,35 @@ class QuestionBankScreen extends StatelessWidget {
 class QuestionBankView extends StatelessWidget {
   const QuestionBankView({super.key});
   @override
-  Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.all(BookletSpace.s4),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s4,
-      children: [
-        Text(
-          'Question bank',
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        Wrap(
-          spacing: BookletSpace.s3,
-          runSpacing: BookletSpace.s3,
-          children: [
-            FilledButton(
-              onPressed: () => context.go('/teacher/questions/new'),
-              child: const Text('New question'),
-            ),
-            OutlinedButton(
-              onPressed: () => context.go('/teacher/questions/import'),
-              child: const Text('Import'),
-            ),
-          ],
-        ),
-        const BankFilterBar(),
-        const BankResults(),
-      ],
+  Widget build(BuildContext context) => SizedBox.expand(
+    child: SingleChildScrollView(
+      padding: const EdgeInsets.all(BookletSpace.s4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: BookletSpace.s4,
+        children: [
+          Text(
+            'Question bank',
+            style: Theme.of(context).textTheme.headlineMedium,
+          ),
+          Wrap(
+            spacing: BookletSpace.s3,
+            runSpacing: BookletSpace.s3,
+            children: [
+              FilledButton(
+                onPressed: () => context.go('/teacher/questions/new'),
+                child: const Text('New question'),
+              ),
+              OutlinedButton(
+                onPressed: () => context.go('/teacher/questions/import'),
+                child: const Text('Import'),
+              ),
+            ],
+          ),
+          const BankFilterBar(),
+          const BankResults(),
+        ],
+      ),
     ),
   );
 }

@@ -79,11 +79,81 @@ void main() {
         width: width,
       );
       final preview = tester.widget<QuestionView>(find.byType(QuestionView));
+      expect(preview.showNavigation, isFalse);
       expect(preview.mode, isA<PracticeMode>());
       expect((preview.mode as PracticeMode).feedback, isA<Correct>());
       expect(preview.answer.selected, 'B');
       expect(preview.question.kind, isA<McqKind>());
       expect(find.widgetWithText(LoadingButton, 'Save'), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+  }
+  for (final width in [360.0, 1280.0]) {
+    testWidgets('QB-06: error summary counts, jumps and clears at $width', (
+      tester,
+    ) async {
+      final repo = FakeEditorRepository()
+        ..saveResult = Success(
+          QuestionRejected(const [
+            ImportProblem(
+              row: 1,
+              externalRef: 'EDIT_1',
+              field: 'status',
+              problem: 'bad_status_change',
+            ),
+            ImportProblem(
+              row: 1,
+              externalRef: 'EDIT_1',
+              field: 'source_page',
+              problem: 'missing:source_page',
+            ),
+          ]),
+        );
+      await pumpEditor(
+        tester,
+        QuestionEditorCubit(repo, FakeBankRepository()),
+        width: width,
+      );
+      await tester.enterText(
+        find.byKey(const ValueKey('editor-stem_md')),
+        'Changed',
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Save'));
+      await tester.pumpAndSettle();
+      expect(find.text('2 problems to fix before saving.'), findsOneWidget);
+      expect(
+        find.text('Status: This status change is not allowed.'),
+        findsOneWidget,
+      );
+      final summary = find.byKey(const ValueKey('editor-error-summary'));
+      expect(tester.getRect(summary).top, greaterThanOrEqualTo(0));
+      for (final (field, copy) in [
+        ('status', 'Status: This status change is not allowed.'),
+        ('source_page', 'Source page: Missing or invalid source_page.'),
+      ]) {
+        final link = find.widgetWithText(TextButton, copy);
+        await tester.ensureVisible(link);
+        await tester.tap(link);
+        await tester.pumpAndSettle();
+        final target = find.byKey(ValueKey('editor-$field'));
+        final scroll = find
+            .ancestor(of: target, matching: find.byType(SingleChildScrollView))
+            .first;
+        final rect = tester.getRect(target);
+        final viewport = tester.getRect(scroll);
+        expect(rect.top, greaterThanOrEqualTo(viewport.top - 1));
+        expect(rect.bottom, lessThanOrEqualTo(viewport.bottom + 1));
+      }
+      await tester.enterText(
+        find.byKey(const ValueKey('editor-source_page')),
+        '8',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('1 problem to fix before saving.'), findsOneWidget);
+      await tester.tap(find.text('Discard'));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const ValueKey('editor-error-summary')), findsNothing);
       expect(tester.takeException(), isNull);
     });
   }
