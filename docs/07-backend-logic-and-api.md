@@ -221,7 +221,7 @@ log everything for teacher review.
 `version_conflict` (question changed since loading; reload before saving),
 `in_use` (course-builder deletion blocked by children or FK references),
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
-`notes_needed` (ready notes exist but notes_opened_at is null),
+`notes_needed` (ready notes exist but notes_opened_at is null; exempt when practice_count >= settings.practice_min or quiz_passed_at is set, which also makes get_topic.notes_done true),
 `practice_needed` (practice_count below settings.practice_min), `review_needed` (finish the review set before a quiz retake), `attempt_not_submitted` (quiz review requires a submitted attempt), `attempt_closed`, `deadline_passed`, `device_limit`, `device_revoked`, `cooldown_active`, `pool_exhausted`,
 `rate_limited`, `payment_invalid`, `code_invalid` (unknown code or unpublished course),
 `code_used` (already redeemed), `already_enrolled` (any existing enrollment for the course),
