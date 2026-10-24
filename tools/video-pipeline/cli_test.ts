@@ -80,6 +80,21 @@ Deno.test('C-2: API adapter uses exact quota/list/confirm RPC contracts and hide
   assertEquals(error.message.includes('SECRET'), false);
 });
 
+Deno.test('C-2: upload URLs requested once with all file names and teacher session', async () => {
+  const calls: { url: string; headers: Headers; body: unknown }[] = [];
+  const urls = { 'master.m3u8': 'https://storage.test/master?SECRET_SIGNATURE', '540p_000.ts': 'https://storage.test/segment?SECRET_SIGNATURE' };
+  const api = createApi({ rpc: () => Promise.reject(new Error('No RPC')) },
+    { supabaseUrl: 'https://project.test', publishableKey: 'publishable' }, () => Promise.resolve('jwt'),
+    (input, init) => { calls.push({ url: String(input), headers: new Headers(init?.headers), body: JSON.parse(String(init?.body)) });
+      return Promise.resolve(new Response(JSON.stringify({ urls, expires_in: 900 }))); });
+  assertEquals(await api.uploadUrls(ID, Object.keys(urls)), urls);
+  assertEquals(calls.length, 1);
+  assertEquals(calls[0].url, 'https://project.test/functions/v1/api/teacher/video-upload-urls');
+  assertEquals(calls[0].headers.get('authorization'), 'Bearer jwt');
+  assertEquals(calls[0].headers.get('apikey'), 'publishable');
+  assertEquals(calls[0].body, { asset_id: ID, files: Object.keys(urls) });
+});
+
 Deno.test('SEC-01: raw password reading never echoes bytes and restores terminal mode', async () => {
   const mode: boolean[] = [];
   const output: string[] = [];

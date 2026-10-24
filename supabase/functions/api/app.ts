@@ -151,6 +151,32 @@ export function createApp(deps: Deps) {
     return c.body(await rewriteMediaPlaylist(text, (name) => video.storage.segmentUrl(prefix, name, p.playlist_ttl_s)), 200, HLS);
   }));
 
+  app.post('/teacher/video-upload-urls', videoRoute('teacher/video-upload-urls', async (c) => {
+    const caller = await deps.authenticate(c.req.raw);
+    if (!caller) return fail(c, 'not_authenticated', 'Sign in required.');
+    const body = await c.req.json().catch(() => null);
+    const files: unknown = body?.files;
+    if (typeof body?.asset_id !== 'string' || !UUID.test(body.asset_id)
+      || !Array.isArray(files) || files.length < 1 || files.length > 2000
+      || files.some((file) => typeof file !== 'string' || !/^[A-Za-z0-9_-]{1,64}\.(m3u8|ts)$/.test(file))
+      || new Set(files).size !== files.length || !files.includes('master.m3u8')) {
+      return fail(c, 'invalid_input', 'Invalid upload file list.');
+    }
+    const video = deps.video;
+    if (!video) return fail(c, 'internal', 'Video is unavailable.');
+    const id = body.asset_id.toLowerCase();
+    const { data, error } = await caller.rpc('teacher_video_upload_grant', { p_asset_id: id });
+    if (error) return rpcFailure(c, error);
+    const grant = data as { r2_prefix?: unknown; ttl_s?: unknown } | null;
+    if (grant?.r2_prefix !== `videos/${id}` || !Number.isSafeInteger(grant.ttl_s) || (grant.ttl_s as number) <= 0) {
+      throw new Error('Invalid upload grant.');
+    }
+    const urls: Record<string, string> = {};
+    for (const file of files as string[]) urls[file] = await video.storage.presignPut(grant.r2_prefix, file, grant.ttl_s as number);
+    c.header('cache-control', 'no-store');
+    return c.json({ urls, expires_in: grant.ttl_s });
+  }));
+
   app.post('/teacher/video-delete', videoRoute('teacher/video-delete', async (c) => {
     const caller = await deps.authenticate(c.req.raw);
     if (!caller) return fail(c, 'not_authenticated', 'Sign in required.');

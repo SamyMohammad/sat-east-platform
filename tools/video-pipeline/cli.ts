@@ -2,7 +2,7 @@ import { join } from 'jsr:@std/path@1.1.4';
 import { loadConfig, type Config } from './config.ts';
 import { packVideo, probeDuration } from './ffmpeg.ts';
 import { publish, type CreateResult, type PublishRequest, type PublishSummary, type Quota, ToolError, type VideoApi, type VideoFile } from './publish.ts';
-import { R2Upload } from './r2_upload.ts';
+import { PresignedUpload } from './r2_upload.ts';
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 type Command = ({ command: 'publish'; env?: string } & PublishRequest)
@@ -119,6 +119,29 @@ export function createApi(client: RpcClient, config: Pick<Config, 'supabaseUrl' 
       if (data?.ok !== true) throw new ToolError('internal', 'Video confirmation failed.');
     },
     async list(id) { const data = await rpc('teacher_list_videos', { p_topic_id: id }); if (!Array.isArray(data)) throw new ToolError('internal', 'Invalid video list response.'); return data; },
+    async uploadUrls(id, files) {
+      const res = await request(`${config.supabaseUrl}/functions/v1/api/teacher/video-upload-urls`, {
+        method: 'POST', headers: { authorization: `Bearer ${await token()}`, apikey: config.publishableKey, 'content-type': 'application/json' },
+        body: JSON.stringify({ asset_id: id, files }),
+      });
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const value = data?.error?.code;
+        const code = typeof value === 'string' && Object.hasOwn(ERROR_MESSAGES, value) ? value : 'internal';
+        throw new ToolError(code, ERROR_MESSAGES[code]);
+      }
+      if (!data?.urls || typeof data.urls !== 'object' || Array.isArray(data.urls)
+        || Object.keys(data.urls).length !== files.length || !Number.isSafeInteger(data.expires_in) || data.expires_in <= 0) {
+        throw new ToolError('internal', 'Invalid upload URL response.');
+      }
+      for (const file of files) {
+        try {
+          const url = new URL(data.urls[file]);
+          if (!Object.hasOwn(data.urls, file) || url.protocol !== 'https:' || url.username || url.password) throw new Error();
+        } catch { throw new ToolError('internal', 'Invalid upload URL response.'); }
+      }
+      return data.urls;
+    },
     async delete(id) {
       const res = await request(`${config.supabaseUrl}/functions/v1/api/teacher/video-delete`, {
         method: 'POST', headers: { authorization: `Bearer ${await token()}`, apikey: config.publishableKey, 'content-type': 'application/json' },
@@ -172,9 +195,9 @@ async function execute(command: Command): Promise<unknown> {
     return publish(command, { probe: probeDuration, pack: packVideo, fs: fileSystem,
       api: () => { throw new Error('Offline.'); }, storage: { upload: () => { throw new Error('Offline.'); } } });
   }
-  const config = await loadConfig(command.env, undefined, command.command === 'publish');
+  const config = await loadConfig(command.env);
   if (command.command === 'publish') return publish(command, { probe: probeDuration, pack: packVideo, fs: fileSystem,
-    api: () => signIn(config), storage: new R2Upload(config.r2) });
+    api: () => signIn(config), storage: new PresignedUpload() });
   const api = await signIn(config);
   if (command.command === 'quota') return api.quota();
   if (command.command === 'list') return api.list(command.topicId);

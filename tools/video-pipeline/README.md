@@ -13,20 +13,12 @@ Run from the repository root. Use `--env apps/client/env/staging.json` to read
 An explicit JSON file takes precedence for both Supabase values. Use the publishable key;
 the CLI uses a teacher's email/password session and never needs a service-role key.
 
-For live publishing, set these process environment variables or put them in `.env.video`
-in the current working directory (already covered by the repository's `.env.*` ignore rule):
-
-```dotenv
-R2_ACCOUNT_ID=<account id>
-R2_ACCESS_KEY_ID=<access key id>
-R2_SECRET_ACCESS_KEY=<secret access key>
-R2_BUCKET=videos
-```
-
-Process R2 values override the file. The small parser accepts blank lines, `#` comments,
-optional `export`, single/double quotes and unquoted trailing comments after whitespace.
-It does not expand variables or execute shell expressions. Never commit this file.
-Quota, list and delete need only Supabase configuration; deletion uses the server's R2 credentials.
+All commands need only these two Supabase values. The CLI never receives storage credentials.
+After reserving an asset, it requests presigned PUT URLs from the teacher upload EF using the
+teacher session, then uploads directly to those URLs with at most four requests in parallel.
+Each request contains all file names (up to 2000 unique files, including `master.m3u8`).
+The server authorizes only pending HLS assets; URLs expire after the configured upload TTL
+(default 900 seconds). The upload and delete EFs keep storage credentials server-side.
 
 ## Commands
 
@@ -46,7 +38,7 @@ Sessions remain in memory. No password, token or encryption key is written to co
 
 From `tools/video-pipeline/`, equivalent tasks are `deno task video:publish ...`,
 `deno task video:quota ...`, `deno task video:list ...`, and `deno task video:delete ...`.
-Task arguments and `.env.video`/`--env` paths resolve from that directory.
+Task arguments and `--env` paths resolve from that directory.
 
 ## Offline packaging
 
@@ -69,9 +61,9 @@ Output contains `master.m3u8`, `540p.m3u8` and `540p_*.ts` segments. Video is ap
 
 Live publish prints asset ID, title, duration (ceiling seconds), total HLS size (ceiling MiB,
 labelled MB to match the DB), and refreshed quota used/cap. All files upload beneath
-`videos/<asset_id>/` in `R2_BUCKET`. Both pending and ready video rows consume quota.
+`videos/<asset_id>/` in the server-configured bucket. Both pending and ready video rows consume quota.
 
-An upload or confirmation failure triggers the teacher delete EF, removing R2 objects before
+An upload-URL request, PUT or confirmation failure triggers the teacher delete EF, removing objects before
 releasing the DB reservation. The error prints the asset ID. If rollback fails, retry `delete`
 with that ID once connectivity is restored. R2 deletion is idempotent. If the reservation call
 times out before an ID is received, use `list --topic ...` to identify the pending row before
@@ -93,5 +85,5 @@ deno check tools/video-pipeline/cli.ts
 ```
 
 Tests inject filesystem, API, process and storage dependencies; no real network or ffmpeg is
-needed. Dependencies are pinned to `@supabase/supabase-js@2.118.0`, `aws4fetch@1.0.20`,
+needed. Dependencies are pinned to `@supabase/supabase-js@2.118.0` and
 `@std/path@1.1.4` (and `@std/assert@1.0.19` for tests).

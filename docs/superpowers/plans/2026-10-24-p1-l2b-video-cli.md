@@ -80,3 +80,7 @@ L-2a (#53, merged) shipped the server side: two-step register (`teacher_create_v
 
 - `deno test -A tools/` and `deno test -A supabase/functions/` green locally and in CI.
 - The staging run above: publish → `ready` asset → delete cleans both R2 and DB.
+
+## Amendment (2026-10-25)
+
+The CLI holds **no R2 credentials**. A new EF route, `POST /api/teacher/video-upload-urls`, issues presigned PUT URLs (TTL `video_upload_url_ttl_s` = 900) for a reserved, unready asset. It is gated by `teacher_video_upload_grant` (migration `20261031100000`, pgTAP 41). `.env.video` is removed. Only teachers can upload, and only under `videos/<id>/`.

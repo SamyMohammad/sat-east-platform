@@ -3,6 +3,7 @@ import { AwsClient } from 'npm:aws4fetch@1.0.20';
 export interface VideoStorage {
   getText(prefix: string, file: string): Promise<string | null>;
   segmentUrl(prefix: string, file: string, ttlSeconds: number): Promise<string>;
+  presignPut(prefix: string, file: string, ttlSeconds: number): Promise<string>;
   list(prefix: string): Promise<string[]>;
   delete(keys: string[]): Promise<void>;
 }
@@ -42,6 +43,12 @@ export class R2Storage implements VideoStorage {
     const url = new URL(this.objectUrl(`${prefix}/${file}`));
     url.searchParams.set('X-Amz-Expires', String(ttlSeconds));
     return (await this.client.sign(url.toString(), { method: 'GET', aws: { signQuery: true } })).url;
+  }
+
+  async presignPut(prefix: string, file: string, ttlSeconds: number): Promise<string> {
+    const url = new URL(this.objectUrl(`${prefix}/${file}`));
+    url.searchParams.set('X-Amz-Expires', String(ttlSeconds));
+    return (await this.client.sign(url.toString(), { method: 'PUT', aws: { signQuery: true } })).url;
   }
 
   async list(prefix: string): Promise<string[]> {
