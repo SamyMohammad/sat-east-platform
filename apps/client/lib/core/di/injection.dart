@@ -26,6 +26,10 @@ import 'package:sat_east_client/features/course_map/data/datasources/course_map_
 import 'package:sat_east_client/features/course_map/data/repositories/course_map_repository_impl.dart';
 import 'package:sat_east_client/features/course_map/domain/repositories/course_map_repository.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
+import 'package:sat_east_client/features/notes/data/datasources/notes_remote_data_source.dart';
+import 'package:sat_east_client/features/notes/data/repositories/notes_repository_impl.dart';
+import 'package:sat_east_client/features/notes/domain/repositories/notes_repository.dart';
+import 'package:sat_east_client/features/notes/presentation/cubit/notes_viewer_cubit.dart';
 import 'package:sat_east_client/features/practice/data/datasources/practice_remote_data_source.dart';
 import 'package:sat_east_client/features/practice/data/repositories/practice_repository_impl.dart';
 import 'package:sat_east_client/features/practice/domain/repositories/practice_repository.dart';
@@ -38,6 +42,13 @@ import 'package:sat_east_client/features/teacher/course_builder/data/datasources
 import 'package:sat_east_client/features/teacher/course_builder/data/repositories/course_builder_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/repositories/course_builder_repository.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/notes/data/datasources/teacher_notes_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/notes/data/repositories/teacher_notes_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/notes/data/services/pdfrx_page_counter.dart';
+import 'package:sat_east_client/features/teacher/notes/domain/repositories/teacher_notes_repository.dart';
+import 'package:sat_east_client/features/teacher/notes/domain/services/pdf_page_counter.dart';
+import 'package:sat_east_client/features/teacher/notes/domain/usecases/teacher_notes_actions.dart';
+import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/data/datasources/question_bank_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/questions/data/datasources/question_editor_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/questions/data/datasources/question_import_remote_data_source.dart';
@@ -251,5 +262,65 @@ void configureDependencies({
         getIt<QuestionEditorRepository>(),
         getIt<QuestionBankRepository>(),
       ),
+    )
+    ..registerLazySingleton<NotesRemoteDataSource>(
+      () => NotesRemoteDataSource(
+        (path) => getIt<SupabaseClient>().storage.from('notes').download(path),
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<NotesRepository>(
+      () => NotesRepositoryImpl(getIt<NotesRemoteDataSource>()),
+    )
+    ..registerFactory<NotesViewerCubit>(
+      () => NotesViewerCubit(
+        getIt<NotesRepository>(),
+        getIt<AuthRepository>(),
+        DateTime.now,
+      ),
+    )
+    ..registerLazySingleton<TeacherNotesRemoteDataSource>(
+      () => TeacherNotesRemoteDataSource(
+        rpc: (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+        readNotes: (topicId) => getIt<SupabaseClient>()
+            .from('topic_assets')
+            .select('id,title,subtopic_id,page_count,ready')
+            .eq('topic_id', topicId)
+            .eq('kind', 'notes')
+            .order('sort')
+            .order('id'),
+        readLimit: () => getIt<SupabaseClient>()
+            .from('settings')
+            .select('value')
+            .eq('key', 'notes_max_mb')
+            .single(),
+        uploadBytes: (path, bytes) async {
+          await getIt<SupabaseClient>().storage
+              .from('notes')
+              .uploadBinary(
+                path,
+                bytes,
+                fileOptions: const FileOptions(contentType: 'application/pdf'),
+              );
+        },
+        removeObject: (path) async {
+          await getIt<SupabaseClient>().storage.from('notes').remove([path]);
+        },
+      ),
+    )
+    ..registerLazySingleton<TeacherNotesRepository>(
+      () => TeacherNotesRepositoryImpl(getIt<TeacherNotesRemoteDataSource>()),
+    )
+    ..registerLazySingleton<PdfPageCounter>(PdfrxPageCounter.new)
+    ..registerLazySingleton<TeacherNotesActions>(
+      () => TeacherNotesActions(
+        getIt<TeacherNotesRepository>(),
+        getIt<QuestionBankRepository>(),
+        getIt<FilePickerService>(),
+        getIt<PdfPageCounter>(),
+      ),
+    )
+    ..registerFactory<TeacherNotesCubit>(
+      () => TeacherNotesCubit(getIt<TeacherNotesActions>()),
     );
 }

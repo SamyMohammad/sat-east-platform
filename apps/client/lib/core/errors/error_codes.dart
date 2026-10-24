@@ -13,6 +13,7 @@ abstract final class ErrorCodes {
   static const topicLocked = 'topic_locked';
   static const poolExhausted = 'pool_exhausted';
   static const practiceNeeded = 'practice_needed';
+  static const notesNeeded = 'notes_needed';
   static const cooldownActive = 'cooldown_active';
   static const deadlinePassed = 'deadline_passed';
   static const codeInvalid = 'code_invalid';
@@ -30,6 +31,12 @@ abstract final class ErrorCodes {
   /// The user dismissed a picker; callers keep their previous state.
   static const cancelled = 'cancelled';
 
+  // Client-only notes upload checks (UX; the bucket re-validates).
+  static const notesPdfRequired = 'notes_pdf_required';
+  static const notesTooLarge = 'notes_too_large';
+  static const notesInvalidPdf = 'notes_invalid_pdf';
+  static const notesCleanupFailed = 'notes_cleanup_failed';
+
   static const _serverCodes = <String>{
     notAuthenticated,
     forbidden,
@@ -44,6 +51,7 @@ abstract final class ErrorCodes {
     topicLocked,
     poolExhausted,
     practiceNeeded,
+    notesNeeded,
     cooldownActive,
     deadlinePassed,
     codeInvalid,

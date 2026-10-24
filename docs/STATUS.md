@@ -2,14 +2,14 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-24
+> Last updated: 2026-10-24 (evening)
 
 ## Now
 
 | Story / Req | Spec | Plan | Branch | PR | State |
 |-------------|------|------|--------|----|-------|
 | Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
-| Lane 3c-2 — question bank + editor (C-5, QB-06) | [spec](superpowers/specs/2026-10-21-p1-lane3c-question-bank-design.md) | [plan](superpowers/plans/2026-10-24-p1-lane3c2-question-editor.md) | `feat/P1-lane3c2-question-editor` | #46 | in review |
+| L-3 — protected notes + teacher upload (SEC-02, C-3) | [spec](superpowers/specs/2026-10-24-p1-l3-notes-design.md) | [plan](superpowers/plans/2026-10-24-p1-l3-notes.md) | `feat/P1-l3-notes` | #50 | in review |
 | P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
 
 ## Next — parallel lanes
@@ -27,7 +27,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 - Only the router session edits this file, after a merge; other lanes rebase on `main` after each merge and re-run gates.
 - Run Flutter gates one lane at a time (`flutter test -j 2`, OOM otherwise). Open a draft PR early so CI runs pgTAP.
 
-Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice staging check (login → course → topic → practice → quiz → unlock) is the user's.
+Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teacher videos), C-6 review queue, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice staging check (login → course → topic → practice → quiz → unlock) is the user's.
 
 ## Open
 
@@ -79,6 +79,8 @@ Later: L-2/L-3 video + notes, P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice st
 | Lane 2b | Review set after a fail (LRN-04), `get_attempt_review` | #36 |
 | Lane 1a | Password reset (web), My account, name locked (AUTH-06, AUTH-04) | #37 |
 | Lane 1c | Catalogue + course page (P-1, PAY-01) | #39 |
+| Lane 3c-2 | Question bank + editor (C-5, QB-06), staging-checked; editor polish, LaTeX-$ guard | #46, #47, #49 |
+| — | Open product questions settled: pass mark 75, SPR zero fill, zero-answer copy | #48 |
 | Lane 3c-1 | Question import (C-4, QB-05), staging-checked | #44, #45 |
 | Lane 3b | Teacher settings (C-7, ADM-06), staging-checked | #42, #43 |
 | Lane 3a | Teacher area + course builder (C-1, ADM-01), staging-checked | #40, #41 |

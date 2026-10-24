@@ -105,6 +105,18 @@ void main() {
   });
 
   blocTest<PracticeCubit, PracticeState>(
+    'L-3: notes gate during answer exits question mode',
+    build: build,
+    setUp: () => checks([const Failure(AppError(ErrorCodes.notesNeeded))]),
+    act: (c) async {
+      await c.start('t1');
+      c.select('B');
+      await c.check();
+    },
+    verify: (c) =>
+        expect(c.state, const PracticeFailed(AppError(ErrorCodes.notesNeeded))),
+  );
+  blocTest<PracticeCubit, PracticeState>(
     'PRC-01: start emits Loading then the first unanswered question',
     build: build,
     act: (c) => c.start('topic'),

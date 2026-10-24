@@ -20,6 +20,7 @@ import 'package:sat_east_client/features/auth/presentation/screens/set_new_passw
 import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/notes/presentation/cubit/notes_viewer_cubit.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart';
@@ -28,6 +29,7 @@ import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
@@ -40,12 +42,14 @@ import '../../features/auth/presentation/screens/auth_screen_harness.dart'
     as auth_screens;
 import '../../features/catalogue/catalogue_fixtures.dart';
 import '../../features/teacher/course_builder/builder_fixtures.dart';
+import '../../features/teacher/notes/notes_fixtures.dart';
 import '../../features/teacher/questions/bank_fixtures.dart';
 import '../../features/teacher/questions/editor_fixtures.dart';
 import '../../features/teacher/questions/import_fixtures.dart';
 import '../../features/teacher/settings/settings_fixtures.dart';
 import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
+import 'fake_notes_viewer_cubit.dart';
 import 'fake_practice_cubit.dart';
 import 'fake_topic_cubit.dart';
 
@@ -54,6 +58,10 @@ part 'fake_quiz_cubit.dart';
 void main() {
   setUp(() {
     getIt
+      ..registerFactory<TeacherNotesCubit>(
+        () => TeacherNotesCubit(actions(FakeTeacherNotesRepository())),
+      )
+      ..registerFactory<NotesViewerCubit>(fakeNotesViewerCubit)
       ..registerFactory<CourseBuilderCubit>(
         () => CourseBuilderCubit(FakeBuilderRepository()),
       )
@@ -73,15 +81,54 @@ void main() {
         () => QuestionEditorCubit(FakeEditorRepository(), FakeBankRepository()),
       );
   });
+  tearDown(() => getIt.unregister<TeacherNotesCubit>());
+  tearDown(() => getIt.unregister<NotesViewerCubit>());
   tearDown(() => getIt.unregister<CourseBuilderCubit>());
   tearDown(() => getIt.unregister<TeacherSettingsCubit>());
   tearDown(() => getIt.unregister<QuestionImportCubit>());
   tearDown(() => getIt.unregister<QuestionBankCubit>());
   tearDown(() => getIt.unregister<QuestionEditorCubit>());
 
+  for (final signedIn in [false, true]) {
+    testWidgets('L-3: notes route requires sign-in: $signedIn', (tester) async {
+      final auth = auth_screens.mockCubit(
+        signedIn
+            ? const AuthSignedIn(AppUser(id: 'u1', email: 'email'))
+            : const AuthSignedOut(),
+      );
+      final refresh = ValueNotifier(0);
+      addTearDown(refresh.dispose);
+      final router = createRouter(
+        initialLocation: '/courses/topics/t1/notes/a1',
+        auth: auth,
+        refresh: refresh,
+      );
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        router.dispose();
+      });
+      await tester.pumpWidget(
+        BlocProvider<AuthCubit>.value(
+          value: auth,
+          child: MaterialApp.router(
+            theme: AppTheme.light(),
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        signedIn ? '/courses/topics/t1/notes/a1' : '/sign-in',
+      );
+      if (signedIn) expect(find.text('Notes'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
   for (final path in [
     '/teacher',
     '/teacher/courses/c1',
+    '/teacher/courses/c1/topics/t1/notes',
     '/teacher/settings',
     '/teacher/questions/import',
     '/teacher/questions',
@@ -122,7 +169,8 @@ void main() {
           router.routeInformationProvider.value.uri.path,
           role == 'teacher'
               ? (path == '/teacher/settings' ||
-                        path.startsWith('/teacher/questions'))
+                        path.startsWith('/teacher/questions') ||
+                        path.endsWith('/notes'))
                     ? path
                     : '/teacher/courses/c1'
               : role == 'student'

@@ -5,6 +5,40 @@ import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart
 import '../topic_fixture.dart';
 
 void main() {
+  test('L-3: parses notes and server completion flag', () {
+    final payload = topicPayload()
+      ..addAll({
+        'notes': [
+          {
+            'asset_id': 'a1',
+            'title': 'Notes',
+            'subtopic_title': null,
+            'page_count': 4,
+          },
+        ],
+        'notes_done': false,
+      });
+    final topic = topicDetailFromJson(payload);
+    expect(topic.notes.single.assetId, 'a1');
+    expect(topic.notes.single.pageCount, 4);
+    expect(topic.notesDone, isFalse);
+    expect(topic.practiceLockedByNotes, isTrue);
+  });
+  for (final value in <Object?>[
+    null,
+    {},
+    [
+      {'asset_id': 1},
+    ],
+  ]) {
+    test('L-3: rejects malformed notes $value', () {
+      expect(
+        () => topicDetailFromJson(topicPayload()..['notes'] = value),
+        throwsFormatException,
+      );
+    });
+  }
+
   test('PRC-03: parses topic identity and server practice progress', () {
     final topic = topicDetailFromJson(topicPayload());
     expect(topic.id, 't1');

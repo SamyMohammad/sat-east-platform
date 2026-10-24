@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/entities/course_tree.dart';
@@ -189,6 +191,9 @@ class BuilderTree extends StatelessWidget {
               ),
               isPublished: topic.isPublished,
               isFreePreview: topic.isFreePreview,
+              onNotes: () => context.go(
+                AppRoutes.teacherNotes(loaded.tree!.courseId, topic.id),
+              ),
               onPublish: () => unawaited(_publish(context, topic, code)),
               onPreview: (value) =>
                   unawaited(cubit.setFlags(topic.id, isFreePreview: value)),

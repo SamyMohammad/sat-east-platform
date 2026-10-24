@@ -67,4 +67,73 @@ class WebFilePickerService implements FilePickerService {
       input.remove();
     }
   }
+
+  @override
+  Future<Result<PickedPdf>> pickPdf() async {
+    final result = Completer<Result<PickedPdf>>();
+    final input = web.HTMLInputElement()
+      ..type = 'file'
+      ..accept = '.pdf,application/pdf';
+    final reader = web.FileReader();
+    void finish(Result<PickedPdf> value) {
+      if (!result.isCompleted) result.complete(value);
+    }
+
+    final change = ((web.Event event) {
+      final file = input.files?.item(0);
+      if (file == null) {
+        finish(const Failure(AppError(ErrorCodes.cancelled)));
+        return;
+      }
+      reader.readAsArrayBuffer(file);
+    }).toJS;
+    final cancel = ((web.Event event) => finish(
+      const Failure(AppError(ErrorCodes.cancelled)),
+    )).toJS;
+    final load = ((web.Event event) {
+      try {
+        final file = input.files?.item(0);
+        final buffer = reader.result;
+        if (file == null || buffer == null) {
+          finish(const Failure(AppError(ErrorCodes.internal)));
+          return;
+        }
+        finish(
+          Success(
+            PickedPdf(
+              name: file.name,
+              bytes: (buffer as JSArrayBuffer).toDart.asUint8List(),
+            ),
+          ),
+        );
+      } on Object {
+        finish(const Failure(AppError(ErrorCodes.internal)));
+      }
+    }).toJS;
+    final error = ((web.Event event) => finish(
+      const Failure(AppError(ErrorCodes.internal)),
+    )).toJS;
+    input
+      ..addEventListener('change', change)
+      ..addEventListener('cancel', cancel);
+    reader
+      ..addEventListener('load', load)
+      ..addEventListener('error', error)
+      ..addEventListener('abort', cancel);
+    try {
+      input.click();
+      return await result.future;
+    } on Object {
+      return const Failure(AppError(ErrorCodes.internal));
+    } finally {
+      input
+        ..removeEventListener('change', change)
+        ..removeEventListener('cancel', cancel);
+      reader
+        ..removeEventListener('load', load)
+        ..removeEventListener('error', error)
+        ..removeEventListener('abort', cancel);
+      input.remove();
+    }
+  }
 }

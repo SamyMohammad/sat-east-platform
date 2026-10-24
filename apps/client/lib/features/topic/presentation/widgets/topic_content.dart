@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
 import 'package:sat_east_client/features/topic/presentation/topic_copy.dart';
+import 'package:sat_east_client/features/topic/presentation/widgets/topic_notes_step.dart';
 import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -13,12 +15,14 @@ class TopicContent extends StatelessWidget {
     required this.onQuiz,
     super.key,
     this.title,
+    this.onNotes,
   });
 
   final TopicDetail topic;
   final String? title;
   final VoidCallback onPractice;
   final VoidCallback onQuiz;
+  final ValueChanged<TopicNote>? onNotes;
 
   @override
   Widget build(BuildContext context) {
@@ -44,6 +48,12 @@ class TopicContent extends StatelessWidget {
           style: theme.textTheme.headlineSmall,
           textDirection: detectTextDirection(heading),
         ),
+        if (topic.notes.isNotEmpty)
+          TopicNotesStep(
+            notes: topic.notes,
+            done: topic.notesDone,
+            onOpen: onNotes,
+          ),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(BookletSpace.s4),
@@ -57,7 +67,12 @@ class TopicContent extends StatelessWidget {
                     topic.practiceMin,
                   ),
                 ),
-                LoadingButton(label: TopicCopy.practice, onPressed: onPractice),
+                if (topic.practiceLockedByNotes)
+                  const Text('Open the notes first.'),
+                LoadingButton(
+                  label: TopicCopy.practice,
+                  onPressed: topic.practiceLockedByNotes ? null : onPractice,
+                ),
               ],
             ),
           ),
