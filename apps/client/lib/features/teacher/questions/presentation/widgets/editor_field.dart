@@ -5,6 +5,7 @@ import 'package:sat_east_client/features/teacher/questions/domain/entities/quest
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/import_copy.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_field_anchor.dart';
 
 typedef EditorTextSelection = ({String value, String? error, bool enabled});
 
@@ -100,23 +101,26 @@ class _EditorTextInputState extends State<EditorTextInput> {
   }
 
   @override
-  Widget build(BuildContext context) => TextField(
-    key: ValueKey('editor-${widget.field}'),
-    controller: _controller,
-    enabled: widget.enabled,
-    onChanged: widget.onChanged,
-    textDirection: detectTextDirection(widget.value),
-    minLines: widget.multiline ? 2 : 1,
-    maxLines: widget.multiline ? 5 : 1,
-    keyboardType: widget.numeric
-        ? const TextInputType.numberWithOptions(decimal: true, signed: true)
-        : widget.multiline
-        ? TextInputType.multiline
-        : TextInputType.text,
-    decoration: InputDecoration(
-      labelText: widget.label,
-      errorText: widget.error,
-      errorMaxLines: 3,
+  Widget build(BuildContext context) => EditorFieldAnchor(
+    field: widget.field,
+    child: TextField(
+      key: ValueKey('editor-${widget.field}'),
+      controller: _controller,
+      enabled: widget.enabled,
+      onChanged: widget.onChanged,
+      textDirection: detectTextDirection(widget.value),
+      minLines: widget.multiline ? 2 : 1,
+      maxLines: widget.multiline ? 5 : 1,
+      keyboardType: widget.numeric
+          ? const TextInputType.numberWithOptions(decimal: true, signed: true)
+          : widget.multiline
+          ? TextInputType.multiline
+          : TextInputType.text,
+      decoration: InputDecoration(
+        labelText: widget.label,
+        errorText: widget.error,
+        errorMaxLines: 3,
+      ),
     ),
   );
 }

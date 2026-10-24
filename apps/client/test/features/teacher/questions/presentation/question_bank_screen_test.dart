@@ -6,6 +6,7 @@ import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/bank_page.dart';
+import 'package:sat_east_client/features/teacher/questions/domain/entities/bank_row.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
@@ -61,6 +62,57 @@ Future<GoRouter> pumpBank(
 }
 
 void main() {
+  for (final width in [360.0, 1280.0]) {
+    testWidgets('QB-06: title stays at the top for one or 25 rows at $width', (
+      tester,
+    ) async {
+      final repo = FakeBankRepository()
+        ..listResult = Success(
+          BankPage(
+            total: 1,
+            page: 1,
+            pageSize: 25,
+            rows: [bankPage.rows.first],
+          ),
+        );
+      final cubit = QuestionBankCubit(
+        repo,
+        schedule: FakeBankScheduler().schedule,
+      );
+      await pumpBank(tester, cubit, width: width);
+      final shortTop = tester.getTopLeft(find.text('Question bank')).dy;
+      repo.listResult = Success(
+        BankPage(
+          total: 25,
+          page: 1,
+          pageSize: 25,
+          rows: List.generate(
+            25,
+            (index) => BankRow(
+              id: 'q$index',
+              externalRef: 'BANK_$index',
+              stemPreview: 'Question $index',
+              type: 'mcq',
+              topicTitle: 'Linear',
+              subtopicTitle: 'One step',
+              difficulty: 'M',
+              pool: 'practice',
+              status: 'draft',
+              version: 1,
+              updatedAt: DateTime.utc(2026),
+            ),
+          ),
+        ),
+      );
+      await cubit.retry();
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(find.text('Question bank')).dy,
+        closeTo(shortTop, 0.1),
+      );
+      expect(tester.takeException(), isNull);
+    });
+  }
   for (final width in [360.0, 1280.0]) {
     testWidgets('QB-06: bank table and filters fit $width', (tester) async {
       final repo = FakeBankRepository();

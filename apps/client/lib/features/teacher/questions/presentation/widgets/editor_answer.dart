@@ -7,6 +7,7 @@ import 'package:sat_east_client/features/teacher/questions/presentation/cubit/qu
 import 'package:sat_east_client/features/teacher/questions/presentation/import_copy.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_dropdown.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_field.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_field_anchor.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_section.dart';
 
 class EditorAnswer extends StatelessWidget {
@@ -23,49 +24,59 @@ class EditorAnswer extends StatelessWidget {
           enabled: !s.saving,
           errors: s.serverErrors,
         ),
-        builder: (context, s) => EditorSection(
-          title: 'Answer',
-          children: [
-            EditorDropdown(
-              field: 'type',
-              label: 'Question type',
-              value: s.type,
-              enabled: s.enabled,
-              problems: s.errors['type'] ?? const [],
-              options: const [('mcq', 'MCQ'), ('spr', 'SPR')],
-              onChanged: (value) => context
-                  .read<QuestionEditorCubit>()
-                  .editAnswer(type: value ?? ''),
+        builder: (context, s) => EditorFieldAnchor(
+          field: 'key',
+          child: EditorFieldAnchor(
+            field: 'choices',
+            child: EditorSection(
+              title: 'Answer',
+              children: [
+                EditorDropdown(
+                  field: 'type',
+                  label: 'Question type',
+                  value: s.type,
+                  enabled: s.enabled,
+                  problems: s.errors['type'] ?? const [],
+                  options: const [('mcq', 'MCQ'), ('spr', 'SPR')],
+                  onChanged: (value) => context
+                      .read<QuestionEditorCubit>()
+                      .editAnswer(type: value ?? ''),
+                ),
+                if (s.type == 'spr') ...[
+                  EditorField(
+                    field: 'accepted',
+                    label: 'Accepted answers (one per line)',
+                    multiline: true,
+                    read: (d) => d.accepted.join('\n'),
+                    change: (c, v) =>
+                        c.editAnswer(accepted: v.isEmpty ? [] : v.split('\n')),
+                  ),
+                  EditorField(
+                    field: 'tolerance',
+                    label: 'Tolerance',
+                    numeric: true,
+                    read: (d) => d.tolerance,
+                    change: (c, v) => c.editAnswer(tolerance: v),
+                  ),
+                ] else
+                  const _McqChoices(),
+                for (final problem in s.errors['key'] ?? const <String>[])
+                  Text(
+                    importProblemCopy(problem),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                for (final problem in s.errors['choices'] ?? const <String>[])
+                  Text(
+                    importProblemCopy(problem),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+              ],
             ),
-            if (s.type == 'spr') ...[
-              EditorField(
-                field: 'accepted',
-                label: 'Accepted answers (one per line)',
-                multiline: true,
-                read: (d) => d.accepted.join('\n'),
-                change: (c, v) =>
-                    c.editAnswer(accepted: v.isEmpty ? [] : v.split('\n')),
-              ),
-              EditorField(
-                field: 'tolerance',
-                label: 'Tolerance',
-                numeric: true,
-                read: (d) => d.tolerance,
-                change: (c, v) => c.editAnswer(tolerance: v),
-              ),
-            ] else
-              const _McqChoices(),
-            for (final problem in s.errors['key'] ?? const <String>[])
-              Text(
-                importProblemCopy(problem),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-            for (final problem in s.errors['choices'] ?? const <String>[])
-              Text(
-                importProblemCopy(problem),
-                style: TextStyle(color: Theme.of(context).colorScheme.error),
-              ),
-          ],
+          ),
         ),
       );
 }

@@ -19,6 +19,7 @@ class EditorPreview extends StatelessWidget {
           if (draft == null) return const SizedBox.shrink();
           return QuestionView(
             title: 'Preview',
+            showNavigation: false,
             question: QuestionData(
               id: draft.id ?? 'preview',
               label: draft.externalRef.isEmpty
