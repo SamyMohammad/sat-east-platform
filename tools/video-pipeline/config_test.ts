@@ -1,38 +1,26 @@
-import { assertEquals, assertRejects, assertThrows } from 'jsr:@std/assert@1.0.19';
-import { loadConfig, parseDotEnv } from './config.ts';
+import { assertEquals, assertRejects } from 'jsr:@std/assert@1.0.19';
+import { loadConfig } from './config.ts';
 
-const R2 = { R2_ACCOUNT_ID: 'account', R2_ACCESS_KEY_ID: 'SECRET_ID', R2_SECRET_ACCESS_KEY: 'SECRET_VALUE', R2_BUCKET: 'videos' };
-
-Deno.test('C-2: dotenv supports comments, export, quotes and equals in secret values', () => {
-  assertEquals(parseDotEnv('# comment\nexport R2_BUCKET=videos # comment\nR2_SECRET_ACCESS_KEY="a=b # c"\nR2_ACCOUNT_ID=\'account\'\n'),
-    { R2_BUCKET: 'videos', R2_SECRET_ACCESS_KEY: 'a=b # c', R2_ACCOUNT_ID: 'account' });
-  assertThrows(() => parseDotEnv('SECRET_VALUE broken line'));
+Deno.test('C-2: only Supabase environment is required and no file is read', async () => {
+  assertEquals(await loadConfig(undefined, {
+    env: { SUPABASE_URL: 'https://project.test', SUPABASE_PUBLISHABLE_KEY: 'publishable' },
+    readText: () => { throw new Error('No credentials file'); },
+  }), { supabaseUrl: 'https://project.test', publishableKey: 'publishable' });
 });
-
-Deno.test('C-2: explicit client JSON overrides Supabase env; process R2 overrides dotenv', async () => {
-  const config = await loadConfig('staging.json', {
-    env: { ...R2, SUPABASE_URL: 'https://other.test', SUPABASE_PUBLISHABLE_KEY: 'other' },
-    readText: (path) => Promise.resolve(path === 'staging.json'
-      ? '{"SUPABASE_URL":"https://project.test","SUPABASE_PUBLISHABLE_KEY":"publishable"}'
-      : 'R2_BUCKET=file-bucket'),
-  });
-  assertEquals(config.supabaseUrl, 'https://project.test');
-  assertEquals(config.publishableKey, 'publishable');
-  assertEquals(config.r2.bucket, 'videos');
+Deno.test('C-2: explicit JSON overrides Supabase environment', async () => {
+  assertEquals(await loadConfig('staging.json', {
+    env: { SUPABASE_URL: 'https://other.test', SUPABASE_PUBLISHABLE_KEY: 'other' },
+    readText: (path) => { assertEquals(path, 'staging.json'); return Promise.resolve('{"SUPABASE_URL":"https://project.test","SUPABASE_PUBLISHABLE_KEY":"publishable"}'); },
+  }), { supabaseUrl: 'https://project.test', publishableKey: 'publishable' });
 });
-
-Deno.test('SEC-01: missing configuration names the variable and never includes provided secrets', async () => {
+Deno.test('SEC-01: missing configuration names the variable without supplied secrets', async () => {
   const error = await assertRejects(() => loadConfig(undefined, {
-    env: { ...R2, SUPABASE_URL: 'https://project.test' },
-    readText: () => Promise.resolve(''),
+    env: { SUPABASE_URL: 'https://project.test', UNUSED: 'SECRET_VALUE' }, readText: () => Promise.resolve(''),
   }), Error);
   assertEquals(error.message.includes('SUPABASE_PUBLISHABLE_KEY'), true);
-  assertEquals(error.message.includes('SECRET_'), false);
+  assertEquals(error.message.includes('SECRET_VALUE'), false);
 });
-
-Deno.test('SEC-01: malformed dotenv and JSON do not leak contents', async () => {
-  for (const envFile of [undefined, 'broken.json']) {
-    const error = await assertRejects(() => loadConfig(envFile, { env: R2, readText: () => Promise.resolve('SECRET_VALUE broken') }), Error);
-    assertEquals(error.message.includes('SECRET_VALUE'), false);
-  }
+Deno.test('SEC-01: malformed JSON does not leak contents', async () => {
+  const error = await assertRejects(() => loadConfig('broken.json', { env: {}, readText: () => Promise.resolve('SECRET_VALUE broken') }), Error);
+  assertEquals(error.message.includes('SECRET_VALUE'), false);
 });

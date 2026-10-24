@@ -113,5 +113,7 @@ Do **not** wait for all 400/topic. For launch:
 ## 9. Publishing a video
 
 Use the local [video publishing CLI](../tools/video-pipeline/README.md) to package a single
-540p encrypted HLS rendition, reserve storage quota, upload to R2 and confirm the asset.
+540p encrypted HLS rendition, reserve storage quota, upload using server-issued presigned PUT
+URLs and confirm the asset. The CLI needs only the Supabase URL and publishable key;
+storage credentials stay in the Edge Function.
 The README covers ffmpeg installation, teacher sign-in, offline dry-runs and failure cleanup.

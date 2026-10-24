@@ -70,6 +70,10 @@ function setup(options: {
           events.push(`sign:${prefix}/${file}:${ttl}`);
           return Promise.resolve(`https://r2.test/${prefix}/${file}?signed`);
         },
+        presignPut: (prefix, file, ttl) => {
+          events.push(`put:${prefix}/${file}:${ttl}`);
+          return Promise.resolve(`https://r2.test/${prefix}/${file}?upload`);
+        },
         list: (prefix) => {
           events.push(`list:${prefix}`);
           if (options.storageError === 'list') throw new Error('SECRET_STORAGE_URL');
@@ -317,4 +321,65 @@ Deno.test('C-2: missing R2 truncation flag fails closed', async () => {
     sign: (input) => Promise.resolve(new Request(String(input))),
   });
   await assertRejects(() => storage.list(`${PREFIX}/`));
+});
+
+const UPLOAD_FILES = ['master.m3u8', '540p.m3u8', '540p_000.ts'];
+Deno.test('C-2: upload URLs require auth and teacher grant before signing', async () => {
+  const anonymous = setup({ signedIn: false });
+  assertEquals((await anonymous.post('teacher/video-upload-urls', { asset_id: ASSET, files: UPLOAD_FILES })).status, 401);
+  assertEquals(anonymous.calls, []);
+  const student = setup({ rpc: () => ({ data: null, error: { message: 'forbidden' } }) });
+  assertEquals((await student.post('teacher/video-upload-urls', { asset_id: ASSET, files: UPLOAD_FILES })).status, 403);
+  assertEquals(student.events, ['auth', 'teacher_video_upload_grant']);
+});
+
+for (const [name, files] of [
+  ['bad name', ['master.m3u8', '../key.ts']], ['missing master', ['540p.m3u8']],
+  ['empty', []], ['duplicate', ['master.m3u8', 'master.m3u8']],
+  ['too many', ['master.m3u8', ...Array.from({ length: 2000 }, (_, i) => `segment_${i}.ts`)]],
+  ['long name', ['master.m3u8', `${'a'.repeat(65)}.ts`]], ['not strings', ['master.m3u8', 1]],
+] as const) {
+  Deno.test(`C-2: upload URLs reject ${name} before RPC`, async () => {
+    const s = setup();
+    assertEquals((await s.post('teacher/video-upload-urls', { asset_id: ASSET, files })).status, 400);
+    assertEquals(s.calls, []);
+  });
+}
+
+Deno.test('C-2: upload URLs reject invalid asset UUID before RPC', async () => {
+  const s = setup();
+  assertEquals((await s.post('teacher/video-upload-urls', { asset_id: 'bad', files: UPLOAD_FILES })).status, 400);
+  assertEquals(s.calls, []);
+});
+
+Deno.test('C-2: upload URLs use grant prefix and expiry for every requested file', async () => {
+  const s = setup({ rpc: () => ({ data: { r2_prefix: PREFIX, ttl_s: 900 }, error: null }) });
+  const res = await s.post('teacher/video-upload-urls', { asset_id: ASSET, files: UPLOAD_FILES });
+  assertEquals(res.status, 200);
+  assertEquals(res.headers.get('cache-control'), 'no-store');
+  assertEquals(await res.json(), { urls: Object.fromEntries(UPLOAD_FILES.map((f) => [f, `https://r2.test/${PREFIX}/${f}?upload`])), expires_in: 900 });
+  assertEquals(s.calls, [{ fn: 'teacher_video_upload_grant', args: { p_asset_id: ASSET } }]);
+  assertEquals(s.events.slice(2), UPLOAD_FILES.map((f) => `put:${PREFIX}/${f}:900`));
+  assertEquals(s.logs, []);
+});
+
+Deno.test('C-2: upload URLs map RPC errors and require video configuration', async () => {
+  for (const [message, status] of [['invalid_input', 400], ['rate_limited', 400], ['unknown', 500]] as const) {
+    const s = setup({ rpc: () => ({ data: null, error: { message } }) });
+    assertEquals((await s.post('teacher/video-upload-urls', { asset_id: ASSET, files: UPLOAD_FILES })).status, status);
+  }
+  const s = setup({ missingVideo: true });
+  assertEquals((await s.post('teacher/video-upload-urls', { asset_id: ASSET, files: UPLOAD_FILES })).status, 500);
+});
+
+Deno.test('C-2: R2 presigns PUT with grant expiry and canonical key', async () => {
+  const methods: string[] = [];
+  const storage = new R2Storage({ accountId: 'account', accessKeyId: 'test', secretAccessKey: 'test', bucket: 'videos' }, {
+    fetch: () => Promise.reject(new Error('No network')),
+    sign: (input, init) => { methods.push(init?.method ?? ''); return Promise.resolve(new Request(String(input))); },
+  });
+  const url = new URL(await storage.presignPut(PREFIX, 'master.m3u8', 900));
+  assertEquals(methods, ['PUT']);
+  assertEquals(url.pathname, `/videos/${PREFIX}/master.m3u8`);
+  assertEquals(url.searchParams.get('X-Amz-Expires'), '900');
 });

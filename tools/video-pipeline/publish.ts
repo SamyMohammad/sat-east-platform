@@ -16,6 +16,7 @@ export type VideoApi = {
   confirm(assetId: string, keyHex: string): Promise<void>;
   delete(assetId: string): Promise<void>;
   list(topicId: string): Promise<unknown[]>;
+  uploadUrls(assetId: string, files: string[]): Promise<Record<string, string>>;
 };
 export type PublishRequest = { topicId: string; subtopicId?: string; title: string; input: string; dryRun: boolean; out?: string };
 export type PublishSummary = { title: string; durationS: number; sizeMb: number } & (
@@ -26,7 +27,7 @@ export type PublishDeps = {
   pack(input: string, output: string, keyDir: string, key: Uint8Array<ArrayBuffer>): Promise<void>;
   randomKey?: () => Uint8Array<ArrayBuffer>;
   api(): Promise<VideoApi>;
-  storage: { upload(assetId: string, files: VideoFile[]): Promise<void> };
+  storage: { upload(files: VideoFile[], urls: Record<string, string>): Promise<void> };
   fs: {
     tempDir(): Promise<string>;
     prepareOutput(dir: string): Promise<void>;
@@ -63,6 +64,7 @@ export async function publish(request: PublishRequest, deps: PublishDeps): Promi
     const size = sizeMb(files.map((file) => file.bytes));
     const summary = { title: request.title, durationS, sizeMb: size };
     if (request.dryRun) return { ...summary, output };
+    if (files.length > 2000) throw new ToolError('too_many_files', 'Video exceeds the 2000-file upload limit. Split it into shorter videos.');
     const api = await deps.api();
     const quota = await api.quota();
     if (quota.used_mb + size > quota.cap_mb) throw quotaError(quota);
@@ -71,7 +73,8 @@ export async function publish(request: PublishRequest, deps: PublishDeps): Promi
     if (!reservation.ok) throw quotaError(reservation);
     const id = reservation.asset_id;
     try {
-      await deps.storage.upload(id, files);
+      const urls = await api.uploadUrls(id, files.map((file) => file.name));
+      await deps.storage.upload(files, urls);
       const hex = Array.from(key, (byte) => byte.toString(16).padStart(2, '0')).join('');
       await api.confirm(id, hex);
     } catch {

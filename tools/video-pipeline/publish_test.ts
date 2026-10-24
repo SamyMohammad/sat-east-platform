@@ -1,5 +1,6 @@
 import { assertEquals, assertRejects } from 'jsr:@std/assert@1.0.19';
 import { publish, type PublishDeps, sizeMb, ToolError } from './publish.ts';
+import { PresignedUpload } from './r2_upload.ts';
 
 const ID = '40000000-0000-0000-0000-000000000001';
 const REQUEST = { topicId: ID, title: 'Lesson', input: 'clip.mp4', dryRun: false };
@@ -39,6 +40,11 @@ function setup(options: { quotaFull?: boolean; rejected?: boolean; fail?: 'pack'
           return Promise.resolve(options.rejected ? { ok: false as const, error: 'quota_exceeded' as const, used_mb: 99, cap_mb: 100 } : { ok: true as const, asset_id: ID });
         },
         confirm: (_id, hex) => { events.push('confirm'); confirmations.push(hex); if (options.fail === 'confirm') throw new Error('SECRET_RAW_ERROR'); return Promise.resolve(); },
+        uploadUrls: (_id, names) => {
+          events.push('upload-urls');
+          assertEquals(names, ['master.m3u8', '540p_000.ts']);
+          return Promise.resolve(Object.fromEntries(names.map((name) => [name, `https://storage.test/${name}?SECRET_SIGNATURE`])));
+        },
         delete: (id) => { events.push(`delete:${id}`); if (options.fail === 'delete') throw new Error('SECRET_DELETE_ERROR'); return Promise.resolve(); },
         list: () => Promise.resolve([]),
       });
@@ -100,6 +106,16 @@ Deno.test('SEC-01: packaging failure wipes key and temp directory before any sig
   assertEquals(s.events.includes('sign-in'), false);
   assertEquals(s.events.at(-1), 'remove:temp-0');
   assertEquals(Array.from(s.key), Array(16).fill(0));
+});
+
+Deno.test('C-2: failed presigned PUT rolls back reservation without leaking URLs', async () => {
+  const s = setup();
+  s.deps.storage = new PresignedUpload(() => Promise.resolve(new Uint8Array()), () => Promise.resolve(new Response('SECRET_ERROR', { status: 403 })));
+  const error = await assertRejects(() => publish(REQUEST, s.deps), ToolError);
+  assertEquals(s.events.includes('upload-urls'), true);
+  assertEquals(s.events.includes(`delete:${ID}`), true);
+  assertEquals(error.message.includes('SECRET'), false);
+  assertEquals(error.message.includes('https://'), false);
 });
 
 Deno.test('SEC-01: dry-run keeps output, isolates temporary key and never signs in or uploads', async () => {
