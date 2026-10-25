@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
+
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 
 enum TopicStatus { open, completed }
 
@@ -14,6 +16,8 @@ class TopicDetail extends Equatable {
     required this.quiz,
     this.notes = const [],
     this.notesDone = true,
+    this.videos = const [],
+    this.videoDone = true,
   });
 
   final String id;
@@ -25,6 +29,11 @@ class TopicDetail extends Equatable {
   final QuizStatus quiz;
   final List<TopicNote> notes;
   final bool notesDone;
+  final List<TopicVideo> videos;
+  final bool videoDone;
+
+  bool get notesLockedByVideo => videos.isNotEmpty && !videoDone;
+  bool get practiceLockedByVideo => notesLockedByVideo;
 
   bool get practiceLockedByNotes => notes.isNotEmpty && !notesDone;
 
@@ -39,6 +48,8 @@ class TopicDetail extends Equatable {
     quiz,
     notes,
     notesDone,
+    videos,
+    videoDone,
   ];
 }
 

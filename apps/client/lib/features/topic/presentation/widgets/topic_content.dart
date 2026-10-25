@@ -3,8 +3,10 @@ import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 import 'package:sat_east_client/features/topic/presentation/topic_copy.dart';
 import 'package:sat_east_client/features/topic/presentation/widgets/topic_notes_step.dart';
+import 'package:sat_east_client/features/topic/presentation/widgets/topic_video_step.dart';
 import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -16,6 +18,7 @@ class TopicContent extends StatelessWidget {
     super.key,
     this.title,
     this.onNotes,
+    this.onVideo,
   });
 
   final TopicDetail topic;
@@ -23,6 +26,7 @@ class TopicContent extends StatelessWidget {
   final VoidCallback onPractice;
   final VoidCallback onQuiz;
   final ValueChanged<TopicNote>? onNotes;
+  final ValueChanged<TopicVideo>? onVideo;
 
   @override
   Widget build(BuildContext context) {
@@ -48,10 +52,17 @@ class TopicContent extends StatelessWidget {
           style: theme.textTheme.headlineSmall,
           textDirection: detectTextDirection(heading),
         ),
+        if (topic.videos.isNotEmpty)
+          TopicVideoStep(
+            videos: topic.videos,
+            done: topic.videoDone,
+            onOpen: onVideo,
+          ),
         if (topic.notes.isNotEmpty)
           TopicNotesStep(
             notes: topic.notes,
             done: topic.notesDone,
+            lockedByVideo: topic.notesLockedByVideo,
             onOpen: onNotes,
           ),
         Card(
@@ -67,11 +78,16 @@ class TopicContent extends StatelessWidget {
                     topic.practiceMin,
                   ),
                 ),
-                if (topic.practiceLockedByNotes)
-                  const Text('Open the notes first.'),
+                if (topic.practiceLockedByVideo)
+                  const Text(TopicCopy.watchVideoFirst)
+                else if (topic.practiceLockedByNotes)
+                  const Text(TopicCopy.openNotesFirst),
                 LoadingButton(
                   label: TopicCopy.practice,
-                  onPressed: topic.practiceLockedByNotes ? null : onPractice,
+                  onPressed:
+                      topic.practiceLockedByVideo || topic.practiceLockedByNotes
+                      ? null
+                      : onPractice,
                 ),
               ],
             ),

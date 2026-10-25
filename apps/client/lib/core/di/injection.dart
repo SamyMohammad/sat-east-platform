@@ -2,6 +2,8 @@ import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
+import 'package:sat_east_client/core/supabase/edge_caller.dart';
+import 'package:sat_east_client/core/supabase/rpc_caller.dart';
 import 'package:sat_east_client/core/time/ticker.dart';
 import 'package:sat_east_client/features/activation/data/datasources/activation_remote_data_source.dart';
 import 'package:sat_east_client/features/activation/data/repositories/activation_repository_impl.dart';
@@ -79,6 +81,9 @@ import 'package:sat_east_client/features/topic/data/datasources/topic_remote_dat
 import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
 import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
+import 'package:sat_east_client/features/video/data/datasources/video_remote_data_source.dart';
+import 'package:sat_east_client/features/video/data/repositories/video_repository_impl.dart';
+import 'package:sat_east_client/features/video/domain/repositories/video_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -96,6 +101,18 @@ void configureDependencies({
 }) {
   getIt
     ..registerLazySingleton<SupabaseClient>(() => Supabase.instance.client)
+    ..registerLazySingleton<RpcCaller>(
+      () =>
+          (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+    )
+    ..registerLazySingleton<EdgeCaller>(
+      () =>
+          (path, body) async => (await getIt<SupabaseClient>().functions.invoke(
+            'api/$path',
+            body: body,
+          )).data,
+      instanceName: edgeCallerInstanceName,
+    )
     ..registerSingleton<ErrorReporter>(errorReporter)
     ..registerSingleton<AnalyticsService>(analytics)
     // Auth and device registration (P1).
@@ -269,6 +286,22 @@ void configureDependencies({
         getIt<QuestionEditorRepository>(),
         getIt<QuestionBankRepository>(),
       ),
+    )
+    ..registerLazySingleton<VideoRemoteDataSource>(
+      () => VideoRemoteDataSource(
+        edge: getIt<EdgeCaller>(instanceName: edgeCallerInstanceName),
+        rpc: getIt<RpcCaller>(),
+        readSettings: () => getIt<SupabaseClient>()
+            .from('settings')
+            .select('key,value')
+            .inFilter('key', [
+              'video_progress_interval_s',
+              'video_watermark_move_s',
+            ]),
+      ),
+    )
+    ..registerLazySingleton<VideoRepository>(
+      () => VideoRepositoryImpl(getIt<VideoRemoteDataSource>()),
     )
     ..registerLazySingleton<NotesRemoteDataSource>(
       () => NotesRemoteDataSource(

@@ -3,6 +3,17 @@ import 'package:sat_east_client/core/presentation/learning_copy.dart';
 
 abstract final class TopicCopy {
   static const title = 'Topic';
+  static const video = 'Video';
+  static const notes = 'Notes';
+  static const watchVideoFirst = 'Watch the video first.';
+  static const openNotesFirst = 'Open the notes first.';
+
+  static String videoProgress(int durationS, int pct, String? subtopicTitle) =>
+      [
+        ?subtopicTitle,
+        '${durationS ~/ 60}:${(durationS % 60).toString().padLeft(2, '0')}',
+        '$pct%',
+      ].join(' \u00b7 ');
   static const practice = 'Practice';
   static const quiz = 'Quiz';
   static const startQuiz = 'Start quiz';

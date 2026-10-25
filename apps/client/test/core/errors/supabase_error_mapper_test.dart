@@ -8,6 +8,47 @@ import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
+  group('LRN-02: mapFunctionException', () {
+    for (final (details, status, expected) in <(Object?, int, String)>[
+      (
+        {
+          'error': {'code': 'video_needed'},
+        },
+        400,
+        'video_needed',
+      ),
+      (
+        {
+          'error': {'code': 'topic_locked'},
+        },
+        400,
+        'topic_locked',
+      ),
+      (
+        {
+          'error': {'code': 'boom'},
+        },
+        400,
+        'internal',
+      ),
+      (null, 401, 'not_authenticated'),
+      ('plain text', 500, 'internal'),
+    ]) {
+      test('maps $details with status $status to $expected', () {
+        expect(
+          mapFunctionException(
+            FunctionException(status: status, details: details),
+          ).code,
+          expected,
+        );
+      });
+    }
+    test('recognizes video server codes', () {
+      expect(ErrorCodes.isServerCode('video_needed'), isTrue);
+      expect(ErrorCodes.isServerCode('quota_exceeded'), isTrue);
+      expect(ErrorCodes.isServerCode(ErrorCodes.unsupported), isFalse);
+    });
+  });
   for (final code in [
     'practice_needed',
     'cooldown_active',

@@ -44,3 +44,18 @@ AppError mapUnknownError(Object e) {
   };
   return AppError(code, e.toString());
 }
+
+/// Maps the api function's structured error without retaining response secrets.
+AppError mapFunctionException(FunctionException e) {
+  final details = e.details;
+  if (details is Map && details['error'] is Map) {
+    final error = details['error'] as Map;
+    final code = error['code'];
+    if (code is String && ErrorCodes.isServerCode(code)) {
+      return AppError(code);
+    }
+  }
+  return AppError(
+    e.status == 401 ? ErrorCodes.notAuthenticated : ErrorCodes.internal,
+  );
+}

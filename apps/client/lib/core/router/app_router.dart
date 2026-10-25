@@ -47,6 +47,8 @@ abstract final class AppRoutes {
   static const activate = '/activate';
   static const courses = '/courses';
   static String topic(String id) => '/courses/topics/$id';
+  static String video(String topicId, String assetId) =>
+      '/courses/topics/$topicId/video/$assetId';
   static String notes(String topicId, String assetId) =>
       '/courses/topics/$topicId/notes/$assetId';
   static String practice(String id) => '/courses/topics/$id/practice';
@@ -133,9 +135,8 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: AppRoutes.teacherSettings,
-        builder: (context, state) => const TeacherShell(
-          child: TeacherSettingsScreen(),
-        ),
+        builder: (context, state) =>
+            const TeacherShell(child: TeacherSettingsScreen()),
       ),
       GoRoute(
         path: AppRoutes.teacherQuestionImport,
