@@ -1,0 +1,165 @@
+name: Deploy prod
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Main branch commit, tag or ref with a successful CI run on main
+        required: true
+        default: main
+        type: string
+permissions:
+  contents: read
+  actions: read
+concurrency:
+  group: production
+  cancel-in-progress: false
+jobs:
+  deploy:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: production
+    env:
+      PROJECT_REF: ${{ vars.PROD_PROJECT_REF }}
+      STAGING_PROJECT_REF: ${{ vars.STAGING_PROJECT_REF }}
+      SUPABASE_URL: ${{ vars.PROD_SUPABASE_URL }}
+      PUBLISHABLE_KEY: ${{ vars.PROD_PUBLISHABLE_KEY }}
+      PAGES_PROJECT: ${{ vars.CF_PAGES_PROJECT_PROD }}
+      WRANGLER: wrangler@4.148.0
+    steps:
+      - name: Check config is present
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+        run: |
+          for v in PROJECT_REF STAGING_PROJECT_REF SUPABASE_URL PUBLISHABLE_KEY PAGES_PROJECT \
+                   SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD CLOUDFLARE_API_TOKEN CLOUDFLARE_ACCOUNT_ID \
+                   BACKUP_PASSPHRASE R2_ACCOUNT_ID R2_ACCESS_KEY_ID R2_SECRET_ACCESS_KEY; do
+            [ -n "${!v}" ] || { echo "::error::$v is not set"; exit 1; }
+          done
+          [[ "$PROJECT_REF" =~ ^[a-z0-9]{20}$ ]]
+          [[ "$PAGES_PROJECT" =~ ^[a-z0-9][a-z0-9-]*$ ]]
+          [[ "$SUPABASE_URL" == "https://$PROJECT_REF.supabase.co" ]]
+      - name: Assert production and staging are separate projects
+        run: |
+          [ "$PROJECT_REF" != "$STAGING_PROJECT_REF" ] || { echo '::error::Prod and staging refs must differ'; exit 1; }
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
+          persist-credentials: false
+      - name: Require successful CI on main for the target commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          sha=$(git rev-parse HEAD)
+          gh run list --workflow ci.yml --branch main --commit "$sha" --event push \
+            --json conclusion --jq 'any(.[]; .conclusion == "success")' | grep -qx true \
+            || { echo '::error::Target commit needs a successful CI run on main'; exit 1; }
+      - name: Guard against demo seed configuration
+        # There is deliberately NO seed step. db push never uses --include-seed.
+        # Also reject configured seed paths/globs/symlinks pointing into demo.
+        run: |
+          python3 - <<'PY'
+          import glob
+          import pathlib
+          import tomllib
+          root = pathlib.Path('supabase').resolve()
+          demo = root / 'seeds/demo'
+          config = tomllib.loads((root / 'config.toml').read_text())
+          for pattern in config.get('db', {}).get('seed', {}).get('sql_paths', []):
+              paths = [root / pattern, *map(pathlib.Path, glob.glob(str(root / pattern), recursive=True))]
+              if any(path.resolve().is_relative_to(demo) for path in paths):
+                  raise SystemExit('Demo seed paths are forbidden in production')
+          PY
+      # Build and inspect before touching the database; secrets are scoped per step.
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.1
+          cache: true
+      - name: Build web (prod)
+        working-directory: apps/client
+        env:
+          SENTRY_DSN: ${{ vars.PROD_SENTRY_DSN }}
+          POSTHOG_KEY: ${{ vars.PROD_POSTHOG_KEY }}
+        run: |
+          # Closed beta has no Paymob setup yet; keep purchase UI disabled (ADR-006).
+          jq -n --arg url "$SUPABASE_URL" --arg key "$PUBLISHABLE_KEY" \
+            --arg sentry "$SENTRY_DSN" --arg posthog "$POSTHOG_KEY" \
+            '{FLAVOR:"prod",SUPABASE_URL:$url,SUPABASE_PUBLISHABLE_KEY:$key,ENABLE_PURCHASE:false,
+              SENTRY_DSN:$sentry,POSTHOG_KEY:$posthog,POSTHOG_HOST:"https://eu.i.posthog.com"}' > env/prod.json
+          flutter pub get
+          flutter build web --release --dart-define-from-file=env/prod.json
+          bash ../../scripts/secret-grep.sh build/web
+      # CI creates Pages, avoiding the agent-triggered Workers behavior (ADR-009).
+      - name: Ensure Pages project exists
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          npx -y "$WRANGLER" pages project list \
+            | grep -E "(^|[^A-Za-z0-9_-])${PAGES_PROJECT}([^A-Za-z0-9_-]|$)" >/dev/null \
+            || npx -y "$WRANGLER" pages project create "$PAGES_PROJECT" --production-branch=main
+      - uses: supabase/setup-cli@v3
+        with:
+          version: 2.117.0
+      - name: Install backup clients
+        run: |
+          # Hosted runners remove PGDG after provisioning; register its signed repo.
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsS -o /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc \
+            https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo 'deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt noble-pgdg main' \
+            | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -qq
+          # Pin the client major to config.toml, taking security patches within 17.
+          sudo apt-get install -y postgresql-client-17 gnupg
+          echo /usr/lib/postgresql/17/bin >> "$GITHUB_PATH"
+          curl -fsS -o "$RUNNER_TEMP/awscliv2.zip" \
+            https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.37.13.zip
+          unzip -q "$RUNNER_TEMP/awscliv2.zip" -d "$RUNNER_TEMP/aws-installer"
+          "$RUNNER_TEMP/aws-installer/aws/install" \
+            --install-dir "$RUNNER_TEMP/backup-tools/aws-cli" --bin-dir "$RUNNER_TEMP/backup-tools/bin"
+          echo "$RUNNER_TEMP/backup-tools/bin" >> "$GITHUB_PATH"
+      - name: Backup before migrations
+        env:
+          PROJECT_REF: ${{ vars.PROD_PROJECT_REF }}
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          PGPASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET }}
+          BACKUP_LABEL: pre-migrate
+        run: bash scripts/db-backup.sh
+      - name: Migrate production database
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+        run: |
+          # Withhold raw CLI diagnostics from this public repository's logs.
+          log=$(mktemp)
+          trap 'rm -f "$log" supabase/.temp/pooler-url' EXIT
+          supabase link --project-ref "$PROJECT_REF" >"$log" 2>&1 \
+            && supabase db push >"$log" 2>&1 \
+            || { echo '::error::Production migration failed (diagnostics withheld)'; exit 1; }
+      - name: Deploy Edge Functions
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          if find supabase/functions -mindepth 2 -name 'index.ts' | grep -q .; then
+            supabase functions deploy --project-ref "$PROJECT_REF"
+          else
+            echo 'No Edge Functions yet - skipped'
+          fi
+      - name: Deploy web to Cloudflare Pages
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx -y "$WRANGLER" pages deploy apps/client/build/web --project-name="$PAGES_PROJECT" --branch=main
