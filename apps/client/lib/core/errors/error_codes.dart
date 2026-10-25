@@ -1,4 +1,4 @@
-/// Error codes from `docs/07` §9 plus client-only auth/transport codes.
+/// Error codes from `docs/07` \u00a79 plus client-only auth/transport codes.
 abstract final class ErrorCodes {
   static const notAuthenticated = 'not_authenticated';
   static const forbidden = 'forbidden';
@@ -14,6 +14,9 @@ abstract final class ErrorCodes {
   static const topicLocked = 'topic_locked';
   static const poolExhausted = 'pool_exhausted';
   static const practiceNeeded = 'practice_needed';
+  static const homeworkNeeded = 'homework_needed';
+  static const attemptClosed = 'attempt_closed';
+  static const attemptNotSubmitted = 'attempt_not_submitted';
   static const notesNeeded = 'notes_needed';
   static const videoNeeded = 'video_needed';
   static const quotaExceeded = 'quota_exceeded';
@@ -56,6 +59,9 @@ abstract final class ErrorCodes {
     topicLocked,
     poolExhausted,
     practiceNeeded,
+    homeworkNeeded,
+    attemptClosed,
+    attemptNotSubmitted,
     notesNeeded,
     videoNeeded,
     quotaExceeded,
@@ -66,6 +72,6 @@ abstract final class ErrorCodes {
     alreadyEnrolled,
   };
 
-  /// Whether [code] is a `docs/07` §9 server code.
+  /// Whether [code] is a `docs/07` \u00a79 server code.
   static bool isServerCode(String code) => _serverCodes.contains(code);
 }

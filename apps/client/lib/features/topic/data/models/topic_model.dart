@@ -1,6 +1,7 @@
+import 'package:sat_east_client/core/attempts/attempt_json.dart';
 import 'package:sat_east_client/core/video/video_provider.dart';
-
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_homework.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 
@@ -23,6 +24,9 @@ TopicDetail topicDetailFromJson(Map<String, Object?> json) {
     practiceCount: _count(practice, 'count'),
     practiceMin: _count(practice, 'min'),
     quiz: _quiz(_map(json['quiz'])),
+    homework: json.containsKey('homework')
+        ? _homework(_map(json['homework']))
+        : const TopicHomework(state: HomeworkState.skipped),
     notes: _notes(json['notes']),
     notesDone: done,
     videos: json.containsKey('videos') ? _videos(json['videos']) : const [],
@@ -55,6 +59,10 @@ QuizStatus _quiz(Map<String, Object?> json) {
     'practice_needed' => QuizPracticeNeeded(
       count: count,
       min: min,
+      bestScorePct: score,
+      passed: passed,
+    ),
+    'homework_needed' => QuizHomeworkNeeded(
       bestScorePct: score,
       passed: passed,
     ),
@@ -128,5 +136,34 @@ List<TopicVideo> _videos(Object? raw) {
         lastPositionS: _count(json, 'last_position_s'),
       );
     }),
+  );
+}
+
+TopicHomework _homework(Map<String, Object?> json) {
+  final state = switch (_string(json, 'state')) {
+    'locked_by_practice' => HomeworkState.lockedByPractice,
+    'available' => HomeworkState.available,
+    'in_progress' => HomeworkState.inProgress,
+    'submitted' => HomeworkState.submitted,
+    'skipped' => HomeworkState.skipped,
+    _ => throw const FormatException('homework state'),
+  };
+  final active =
+      state == HomeworkState.inProgress || state == HomeworkState.submitted;
+  final score = json['score_pct'];
+  if (state == HomeworkState.submitted && score == null) {
+    throw const FormatException('score_pct');
+  }
+  final total = active ? _count(json, 'total') : null;
+  final answered = json.containsKey('answered') ? _count(json, 'answered') : 0;
+  if (active && (total == 0 || answered > total!)) {
+    throw const FormatException('answered');
+  }
+  return TopicHomework(
+    state: state,
+    attemptId: active ? _string(json, 'attempt_id') : null,
+    scorePct: score == null ? null : attemptJsonPercentage(json, 'score_pct'),
+    total: total,
+    answered: answered,
   );
 }

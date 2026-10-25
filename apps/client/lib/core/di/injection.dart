@@ -11,6 +11,10 @@ import 'package:sat_east_client/features/activation/data/datasources/activation_
 import 'package:sat_east_client/features/activation/data/repositories/activation_repository_impl.dart';
 import 'package:sat_east_client/features/activation/domain/repositories/activation_repository.dart';
 import 'package:sat_east_client/features/activation/presentation/cubit/activation_cubit.dart';
+import 'package:sat_east_client/features/attempt_review/data/datasources/attempt_review_remote_data_source.dart';
+import 'package:sat_east_client/features/attempt_review/data/repositories/attempt_review_repository_impl.dart';
+import 'package:sat_east_client/features/attempt_review/domain/repositories/attempt_review_repository.dart';
+import 'package:sat_east_client/features/attempt_review/presentation/cubit/attempt_review_cubit.dart';
 import 'package:sat_east_client/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_id_store.dart';
 import 'package:sat_east_client/features/auth/data/datasources/device_info.dart';
@@ -30,6 +34,10 @@ import 'package:sat_east_client/features/course_map/data/datasources/course_map_
 import 'package:sat_east_client/features/course_map/data/repositories/course_map_repository_impl.dart';
 import 'package:sat_east_client/features/course_map/domain/repositories/course_map_repository.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
+import 'package:sat_east_client/features/homework/data/datasources/homework_remote_data_source.dart';
+import 'package:sat_east_client/features/homework/data/repositories/homework_repository_impl.dart';
+import 'package:sat_east_client/features/homework/domain/repositories/homework_repository.dart';
+import 'package:sat_east_client/features/homework/presentation/cubit/homework_cubit.dart';
 import 'package:sat_east_client/features/notes/data/datasources/notes_remote_data_source.dart';
 import 'package:sat_east_client/features/notes/data/repositories/notes_repository_impl.dart';
 import 'package:sat_east_client/features/notes/domain/repositories/notes_repository.dart';
@@ -97,7 +105,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 final GetIt getIt = GetIt.instance;
 
 /// Registers services and repositories as lazy singletons, cubits as
-/// factories (ADR-007 §2). Features add their own `register*` calls here.
+/// factories (ADR-007 \u00a72). Features add their own `register*` calls here.
 ///
 /// [errorReporter] and [analytics] are built in `main.dart` because they must
 /// exist before the app starts (ADR-008). [deviceBox] is the opened Hive box
@@ -179,6 +187,28 @@ void configureDependencies({
     )
     ..registerFactory<QuizCubit>(
       () => QuizCubit(getIt<QuizRepository>(), DateTime.now, defaultTicker),
+    )
+    ..registerLazySingleton<HomeworkRemoteDataSource>(
+      () => HomeworkRemoteDataSource(getIt<RpcCaller>()),
+    )
+    ..registerLazySingleton<HomeworkRepository>(
+      () => HomeworkRepositoryImpl(getIt<HomeworkRemoteDataSource>()),
+    )
+    ..registerFactory<HomeworkCubit>(
+      () => HomeworkCubit(
+        getIt<HomeworkRepository>(),
+        DateTime.now,
+        defaultTicker,
+      ),
+    )
+    ..registerLazySingleton<AttemptReviewRemoteDataSource>(
+      () => AttemptReviewRemoteDataSource(getIt<RpcCaller>()),
+    )
+    ..registerLazySingleton<AttemptReviewRepository>(
+      () => AttemptReviewRepositoryImpl(getIt<AttemptReviewRemoteDataSource>()),
+    )
+    ..registerFactory<AttemptReviewCubit>(
+      () => AttemptReviewCubit(getIt<AttemptReviewRepository>()),
     )
     ..registerLazySingleton<TopicRemoteDataSource>(
       () => TopicRemoteDataSource(

@@ -1,10 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
@@ -78,6 +76,12 @@ class TopicView extends StatelessWidget {
                       AppRoutes.practice(topicId),
                       extra: title ?? topic.title,
                     ),
+                  ),
+                  onHomework: () => unawaited(
+                    context.push<void>(AppRoutes.homework(topicId)),
+                  ),
+                  onReport: (attemptId) => unawaited(
+                    context.push<void>(AppRoutes.attemptReview(attemptId)),
                   ),
                   onQuiz: () => unawaited(
                     context.push<void>(

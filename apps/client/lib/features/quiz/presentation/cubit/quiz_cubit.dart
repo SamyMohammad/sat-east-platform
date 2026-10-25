@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sat_east_client/core/attempts/answer_save_queue.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/time/ticker.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/domain/repositories/quiz_repository.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_attempt_clock.dart';
-import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_save_queue.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart';
 
 class QuizCubit extends Cubit<QuizState> {
@@ -19,7 +19,7 @@ class QuizCubit extends Cubit<QuizState> {
   final Ticker _ticker;
   StreamSubscription<void>? _tickSub;
   QuizAttemptClock? _clock;
-  QuizSaveQueue? _saves;
+  AnswerSaveQueue? _saves;
   Future<void>? _submission;
   int _generation = 0;
   bool _autoSubmitted = false;
@@ -57,7 +57,7 @@ class QuizCubit extends Cubit<QuizState> {
     final clock = QuizAttemptClock(session, _now)
       ..show(session.questions.first.id);
     _clock = clock;
-    _saves = QuizSaveQueue(
+    _saves = AnswerSaveQueue(
       clientSeq: session.clientSeq,
       now: _now,
       isActive: () => !isClosed && generation == _generation,
@@ -212,7 +212,7 @@ class QuizCubit extends Cubit<QuizState> {
 
   Future<void> _submit(
     QuizSession session,
-    QuizSaveQueue saves,
+    AnswerSaveQueue saves,
     int generation,
   ) async {
     await saves.flushForSubmit();
@@ -252,7 +252,7 @@ class QuizCubit extends Cubit<QuizState> {
   void _submissionFailed(
     AppError error,
     QuizSession session,
-    QuizSaveQueue saves,
+    AnswerSaveQueue saves,
   ) {
     _submission = null;
     final current = _running;

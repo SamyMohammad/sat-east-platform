@@ -16,6 +16,7 @@ abstract final class TopicCopy {
       ].join(' \u00b7 ');
   static const practice = 'Practice';
   static const quiz = 'Quiz';
+  static const homeworkNeeded = 'Submit the homework first.';
   static const startQuiz = 'Start quiz';
   static const resumeQuiz = 'Resume quiz';
   static const passed = 'Passed';
