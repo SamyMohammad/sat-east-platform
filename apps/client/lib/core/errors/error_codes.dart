@@ -6,6 +6,7 @@ abstract final class ErrorCodes {
   static const inUse = 'in_use';
   static const versionConflict = 'version_conflict';
   static const deviceLimit = 'device_limit';
+  static const deviceRevoked = 'device_revoked';
   static const rateLimited = 'rate_limited';
   static const internal = 'internal';
   static const notEnrolled = 'not_enrolled';
@@ -47,6 +48,7 @@ abstract final class ErrorCodes {
     inUse,
     versionConflict,
     deviceLimit,
+    deviceRevoked,
     rateLimited,
     internal,
     notEnrolled,

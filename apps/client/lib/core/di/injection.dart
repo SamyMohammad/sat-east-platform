@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
@@ -83,7 +85,9 @@ import 'package:sat_east_client/features/topic/domain/repositories/topic_reposit
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
 import 'package:sat_east_client/features/video/data/datasources/video_remote_data_source.dart';
 import 'package:sat_east_client/features/video/data/repositories/video_repository_impl.dart';
+import 'package:sat_east_client/features/video/data/services/video_engine_factory.dart';
 import 'package:sat_east_client/features/video/domain/repositories/video_repository.dart';
+import 'package:sat_east_client/features/video/presentation/cubit/video_player_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -285,6 +289,14 @@ void configureDependencies({
       () => QuestionEditorCubit(
         getIt<QuestionEditorRepository>(),
         getIt<QuestionBankRepository>(),
+      ),
+    )
+    ..registerFactory<VideoPlayerCubit>(
+      () => VideoPlayerCubit(
+        getIt<VideoRepository>(),
+        createVideoEngine,
+        periodic: Timer.periodic,
+        now: DateTime.now,
       ),
     )
     ..registerLazySingleton<VideoRemoteDataSource>(

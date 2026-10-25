@@ -8,6 +8,20 @@ import 'package:sat_east_client/core/errors/supabase_error_mapper.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
+  test('SEC-01: revoked device reaches video error copy', () {
+    expect(
+      mapFunctionException(
+        const FunctionException(
+          status: 400,
+          details: {
+            'error': {'code': 'device_revoked'},
+          },
+        ),
+      ).code,
+      'device_revoked',
+    );
+  });
+
   group('LRN-02: mapFunctionException', () {
     for (final (details, status, expected) in <(Object?, int, String)>[
       (
