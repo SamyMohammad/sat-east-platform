@@ -1,4 +1,4 @@
-/// Error codes from `docs/07` \u00a79 plus client-only auth/transport codes.
+/// Error codes from `docs/07` §9 plus client-only auth/transport codes.
 abstract final class ErrorCodes {
   static const notAuthenticated = 'not_authenticated';
   static const forbidden = 'forbidden';
@@ -72,6 +72,6 @@ abstract final class ErrorCodes {
     alreadyEnrolled,
   };
 
-  /// Whether [code] is a `docs/07` \u00a79 server code.
+  /// Whether [code] is a `docs/07` §9 server code.
   static bool isServerCode(String code) => _serverCodes.contains(code);
 }

@@ -105,7 +105,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 final GetIt getIt = GetIt.instance;
 
 /// Registers services and repositories as lazy singletons, cubits as
-/// factories (ADR-007 \u00a72). Features add their own `register*` calls here.
+/// factories (ADR-007 §2). Features add their own `register*` calls here.
 ///
 /// [errorReporter] and [analytics] are built in `main.dart` because they must
 /// exist before the app starts (ADR-008). [deviceBox] is the opened Hive box

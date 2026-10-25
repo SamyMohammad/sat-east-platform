@@ -255,7 +255,7 @@ class HomeworkCubit extends Cubit<HomeworkState> {
     if (isClosed || generation != _generation) return;
     final current = _running;
     if (current == null) return;
-    if (saves.hasPending) {
+    if (saves.hasPending && !saves.isStopped) {
       _submitFailed(saves.error ?? const AppError(ErrorCodes.internal), saves);
       return;
     }

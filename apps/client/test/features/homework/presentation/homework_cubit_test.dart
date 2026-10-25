@@ -130,11 +130,34 @@ void main() {
     final flight = Completer<Result<SaveOutcome>>();
     repo.pending = flight;
     cubit.select('A');
-    flight.complete(const Failure(AppError(ErrorCodes.invalidInput)));
+    flight.complete(const Failure(AppError(ErrorCodes.network)));
     await Future<void>.delayed(Duration.zero);
     await cubit.submit();
     expect(repo.submitted, isEmpty);
     expect((cubit.state as HomeworkRunning).submitError, isNotNull);
+  });
+  test('PRC-02: stopped saves still recover the submitted report', () async {
+    await cubit.start('t1');
+    final states = <HomeworkState>[];
+    final subscription = cubit.stream.listen(states.add);
+    addTearDown(subscription.cancel);
+    final flight = Completer<Result<SaveOutcome>>();
+    repo.pending = flight;
+    cubit.select('A');
+    flight.complete(const Failure(AppError(ErrorCodes.invalidInput)));
+    await Future<void>.delayed(Duration.zero);
+    expect(
+      (cubit.state as HomeworkRunning).saveError,
+      const AppError(ErrorCodes.invalidInput),
+    );
+
+    await cubit.submit();
+    await Future<void>.delayed(Duration.zero);
+
+    expect(repo.submitted, ['hw1']);
+    expect(repo.saves, hasLength(1));
+    expect(cubit.state, const HomeworkSubmitted(homeworkReport));
+    expect(states.last, const HomeworkSubmitted(homeworkReport));
   });
   test('PRC-02: errors preserve codes and map to English copy', () async {
     repo.startResult = const Failure(AppError(ErrorCodes.practiceNeeded));

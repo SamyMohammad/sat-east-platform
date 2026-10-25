@@ -42,6 +42,7 @@ class AnswerSaveQueue {
   bool get _active => !_disposed && _isActive();
   bool get isSaving => _flight != null || _pending.isNotEmpty;
   bool get hasPending => _pending.isNotEmpty;
+  bool get isStopped => _stopped;
   AppError? get error => _error;
 
   void enqueue(String questionId) {
