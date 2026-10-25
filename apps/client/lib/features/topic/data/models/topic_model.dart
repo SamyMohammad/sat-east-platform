@@ -1,11 +1,16 @@
+import 'package:sat_east_client/core/video/video_provider.dart';
+
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 
 TopicDetail topicDetailFromJson(Map<String, Object?> json) {
   final practice = _map(json['practice']);
   _string(json, 'slug');
   final done = json['notes_done'];
   if (done is! bool) throw const FormatException('notes_done');
+  final videoDone = json.containsKey('video_done') ? json['video_done'] : true;
+  if (videoDone is! bool) throw const FormatException('video_done');
   return TopicDetail(
     id: _string(json, 'id'),
     title: _string(json, 'title'),
@@ -20,6 +25,8 @@ TopicDetail topicDetailFromJson(Map<String, Object?> json) {
     quiz: _quiz(_map(json['quiz'])),
     notes: _notes(json['notes']),
     notesDone: done,
+    videos: json.containsKey('videos') ? _videos(json['videos']) : const [],
+    videoDone: videoDone,
   );
 }
 
@@ -96,6 +103,29 @@ List<TopicNote> _notes(Object? raw) {
         pageCount: json['page_count'] == null
             ? null
             : _count(json, 'page_count'),
+      );
+    }),
+  );
+}
+
+List<TopicVideo> _videos(Object? raw) {
+  if (raw is! List<Object?>) throw const FormatException('videos');
+  return List.unmodifiable(
+    raw.map((item) {
+      final json = _map(item);
+      final duration = _count(json, 'duration_s');
+      final pct = _count(json, 'pct');
+      if (duration == 0 || pct > 100) throw const FormatException('video');
+      return TopicVideo(
+        assetId: _string(json, 'asset_id'),
+        title: _string(json, 'title'),
+        subtopicTitle: json['subtopic_title'] == null
+            ? null
+            : _string(json, 'subtopic_title'),
+        durationS: duration,
+        provider: VideoProvider.fromWire(_string(json, 'provider')),
+        pct: pct,
+        lastPositionS: _count(json, 'last_position_s'),
       );
     }),
   );

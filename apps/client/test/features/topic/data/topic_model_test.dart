@@ -1,10 +1,66 @@
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:sat_east_client/features/topic/data/models/topic_model.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 
 import '../topic_fixture.dart';
 
 void main() {
+  test('LRN-02: parses videos and server completion flag', () {
+    final topic = topicDetailFromJson(
+      topicPayload()..addAll({
+        'videos': [
+          {
+            'asset_id': 'v1',
+            'title': 'Lesson',
+            'subtopic_title': null,
+            'duration_s': 600,
+            'provider': 'r2_hls',
+            'pct': 40,
+            'last_position_s': 120,
+          },
+        ],
+        'video_done': false,
+      }),
+    );
+    final video = topic.videos.single;
+    expect(video.assetId, 'v1');
+    expect(video.title, 'Lesson');
+    expect(video.subtopicTitle, isNull);
+    expect(video.durationS, 600);
+    expect(video.provider.name, 'r2Hls');
+    expect(video.pct, 40);
+    expect(video.lastPositionS, 120);
+    expect(topic.videoDone, isFalse);
+  });
+  test('LRN-02: missing video fields preserve topics without videos', () {
+    final topic = topicDetailFromJson(topicPayload());
+    expect(topic.videos, isEmpty);
+    expect(topic.videoDone, isTrue);
+  });
+  for (final provider in ['youtube', 'unknown']) {
+    test('LRN-02: validates video provider $provider', () {
+      final payload = topicPayload()
+        ..['videos'] = [
+          {
+            'asset_id': 'v1',
+            'title': 'Lesson',
+            'duration_s': 600,
+            'provider': provider,
+            'pct': 40,
+            'last_position_s': 120,
+          },
+        ];
+      if (provider == 'unknown') {
+        expect(() => topicDetailFromJson(payload), throwsFormatException);
+      } else {
+        expect(
+          topicDetailFromJson(payload).videos.single.provider.name,
+          'youtube',
+        );
+      }
+    });
+  }
   test('L-3: parses notes and server completion flag', () {
     final payload = topicPayload()
       ..addAll({

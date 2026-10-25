@@ -1,7 +1,11 @@
+import 'dart:async';
+
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
+import 'package:sat_east_client/core/supabase/edge_caller.dart';
+import 'package:sat_east_client/core/supabase/rpc_caller.dart';
 import 'package:sat_east_client/core/time/ticker.dart';
 import 'package:sat_east_client/features/activation/data/datasources/activation_remote_data_source.dart';
 import 'package:sat_east_client/features/activation/data/repositories/activation_repository_impl.dart';
@@ -75,10 +79,19 @@ import 'package:sat_east_client/features/teacher/settings/data/datasources/teach
 import 'package:sat_east_client/features/teacher/settings/data/repositories/teacher_settings_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/repositories/teacher_settings_repository.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
+import 'package:sat_east_client/features/teacher/videos/data/datasources/teacher_videos_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/videos/data/repositories/teacher_videos_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/videos/domain/repositories/teacher_videos_repository.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_cubit.dart';
 import 'package:sat_east_client/features/topic/data/datasources/topic_remote_data_source.dart';
 import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
 import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
+import 'package:sat_east_client/features/video/data/datasources/video_remote_data_source.dart';
+import 'package:sat_east_client/features/video/data/repositories/video_repository_impl.dart';
+import 'package:sat_east_client/features/video/data/services/video_engine_factory.dart';
+import 'package:sat_east_client/features/video/domain/repositories/video_repository.dart';
+import 'package:sat_east_client/features/video/presentation/cubit/video_player_cubit.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 final GetIt getIt = GetIt.instance;
@@ -96,6 +109,18 @@ void configureDependencies({
 }) {
   getIt
     ..registerLazySingleton<SupabaseClient>(() => Supabase.instance.client)
+    ..registerLazySingleton<RpcCaller>(
+      () =>
+          (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+    )
+    ..registerLazySingleton<EdgeCaller>(
+      () =>
+          (path, body) async => (await getIt<SupabaseClient>().functions.invoke(
+            'api/$path',
+            body: body,
+          )).data,
+      instanceName: edgeCallerInstanceName,
+    )
     ..registerSingleton<ErrorReporter>(errorReporter)
     ..registerSingleton<AnalyticsService>(analytics)
     // Auth and device registration (P1).
@@ -270,6 +295,30 @@ void configureDependencies({
         getIt<QuestionBankRepository>(),
       ),
     )
+    ..registerFactory<VideoPlayerCubit>(
+      () => VideoPlayerCubit(
+        getIt<VideoRepository>(),
+        createVideoEngine,
+        periodic: Timer.periodic,
+        now: DateTime.now,
+      ),
+    )
+    ..registerLazySingleton<VideoRemoteDataSource>(
+      () => VideoRemoteDataSource(
+        edge: getIt<EdgeCaller>(instanceName: edgeCallerInstanceName),
+        rpc: getIt<RpcCaller>(),
+        readSettings: () => getIt<SupabaseClient>()
+            .from('settings')
+            .select('key,value')
+            .inFilter('key', [
+              'video_progress_interval_s',
+              'video_watermark_move_s',
+            ]),
+      ),
+    )
+    ..registerLazySingleton<VideoRepository>(
+      () => VideoRepositoryImpl(getIt<VideoRemoteDataSource>()),
+    )
     ..registerLazySingleton<NotesRemoteDataSource>(
       () => NotesRemoteDataSource(
         (path) => getIt<SupabaseClient>().storage.from('notes').download(path),
@@ -285,6 +334,18 @@ void configureDependencies({
         getIt<AuthRepository>(),
         DateTime.now,
       ),
+    )
+    ..registerLazySingleton<TeacherVideosRemoteDataSource>(
+      () => TeacherVideosRemoteDataSource(
+        rpc: getIt<RpcCaller>(),
+        edge: getIt<EdgeCaller>(instanceName: edgeCallerInstanceName),
+      ),
+    )
+    ..registerLazySingleton<TeacherVideosRepository>(
+      () => TeacherVideosRepositoryImpl(getIt<TeacherVideosRemoteDataSource>()),
+    )
+    ..registerFactory<TeacherVideosCubit>(
+      () => TeacherVideosCubit(getIt<TeacherVideosRepository>()),
     )
     ..registerLazySingleton<TeacherNotesRemoteDataSource>(
       () => TeacherNotesRemoteDataSource(

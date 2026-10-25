@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
 
 class BuilderNodeRow extends StatefulWidget {
   const BuilderNodeRow({
@@ -23,6 +24,7 @@ class BuilderNodeRow extends StatefulWidget {
     this.isFreePreview,
     this.onPublish,
     this.onNotes,
+    this.onVideos,
     this.onPreview,
     super.key,
   });
@@ -43,6 +45,7 @@ class BuilderNodeRow extends StatefulWidget {
   final bool? isFreePreview;
   final VoidCallback? onPublish;
   final VoidCallback? onNotes;
+  final VoidCallback? onVideos;
   final ValueChanged<bool>? onPreview;
   @override
   State<BuilderNodeRow> createState() => _BuilderNodeRowState();
@@ -143,6 +146,11 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
         const PopupMenuItem(value: 'rename', child: Text('Rename')),
         if (widget.onNotes != null)
           const PopupMenuItem(value: 'notes', child: Text('Notes\u2026')),
+        if (widget.onVideos != null)
+          const PopupMenuItem(
+            value: 'videos',
+            child: Text(TeacherVideosCopy.menu),
+          ),
         if (widget.onPublish != null)
           PopupMenuItem(
             value: 'publish',
@@ -174,6 +182,8 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
         widget.onPublish?.call();
       case 'notes':
         widget.onNotes?.call();
+      case 'videos':
+        widget.onVideos?.call();
       case 'delete':
         unawaited(widget.onDelete());
     }
