@@ -79,6 +79,10 @@ import 'package:sat_east_client/features/teacher/settings/data/datasources/teach
 import 'package:sat_east_client/features/teacher/settings/data/repositories/teacher_settings_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/repositories/teacher_settings_repository.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
+import 'package:sat_east_client/features/teacher/videos/data/datasources/teacher_videos_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/videos/data/repositories/teacher_videos_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/videos/domain/repositories/teacher_videos_repository.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_cubit.dart';
 import 'package:sat_east_client/features/topic/data/datasources/topic_remote_data_source.dart';
 import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
 import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
@@ -330,6 +334,18 @@ void configureDependencies({
         getIt<AuthRepository>(),
         DateTime.now,
       ),
+    )
+    ..registerLazySingleton<TeacherVideosRemoteDataSource>(
+      () => TeacherVideosRemoteDataSource(
+        rpc: getIt<RpcCaller>(),
+        edge: getIt<EdgeCaller>(instanceName: edgeCallerInstanceName),
+      ),
+    )
+    ..registerLazySingleton<TeacherVideosRepository>(
+      () => TeacherVideosRepositoryImpl(getIt<TeacherVideosRemoteDataSource>()),
+    )
+    ..registerFactory<TeacherVideosCubit>(
+      () => TeacherVideosCubit(getIt<TeacherVideosRepository>()),
     )
     ..registerLazySingleton<TeacherNotesRemoteDataSource>(
       () => TeacherNotesRemoteDataSource(

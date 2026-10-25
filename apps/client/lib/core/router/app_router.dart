@@ -34,6 +34,7 @@ import 'package:sat_east_client/features/teacher/questions/presentation/screens/
 import 'package:sat_east_client/features/teacher/review/presentation/screens/review_queue_screen.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/screens/teacher_videos_screen.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/features/video/presentation/screens/video_player_screen.dart'
     deferred as video_player;
@@ -69,6 +70,8 @@ abstract final class AppRoutes {
   static const teacher = '/teacher';
   static const teacherQuestions = '/teacher/questions';
   static const teacherQuestionImport = '/teacher/questions/import';
+  static String teacherVideos(String courseId, String topicId) =>
+      '/teacher/courses/$courseId/topics/$topicId/videos';
   static String teacherNotes(String courseId, String topicId) =>
       '/teacher/courses/$courseId/topics/$topicId/notes';
   static const teacherSettings = '/teacher/settings';
@@ -172,6 +175,15 @@ GoRouter createRouter({
         path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/notes',
         builder: (context, state) => TeacherShell(
           child: TeacherNotesScreen(
+            courseId: state.pathParameters['courseId']!,
+            topicId: state.pathParameters['topicId']!,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/videos',
+        builder: (context, state) => TeacherShell(
+          child: TeacherVideosScreen(
             courseId: state.pathParameters['courseId']!,
             topicId: state.pathParameters['topicId']!,
           ),

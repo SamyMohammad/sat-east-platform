@@ -194,6 +194,9 @@ class BuilderTree extends StatelessWidget {
               onNotes: () => context.go(
                 AppRoutes.teacherNotes(loaded.tree!.courseId, topic.id),
               ),
+              onVideos: () => context.go(
+                AppRoutes.teacherVideos(loaded.tree!.courseId, topic.id),
+              ),
               onPublish: () => unawaited(_publish(context, topic, code)),
               onPreview: (value) =>
                   unawaited(cubit.setFlags(topic.id, isFreePreview: value)),
