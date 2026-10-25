@@ -185,6 +185,8 @@ void main() {
     final ready = cubit.state as VideoPlayerReady;
     expect(ready.positionS, 12);
     expect(ready.watermarkMoveS, 7);
+    // Stream listeners receive the last emit on a later microtask.
+    await Future<void>.delayed(Duration.zero);
     expect(states.whereType<VideoPlayerLoading>(), isNotEmpty);
     expect(states.last, isA<VideoPlayerReady>());
     await subscription.cancel();
