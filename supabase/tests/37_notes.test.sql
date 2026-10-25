@@ -89,7 +89,7 @@ select is(public.get_topic(pg_temp.n(11))->'notes',jsonb_build_array(
  'L-3: get_topic lists ready notes in sort order');
 select is(public.get_topic(pg_temp.n(11))->'notes_done','false'::jsonb,'L-3: notes initially incomplete');
 select is((select array_agg(k order by k) from jsonb_object_keys(public.get_topic(pg_temp.n(11))-'notes'-'notes_done') k),
- array['id','practice','quiz','slug','sort_label','status','title','video_done','videos'],'L-3: topic keys include video fields');
+ array['homework','id','practice','quiz','slug','sort_label','status','title','video_done','videos'],'L-3: topic keys include video fields');
 select lives_ok($$select public.mark_notes_opened(pg_temp.n(31))$$,'L-3: first open succeeds');
 select is(public.get_topic(pg_temp.n(11))->'notes_done','true'::jsonb,'L-3: opening any notes completes step');
 select lives_ok($$select public.get_practice_questions(pg_temp.n(11))$$,'L-3: practice unlocked');
