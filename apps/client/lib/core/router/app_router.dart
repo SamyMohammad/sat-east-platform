@@ -6,6 +6,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
 import 'package:sat_east_client/features/activation/presentation/screens/activate_screen.dart';
+import 'package:sat_east_client/features/attempt_review/presentation/screens/attempt_review_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
@@ -19,6 +20,7 @@ import 'package:sat_east_client/features/catalogue/presentation/screens/catalogu
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/homework/presentation/screens/homework_screen.dart';
 import 'package:sat_east_client/features/notes/presentation/screens/notes_viewer_screen.dart'
     deferred as notes_viewer;
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
@@ -56,6 +58,8 @@ abstract final class AppRoutes {
   static String notes(String topicId, String assetId) =>
       '/courses/topics/$topicId/notes/$assetId';
   static String practice(String id) => '/courses/topics/$id/practice';
+  static String homework(String id) => '/courses/topics/$id/homework';
+  static String attemptReview(String id) => '/courses/attempts/$id/review';
   static String quiz(String id) => '/courses/topics/$id/quiz';
   static String quizResult(String id) => '/courses/topics/$id/quiz/result';
   static const skills = '/skills';
@@ -261,6 +265,18 @@ GoRouter createRouter({
                             final String t => t,
                             _ => null,
                           },
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'topics/:topicId/homework',
+                        builder: (context, state) => HomeworkScreen(
+                          topicId: state.pathParameters['topicId']!,
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'attempts/:attemptId/review',
+                        builder: (context, state) => AttemptReviewScreen(
+                          attemptId: state.pathParameters['attemptId']!,
                         ),
                       ),
                       GoRoute(

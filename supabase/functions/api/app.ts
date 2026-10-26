@@ -12,7 +12,7 @@ import { signToken, verifyToken } from './video/token.ts';
 const ERROR_CODES = [
   'not_authenticated', 'forbidden', 'invalid_input', 'not_enrolled', 'access_expired',
   'topic_locked', 'attempt_closed', 'deadline_passed', 'device_limit', 'device_revoked',
-  'cooldown_active', 'pool_exhausted', 'rate_limited', 'payment_invalid', 'internal', 'video_needed',
+  'homework_needed', 'cooldown_active', 'pool_exhausted', 'rate_limited', 'payment_invalid', 'internal', 'video_needed',
 ] as const;
 type ErrorCode = (typeof ERROR_CODES)[number];
 

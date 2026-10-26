@@ -14,6 +14,9 @@ abstract final class ErrorCodes {
   static const topicLocked = 'topic_locked';
   static const poolExhausted = 'pool_exhausted';
   static const practiceNeeded = 'practice_needed';
+  static const homeworkNeeded = 'homework_needed';
+  static const attemptClosed = 'attempt_closed';
+  static const attemptNotSubmitted = 'attempt_not_submitted';
   static const notesNeeded = 'notes_needed';
   static const videoNeeded = 'video_needed';
   static const quotaExceeded = 'quota_exceeded';
@@ -56,6 +59,9 @@ abstract final class ErrorCodes {
     topicLocked,
     poolExhausted,
     practiceNeeded,
+    homeworkNeeded,
+    attemptClosed,
+    attemptNotSubmitted,
     notesNeeded,
     videoNeeded,
     quotaExceeded,

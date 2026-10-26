@@ -7,9 +7,9 @@ abstract final class QuizCopy {
   static const notPassed = 'Quiz not passed';
   static const nextTopic = 'Next topic';
   static const backToCourse = 'Back to course';
-  static const notSaved = 'Not saved — retrying';
-  static const saveStopped = 'Not saved — return to the topic';
-  static const submitting = 'Submitting quiz…';
+  static const notSaved = 'Not saved \u2014 retrying';
+  static const saveStopped = 'Not saved \u2014 return to the topic';
+  static const submitting = 'Submitting quiz\u2026';
   static const submitError = "Couldn't submit your quiz. Try again.";
   static const retrySubmit = 'Retry submit';
   static const retakeUnavailable =
@@ -19,7 +19,7 @@ abstract final class QuizCopy {
 
   static String score(int raw, int total, double pct) {
     final value = pct == pct.truncateToDouble() ? pct.toInt() : pct;
-    return '$raw of $total correct · $value%';
+    return '$raw of $total correct \u00b7 $value%';
   }
 
   static String passMark(int mark) => 'Pass mark $mark%';
@@ -34,6 +34,7 @@ abstract final class QuizCopy {
   };
 
   static String errorBody(String code) => switch (code) {
+    ErrorCodes.homeworkNeeded => 'Submit the homework first.',
     ErrorCodes.practiceNeeded =>
       'Complete more practice before starting this quiz.',
     ErrorCodes.cooldownActive =>

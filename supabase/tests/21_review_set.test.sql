@@ -70,6 +70,13 @@ select private.finish_quiz(a.id, now() - interval '1 hour') from public.attempts
 where a.topic_id = '00000000-0000-0000-0000-0000000021d1';
 update public.topic_progress set quiz_passed_at = now() - interval '30 minutes'
 where user_id = tests.get_supabase_uid('review_pass');
+-- Complete homework so quiz-state assertions still isolate the review gate.
+select tests.authenticate_as('review_main');
+select public.submit_attempt((public.start_homework('00000000-0000-0000-0000-0000000021d1')->>'attempt_id')::uuid);
+select tests.clear_authentication();
+reset role;
+-- Restore this fixture's explicit exposure history for deterministic review drawing.
+delete from public.question_exposure where user_id = tests.get_supabase_uid('review_main');
 insert into public.question_exposure (user_id, question_id) values
   (tests.get_supabase_uid('review_main'), pg_temp.q(1)),
   (tests.get_supabase_uid('review_main'), pg_temp.q(4));

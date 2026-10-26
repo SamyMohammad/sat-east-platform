@@ -5,6 +5,7 @@ import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 import 'package:sat_east_client/features/topic/presentation/topic_copy.dart';
+import 'package:sat_east_client/features/topic/presentation/widgets/topic_homework_step.dart';
 import 'package:sat_east_client/features/topic/presentation/widgets/topic_notes_step.dart';
 import 'package:sat_east_client/features/topic/presentation/widgets/topic_video_step.dart';
 import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
@@ -19,6 +20,8 @@ class TopicContent extends StatelessWidget {
     this.title,
     this.onNotes,
     this.onVideo,
+    this.onHomework,
+    this.onReport,
   });
 
   final TopicDetail topic;
@@ -27,6 +30,8 @@ class TopicContent extends StatelessWidget {
   final VoidCallback onQuiz;
   final ValueChanged<TopicNote>? onNotes;
   final ValueChanged<TopicVideo>? onVideo;
+  final VoidCallback? onHomework;
+  final ValueChanged<String>? onReport;
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +39,7 @@ class TopicContent extends StatelessWidget {
     final heading = title ?? topic.title;
     final quiz = topic.quiz;
     final description = switch (quiz) {
+      QuizHomeworkNeeded() => TopicCopy.homeworkNeeded,
       QuizPracticeNeeded(:final remaining) => TopicCopy.practiceNeeded(
         remaining,
       ),
@@ -93,6 +99,11 @@ class TopicContent extends StatelessWidget {
             ),
           ),
         ),
+        TopicHomeworkStep(
+          homework: topic.homework,
+          onStart: onHomework,
+          onReport: onReport,
+        ),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(BookletSpace.s4),
@@ -115,7 +126,9 @@ class TopicContent extends StatelessWidget {
                       : TopicCopy.startQuiz,
                   onPressed: switch (quiz) {
                     QuizAvailable() || QuizInProgress() => onQuiz,
-                    QuizPracticeNeeded() || QuizCooldown() => null,
+                    QuizPracticeNeeded() ||
+                    QuizHomeworkNeeded() ||
+                    QuizCooldown() => null,
                   },
                 ),
               ],

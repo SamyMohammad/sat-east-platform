@@ -1,18 +1,19 @@
 import 'dart:async';
 
+import 'package:sat_east_client/core/attempts/save_outcome.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
-import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 
 /// One writer per attempt; pending question IDs always use the latest snapshot.
-class QuizSaveQueue {
-  QuizSaveQueue({
+class AnswerSaveQueue {
+  AnswerSaveQueue({
     required this._clientSeq,
     required this._now,
     required this._isActive,
     required this._save,
     required this._onError,
     required this._onDeadlinePassed,
+    this.onChanged,
   });
 
   static const _retryDelays = [
@@ -21,6 +22,7 @@ class QuizSaveQueue {
     Duration(seconds: 10),
   ];
 
+  final void Function()? onChanged;
   final DateTime Function() _now;
   final bool Function() _isActive;
   final Future<Result<SaveOutcome>> Function(String, int) _save;
@@ -38,13 +40,16 @@ class QuizSaveQueue {
   AppError? _error;
 
   bool get _active => !_disposed && _isActive();
+  bool get isSaving => _flight != null || _pending.isNotEmpty;
   bool get hasPending => _pending.isNotEmpty;
+  bool get isStopped => _stopped;
   AppError? get error => _error;
 
   void enqueue(String questionId) {
     if (!_active || _stopped) return;
     _pending.add(questionId);
     _pump();
+    onChanged?.call();
   }
 
   void tick() {
@@ -76,6 +81,7 @@ class QuizSaveQueue {
         if (identical(_flight, done)) _flight = null;
         if (!done.isCompleted) done.complete();
         _pump();
+        if (_active) onChanged?.call();
       }),
     );
   }
