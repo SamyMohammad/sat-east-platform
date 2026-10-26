@@ -9,7 +9,7 @@ import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_entries.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 
@@ -181,12 +181,12 @@ void main() {
             MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
           );
           await tester.pumpAndSettle();
-          expect(find.byType(BookletDialog), findsOneWidget);
+          expect(find.byType(AppDialog), findsOneWidget);
 
           router.go(galleryLocation('quiz'));
           await tester.pumpAndSettle();
 
-          expect(find.byType(BookletDialog), findsNothing);
+          expect(find.byType(AppDialog), findsNothing);
           expect(find.byType(ExamBar), findsOneWidget);
           expect(tester.takeException(), isNull);
         } finally {
@@ -228,7 +228,7 @@ void main() {
             MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
           );
           await tester.pumpAndSettle();
-          expect(find.byType(BookletDialog), findsOneWidget);
+          expect(find.byType(AppDialog), findsOneWidget);
           expect(find.text("Time's up. Quiz 4.2 submitted."), findsOneWidget);
           expect(tester.takeException(), isNull);
         } finally {

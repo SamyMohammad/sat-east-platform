@@ -7,9 +7,9 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/last_used.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 /// Device-limit gate (S-11): choose a device to remove, or sign out.
@@ -29,15 +29,15 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
   Future<void> _confirmRemove(Device device) async {
     final cubit = context.read<AuthCubit>();
     final name = _nameOf(device);
-    final confirmed = await showBookletDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
-      builder: (dialogContext) => BookletDialog(
+      builder: (dialogContext) => AppDialog(
         title: 'Remove $name?',
         content: const Text('It will be signed out there.'),
         actions: [
           LoadingButton(
             label: 'Cancel',
-            variant: BookletButtonVariant.tertiary,
+            variant: AppButtonVariant.tertiary,
             onPressed: () => Navigator.of(dialogContext).pop(false),
           ),
           LoadingButton(
@@ -58,7 +58,7 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
         alignment: AlignmentDirectional.centerEnd,
         child: LoadingButton(
           label: 'Sign out',
-          variant: BookletButtonVariant.tertiary,
+          variant: AppButtonVariant.tertiary,
           onPressed: state is AuthDeviceGate && state.removing
               ? null
               : context.read<AuthCubit>().signOut,
@@ -96,7 +96,7 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
           ),
           LoadingButton(
             label: 'Sign out instead',
-            variant: BookletButtonVariant.secondary,
+            variant: AppButtonVariant.secondary,
             expanded: true,
             onPressed: gate.removing ? null : context.read<AuthCubit>().signOut,
           ),
@@ -119,9 +119,9 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
           style: muted,
         ),
         if (gate.error case final error?)
-          BookletBanner(
+          AppBanner(
             message: authErrorCopy(error.code),
-            kind: BookletBannerKind.error,
+            kind: AppBannerKind.error,
           ),
         RadioGroup<String>(
           groupValue: _selectedId,

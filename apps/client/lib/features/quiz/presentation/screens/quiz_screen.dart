@@ -12,7 +12,7 @@ import 'package:sat_east_client/features/quiz/presentation/quiz_copy.dart';
 import 'package:sat_east_client/features/quiz/presentation/widgets/quiz_notices.dart';
 import 'package:sat_east_client/features/quiz/presentation/widgets/quiz_question.dart';
 import 'package:sat_east_client/features/quiz/presentation/widgets/quiz_status_content.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/quiz_time_up_dialog.dart';
 
@@ -94,7 +94,7 @@ class _QuizViewState extends State<QuizView> {
             (previous.runtimeType != next.runtimeType || next is QuizFailed),
         builder: (context, state) => switch (state) {
           QuizLoading() || QuizSubmitted() => const QuizStatusContent(
-            child: BookletSkeleton(),
+            child: AppSkeleton(),
           ),
           QuizFailed(:final error) => QuizStatusContent(
             child: EmptyState(

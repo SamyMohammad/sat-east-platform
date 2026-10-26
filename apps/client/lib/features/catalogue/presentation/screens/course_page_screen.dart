@@ -18,7 +18,7 @@ import 'package:sat_east_client/features/catalogue/presentation/cubit/course_pag
 import 'package:sat_east_client/features/catalogue/presentation/price_format.dart';
 import 'package:sat_east_client/features/catalogue/presentation/widgets/catalogue_frame.dart';
 import 'package:sat_east_client/features/catalogue/presentation/widgets/syllabus_unit.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
@@ -56,7 +56,7 @@ class CoursePageView extends StatelessWidget {
       builder: (context, state) => switch (state) {
         CoursePageLoading() => const Padding(
           padding: EdgeInsets.all(BookletSpace.s6),
-          child: BookletSkeleton(),
+          child: AppSkeleton(),
         ),
         CoursePageFailed(:final error)
             when error.code == ErrorCodes.invalidInput =>

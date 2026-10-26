@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_colors.dart';
+
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/app_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class ErrorRetry extends StatelessWidget {
@@ -10,6 +13,7 @@ class ErrorRetry extends StatelessWidget {
     required this.message,
     required this.onRetry,
     super.key,
+    this.illustration = AppIllustrationName.offline,
     this.isRetrying = false,
     this.secondaryLabel,
     this.onSecondary,
@@ -18,6 +22,7 @@ class ErrorRetry extends StatelessWidget {
          'Provide both secondaryLabel and onSecondary, or neither.',
        );
 
+  final AppIllustrationName? illustration;
   final String title;
   final String message;
   final VoidCallback onRetry;
@@ -26,9 +31,10 @@ class ErrorRetry extends StatelessWidget {
   final VoidCallback? onSecondary;
 
   @override
-  Widget build(BuildContext context) => BookletStatusFrame(
+  Widget build(BuildContext context) => AppStatusFrame(
     icon: AppIcons.offline,
-    iconColor: Theme.of(context).colorScheme.onSurface,
+    iconColor: context.appColors.ink,
+    illustration: illustration,
     title: title,
     message: message,
     actions: [
@@ -42,7 +48,7 @@ class ErrorRetry extends StatelessWidget {
         LoadingButton(
           label: secondaryLabel!,
           onPressed: onSecondary,
-          variant: BookletButtonVariant.tertiary,
+          variant: AppButtonVariant.tertiary,
         ),
     ],
   );

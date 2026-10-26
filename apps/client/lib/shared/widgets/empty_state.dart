@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/app_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class EmptyState extends StatelessWidget {
@@ -9,6 +10,7 @@ class EmptyState extends StatelessWidget {
     required this.title,
     required this.message,
     super.key,
+    this.illustration,
     this.icon = AppIcons.quiz,
     this.actionLabel,
     this.onAction,
@@ -23,6 +25,7 @@ class EmptyState extends StatelessWidget {
          'Provide both secondaryActionLabel and onSecondaryAction, or neither.',
        );
 
+  final AppIllustrationName? illustration;
   final String title;
   final String message;
   final IconData icon;
@@ -32,8 +35,9 @@ class EmptyState extends StatelessWidget {
   final VoidCallback? onSecondaryAction;
 
   @override
-  Widget build(BuildContext context) => BookletStatusFrame(
+  Widget build(BuildContext context) => AppStatusFrame(
     icon: icon,
+    illustration: illustration,
     title: title,
     message: message,
     actions: [
@@ -46,7 +50,7 @@ class EmptyState extends StatelessWidget {
               LoadingButton(
                 label: actionLabel!,
                 onPressed: onAction,
-                variant: BookletButtonVariant.secondary,
+                variant: AppButtonVariant.secondary,
               ),
             if (secondaryActionLabel != null && onSecondaryAction != null)
               TextButton(

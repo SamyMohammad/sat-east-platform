@@ -12,7 +12,7 @@ import 'package:sat_east_client/features/course_map/domain/entities/course_map.d
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_state.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 
 class _MockCubit extends MockCubit<CourseMapState> implements CourseMapCubit {}
 
@@ -150,7 +150,7 @@ void main() {
 
   testWidgets('L-1: loading shows the skeleton', (tester) async {
     await _pump(tester, const CourseMapLoading());
-    expect(find.byType(BookletSkeleton), findsOneWidget);
+    expect(find.byType(AppSkeleton), findsOneWidget);
   });
 
   testWidgets('L-1: rows expose status in their semantics label', (

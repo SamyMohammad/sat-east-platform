@@ -6,8 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 Future<void> _pump(
@@ -53,18 +53,18 @@ void main() {
   ) async {
     await _pump(
       tester,
-      BookletBanner(
+      AppBanner(
         message: 'Desmos is available on every question in this module.',
         actionLabel: 'Got it',
         onAction: () {},
       ),
       width: 1280,
     );
-    final banner = tester.getRect(find.byType(BookletBanner));
+    final banner = tester.getRect(find.byType(AppBanner));
     final action = tester.getRect(find.text('Got it'));
     expect(action.center.dx, greaterThan(banner.left + banner.width * .75));
   });
-  for (final kind in [BookletChipKind.skill, BookletChipKind.filter]) {
+  for (final kind in [AppChipKind.skill, AppChipKind.filter]) {
     testWidgets('F-4: $kind chip preserves multiline label with icon at 2x', (
       tester,
     ) async {
@@ -73,7 +73,7 @@ void main() {
           'to the next topic';
       await _pump(
         tester,
-        BookletChip(
+        AppChip(
           label: label,
           kind: kind,
           selected: true,
@@ -98,7 +98,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
-  for (final variant in BookletButtonVariant.values) {
+  for (final variant in AppButtonVariant.values) {
     testWidgets('F-4: $variant button requests caller action', (tester) async {
       var calls = 0;
       await _pump(
@@ -188,9 +188,9 @@ void main() {
     final changes = <bool>[];
     await _pump(
       tester,
-      BookletChip(
+      AppChip(
         label: 'Algebra',
-        kind: BookletChipKind.filter,
+        kind: AppChipKind.filter,
         onSelected: changes.add,
       ),
     );
@@ -200,9 +200,9 @@ void main() {
     expect(changes, [true, true]);
     await _pump(
       tester,
-      BookletChip(
+      AppChip(
         label: 'Algebra',
-        kind: BookletChipKind.filter,
+        kind: AppChipKind.filter,
         selected: true,
         onSelected: changes.add,
       ),
@@ -216,7 +216,7 @@ void main() {
     try {
       await _pump(
         tester,
-        const BookletChip(label: 'Disabled', kind: BookletChipKind.filter),
+        const AppChip(label: 'Disabled', kind: AppChipKind.filter),
       );
       expect(
         tester
@@ -229,14 +229,14 @@ void main() {
       semantics.dispose();
     }
   });
-  for (final kind in [BookletChipKind.skill, BookletChipKind.difficulty]) {
+  for (final kind in [AppChipKind.skill, AppChipKind.difficulty]) {
     testWidgets('F-4: $kind tag is noninteractive', (tester) async {
       var calls = 0;
       final semantics = tester.ensureSemantics();
       try {
         await _pump(
           tester,
-          BookletChip(
+          AppChip(
             label: 'Linear equations',
             kind: kind,
             onSelected: (_) => calls++,
@@ -256,7 +256,7 @@ void main() {
       }
     });
   }
-  for (final kind in BookletBannerKind.values) {
+  for (final kind in AppBannerKind.values) {
     testWidgets('F-4: $kind banner announces live message and runs action', (
       tester,
     ) async {
@@ -265,7 +265,7 @@ void main() {
       try {
         await _pump(
           tester,
-          BookletBanner(
+          AppBanner(
             message: 'Your progress is saved.',
             kind: kind,
             actionLabel: 'Retry',
@@ -288,11 +288,11 @@ void main() {
   }
   test('F-4: banner requires action label and callback together', () {
     expect(
-      () => BookletBanner(message: 'Saved', actionLabel: 'Retry'),
+      () => AppBanner(message: 'Saved', actionLabel: 'Retry'),
       throwsAssertionError,
     );
     expect(
-      () => BookletBanner(message: 'Saved', onAction: () {}),
+      () => AppBanner(message: 'Saved', onAction: () {}),
       throwsAssertionError,
     );
   });
@@ -307,13 +307,13 @@ void main() {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           LoadingButton(label: copy, onPressed: () {}),
-          const BookletChip(label: copy),
-          BookletChip(
+          const AppChip(label: copy),
+          AppChip(
             label: copy,
-            kind: BookletChipKind.filter,
+            kind: AppChipKind.filter,
             onSelected: (_) {},
           ),
-          BookletBanner(message: copy, actionLabel: copy, onAction: () {}),
+          AppBanner(message: copy, actionLabel: copy, onAction: () {}),
         ],
       ),
       scale: 2,

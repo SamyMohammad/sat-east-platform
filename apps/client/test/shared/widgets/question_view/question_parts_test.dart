@@ -5,7 +5,7 @@ import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/framed_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
@@ -276,8 +276,8 @@ void main() {
         const ExerciseHeader(label: '4.2 · Ex 7', skill: 'Linear equations'),
       );
 
-      final chip = tester.widget<BookletChip>(find.byType(BookletChip));
-      expect(chip.kind, BookletChipKind.skill);
+      final chip = tester.widget<AppChip>(find.byType(AppChip));
+      expect(chip.kind, AppChipKind.skill);
       expect(chip.icon, AppIcons.topic);
       expect(chip.label, 'Linear equations');
     });
@@ -287,7 +287,7 @@ void main() {
     ) async {
       await pump(tester, const ExerciseHeader(label: '4.2 · Ex 7'));
 
-      expect(find.byType(BookletChip), findsNothing);
+      expect(find.byType(AppChip), findsNothing);
     });
   });
 

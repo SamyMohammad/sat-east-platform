@@ -5,7 +5,7 @@ import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/device_gate_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 
 import 'auth_screen_harness.dart';
 
@@ -218,14 +218,14 @@ void main() {
           ),
         );
 
-        expect(find.byType(BookletBanner), findsOneWidget);
+        expect(find.byType(AppBanner), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
 
       testWidgets('P1-2: no banner without a gate error', (tester) async {
         await pump(tester, _gate());
 
-        expect(find.byType(BookletBanner), findsNothing);
+        expect(find.byType(AppBanner), findsNothing);
       });
 
       testWidgets('P1-2: both sign out buttons are disabled while removing', (

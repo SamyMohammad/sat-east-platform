@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
-enum BookletButtonVariant { primary, secondary, tertiary, destructive }
+part 'loading_button_surface.dart';
+
+enum AppButtonVariant { primary, secondary, tertiary, destructive }
 
 class LoadingButton extends StatelessWidget {
   const LoadingButton({
@@ -15,7 +18,7 @@ class LoadingButton extends StatelessWidget {
     this.isLoading = false,
     this.icon,
     this.errorText,
-    this.variant = BookletButtonVariant.primary,
+    this.variant = AppButtonVariant.primary,
     this.expanded = false,
   });
 
@@ -24,29 +27,35 @@ class LoadingButton extends StatelessWidget {
   final bool isLoading;
   final IconData? icon;
   final String? errorText;
-  final BookletButtonVariant variant;
+  final AppButtonVariant variant;
 
   /// Fills the available width instead of hugging the label.
   final bool expanded;
 
   bool get _filled =>
-      variant == BookletButtonVariant.primary ||
-      variant == BookletButtonVariant.destructive;
+      variant == AppButtonVariant.primary ||
+      variant == AppButtonVariant.destructive;
 
   @override
   Widget build(BuildContext context) {
     final style = _style(context);
     final content = _content(context);
     final callback = isLoading ? null : onPressed;
-    final button = switch (variant) {
-      BookletButtonVariant.primary || BookletButtonVariant.destructive =>
-        FilledButton(onPressed: callback, style: style, child: content),
-      BookletButtonVariant.secondary => OutlinedButton(
+    Widget button(WidgetStatesController states) => switch (variant) {
+      AppButtonVariant.primary || AppButtonVariant.destructive => FilledButton(
+        statesController: states,
         onPressed: callback,
         style: style,
         child: content,
       ),
-      BookletButtonVariant.tertiary => TextButton(
+      AppButtonVariant.secondary => OutlinedButton(
+        statesController: states,
+        onPressed: callback,
+        style: style,
+        child: content,
+      ),
+      AppButtonVariant.tertiary => TextButton(
+        statesController: states,
         onPressed: callback,
         style: style,
         child: content,
@@ -57,91 +66,98 @@ class LoadingButton extends StatelessWidget {
       crossAxisAlignment: expanded
           ? CrossAxisAlignment.stretch
           : CrossAxisAlignment.start,
-      spacing: BookletSpace.s1,
+      spacing: AppSpace.s1,
       children: [
-        Semantics(value: isLoading ? 'Loading' : null, child: button),
+        Semantics(
+          value: isLoading ? 'Loading' : null,
+          child: _ButtonSurface(
+            enabled: callback != null,
+            primary: variant == AppButtonVariant.primary,
+            builder: button,
+          ),
+        ),
         if (errorText case final error?) _error(context, error),
       ],
     );
   }
 
   Color _foreground(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.appColors;
     return switch (variant) {
-      BookletButtonVariant.primary => scheme.onPrimary,
-      BookletButtonVariant.destructive => scheme.surface,
-      BookletButtonVariant.secondary ||
-      BookletButtonVariant.tertiary => scheme.primary,
+      AppButtonVariant.primary => scheme.onBrand,
+      AppButtonVariant.destructive => scheme.surface,
+      AppButtonVariant.secondary || AppButtonVariant.tertiary => scheme.brand,
     };
   }
 
   ButtonStyle _style(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final destructive = variant == BookletButtonVariant.destructive;
-    final background = destructive ? scheme.onSurface : scheme.primary;
+    final scheme = context.appColors;
+    final destructive = variant == AppButtonVariant.destructive;
+    final background = destructive ? scheme.ink : scheme.brand;
     return ButtonStyle(
       minimumSize: const WidgetStatePropertyAll(
-        Size(BookletSize.touchTarget, BookletSize.touchTarget),
+        Size(AppSize.touchTarget, AppSize.touchTarget),
       ),
       padding: WidgetStatePropertyAll(
         EdgeInsets.symmetric(
-          horizontal: _filled || variant == BookletButtonVariant.secondary
-              ? BookletSpace.s4 + BookletSpace.s1
-              : BookletSpace.s3,
-          vertical: BookletSpace.s2,
+          horizontal: _filled || variant == AppButtonVariant.secondary
+              ? AppSpace.s4 + AppSpace.s1
+              : AppSpace.s3,
+          vertical: AppSpace.s2,
         ),
       ),
       shape: const WidgetStatePropertyAll(
         RoundedRectangleBorder(
-          borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
+          borderRadius: BorderRadius.all(Radius.circular(AppRadius.control)),
         ),
       ),
       foregroundColor: WidgetStateProperty.resolveWith(
         (states) => states.contains(WidgetState.disabled) && !isLoading
-            ? context.booklet.inkDisabled
+            ? context.appColors.inkTertiary
             : _foreground(context),
       ),
       backgroundColor: WidgetStateProperty.resolveWith((states) {
         if (!_filled) return null;
         if (states.contains(WidgetState.disabled) && !isLoading) {
-          return scheme.outlineVariant;
+          return scheme.line;
         }
         if (states.contains(WidgetState.hovered) && !destructive) {
-          return context.booklet.primaryHover;
+          return context.appColors.brand;
         }
         return background;
       }),
       side: WidgetStateProperty.resolveWith((states) {
-        if (variant != BookletButtonVariant.secondary) return BorderSide.none;
+        if (variant != AppButtonVariant.secondary) return BorderSide.none;
         return BorderSide(
           color: states.contains(WidgetState.disabled) && !isLoading
-              ? scheme.outlineVariant
-              : scheme.primary,
+              ? scheme.line
+              : scheme.brand,
         );
       }),
-      animationDuration: BookletMotion.resolve(context, BookletMotion.base),
+      elevation: const WidgetStatePropertyAll(0),
+      animationDuration: AppMotion.resolve(context, AppMotion.state),
     );
   }
 
   Widget _content(BuildContext context) => Row(
     mainAxisSize: MainAxisSize.min,
-    spacing: BookletSpace.s2,
+    spacing: AppSpace.s2,
     children: [
       if (isLoading)
         ExcludeSemantics(
           child: TickerMode(
             enabled: !MediaQuery.disableAnimationsOf(context),
             child: SizedBox.square(
-              dimension: BookletSize.spinner,
+              dimension: AppSize.spinner,
               child: CircularProgressIndicator(
-                strokeWidth: BookletStroke.strong,
+                strokeWidth: AppStroke.strong,
                 color: _foreground(context),
               ),
             ),
           ),
         )
       else if (icon != null)
-        Icon(icon, size: BookletSize.iconSmall),
+        Icon(icon, size: AppSize.iconSmall),
       Flexible(
         child: Text(
           label,
@@ -157,19 +173,19 @@ class LoadingButton extends StatelessWidget {
     child: Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: BookletSpace.s1,
+      spacing: AppSpace.s1,
       children: [
         Icon(
           AppIcons.error,
-          size: BookletSize.iconStatus,
-          color: Theme.of(context).colorScheme.onSurface,
+          size: AppSize.iconStatus,
+          color: context.appColors.ink,
         ),
         Flexible(
           child: Text(
             error,
             textDirection: detectTextDirection(error),
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
+              color: context.appColors.ink,
             ),
           ),
         ),

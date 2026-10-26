@@ -13,7 +13,7 @@ import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 
 class _Cubit extends MockCubit<TopicState> implements TopicCubit {}
 
@@ -123,7 +123,7 @@ void main() {
 
   testWidgets('PRC-03: loading renders skeleton', (tester) async {
     await _pump(tester, const TopicLoading());
-    expect(find.byType(BookletSkeleton), findsOneWidget);
+    expect(find.byType(AppSkeleton), findsOneWidget);
   });
 
   for (final width in [360.0, 1280.0]) {

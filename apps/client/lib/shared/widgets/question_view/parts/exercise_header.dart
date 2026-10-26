@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 
 /// "4.2 · EX 7" label with optional difficulty and skill chips.
@@ -55,12 +55,12 @@ class ExerciseHeader extends StatelessWidget {
                 ),
               ),
               if (difficulty != null)
-                BookletChip(
-                  kind: BookletChipKind.difficulty,
+                AppChip(
+                  kind: AppChipKind.difficulty,
                   label: _difficultyCopy(difficulty!),
                 ),
               if (skill != null)
-                BookletChip(
+                AppChip(
                   icon: AppIcons.topic,
                   label: skill!,
                 ),

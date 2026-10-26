@@ -16,7 +16,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/account_state.d
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 import 'auth_screen_harness.dart';
 
@@ -302,7 +302,7 @@ void main() {
         verifyNever(() => account.removeDevice(any()));
         await tester.tap(
           find.descendant(
-            of: find.byType(BookletDialog),
+            of: find.byType(AppDialog),
             matching: find.text(confirm ? 'Remove' : 'Cancel'),
           ),
         );

@@ -13,8 +13,8 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/account_courses.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/account_devices.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/account_password_form.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -49,7 +49,7 @@ class AccountView extends StatelessWidget {
               builder: (context, state) => switch (state) {
                 AccountLoading() => const Padding(
                   padding: EdgeInsets.all(BookletSpace.s4),
-                  child: BookletSkeleton(),
+                  child: AppSkeleton(),
                 ),
                 AccountError(:final error) => ErrorRetry(
                   title: 'Could not load your account',
@@ -65,7 +65,7 @@ class AccountView extends StatelessWidget {
             child: LoadingButton(
               label: 'Sign out',
               expanded: true,
-              variant: BookletButtonVariant.secondary,
+              variant: AppButtonVariant.secondary,
               onPressed: () => unawaited(context.read<AuthCubit>().signOut()),
             ),
           ),
@@ -95,11 +95,11 @@ class AccountView extends StatelessWidget {
             if (state.enrollments.isNotEmpty)
               AccountCourses(enrollments: state.enrollments),
             if (state.error case final error?)
-              BookletBanner(
+              AppBanner(
                 message: error.code == ErrorCodes.deviceLimit
                     ? 'No changes left this month'
                     : authErrorCopy(error.code),
-                kind: BookletBannerKind.error,
+                kind: AppBannerKind.error,
               ),
             const AccountPasswordForm(),
             AccountDevices(

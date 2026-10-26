@@ -4,9 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:sat_east_client/core/grading/spr_answer.dart';
 import 'package:sat_east_client/core/grading/spr_editing.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/feedback_label.dart';
 
 part 'spr_input_feedback.dart';
@@ -82,7 +82,7 @@ class _SprInputState extends State<SprInput> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
+    final scheme = context.appColors;
     final text = theme.textTheme;
     final review =
         widget.state == SprInputState.correct ||
@@ -108,33 +108,33 @@ class _SprInputState extends State<SprInput> {
           valueStyle.fontSize!,
         ) *
         (valueStyle.height ?? 1);
-    final contentHeight = scaledLineHeight + BookletSpace.s4;
-    final fieldHeight = contentHeight > BookletSize.largeControl
+    final contentHeight = scaledLineHeight + AppSpace.s4;
+    final fieldHeight = contentHeight > AppSize.largeControl
         ? contentHeight
-        : BookletSize.largeControl;
+        : AppSize.largeControl;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
-      spacing: BookletSpace.s2,
+      spacing: AppSpace.s2,
       children: [
         Text(
           'Your answer',
           style: text.labelLarge?.copyWith(
-            color: disabled ? context.booklet.inkDisabled : scheme.onSurface,
+            color: disabled ? context.appColors.inkTertiary : scheme.ink,
           ),
         ),
         Wrap(
-          spacing: BookletSpace.s4,
-          runSpacing: BookletSpace.s2,
+          spacing: AppSpace.s4,
+          runSpacing: AppSpace.s2,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
             ConstrainedBox(
               constraints: const BoxConstraints(
-                minHeight: BookletSize.largeControl,
+                minHeight: AppSize.largeControl,
               ),
               child: SizedBox(
-                width: BookletSize.sprInputWidth,
+                width: AppSize.sprInputWidth,
                 height: review ? null : fieldHeight,
                 child: review
                     ? _ReviewBox(
@@ -157,7 +157,7 @@ class _SprInputState extends State<SprInput> {
         if (helper != null)
           Text(
             helper,
-            style: text.bodySmall?.copyWith(color: scheme.onSurfaceVariant),
+            style: text.bodySmall?.copyWith(color: scheme.inkSecondary),
           ),
         if (widget.state == SprInputState.incorrect && correctAnswer != null)
           _CorrectAnswer(value: correctAnswer),
@@ -171,11 +171,11 @@ class _SprInputState extends State<SprInput> {
     required bool hinted,
     required double height,
   }) {
-    final scheme = Theme.of(context).colorScheme;
-    final booklet = context.booklet;
+    final scheme = context.appColors;
     final disabled = widget.state == SprInputState.disabled;
     OutlineInputBorder border(Color color, double width) => OutlineInputBorder(
       borderSide: BorderSide(color: color, width: width),
+      borderRadius: BorderRadius.circular(AppRadius.control),
     );
     final onSubmitted = widget.onSubmitted;
 
@@ -195,7 +195,7 @@ class _SprInputState extends State<SprInput> {
         enableSuggestions: false,
         inputFormatters: sprInputFormatters,
         style: valueStyle?.copyWith(
-          color: disabled ? booklet.inkDisabled : scheme.onSurface,
+          color: disabled ? scheme.inkTertiary : scheme.ink,
         ),
         onChanged: widget.onChanged,
         onSubmitted: onSubmitted == null ? null : (_) => onSubmitted(),
@@ -204,20 +204,16 @@ class _SprInputState extends State<SprInput> {
           hintText: 'Type answer',
           hintStyle: valueStyle?.copyWith(
             fontWeight: FontWeight.w400,
-            color: booklet.inkDisabled,
+            color: scheme.inkTertiary,
           ),
           contentPadding: const EdgeInsets.symmetric(
-            horizontal: BookletSpace.s4,
+            horizontal: AppSpace.s4,
           ),
           filled: disabled,
-          fillColor: scheme.surfaceContainer,
-          enabledBorder: hinted
-              ? border(booklet.info, BookletStroke.thin)
-              : null,
-          focusedBorder: hinted
-              ? border(booklet.info, BookletStroke.strong)
-              : null,
-          disabledBorder: border(scheme.outlineVariant, BookletStroke.thin),
+          fillColor: scheme.surface,
+          enabledBorder: hinted ? border(scheme.brand, AppStroke.thin) : null,
+          focusedBorder: hinted ? border(scheme.brand, AppStroke.strong) : null,
+          disabledBorder: border(scheme.line, AppStroke.thin),
         ),
       ),
     );

@@ -7,7 +7,7 @@ import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/features/course_map/presentation/course_map_copy.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 
 class TopicRow extends StatelessWidget {
   const TopicRow({required this.topic, super.key});
@@ -94,7 +94,7 @@ class TopicRow extends StatelessWidget {
           ),
           if (topic.isFreePreview) ...[
             const SizedBox(width: BookletSpace.s2),
-            const BookletChip(label: CourseMapCopy.freeChip),
+            const AppChip(label: CourseMapCopy.freeChip),
           ],
           if (!locked)
             Icon(

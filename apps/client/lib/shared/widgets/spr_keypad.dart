@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/focus_ring.dart';
 
 part 'spr_keypad_key.dart';
@@ -18,7 +19,7 @@ class SprKeypad extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.appColors;
 
     Widget digit(int n) => _KeypadKey(
       label: '$n',
@@ -28,13 +29,13 @@ class SprKeypad extends StatelessWidget {
 
     Widget row(List<(Widget, int)> keys) => LayoutBuilder(
       builder: (context, constraints) {
-        final column = (constraints.maxWidth - 3 * BookletSpace.s2) / 4;
+        final column = (constraints.maxWidth - 3 * AppSpace.s2) / 4;
         return Row(
-          spacing: BookletSpace.s2,
+          spacing: AppSpace.s2,
           children: [
             for (final (key, span) in keys)
               SizedBox(
-                width: column * span + BookletSpace.s2 * (span - 1),
+                width: column * span + AppSpace.s2 * (span - 1),
                 child: key,
               ),
           ],
@@ -46,21 +47,21 @@ class SprKeypad extends StatelessWidget {
       textDirection: TextDirection.ltr,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: scheme.surfaceContainer,
-          border: Border(top: BorderSide(color: scheme.outlineVariant)),
+          color: scheme.surface,
+          border: Border(top: BorderSide(color: scheme.line)),
         ),
         child: SafeArea(
           top: false,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(
-              BookletSpace.s2,
-              BookletSpace.s2,
-              BookletSpace.s2,
-              BookletSpace.s4,
+              AppSpace.s2,
+              AppSpace.s2,
+              AppSpace.s2,
+              AppSpace.s4,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              spacing: BookletSpace.s2,
+              spacing: AppSpace.s2,
               children: [
                 row([
                   (digit(1), 1),

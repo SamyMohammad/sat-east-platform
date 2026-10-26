@@ -14,7 +14,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -102,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           selector: _bannerMessage,
           builder: (context, message) => message == null
               ? const SizedBox.shrink()
-              : BookletBanner(message: message, kind: BookletBannerKind.error),
+              : AppBanner(message: message, kind: AppBannerKind.error),
         ),
         AuthTextField(
           label: 'Full name',
@@ -182,7 +182,7 @@ class _EmailTakenError extends StatelessWidget {
       const Text('This email already has an account.'),
       LoadingButton(
         label: 'Sign in instead',
-        variant: BookletButtonVariant.tertiary,
+        variant: AppButtonVariant.tertiary,
         onPressed: () => context.go(AppRoutes.signIn),
       ),
     ],

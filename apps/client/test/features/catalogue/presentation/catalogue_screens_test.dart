@@ -13,7 +13,7 @@ import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_
 import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/screens/catalogue_screen.dart';
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 
 import '../../auth/presentation/screens/auth_screen_harness.dart' as auth;
 import '../catalogue_fixtures.dart';
@@ -107,7 +107,7 @@ void main() {
   for (final page in [false, true]) {
     testWidgets('PAY-01: $page loading shows skeleton', (tester) async {
       await _pump(tester, _repository(), page: page, load: false);
-      expect(find.byType(BookletSkeleton), findsOneWidget);
+      expect(find.byType(AppSkeleton), findsOneWidget);
     });
     for (final code in ['network', 'internal']) {
       testWidgets('PAY-01: $page $code is safe and retry reloads', (

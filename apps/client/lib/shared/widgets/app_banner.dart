@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
-enum BookletBannerKind { info, warning, offline, error }
+enum AppBannerKind { info, warning, offline, error, success }
 
-class BookletBanner extends StatelessWidget {
-  const BookletBanner({
+class AppBanner extends StatelessWidget {
+  const AppBanner({
     required this.message,
     super.key,
-    this.kind = BookletBannerKind.info,
+    this.kind = AppBannerKind.info,
     this.actionLabel,
     this.onAction,
   }) : assert(
@@ -22,33 +21,43 @@ class BookletBanner extends StatelessWidget {
        );
 
   final String message;
-  final BookletBannerKind kind;
+  final AppBannerKind kind;
   final String? actionLabel;
   final VoidCallback? onAction;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final (color, background, icon) = switch (kind) {
-      BookletBannerKind.info => (
-        context.booklet.info,
-        context.booklet.infoContainer,
+    final scheme = context.appColors;
+    final (color, background, line, icon) = switch (kind) {
+      AppBannerKind.success => (
+        scheme.correct,
+        scheme.correctWash,
+        scheme.correctLine,
+        AppIcons.correct,
+      ),
+      AppBannerKind.info => (
+        context.appColors.brand,
+        context.appColors.brandWash,
+        scheme.brandLine,
         AppIcons.info,
       ),
-      BookletBannerKind.warning => (
-        context.booklet.warning,
-        context.booklet.warningContainer,
+      AppBannerKind.warning => (
+        context.appColors.warning,
+        context.appColors.warningWash,
+        scheme.warmLine,
         AppIcons.time,
       ),
-      BookletBannerKind.offline => (
-        scheme.onSurface,
-        scheme.surfaceContainer,
+      AppBannerKind.offline => (
+        scheme.ink,
+        scheme.surface,
+        scheme.line,
         AppIcons.unsynced,
       ),
-      BookletBannerKind.error => (
-        scheme.error,
-        scheme.errorContainer,
+      AppBannerKind.error => (
+        scheme.incorrect,
+        scheme.incorrectWash,
+        scheme.incorrectLine,
         AppIcons.error,
       ),
     };
@@ -59,7 +68,7 @@ class BookletBanner extends StatelessWidget {
         textDirection: detectTextDirection(message),
         style: theme.textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w400,
-          color: scheme.onSurface,
+          color: scheme.ink,
         ),
       ),
     );
@@ -68,47 +77,40 @@ class BookletBanner extends StatelessWidget {
         : LoadingButton(
             label: actionLabel!,
             onPressed: onAction,
-            variant: BookletButtonVariant.tertiary,
+            variant: AppButtonVariant.tertiary,
           );
     return Container(
-      constraints: const BoxConstraints(minHeight: BookletSize.largeControl),
+      constraints: const BoxConstraints(minHeight: AppSize.largeControl),
       padding: const EdgeInsetsDirectional.fromSTEB(
-        BookletSpace.s4,
-        BookletSpace.s2,
-        BookletSpace.s2,
-        BookletSpace.s2,
+        AppSpace.s4,
+        AppSpace.s2,
+        AppSpace.s2,
+        AppSpace.s2,
       ),
       decoration: BoxDecoration(
         color: background,
-        border: Border(
-          top: BorderSide(
-            color: kind == BookletBannerKind.offline ? scheme.outline : color,
-          ),
-          bottom: BorderSide(
-            color: scheme.outlineVariant,
-          ),
-        ),
+        border: Border.all(color: line),
+        borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final compact =
-              BookletLayout.forWidth(constraints.maxWidth) ==
-                  BookletLayout.compact ||
-              MediaQuery.textScalerOf(context).scale(BookletSize.iconSmall) >
-                  BookletSize.iconSmall;
+              AppLayout.forWidth(constraints.maxWidth) == AppLayout.compact ||
+              MediaQuery.textScalerOf(context).scale(AppSize.iconSmall) >
+                  AppSize.iconSmall;
           return Row(
             crossAxisAlignment: compact
                 ? CrossAxisAlignment.start
                 : CrossAxisAlignment.center,
-            spacing: BookletSpace.s3,
+            spacing: AppSpace.s3,
             children: [
-              Icon(icon, size: BookletSize.iconSmall, color: color),
+              Icon(icon, size: AppSize.iconSmall, color: color),
               Expanded(
                 child: compact
                     ? Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
-                        spacing: BookletSpace.s2,
+                        spacing: AppSpace.s2,
                         children: [text, ?action],
                       )
                     : text,

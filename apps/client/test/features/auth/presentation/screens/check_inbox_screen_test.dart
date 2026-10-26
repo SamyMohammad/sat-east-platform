@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/check_inbox_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
+import 'package:sat_east_client/shared/widgets/app_status_frame.dart';
 
 import 'auth_screen_harness.dart';
 
@@ -22,7 +22,7 @@ void main() {
       ) async {
         await pump(tester);
 
-        expect(find.byType(BookletStatusFrame), findsOneWidget);
+        expect(find.byType(AppStatusFrame), findsOneWidget);
         expect(find.text('Check your inbox'), findsOneWidget);
         expect(
           find.text(

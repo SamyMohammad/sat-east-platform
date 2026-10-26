@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
-class BookletDialog extends StatelessWidget {
-  const BookletDialog({
+class AppDialog extends StatelessWidget {
+  const AppDialog({
     required this.title,
     required this.content,
     super.key,
@@ -17,34 +18,34 @@ class BookletDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) => AlertDialog(
     scrollable: true,
-    constraints: const BoxConstraints(maxWidth: BookletSize.dialogWidth),
-    insetPadding: const EdgeInsets.all(BookletSpace.s4),
+    constraints: const BoxConstraints(maxWidth: AppSize.dialogWidth),
+    insetPadding: const EdgeInsets.all(AppSpace.s4),
     titlePadding: const EdgeInsets.fromLTRB(
-      BookletSpace.s6,
-      BookletSpace.s6,
-      BookletSpace.s6,
-      BookletSpace.s3,
+      AppSpace.s6,
+      AppSpace.s6,
+      AppSpace.s6,
+      AppSpace.s3,
     ),
     contentPadding: const EdgeInsets.fromLTRB(
-      BookletSpace.s6,
+      AppSpace.s6,
       0,
-      BookletSpace.s6,
-      BookletSpace.s3,
+      AppSpace.s6,
+      AppSpace.s3,
     ),
     actionsPadding: const EdgeInsets.fromLTRB(
-      BookletSpace.s6,
-      BookletSpace.s2,
-      BookletSpace.s6,
-      BookletSpace.s6,
+      AppSpace.s6,
+      AppSpace.s2,
+      AppSpace.s6,
+      AppSpace.s6,
     ),
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(BookletRadius.md),
-      side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+      borderRadius: BorderRadius.circular(AppRadius.overlay),
+      side: BorderSide(color: context.appColors.line),
     ),
     title: Text(title, style: Theme.of(context).textTheme.titleLarge),
     content: DefaultTextStyle.merge(
       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
+        color: context.appColors.inkSecondary,
       ),
       child: content,
     ),

@@ -16,7 +16,7 @@ import 'package:sat_east_client/features/practice/presentation/cubit/practice_st
 import 'package:sat_east_client/features/practice/presentation/practice_copy.dart';
 import 'package:sat_east_client/features/practice/presentation/widgets/practice_question.dart';
 import 'package:sat_east_client/features/practice/presentation/widgets/practice_summary.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
@@ -48,7 +48,7 @@ class PracticeView extends StatelessWidget {
   Widget build(BuildContext context) => SafeArea(
     child: BlocBuilder<PracticeCubit, PracticeState>(
       builder: (context, state) => switch (state) {
-        PracticeLoading() => const _StatusContent(child: BookletSkeleton()),
+        PracticeLoading() => const _StatusContent(child: AppSkeleton()),
         PracticeFailed(:final error) => _StatusContent(
           child: _Failed(topicId: topicId, error: error),
         ),

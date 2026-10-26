@@ -16,7 +16,7 @@ import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
@@ -29,7 +29,7 @@ part 'quiz_result_cases.dart';
 void main() {
   testWidgets('PRC-03: loading shows the shared skeleton', (tester) async {
     await _pump(tester, _cubit(const QuizLoading()));
-    expect(find.byType(BookletSkeleton), findsOneWidget);
+    expect(find.byType(AppSkeleton), findsOneWidget);
   });
 
   testWidgets('PRC-03: screen creates, starts and closes one cubit', (

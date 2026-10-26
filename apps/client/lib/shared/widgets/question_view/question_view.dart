@@ -191,7 +191,7 @@ class QuestionView extends StatelessWidget {
         : LoadingButton(
             label: 'Back',
             onPressed: mode.backAction(onPrev),
-            variant: BookletButtonVariant.secondary,
+            variant: AppButtonVariant.secondary,
           );
     Widget middle(String text) => Text(
       text,
@@ -236,7 +236,7 @@ class QuestionView extends StatelessWidget {
           leading: LoadingButton(
             label: 'Back',
             onPressed: mode.backAction(onPrev),
-            variant: BookletButtonVariant.secondary,
+            variant: AppButtonVariant.secondary,
           ),
           middle: layout == BookletLayout.compact
               ? _NavigatorFooterButton(
@@ -276,7 +276,7 @@ class QuestionView extends StatelessWidget {
     final back = LoadingButton(
       label: 'Back',
       onPressed: quiz.backAction(onPrev),
-      variant: BookletButtonVariant.secondary,
+      variant: AppButtonVariant.secondary,
     );
     final primary = index == total - 1
         ? LoadingButton(

@@ -16,7 +16,7 @@ import 'package:sat_east_client/features/course_map/presentation/cubit/course_ma
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_state.dart';
 import 'package:sat_east_client/features/course_map/presentation/widgets/continue_card.dart';
 import 'package:sat_east_client/features/course_map/presentation/widgets/topic_row.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
@@ -45,7 +45,7 @@ class CourseMapView extends StatelessWidget {
     onRefresh: () => unawaited(context.read<CourseMapCubit>().load()),
     child: BlocBuilder<CourseMapCubit, CourseMapState>(
       builder: (context, state) => switch (state) {
-        CourseMapLoading() => const _Padded(child: BookletSkeleton()),
+        CourseMapLoading() => const _Padded(child: AppSkeleton()),
         CourseMapLoaded(:final map) => _Loaded(map: map),
         CourseMapFailed(:final error) => _Failed(error: error),
       },

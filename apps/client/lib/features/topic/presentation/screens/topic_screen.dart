@@ -13,7 +13,7 @@ import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.da
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
 import 'package:sat_east_client/features/topic/presentation/widgets/topic_content.dart';
 import 'package:sat_east_client/features/topic/presentation/widgets/topic_failure.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 
 class TopicScreen extends StatelessWidget {
   const TopicScreen({required this.topicId, super.key, this.title});
@@ -54,7 +54,7 @@ class TopicView extends StatelessWidget {
             padding: const EdgeInsets.all(BookletSpace.s4),
             child: BlocBuilder<TopicCubit, TopicState>(
               builder: (context, state) => switch (state) {
-                TopicLoading() => const BookletSkeleton(),
+                TopicLoading() => const AppSkeleton(),
                 TopicFailed(:final error) => TopicFailure(
                   topicId: topicId,
                   error: error,

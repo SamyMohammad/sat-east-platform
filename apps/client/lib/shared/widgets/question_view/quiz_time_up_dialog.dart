@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 /// Blocking dialog shown when the quiz clock reaches zero. Closes any open
@@ -26,14 +26,14 @@ Future<void> showQuizTimeUpDialog(
   final body = answered == 1
       ? 'Your 1 answer was saved and submitted automatically.'
       : 'Your $answered answers were saved and submitted automatically.';
-  return showBookletDialog<void>(
+  return showAppDialog<void>(
     context: context,
     barrierDismissible: false,
     builder: (dialogContext) => PopScope(
       canPop: false,
-      child: BookletDialog(
+      child: AppDialog(
         title: "Time's up. $title submitted.",
-        // BookletDialog has no icon slot (title/content/actions only).
+        // AppDialog has no icon slot (title/content/actions only).
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,

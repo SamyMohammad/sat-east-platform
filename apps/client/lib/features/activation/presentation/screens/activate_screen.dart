@@ -11,7 +11,7 @@ import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/activation/presentation/activation_copy.dart';
 import 'package:sat_east_client/features/activation/presentation/cubit/activation_cubit.dart';
 import 'package:sat_east_client/features/activation/presentation/cubit/activation_state.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class ActivateScreen extends StatelessWidget {
@@ -109,9 +109,9 @@ class _ActivateViewState extends State<ActivateView> {
                             : null,
                         builder: (context, code) => code == null
                             ? const SizedBox.shrink()
-                            : BookletBanner(
+                            : AppBanner(
                                 message: ActivationCopy.errorBody(code),
-                                kind: BookletBannerKind.error,
+                                kind: AppBannerKind.error,
                               ),
                       ),
                       BlocSelector<

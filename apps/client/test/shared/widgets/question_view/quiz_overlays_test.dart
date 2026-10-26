@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/submit_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/quiz_time_up_dialog.dart';
@@ -115,7 +115,7 @@ Future<void> _openTimeUp(
 }
 
 Finder _cell(int i) => find.byKey(ValueKey('nav-cell-$i'));
-final Finder _dialog = find.byType(BookletDialog);
+final Finder _dialog = find.byType(AppDialog);
 Finder _inDialog(Finder f) => find.descendant(of: _dialog, matching: f);
 final Finder _grid = find.byType(QuestionNavigatorGrid);
 
@@ -306,7 +306,7 @@ void main() {
       final calls = await _pumpHost(t, _wide);
       await _openSubmitDialog(t, calls);
 
-      expect(t.widget<BookletDialog>(_dialog).title, 'Submit quiz?');
+      expect(t.widget<AppDialog>(_dialog).title, 'Submit quiz?');
       expect(
         _inDialog(
           find.text('After you submit, your answers are locked and marked.'),
@@ -599,7 +599,7 @@ void main() {
       await _openTimeUp(t, calls);
 
       expect(
-        t.widget<BookletDialog>(_dialog).title,
+        t.widget<AppDialog>(_dialog).title,
         "Time's up. Quiz 4.2 submitted.",
       );
       expect(_inDialog(find.byIcon(AppIcons.time)), findsOneWidget);

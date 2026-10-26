@@ -1,25 +1,24 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
-Future<T?> showBookletDialog<T>({
+Future<T?> showAppDialog<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   bool barrierDismissible = true,
 }) => showDialog<T>(
   context: context,
   barrierDismissible: barrierDismissible,
-  animationStyle: MediaQuery.disableAnimationsOf(context)
-      ? AnimationStyle.noAnimation
-      : null,
+  animationStyle: _overlayMotion(context),
   builder: builder,
 );
 
 /// A non-modal-looking popover anchored to the bottom centre (above the
 /// footer). Transparent barrier: tapping outside, or Esc, dismisses it.
-Future<T?> showBookletPopover<T>({
+Future<T?> showAppPopover<T>({
   required BuildContext context,
   required WidgetBuilder builder,
   required double width,
@@ -27,13 +26,11 @@ Future<T?> showBookletPopover<T>({
   required String barrierLabel,
 }) => showDialog<T>(
   context: context,
-  barrierColor: Colors.transparent,
+  barrierColor: context.appColors.scrim.withValues(alpha: 0),
   barrierLabel: barrierLabel,
-  animationStyle: MediaQuery.disableAnimationsOf(context)
-      ? AnimationStyle.noAnimation
-      : null,
+  animationStyle: _overlayMotion(context),
   builder: (popoverContext) {
-    final scheme = Theme.of(popoverContext).colorScheme;
+    final scheme = popoverContext.appColors;
     return SafeArea(
       child: Align(
         alignment: Alignment.bottomCenter,
@@ -44,17 +41,17 @@ Future<T?> showBookletPopover<T>({
             child: Material(
               color: scheme.surface,
               elevation: Theme.of(popoverContext).dialogTheme.elevation ?? 0,
-              shadowColor: popoverContext.booklet.overlayShadow,
+              shadowColor: popoverContext.appColors.shadow,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(BookletRadius.md),
-                side: BorderSide(color: scheme.outlineVariant),
+                borderRadius: BorderRadius.circular(AppRadius.overlay),
+                side: BorderSide(color: scheme.line),
               ),
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(
-                  BookletSpace.s5,
-                  BookletSpace.s4,
-                  BookletSpace.s5,
-                  BookletSpace.s5,
+                  AppSpace.s5,
+                  AppSpace.s4,
+                  AppSpace.s5,
+                  AppSpace.s5,
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -75,7 +72,7 @@ Future<T?> showBookletPopover<T>({
   },
 );
 
-Future<T?> showBookletSheet<T>({
+Future<T?> showAppSheet<T>({
   required BuildContext context,
   required WidgetBuilder builder,
 }) => showModalBottomSheet<T>(
@@ -83,9 +80,7 @@ Future<T?> showBookletSheet<T>({
   useSafeArea: true,
   isScrollControlled: true,
   showDragHandle: true,
-  sheetAnimationStyle: MediaQuery.disableAnimationsOf(context)
-      ? AnimationStyle.noAnimation
-      : null,
+  sheetAnimationStyle: _overlayMotion(context),
   builder: (modalContext) => Padding(
     padding: EdgeInsets.only(
       bottom: MediaQuery.viewInsetsOf(modalContext).bottom,
@@ -94,10 +89,10 @@ Future<T?> showBookletSheet<T>({
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          BookletSpace.s4,
+          AppSpace.s4,
           0,
-          BookletSpace.s4,
-          BookletSpace.s4,
+          AppSpace.s4,
+          AppSpace.s4,
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -121,7 +116,7 @@ Future<T?> showBookletSheet<T>({
   ),
 );
 
-ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showBookletSnackBar({
+ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showAppSnackBar({
   required BuildContext context,
   required String message,
   String? actionLabel,
@@ -138,12 +133,17 @@ ScaffoldFeatureController<SnackBar, SnackBarClosedReason> showBookletSnackBar({
           ? SnackBarAction(
               label: actionLabel,
               onPressed: onAction,
-              textColor: Theme.of(context).colorScheme.inversePrimary,
+              textColor: context.appColors.brandLine,
             )
           : null,
     ),
-    snackBarAnimationStyle: MediaQuery.disableAnimationsOf(context)
-        ? AnimationStyle.noAnimation
-        : null,
+    snackBarAnimationStyle: _overlayMotion(context),
   );
 }
+
+AnimationStyle _overlayMotion(BuildContext context) => AnimationStyle(
+  duration: AppMotion.resolve(context, AppMotion.enter),
+  reverseDuration: AppMotion.resolve(context, AppMotion.state),
+  curve: AppMotion.emphasized,
+  reverseCurve: AppMotion.standard,
+);

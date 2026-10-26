@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/painters/dashed_border.dart';
 
@@ -303,7 +303,7 @@ class _NavigatorContent extends StatelessWidget {
         LoadingButton(
           label: submitLabel,
           expanded: true,
-          variant: BookletButtonVariant.secondary,
+          variant: AppButtonVariant.secondary,
           onPressed: onSubmitPressed == null
               ? null
               : () {
@@ -330,7 +330,7 @@ Future<void> showNavigatorSheet(
   required ValueChanged<int>? onJumpTo,
   required String submitLabel,
   required VoidCallback? onSubmitPressed,
-}) => showBookletSheet<void>(
+}) => showAppSheet<void>(
   context: context,
   builder: (sheetContext) => _NavigatorContent(
     overlayContext: sheetContext,
@@ -359,7 +359,7 @@ Future<void> showNavigatorPopover(
   required ValueChanged<int>? onJumpTo,
   required String submitLabel,
   required VoidCallback? onSubmitPressed,
-}) => showBookletPopover<void>(
+}) => showAppPopover<void>(
   context: context,
   width: BookletSize.navigatorPopover,
   bottomOffset: BookletSize.footerHeight + BookletSpace.s3,

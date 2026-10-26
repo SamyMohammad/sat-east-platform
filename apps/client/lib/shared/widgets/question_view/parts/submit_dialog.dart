@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/painters/dashed_border.dart';
 
@@ -23,9 +23,9 @@ Future<void> showSubmitConfirmDialog(
     for (var i = 0; i < total; i++)
       if (!answered.contains(i)) i,
   ];
-  return showBookletDialog<void>(
+  return showAppDialog<void>(
     context: context,
-    builder: (dialogContext) => BookletDialog(
+    builder: (dialogContext) => AppDialog(
       title: title,
       content: Column(
         mainAxisSize: MainAxisSize.min,

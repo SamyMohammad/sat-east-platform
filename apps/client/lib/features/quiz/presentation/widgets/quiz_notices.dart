@@ -6,7 +6,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_copy.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 
 class QuizNotices extends StatelessWidget {
   const QuizNotices({super.key});
@@ -27,21 +27,21 @@ class QuizNotices extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (flags.$1 != null)
-              BookletBanner(
+              AppBanner(
                 message: flags.$1 == ErrorCodes.invalidInput
                     ? QuizCopy.saveStopped
                     : QuizCopy.notSaved,
-                kind: BookletBannerKind.offline,
+                kind: AppBannerKind.offline,
               ),
             if (flags.$2 && !flags.$3)
-              BookletBanner(
+              AppBanner(
                 message: QuizCopy.submitError,
-                kind: BookletBannerKind.error,
+                kind: AppBannerKind.error,
                 actionLabel: QuizCopy.retrySubmit,
                 onAction: () => unawaited(context.read<QuizCubit>().submit()),
               ),
             if (flags.$3) ...[
-              const BookletBanner(message: QuizCopy.submitting),
+              const AppBanner(message: QuizCopy.submitting),
               const LinearProgressIndicator(),
             ],
           ],

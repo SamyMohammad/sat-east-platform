@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
-/// Keyboard focus outline: 2 px primary, 2 px outside the child (Foundations
-/// focus rule). Paints outside its box; keep space.s1 free around it.
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+
+/// Keyboard focus outline, painted outside the child with a small gap.
 class FocusRing extends StatelessWidget {
   const FocusRing({
     required this.visible,
@@ -20,7 +21,7 @@ class FocusRing extends StatelessWidget {
     return CustomPaint(
       foregroundPainter: visible
           ? FocusRingPainter(
-              color: Theme.of(context).colorScheme.primary,
+              color: context.appColors.brandLine,
               borderRadius: borderRadius,
             )
           : null,
@@ -35,8 +36,7 @@ class FocusRingPainter extends CustomPainter {
   final Color color;
   final double borderRadius;
 
-  static const double _outset =
-      BookletStroke.focusGap + BookletStroke.focusRing / 2;
+  static const double _outset = AppStroke.focusGap + AppStroke.focusRing / 2;
 
   /// Centre line of the ring stroke for a child of [size].
   static Rect ringRect(Size size) => (Offset.zero & size).inflate(_outset);
@@ -51,7 +51,7 @@ class FocusRingPainter extends CustomPainter {
       Paint()
         ..color = color
         ..style = PaintingStyle.stroke
-        ..strokeWidth = BookletStroke.focusRing,
+        ..strokeWidth = AppStroke.focusRing,
     );
   }
 

@@ -25,7 +25,7 @@ class AuthFooterLink extends StatelessWidget {
       Text(prompt, style: Theme.of(context).textTheme.bodyMedium),
       LoadingButton(
         label: linkLabel,
-        variant: BookletButtonVariant.tertiary,
+        variant: AppButtonVariant.tertiary,
         onPressed: () => context.go(path),
       ),
     ],

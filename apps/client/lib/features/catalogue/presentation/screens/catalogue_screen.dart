@@ -14,7 +14,7 @@ import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_
 import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_state.dart';
 import 'package:sat_east_client/features/catalogue/presentation/price_format.dart';
 import 'package:sat_east_client/features/catalogue/presentation/widgets/catalogue_frame.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -53,7 +53,7 @@ class CatalogueView extends StatelessWidget {
       builder: (context, state) => switch (state) {
         CatalogueLoading() => const Padding(
           padding: EdgeInsets.all(BookletSpace.s6),
-          child: BookletSkeleton(),
+          child: AppSkeleton(),
         ),
         CatalogueFailed(:final error) => ErrorRetry(
           title: CatalogueCopy.errorTitle,

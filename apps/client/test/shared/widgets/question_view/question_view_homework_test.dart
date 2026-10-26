@@ -3,7 +3,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
@@ -103,7 +103,7 @@ LoadingButton _button(WidgetTester t, String label) => t.widget<LoadingButton>(
 final Finder _panel = find.byKey(const ValueKey('homework-navigator-panel'));
 Finder _cell(int i) => find.byKey(ValueKey('nav-cell-$i'));
 Finder _inPanel(Finder f) => find.descendant(of: _panel, matching: f);
-final Finder _dialog = find.byType(BookletDialog);
+final Finder _dialog = find.byType(AppDialog);
 Finder _inDialog(Finder f) => find.descendant(of: _dialog, matching: f);
 
 Future<void> _openSubmitDialog(WidgetTester t) async {
@@ -316,7 +316,7 @@ void main() {
       await _openSubmitDialog(t);
 
       expect(_dialog, findsOneWidget);
-      expect(t.widget<BookletDialog>(_dialog).title, 'Submit homework?');
+      expect(t.widget<AppDialog>(_dialog).title, 'Submit homework?');
       expect(
         _inDialog(
           find.text(
@@ -403,7 +403,7 @@ void main() {
       await t.tap(find.text('Submit homework'));
       await t.pumpAndSettle();
 
-      expect(t.widget<BookletDialog>(_dialog).title, 'Submit homework?');
+      expect(t.widget<AppDialog>(_dialog).title, 'Submit homework?');
     });
   });
 

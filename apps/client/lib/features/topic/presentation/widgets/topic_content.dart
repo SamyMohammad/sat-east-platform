@@ -5,7 +5,7 @@ import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 import 'package:sat_east_client/features/topic/presentation/topic_copy.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class TopicContent extends StatelessWidget {
@@ -75,7 +75,7 @@ class TopicContent extends StatelessWidget {
                 if (quiz.bestScorePct case final score?)
                   Text(TopicCopy.bestScore(score)),
                 if (quiz.passed)
-                  const BookletChip(
+                  const AppChip(
                     label: TopicCopy.passed,
                     icon: AppIcons.correct,
                   ),

@@ -4,7 +4,7 @@ import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
-import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
+import 'package:sat_east_client/shared/widgets/app_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class CheckInboxScreen extends StatelessWidget {
@@ -18,7 +18,7 @@ class CheckInboxScreen extends StatelessWidget {
           state is AuthConfirmationSent ? state.email : '',
           state is AuthResetLinkSent,
         ),
-        builder: (context, info) => BookletStatusFrame(
+        builder: (context, info) => AppStatusFrame(
           icon: AppIcons.inbox,
           title: 'Check your inbox',
           message: info.$2

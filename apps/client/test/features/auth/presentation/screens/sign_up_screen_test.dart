@@ -6,7 +6,7 @@ import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 
 import 'auth_screen_harness.dart';
 
@@ -239,7 +239,7 @@ void main() {
           const AuthSignedOut(error: AppError(ErrorCodes.network)),
         );
 
-        expect(find.byType(BookletBanner), findsOneWidget);
+        expect(find.byType(AppBanner), findsOneWidget);
         expect(
           find.text('No connection. Check your internet and try again.'),
           findsOneWidget,
@@ -268,7 +268,7 @@ void main() {
         ) async {
           await pump(tester, AuthSignedOut(error: AppError(code)));
 
-          expect(find.byType(BookletBanner), findsNothing);
+          expect(find.byType(AppBanner), findsNothing);
           expect(find.text('Something went wrong. Try again.'), findsNothing);
         });
       }

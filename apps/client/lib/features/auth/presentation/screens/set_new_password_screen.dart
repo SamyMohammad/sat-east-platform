@@ -10,7 +10,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class SetNewPasswordScreen extends StatefulWidget {
@@ -85,9 +85,9 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
         selector: (state) => state is AuthRecovery ? state.error?.code : null,
         builder: (context, code) => code == null
             ? const SizedBox.shrink()
-            : BookletBanner(
+            : AppBanner(
                 message: authErrorCopy(code),
-                kind: BookletBannerKind.error,
+                kind: AppBannerKind.error,
               ),
       ),
       AuthTextField(
