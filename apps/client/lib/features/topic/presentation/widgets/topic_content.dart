@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 import 'package:sat_east_client/features/topic/presentation/topic_copy.dart';
+import 'package:sat_east_client/features/topic/presentation/widgets/topic_step_row.dart';
 import 'package:sat_east_client/shared/widgets/app_chip.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -38,7 +39,7 @@ class TopicContent extends StatelessWidget {
     };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s4,
+      spacing: AppSpace.s4,
       children: [
         Text(topic.sortLabel, style: theme.textTheme.labelLarge),
         Text(
@@ -46,52 +47,59 @@ class TopicContent extends StatelessWidget {
           style: theme.textTheme.headlineSmall,
           textDirection: detectTextDirection(heading),
         ),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(BookletSpace.s4),
-            child: Column(
+        TopicStepRow(
+          icon: AppIcons.workedExample,
+          hue: SubjectHue.violet,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: BookletSpace.s3,
+              spacing: AppSpace.s2,
               children: [
-                Text(
-                  TopicCopy.practiceProgress(
-                    topic.practiceCount,
-                    topic.practiceMin,
+                const Icon(AppIcons.workedExample, size: AppSize.iconSmall),
+                Expanded(
+                  child: Text(
+                    TopicCopy.practiceProgress(
+                      topic.practiceCount,
+                      topic.practiceMin,
+                    ),
                   ),
                 ),
-                LoadingButton(label: TopicCopy.practice, onPressed: onPractice),
               ],
             ),
-          ),
+            LoadingButton(label: TopicCopy.practice, onPressed: onPractice),
+          ],
         ),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(BookletSpace.s4),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: BookletSpace.s3,
-              children: [
-                Text(TopicCopy.quiz, style: theme.textTheme.titleMedium),
-                if (quiz.bestScorePct case final score?)
-                  Text(TopicCopy.bestScore(score)),
-                if (quiz.passed)
-                  const AppChip(
-                    label: TopicCopy.passed,
-                    icon: AppIcons.correct,
-                  ),
-                if (description != null) Text(description),
-                LoadingButton(
-                  label: quiz is QuizInProgress
-                      ? TopicCopy.resumeQuiz
-                      : TopicCopy.startQuiz,
-                  onPressed: switch (quiz) {
-                    QuizAvailable() || QuizInProgress() => onQuiz,
-                    QuizPracticeNeeded() || QuizCooldown() => null,
-                  },
-                ),
-              ],
+        TopicStepRow(
+          icon: AppIcons.quiz,
+          hue: SubjectHue.rose,
+          children: [
+            Text(TopicCopy.quiz, style: theme.textTheme.titleMedium),
+            if (quiz.bestScorePct case final score?)
+              Text(TopicCopy.bestScore(score)),
+            if (quiz.passed)
+              const AppChip(
+                label: TopicCopy.passed,
+                icon: AppIcons.correct,
+              ),
+            if (description != null)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: AppSpace.s2,
+                children: [
+                  const Icon(AppIcons.locked, size: AppSize.iconSmall),
+                  Expanded(child: Text(description)),
+                ],
+              ),
+            LoadingButton(
+              label: quiz is QuizInProgress
+                  ? TopicCopy.resumeQuiz
+                  : TopicCopy.startQuiz,
+              onPressed: switch (quiz) {
+                QuizAvailable() || QuizInProgress() => onQuiz,
+                QuizPracticeNeeded() || QuizCooldown() => null,
+              },
             ),
-          ),
+          ],
         ),
       ],
     );

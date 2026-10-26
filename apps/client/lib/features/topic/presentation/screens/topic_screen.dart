@@ -1,13 +1,14 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
@@ -48,10 +49,10 @@ class TopicView extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(
-            maxWidth: BookletSize.readingColumn,
+            maxWidth: AppSize.readingColumn,
           ),
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(BookletSpace.s4),
+            padding: const EdgeInsets.all(AppSpace.s4),
             child: BlocBuilder<TopicCubit, TopicState>(
               builder: (context, state) => switch (state) {
                 TopicLoading() => const AppSkeleton(),

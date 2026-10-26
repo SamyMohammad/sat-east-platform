@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/errors/result.dart';
+import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
@@ -13,7 +16,9 @@ import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_
 import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/screens/catalogue_screen.dart';
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/icon_tile.dart';
 
 import '../../auth/presentation/screens/auth_screen_harness.dart' as auth;
 import '../catalogue_fixtures.dart';
@@ -104,6 +109,26 @@ FakeCatalogueRepository _repository({bool price = true}) =>
       );
 
 void main() {
+  testWidgets('catalogue_shows_welcome_illustration_and_hue_bands', (
+    tester,
+  ) async {
+    await _pump(tester, _repository());
+    expect(
+      tester.widget<AppIllustration>(find.byType(AppIllustration)).name,
+      AppIllustrationName.welcome,
+    );
+    expect(tester.widget<IconTile>(find.byType(IconTile)).hue, SubjectHue.blue);
+    expect(find.byKey(const ValueKey('course-hue-0')), findsOneWidget);
+    expect(find.text('Your courses'), findsOneWidget);
+  });
+  testWidgets('empty_catalogue_shows_illustration', (tester) async {
+    await _pump(tester, FakeCatalogueRepository());
+    expect(
+      tester.widget<AppIllustration>(find.byType(AppIllustration)).name,
+      AppIllustrationName.emptyCourses,
+    );
+  });
+
   for (final page in [false, true]) {
     testWidgets('PAY-01: $page loading shows skeleton', (tester) async {
       await _pump(tester, _repository(), page: page, load: false);

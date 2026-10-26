@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/catalogue/presentation/catalogue_copy.dart';
 
 class CatalogueFrame extends StatelessWidget {
@@ -31,7 +33,7 @@ class CatalogueFrame extends StatelessWidget {
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(
-            maxWidth: BookletSize.questionColumn,
+            maxWidth: AppSize.questionColumn,
           ),
           child: child,
         ),

@@ -1,21 +1,25 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_hues.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/features/course_map/presentation/course_map_copy.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_state.dart';
 import 'package:sat_east_client/features/course_map/presentation/widgets/continue_card.dart';
 import 'package:sat_east_client/features/course_map/presentation/widgets/topic_row.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
@@ -46,7 +50,10 @@ class CourseMapView extends StatelessWidget {
     child: BlocBuilder<CourseMapCubit, CourseMapState>(
       builder: (context, state) => switch (state) {
         CourseMapLoading() => const _Padded(child: AppSkeleton()),
-        CourseMapLoaded(:final map) => _Loaded(map: map),
+        CourseMapLoaded(:final map, :final justUnlocked) => _Loaded(
+          map: map,
+          justUnlocked: justUnlocked,
+        ),
         CourseMapFailed(:final error) => _Failed(error: error),
       },
     ),
@@ -62,9 +69,9 @@ class _Padded extends StatelessWidget {
   Widget build(BuildContext context) => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: BookletSize.readingColumn),
+      constraints: const BoxConstraints(maxWidth: AppSize.readingColumn),
       child: Padding(
-        padding: const EdgeInsets.all(BookletSpace.s4),
+        padding: const EdgeInsets.all(AppSpace.s4),
         child: child,
       ),
     ),
@@ -72,14 +79,16 @@ class _Padded extends StatelessWidget {
 }
 
 class _Loaded extends StatelessWidget {
-  const _Loaded({required this.map});
+  const _Loaded({required this.map, required this.justUnlocked});
 
   final CourseMap map;
+  final Set<String> justUnlocked;
 
   @override
   Widget build(BuildContext context) {
     if (map.units.isEmpty) {
       return const EmptyState(
+        illustration: AppIllustrationName.emptyCourses,
         title: CourseMapCopy.emptyTitle,
         message: CourseMapCopy.emptyBody,
       );
@@ -89,37 +98,67 @@ class _Loaded extends StatelessWidget {
     return Align(
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: BookletSize.readingColumn),
+        constraints: const BoxConstraints(maxWidth: AppSize.readingColumn),
         child: ListView(
-          padding: const EdgeInsets.all(BookletSpace.s4),
+          padding: const EdgeInsets.all(AppSpace.s4),
           children: [
             Text(
               map.title,
               style: theme.textTheme.headlineSmall,
               textDirection: detectTextDirection(map.title),
             ),
-            const SizedBox(height: BookletSpace.s4),
+            const SizedBox(height: AppSpace.s4),
             if (continueTopic != null) ...[
               ContinueCard(topic: continueTopic),
-              const SizedBox(height: BookletSpace.s6),
+              const SizedBox(height: AppSpace.s6),
             ],
-            for (final unit in map.units) ...[
+            for (final (unitIndex, unit) in map.units.indexed) ...[
               if (unit.title case final unitTitle?)
                 Padding(
                   padding: const EdgeInsets.only(
-                    top: BookletSpace.s4,
-                    bottom: BookletSpace.s2,
+                    top: AppSpace.s4,
+                    bottom: AppSpace.s2,
                   ),
                   child: Semantics(
                     header: true,
-                    child: Text(
-                      unitTitle,
-                      style: theme.textTheme.titleMedium,
-                      textDirection: detectTextDirection(unitTitle),
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpace.s4),
+                      decoration: BoxDecoration(
+                        color: SubjectHue.forIndex(
+                          unitIndex,
+                        ).wash(theme.brightness),
+                        borderRadius: BorderRadius.circular(AppRadius.card),
+                      ),
+                      child: Text(
+                        unitTitle,
+                        style: theme.textTheme.titleMedium,
+                        textDirection: detectTextDirection(unitTitle),
+                      ),
                     ),
                   ),
                 ),
-              for (final topic in unit.topics) TopicRow(topic: topic),
+              for (final (topicIndex, topic) in unit.topics.indexed)
+                TopicRow(
+                  key: ValueKey(topic.id),
+                  topic: topic,
+                  hue: SubjectHue.forIndex(unitIndex),
+                  justUnlocked: justUnlocked.contains(topic.id),
+                  connectFromPrevious: topicIndex > 0
+                      ? unit.topics[topicIndex - 1].status ==
+                            TopicStatus.completed
+                      : unitIndex > 0 &&
+                            map.units[unitIndex - 1].topics.isNotEmpty &&
+                            map.units[unitIndex - 1].topics.last.status ==
+                                TopicStatus.completed,
+                  onUnlockComplete: () {
+                    final cubit = context.read<CourseMapCubit>();
+                    final current = cubit.state;
+                    if (current is CourseMapLoaded &&
+                        identical(current.justUnlocked, justUnlocked)) {
+                      cubit.acknowledgeUnlock();
+                    }
+                  },
+                ),
             ],
           ],
         ),

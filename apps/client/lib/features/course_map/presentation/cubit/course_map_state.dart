@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 
@@ -14,12 +15,13 @@ final class CourseMapLoading extends CourseMapState {
 }
 
 final class CourseMapLoaded extends CourseMapState {
-  const CourseMapLoaded(this.map);
+  const CourseMapLoaded(this.map, {this.justUnlocked = const {}});
 
   final CourseMap map;
+  final Set<String> justUnlocked;
 
   @override
-  List<Object?> get props => [map];
+  List<Object?> get props => [map, justUnlocked];
 }
 
 final class CourseMapFailed extends CourseMapState {

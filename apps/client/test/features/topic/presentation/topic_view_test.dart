@@ -7,6 +7,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
+import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
@@ -14,6 +15,7 @@ import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.da
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/icon_tile.dart';
 
 class _Cubit extends MockCubit<TopicState> implements TopicCubit {}
 
@@ -33,6 +35,7 @@ Future<(_Cubit, GoRouter)> _pump(
   WidgetTester tester,
   TopicState state, {
   double width = 360,
+  double scale = 1,
 }) async {
   tester.view.physicalSize = Size(width, 800);
   tester.view.devicePixelRatio = 1;
@@ -68,7 +71,16 @@ Future<(_Cubit, GoRouter)> _pump(
   );
   addTearDown(router.dispose);
   await tester.pumpWidget(
-    MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    MaterialApp.router(
+      theme: AppTheme.light(),
+      routerConfig: router,
+      builder: (context, child) => MediaQuery(
+        data: MediaQuery.of(
+          context,
+        ).copyWith(textScaler: TextScaler.linear(scale)),
+        child: child!,
+      ),
+    ),
   );
   await tester.pump();
   await tester.pump(const Duration(milliseconds: 100));
@@ -81,6 +93,22 @@ Finder _button(String text) => find.ancestor(
 );
 
 void main() {
+  testWidgets('topic_step_rows_have_distinct_hues_at_360_text2x', (
+    tester,
+  ) async {
+    await _pump(tester, _loaded(const QuizAvailable()), scale: 2);
+    final tiles = tester.widgetList<IconTile>(find.byType(IconTile)).toList();
+    expect(tiles.map((tile) => tile.hue), [SubjectHue.violet, SubjectHue.rose]);
+    expect(
+      find.ancestor(
+        of: find.byType(IconTile).first,
+        matching: find.byType(Row),
+      ),
+      findsWidgets,
+    );
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('PRC-03: screen starts one cubit and closes it on removal', (
     tester,
   ) async {
