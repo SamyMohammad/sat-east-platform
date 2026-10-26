@@ -36,7 +36,8 @@ Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teache
 |------|-------|
 | Restyle | Move to a well-known design system — deferred until after the MVP ships to production |
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
-| Demo seed in prod | Prod deploy must never run `supabase/seeds/demo` |
+| Demo seed in prod | Prod workflow has no seed step, guards demo seed paths and asserts prod/staging refs differ (`.github/workflows/deploy-prod.yml`) |
+| Prod backups | Nightly encrypted R2 backups and backup-before-migrate; owner setup + restore drill: [prod runbook](setup/prod.md) |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
 | Quiz follow-ups | Spiral + difficulty blueprint; review-set UI (S-23) and attempt-review UI; quiz repeats on the 12-question demo pools (accepted for the slice) |
 | Rate-limit rollback | `private.hit_rate_limit` counts only calls that don't raise (a raise rolls back the increment). Fine for practice/quiz RPCs; guess-style RPCs must return errors instead of raising (lane 1b `redeem_activation_code` does) |
