@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engineering Pad · Practice example</title>
+<style>
+:root{
+  --cover:#1F5B3A; --cover-ink:#F2F7EE;
+  --pad:#EEF3E6; --grid:#D6E4CD; --grid-major:#C3D6B8;
+  --ink:#1E2421; --ink-2:#4A5650; --ink-3:#7C8A82;
+  --blue:#2340A8; --blue-wash:#E3E8F7;
+  --mark:#E5531A; --mark-wash:#FCE9DF;
+  --paper:#FBFDF8;
+  --sq:20px;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --math: "Cambria Math", "Latin Modern Math", "STIX Two Math", Cambria, "Times New Roman", serif;
+}
+*{box-sizing:border-box;margin:0}
+body{background:#DCE3D6;font-family:var(--sans);color:var(--ink);padding:24px 16px 64px}
+.page-head{max-width:1320px;margin:0 auto 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.page-head h1{font-size:15px;font-weight:600;letter-spacing:.02em}
+.page-head p{font-size:13px;color:var(--ink-2)}
+.toggle{display:inline-flex;border:1px solid var(--ink);border-radius:4px;overflow:hidden}
+.toggle button{font:600 13px var(--sans);padding:8px 14px;border:0;background:#fff;color:var(--ink);cursor:pointer}
+.toggle button[aria-pressed=true]{background:var(--ink);color:#fff}
+.stage{max-width:1320px;margin:0 auto;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.frame-label{font:600 11px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px}
+.desk-wrap{flex:1 1 760px;min-width:0}
+.desk-viewport{width:100%;aspect-ratio:1280/800;overflow:hidden;border:1px solid #9AA89F;border-radius:6px;position:relative;background:var(--pad)}
+.desk-viewport > .app{width:1280px;height:800px;transform-origin:0 0;position:absolute;top:0;left:0}
+.phone-wrap{flex:0 0 auto}
+.phone-viewport{width:360px;height:760px;overflow:auto;border:1px solid #9AA89F;border-radius:22px;background:var(--pad)}
+
+/* ===== the app ===== */
+.app{display:flex;flex-direction:column;background:var(--pad);
+  background-image:
+    linear-gradient(var(--grid-major) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid-major) 1px,transparent 1px),
+    linear-gradient(var(--grid) 1px,transparent 1px),
+    linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:calc(var(--sq)*5) calc(var(--sq)*5),calc(var(--sq)*5) calc(var(--sq)*5),var(--sq) var(--sq),var(--sq) var(--sq);
+}
+.phone .app{min-height:100%;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:var(--sq) var(--sq)}
+.shell{display:flex;flex:1;min-height:0}
+.rail{width:220px;background:var(--cover);color:var(--cover-ink);padding:20px 0;display:flex;flex-direction:column;gap:2px}
+.brand{font:700 14px var(--sans);letter-spacing:.02em;padding:0 20px 20px}
+.brand small{display:block;font-weight:500;opacity:.7;font-size:11px;letter-spacing:.08em;text-transform:uppercase;margin-top:2px}
+.nav{display:flex;align-items:center;gap:12px;padding:10px 20px;font-size:14px;color:inherit;text-decoration:none;opacity:.78;border-left:3px solid transparent}
+.nav[aria-current=page]{opacity:1;background:rgba(255,255,255,.08);border-left-color:var(--mark);font-weight:600}
+.nav svg{width:18px;height:18px}
+.phone .rail{display:none}
+.main{flex:1;display:flex;flex-direction:column;min-width:0}
+.bar{height:60px;display:flex;align-items:center;gap:16px;padding:0 40px;background:var(--paper);border-bottom:1px solid var(--grid-major)}
+.phone .bar{height:56px;padding:0 12px;gap:8px;background:var(--cover);color:var(--cover-ink);border:0}
+.iconbtn{width:40px;height:40px;display:grid;place-items:center;border:0;background:transparent;color:inherit;border-radius:4px;cursor:pointer}
+.crumb{display:flex;flex-direction:column;min-width:0}
+.crumb b{font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.crumb span{font-size:12px;color:var(--ink-3)}
+.phone .crumb span{color:rgba(242,247,238,.7)}
+.spacer{flex:1}
+.count{font:600 14px var(--sans);font-variant-numeric:tabular-nums}
+.btn{font:600 14px var(--sans);height:40px;padding:0 16px;border-radius:4px;border:1px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.phone .bar .btn{border-color:rgba(242,247,238,.5);color:var(--cover-ink);height:36px;padding:0 12px}
+.btn.primary{background:var(--ink);color:#fff}
+.btn.primary:disabled{background:var(--ink-3);border-color:var(--ink-3)}
+.btn.mark{border-color:var(--mark);color:var(--mark)}
+
+.steps{display:flex;gap:0;padding:0 40px;height:20px;align-items:center}
+.phone .steps{padding:0 20px;height:20px;background:transparent;margin-top:20px}
+.step{width:20px;height:20px;border-right:1px solid var(--grid-major);display:grid;place-items:center}
+.step i{width:8px;height:8px;border:1px solid var(--ink-2);border-radius:1px}
+.step.done i{background:var(--ink);border-color:var(--ink)}
+.step.miss i{background:transparent;border:2px solid var(--mark)}
+.step.now i{width:12px;height:12px;border:2px solid var(--blue);background:var(--blue-wash)}
+
+.work{flex:1;display:grid;grid-template-columns:minmax(0,680px) 300px;gap:40px;padding:40px;align-content:start;justify-content:start}
+.phone .work{grid-template-columns:1fr;gap:20px;padding:20px}
+.qmeta{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--ink-2);height:20px;margin-bottom:20px}
+.qmeta .id{font-weight:700;color:var(--ink);font-variant-numeric:tabular-nums}
+.tag{border:1px solid var(--grid-major);background:var(--paper);padding:1px 8px;border-radius:2px}
+.stem{font-size:20px;line-height:40px;margin-bottom:20px}
+.phone .stem{font-size:18px}
+.m{font-family:var(--math);font-style:italic;font-size:1.12em}
+.m .n{font-style:normal}
+.choices{display:flex;flex-direction:column;gap:20px;position:relative}
+.choice{height:60px;display:flex;align-items:center;gap:20px;padding:0 19px;border:1px solid var(--ink-2);border-radius:4px;background:var(--paper);cursor:pointer;font-size:18px;position:relative;transition:opacity .25s ease, border-color .15s}
+.choice:hover{border-color:var(--ink)}
+.choice .k{width:28px;height:28px;display:grid;place-items:center;border:1px solid var(--ink-2);border-radius:2px;font:600 14px var(--sans);font-style:normal}
+.choice.sel{border:2px solid var(--blue);padding:0 18px;background:var(--blue-wash)}
+.choice.sel .k{background:var(--blue);border-color:var(--blue);color:#fff}
+.checked .choice{cursor:default}
+.checked .choice.dim{opacity:.38}
+.choice.wrong .val{text-decoration:line-through;text-decoration-color:var(--mark);text-decoration-thickness:2px}
+.choice .ring{position:absolute;inset:-9px -12px;pointer-events:none;overflow:visible}
+.choice .ring path{fill:none;stroke:var(--mark);stroke-width:2.5;stroke-linecap:round;stroke-dasharray:3000;stroke-dashoffset:3000}
+.checked .choice .ring path{animation:draw .7s .1s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes draw{to{stroke-dashoffset:0}}
+.choice .stamp{margin-left:auto;font:700 12px var(--sans);letter-spacing:.08em;text-transform:uppercase}
+.choice.wrong .stamp{color:var(--mark)}
+.choice.right .stamp{color:var(--ink)}
+.actions{display:flex;gap:12px;margin-top:40px;align-items:center}
+.phone .actions{margin-top:20px}
+.phone .actions .btn.primary{flex:1;height:48px}
+.hintline{font-size:13px;color:var(--ink-3)}
+
+/* the margin: teacher's note */
+.margin{border-left:1px dashed var(--grid-major);padding-left:20px;min-height:200px}
+.phone .margin{border-left:0;padding-left:0;min-height:0}
+.margin .label{font:700 11px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);height:20px;margin-bottom:20px}
+.skill{background:var(--paper);border:1px solid var(--grid-major);border-radius:4px;padding:16px}
+.skill h4{font-size:13px;font-weight:600;margin-bottom:4px}
+.skill p{font-size:12px;color:var(--ink-2);line-height:20px}
+.meter{display:flex;gap:4px;margin-top:8px}
+.meter i{width:16px;height:8px;border:1px solid var(--ink-2);border-radius:1px}
+.meter i.f{background:var(--ink);border-color:var(--ink)}
+.note{display:none;margin-top:20px;border-left:3px solid var(--mark);background:var(--mark-wash);padding:14px 16px;border-radius:0 4px 4px 0}
+.checked .note{display:block;animation:in .35s .55s both ease-out}
+@keyframes in{from{opacity:0;transform:translateY(6px)}}
+.note .who{font:700 11px var(--sans);letter-spacing:.12em;text-transform:uppercase;color:var(--mark);margin-bottom:6px}
+.note p{font-size:15px;line-height:22px;color:var(--ink)}
+.note .work-line{margin:10px 0;padding:8px 10px;background:var(--paper);border:1px solid #F3C9B4;border-radius:2px;font-size:16px;line-height:24px}
+.note .work-line .hl{box-shadow:inset 0 -2px 0 var(--mark)}
+.note .next{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.phone .margin .skill{display:none}
+.phone .margin .label{display:none}
+.phone .margin{order:3}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.choice .ring path{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="page-head">
+  <div>
+    <h1>The Engineering Pad: practice question</h1>
+    <p>Example only. Same screen at 1280px and 360px. Pick a choice, then press Check, or use the toggle.</p>
+  </div>
+  <div class="toggle" role="group" aria-label="State">
+    <button id="tBefore" aria-pressed="true">Before check</button>
+    <button id="tAfter" aria-pressed="false">After check (wrong)</button>
+    <button id="tRight" aria-pressed="false">After check (right)</button>
+  </div>
+</div>
+<div class="stage">
+  <div class="desk-wrap"><div class="frame-label">Laptop · 1280</div><div class="desk-viewport" id="desk"></div></div>
+  <div class="phone-wrap"><div class="frame-label">Phone · 360</div><div class="phone-viewport phone" id="phone"></div></div>
+</div>
+
+<template id="tpl">
+<div class="app">
+  <div class="shell">
+    <nav class="rail" aria-label="Main">
+      <div class="brand">Abdelrahman Elmenshawy<small>SAT Math</small></div>
+      <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16M4 12h16M4 19h10"/></svg>Courses</a>
+      <a class="nav" aria-current="page" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="1"/><path d="M8 12l3 3 5-6"/></svg>Practice</a>
+      <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Skills</a>
+      <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l3 2M9 2h6"/></svg>Mock exams</a>
+      <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c1-4 4-6 8-6s7 2 8 6"/></svg>Profile</a>
+    </nav>
+    <div class="main">
+      <header class="bar">
+        <button class="iconbtn" aria-label="Back"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="crumb"><b>Linear equations</b><span>Topic 4.2 · Practice</span></div>
+        <div class="spacer"></div>
+        <span class="count">3 / 10</span>
+        <button class="btn hintbtn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg>Hint</button>
+      </header>
+      <div class="steps" aria-label="Question 3 of 10">
+        <span class="step done"><i></i></span><span class="step miss"><i></i></span><span class="step now"><i></i></span>
+        <span class="step"><i></i></span><span class="step"><i></i></span><span class="step"><i></i></span><span class="step"><i></i></span><span class="step"><i></i></span><span class="step"><i></i></span><span class="step"><i></i></span>
+      </div>
+      <div class="work">
+        <section>
+          <div class="qmeta"><span class="id">4.2 · Ex 7</span><span class="tag">Linear equations</span><span class="tag">Easy</span></div>
+          <p class="stem">Solve for <span class="m">x</span>:&nbsp; <span class="m">3x <span class="n">−</span> 7 <span class="n">=</span> 29</span></p>
+          <div class="choices" role="radiogroup" aria-label="Choices">
+            <div class="choice" data-k="A" role="radio" tabindex="0"><span class="k">A</span><span class="val m">x <span class="n">=</span> 7</span><span class="stamp"></span></div>
+            <div class="choice" data-k="B" role="radio" tabindex="0"><span class="k">B</span><span class="val m">x <span class="n">=</span> 12</span><span class="stamp"></span>
+              <svg class="ring" viewBox="0 0 100 100" preserveAspectRatio="none"><path vector-effect="non-scaling-stroke" d="M6 52 C 4 18, 40 6, 70 8 C 96 10, 99 40, 97 60 C 95 88, 60 96, 30 93 C 8 90, 2 70, 9 40"/></svg>
+            </div>
+            <div class="choice" data-k="C" role="radio" tabindex="0"><span class="k">C</span><span class="val m">x <span class="n">=</span> 22/3</span><span class="stamp"></span></div>
+            <div class="choice" data-k="D" role="radio" tabindex="0"><span class="k">D</span><span class="val m">x <span class="n">=</span> 36</span><span class="stamp"></span></div>
+          </div>
+          <div class="actions">
+            <button class="btn primary checkbtn" disabled>Check answer</button>
+            <span class="hintline">Keys A–D to choose · Enter to check</span>
+          </div>
+        </section>
+        <aside class="margin">
+          <div class="label">Margin</div>
+          <div class="skill">
+            <h4>Skill: one-variable linear equations</h4>
+            <p>7 of 10 correct in this topic so far</p>
+            <div class="meter" aria-label="Mastery 3 of 5"><i class="f"></i><i class="f"></i><i class="f"></i><i></i><i></i></div>
+          </div>
+          <div class="note" role="status">
+            <div class="who">Mr. Abdelrahman</div>
+            <p class="msg"></p>
+            <div class="work-line"><span class="m">3x <span class="n">=</span> 36</span> &nbsp;→&nbsp; <span class="m hl">x <span class="n">=</span> 36 <span class="n">÷</span> 3 <span class="n">=</span> 12</span></div>
+            <div class="next"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<script>
+const tpl = document.getElementById('tpl');
+const hosts = [document.getElementById('desk'), document.getElementById('phone')];
+let state = { sel: null, checked: false };
+
+function mount(){
+  hosts.forEach(h => { h.innerHTML=''; h.appendChild(tpl.content.cloneNode(true)); });
+  fitDesk(); render();
+  hosts.forEach(h => {
+    h.querySelectorAll('.choice').forEach(c => c.addEventListener('click', () => { if(!state.checked){ state.sel=c.dataset.k; render(); }}));
+    h.querySelector('.checkbtn').addEventListener('click', () => { state.checked=true; render(); });
+  });
+}
+function render(){
+  hosts.forEach(h => {
+    const work = h.querySelector('.work');
+    work.classList.toggle('checked', state.checked);
+    const right = state.sel === 'B';
+    h.querySelectorAll('.choice').forEach(c => {
+      const k=c.dataset.k;
+      c.classList.toggle('sel', k===state.sel);
+      c.setAttribute('aria-checked', k===state.sel);
+      c.classList.remove('dim','wrong','right');
+      c.querySelector('.stamp').textContent='';
+      if(state.checked){
+        if(k==='B'){ c.classList.add('right'); c.querySelector('.stamp').textContent = right ? 'Correct' : 'Answer'; }
+        else if(k===state.sel){ c.classList.add('wrong'); c.querySelector('.stamp').textContent='Your pick'; }
+        else c.classList.add('dim');
+      }
+    });
+    const btn=h.querySelector('.checkbtn');
+    btn.disabled = !state.sel || state.checked;
+    btn.textContent = state.checked ? 'Checked' : 'Check answer';
+    h.querySelector('.msg').textContent = right
+      ? 'Clean. You added 7 to both sides, then divided by 3. Next one is the same skill with a fraction.'
+      : 'Close. You got 3x = 36, then stopped. Divide both sides by 3 and check it: 3(12) − 7 = 29.';
+    h.querySelector('.next').innerHTML = right
+      ? '<button class="btn primary">Next question</button>'
+      : '<button class="btn primary">Try a similar one</button><button class="btn mark">Ask about this</button>';
+  });
+  document.getElementById('tBefore').setAttribute('aria-pressed', !state.checked);
+  document.getElementById('tAfter').setAttribute('aria-pressed', state.checked && state.sel!=='B');
+  document.getElementById('tRight').setAttribute('aria-pressed', state.checked && state.sel==='B');
+}
+function fitDesk(){
+  const v=document.getElementById('desk'); const a=v.querySelector('.app');
+  if(a) a.style.transform=`scale(${v.clientWidth/1280})`;
+}
+document.getElementById('tBefore').onclick=()=>{state={sel:'D',checked:false};mount();};
+document.getElementById('tAfter').onclick=()=>{state={sel:'D',checked:false};mount();requestAnimationFrame(()=>{state.checked=true;render();});};
+document.getElementById('tRight').onclick=()=>{state={sel:'B',checked:false};mount();requestAnimationFrame(()=>{state.checked=true;render();});};
+window.addEventListener('resize',fitDesk);
+document.addEventListener('keydown',e=>{
+  if(state.checked) return;
+  const k=e.key.toUpperCase();
+  if('ABCD'.includes(k)&&k.length===1){state.sel=k;render();}
+  if(e.key==='Enter'&&state.sel){state.checked=true;render();}
+});
+mount();
+</script>
+</body>
+</html>

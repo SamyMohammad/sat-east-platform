@@ -76,6 +76,11 @@ EST coverage is a bonus, not the core claim.
   next concrete step ("Close. Check the sign in step 2 and try again."), never empty praise and
   never harsh.
 - No logo, colours, photos or video assets exist yet.
+- Visual direction (decided 2026-10-26): **the category standard, executed at full craft**, not
+  an invented world. The bar is Khan Academy (math legibility, calm practice), Brilliant (polished
+  interactive feedback), Linear / Notion (typography and spacing discipline) and Duolingo for
+  structure only (an obvious next step, a decisive Check moment; none of its playful styling).
+  Must not feel cold/corporate, childish/gamified, cluttered on a phone, or like Bluebook.
 
 ## Evidence on Hand
 
