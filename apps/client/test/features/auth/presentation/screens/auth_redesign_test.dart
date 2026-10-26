@@ -63,8 +63,12 @@ void main() {
             path: path,
             size: size,
           );
-          expect(find.text('Abdelrahman Elmenshawy'), findsOneWidget);
-          expect(find.text('SAT & EST Math'), findsOneWidget);
+          final wide = size.width >= 960;
+          expect(
+            find.text('Abdelrahman Elmenshawy'),
+            findsNWidgets(wide ? 2 : 1),
+          );
+          expect(find.text('SAT & EST Math'), findsNWidgets(wide ? 2 : 1));
           expect(find.byType(Card), findsOneWidget);
           expect(
             tester.getSize(find.byType(Card)).width,
@@ -72,14 +76,67 @@ void main() {
           );
           if (illustration != null) {
             expect(
-              tester.widget<AppIllustration>(find.byType(AppIllustration)).name,
-              illustration,
+              find.byWidgetPredicate(
+                (widget) =>
+                    widget is AppIllustration && widget.name == illustration,
+              ),
+              findsOneWidget,
+            );
+          }
+          final welcome = find.byWidgetPredicate(
+            (widget) =>
+                widget is AppIllustration &&
+                widget.name == AppIllustrationName.welcome,
+          );
+          final entry = screen is SignInScreen;
+          expect(welcome, wide || entry ? findsOneWidget : findsNothing);
+          if (wide) {
+            expect(
+              find.text('Build confidence, one topic at a time.'),
+              findsOneWidget,
+            );
+            expect(
+              tester.getTopRight(welcome).dx,
+              lessThan(tester.getTopLeft(find.byType(Card)).dx),
+            );
+          } else if (entry) {
+            expect(tester.getSize(welcome).height, 120);
+            expect(
+              tester.getBottomLeft(welcome).dy,
+              lessThan(
+                tester.getTopLeft(find.text('Abdelrahman Elmenshawy')).dy,
+              ),
             );
           }
           expect(tester.takeException(), isNull);
         },
       );
     }
+  }
+  for (final (screen, path) in [
+    (const SignInScreen(), '/sign-in'),
+    (const SignUpScreen(), '/sign-up'),
+  ]) {
+    testWidgets('single auth card at 360 with 2x text: $path', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = 2;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpAuthScreen(
+        tester,
+        cubit: mockCubit(const AuthSignedOut()),
+        screen: screen,
+        path: path,
+        size: const Size(360, 800),
+      );
+      expect(find.byType(Card), findsOneWidget);
+      expect(find.text('Build confidence, one topic at a time.'), findsNothing);
+      expect(tester.takeException(), isNull);
+      await tester.drag(
+        find.byType(SingleChildScrollView).first,
+        const Offset(0, -1800),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    });
   }
   for (final (title, icon) in [
     ('Skills', AppIcons.skills),

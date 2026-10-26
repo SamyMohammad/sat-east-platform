@@ -52,6 +52,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AuthCard(
+      showWelcomeIllustration: true,
       children: [
         Text('Sign in', style: theme.textTheme.headlineSmall),
         Text(
