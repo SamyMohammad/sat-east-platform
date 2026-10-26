@@ -2,19 +2,29 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/attempt_review/data/datasources/attempt_review_remote_data_source.dart';
 import 'package:sat_east_client/features/attempt_review/data/models/attempt_review_model.dart';
 import 'package:sat_east_client/features/attempt_review/data/repositories/attempt_review_repository_impl.dart';
+import 'package:sat_east_client/features/attempt_review/presentation/attempt_review_copy.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/cubit/attempt_review_cubit.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/cubit/attempt_review_state.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/screens/attempt_review_screen.dart';
+import 'package:sat_east_client/features/homework/presentation/homework_copy.dart';
+import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/fakes/fake_rpc.dart';
 import 'review_fixture.dart';
 
 void main() {
+  for (final (pct, expected) in [(8.33, '8%'), (8.5, '9%'), (70.0, '70%')]) {
+    test('PRC-02: scores round $pct to a whole percent', () {
+      expect(AttemptReviewCopy.score(1, 12, pct), '1 / 12 \u00b7 $expected');
+      expect(HomeworkCopy.submitted(pct), 'Submitted \u00b7 $expected');
+    });
+  }
   test('PRC-02: submitted review parses score, key and explanation', () {
     final review = attemptReviewFromJson(reviewPayload());
     expect(review.scoreRaw, 14);
@@ -74,7 +84,13 @@ void main() {
         tester.view.physicalSize = Size(width, 800);
         tester.view.devicePixelRatio = 1;
         addTearDown(tester.view.reset);
-        final rpc = FakeRpc()..response = reviewPayload(visible: visible);
+        final payload = reviewPayload(visible: visible);
+        (payload['summary']! as Map<String, Object?>).addAll({
+          'score_raw': 1,
+          'score_total': 12,
+          'score_pct': 8.33,
+        });
+        final rpc = FakeRpc()..response = payload;
         final cubit = AttemptReviewCubit(
           AttemptReviewRepositoryImpl(AttemptReviewRemoteDataSource(rpc.call)),
         );
@@ -92,7 +108,7 @@ void main() {
           ),
         );
         await tester.pumpAndSettle();
-        expect(find.text('14 / 20 \u00b7 70%'), findsOneWidget);
+        expect(find.text('1 / 12 \u00b7 8%'), findsOneWidget);
         expect(
           find.text('Correct answer'),
           visible ? findsOneWidget : findsNothing,
@@ -101,6 +117,38 @@ void main() {
           find.text('Explanation'),
           visible ? findsOneWidget : findsNothing,
         );
+        expect(
+          find.widgetWithText(BookletChip, 'Incorrect'),
+          findsOneWidget,
+        );
+        for (final (label, value) in [
+          ('My answer', 'A'),
+          if (visible) ('Correct answer', 'B'),
+          if (visible) ('Explanation', r'Because $x=1$.'),
+        ]) {
+          final labelFinder = find.text(label);
+          final text = tester.widget<Text>(labelFinder);
+          final context = tester.element(labelFinder);
+          expect(
+            text.style,
+            Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          );
+          final row = find.ancestor(
+            of: labelFinder,
+            matching: find.byType(Row),
+          );
+          expect(
+            find.descendant(
+              of: row,
+              matching: find.byWidgetPredicate(
+                (widget) => widget is MathText && widget.source == value,
+              ),
+            ),
+            findsOneWidget,
+          );
+        }
         expect(tester.takeException(), isNull);
       });
     }

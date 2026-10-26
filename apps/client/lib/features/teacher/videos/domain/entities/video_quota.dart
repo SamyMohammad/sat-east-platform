@@ -6,8 +6,8 @@ class VideoQuota extends Equatable {
   final int capMb;
 
   String get label =>
-      '${(usedMb / 1024).toStringAsFixed(1)} of '
-      '${(capMb / 1024).toStringAsFixed(0)} GB used';
+      '${usedMb < 1024 ? '$usedMb MB' : (usedMb / 1024).toStringAsFixed(1)} '
+      'of ${(capMb / 1024).toStringAsFixed(0)} GB used';
   double get fraction => capMb <= 0 ? 0 : (usedMb / capMb).clamp(0.0, 1.0);
 
   @override

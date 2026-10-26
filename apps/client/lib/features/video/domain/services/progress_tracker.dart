@@ -28,10 +28,14 @@ class ProgressTracker {
   }
 
   List<WatchedSpan> takeSpans() {
+    final start = _start;
+    final last = _last;
+    final emittedOpenSpan =
+        start != null && last != null && last.floor() > start.ceil();
     _closeSpan();
     final spans = List<WatchedSpan>.unmodifiable(_closed);
     _closed.clear();
-    _start = _last;
+    _start = emittedOpenSpan ? last.floorToDouble() : last;
     return spans;
   }
 

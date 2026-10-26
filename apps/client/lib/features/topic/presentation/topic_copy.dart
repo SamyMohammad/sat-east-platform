@@ -1,4 +1,5 @@
 import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/presentation/format_percentage.dart';
 import 'package:sat_east_client/core/presentation/learning_copy.dart';
 
 abstract final class TopicCopy {
@@ -32,10 +33,8 @@ abstract final class TopicCopy {
   static String cooldown(String localTime) =>
       'You can retake the quiz after $localTime.';
 
-  static String bestScore(double score) {
-    final value = score == score.truncateToDouble() ? score.toInt() : score;
-    return 'Best score $value%';
-  }
+  static String bestScore(double score) =>
+      'Best score ${formatPercentage(score)}';
 
   static String errorBody(String code) => code == ErrorCodes.network
       ? LearningCopy.networkBody

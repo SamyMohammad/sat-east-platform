@@ -248,7 +248,7 @@ void main() {
       tester,
       _loaded(const QuizAvailable(bestScorePct: 83.33, passed: true)),
     );
-    expect(find.text('Best score 83.33%'), findsOneWidget);
+    expect(find.text('Best score 83%'), findsOneWidget);
     expect(find.text('Passed'), findsOneWidget);
     expect(
       tester.widget<ButtonStyleButton>(_button('Start quiz')).onPressed,
