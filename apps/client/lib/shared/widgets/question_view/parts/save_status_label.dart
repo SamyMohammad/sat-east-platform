@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
 
 /// Homework autosave state: icon + copy, announced as a live region.
@@ -33,15 +33,15 @@ class SaveStatusLabel extends StatelessWidget {
         children: [
           if (icon == null)
             SizedBox.square(
-              dimension: BookletSize.iconStatus,
+              dimension: AppSize.iconStatus,
               child: CircularProgressIndicator(
-                strokeWidth: BookletStroke.strong,
+                strokeWidth: AppStroke.strong,
                 color: color,
               ),
             )
           else
-            Icon(icon, size: BookletSize.iconStatus, color: color),
-          const SizedBox(width: BookletSpace.s2),
+            Icon(icon, size: AppSize.iconStatus, color: color),
+          const SizedBox(width: AppSpace.s2),
           Flexible(
             child: Text(
               copy,
@@ -54,7 +54,7 @@ class SaveStatusLabel extends StatelessWidget {
             TextButton(
               onPressed: onRetry,
               style: TextButton.styleFrom(
-                minimumSize: const Size(0, BookletSize.touchTarget),
+                minimumSize: const Size(0, AppSize.touchTarget),
               ),
               child: const Text('Retry'),
             ),

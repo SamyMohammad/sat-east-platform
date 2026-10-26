@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/math_render/math_text.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 /// Widest share of the heading row the title may take before it ellipsizes.
 const double _maxTitleShare = 0.6;
@@ -31,8 +32,15 @@ class FramedPanel extends StatelessWidget {
     final base = theme.textTheme.labelSmall;
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: scheme.surfaceContainer,
-        borderRadius: BorderRadius.circular(BookletRadius.xs),
+        color: icon == null
+            ? context.appColors.background
+            : context.appColors.warm,
+        border: Border.all(
+          color: icon == null
+              ? context.appColors.line
+              : context.appColors.warmLine,
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Padding(
         padding: EdgeInsets.all(padding),
@@ -46,8 +54,8 @@ class FramedPanel extends StatelessWidget {
               builder: (context, constraints) => Row(
                 children: [
                   if (icon != null) ...[
-                    Icon(icon, size: BookletSize.iconStatus, color: titleColor),
-                    const SizedBox(width: BookletSpace.s2),
+                    Icon(icon, size: AppSize.iconStatus, color: titleColor),
+                    const SizedBox(width: AppSpace.s2),
                   ],
                   ConstrainedBox(
                     constraints: BoxConstraints(
@@ -60,21 +68,21 @@ class FramedPanel extends StatelessWidget {
                       style: base?.copyWith(
                         color: titleColor,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: BookletTracking.caps,
+                        letterSpacing: AppTracking.caps,
                       ),
                     ),
                   ),
-                  const SizedBox(width: BookletSpace.s2),
+                  const SizedBox(width: AppSpace.s2),
                   Expanded(
                     child: SizedBox(
-                      height: BookletStroke.thin,
+                      height: AppStroke.thin,
                       child: ColoredBox(color: scheme.outlineVariant),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: BookletSpace.s3),
+            const SizedBox(height: AppSpace.s3),
             MathText(md, style: theme.textTheme.bodyMedium),
           ],
         ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
@@ -108,7 +110,7 @@ void main() {
       ).colorScheme;
       BoxDecoration deco(int i) =>
           tester
-                  .widget<Container>(
+                  .widget<AnimatedContainer>(
                     find.byKey(ValueKey('progress-segment-$i')),
                   )
                   .decoration!
@@ -268,7 +270,7 @@ void main() {
       });
     }
 
-    testWidgets('F-4: skill renders as a skill chip with sell icon', (
+    testWidgets('F-4: skill renders as a quiet text line', (
       tester,
     ) async {
       await pump(
@@ -276,10 +278,9 @@ void main() {
         const ExerciseHeader(label: '4.2 · Ex 7', skill: 'Linear equations'),
       );
 
-      final chip = tester.widget<AppChip>(find.byType(AppChip));
-      expect(chip.kind, AppChipKind.skill);
-      expect(chip.icon, AppIcons.topic);
-      expect(chip.label, 'Linear equations');
+      expect(find.text('Linear equations'), findsOneWidget);
+      expect(find.byType(AppChip), findsNothing);
+      expect(find.byIcon(AppIcons.topic), findsNothing);
     });
 
     testWidgets('F-4: omits chips when difficulty and skill are null', (

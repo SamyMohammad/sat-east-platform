@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/feedback_label.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/focus_ring.dart';
 import 'package:sat_east_client/shared/widgets/painters/dashed_border.dart';
 import 'package:sat_east_client/shared/widgets/painters/strike_through.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/choice_feedback_motion.dart';
 
 /// What a choice tile shows. Feedback states come from the server result
 /// (rule 1); the tile never decides correctness.
@@ -69,6 +70,7 @@ class ChoiceTile extends StatefulWidget {
 class _ChoiceTileState extends State<ChoiceTile> {
   bool _hovered = false;
   bool _focused = false;
+  bool _pressed = false;
 
   bool get _interactive =>
       widget.onSelect != null &&
@@ -97,7 +99,7 @@ class _ChoiceTileState extends State<ChoiceTile> {
     );
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
-    const radius = BorderRadius.all(Radius.circular(BookletRadius.sm));
+    const radius = BorderRadius.all(Radius.circular(AppRadius.choice));
     final eliminated = widget.state == ChoiceTileState.eliminated;
     final trailing = _trailing(look);
     final trailingIsButton = trailing != null && look.status == null;
@@ -107,19 +109,19 @@ class _ChoiceTileState extends State<ChoiceTile> {
       color: scheme.onSurfaceVariant,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: BookletSpace.s3,
+        spacing: AppSpace.s3,
         children: [
           Padding(
             padding: const EdgeInsets.only(
-              top: (BookletSize.touchTarget - BookletSize.choiceBadge) / 2,
+              top: (AppSize.touchTarget - AppSize.choiceBadge) / 2,
             ),
             child: _Badge(letter: widget.letter, look: look),
           ),
           Expanded(
             child: Opacity(
-              opacity: eliminated ? BookletOpacity.eliminated : 1,
+              opacity: eliminated ? AppOpacity.eliminated : 1,
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: BookletSpace.s3),
+                padding: const EdgeInsets.symmetric(vertical: AppSpace.s3),
                 child: MathText(
                   widget.content,
                   style: textTheme.bodyMedium?.copyWith(color: look.text),
@@ -132,17 +134,27 @@ class _ChoiceTileState extends State<ChoiceTile> {
     );
 
     Widget tile = Container(
-      constraints: const BoxConstraints(minHeight: BookletSize.largeControl),
+      constraints: const BoxConstraints(minHeight: AppSize.largeControl),
       padding: EdgeInsetsDirectional.only(
-        start: BookletSpace.s3 + BookletStroke.thin,
-        top: BookletSpace.s1 + BookletStroke.thin,
-        bottom: BookletSpace.s1 + BookletStroke.thin,
-        end: trailingIsButton
-            ? BookletStroke.thin
-            : BookletSpace.s3 + BookletStroke.thin,
+        start: AppSpace.s3 + AppStroke.thin,
+        top: AppSpace.s1 + AppStroke.thin,
+        bottom: AppSpace.s1 + AppStroke.thin,
+        end: trailingIsButton ? AppStroke.thin : AppSpace.s3 + AppStroke.thin,
       ),
-      decoration: BoxDecoration(color: look.background, borderRadius: radius),
-      foregroundDecoration: look.dashed
+      decoration: BoxDecoration(
+        color: look.background,
+        borderRadius: radius,
+        boxShadow: widget.state == ChoiceTileState.selected
+            ? [
+                BoxShadow(
+                  color: context.appColors.brandLine.withValues(alpha: 0.45),
+                  spreadRadius: AppStroke.focusRing,
+                ),
+              ]
+            : null,
+      ),
+      foregroundDecoration:
+          look.dashed || widget.state == ChoiceTileState.correctAnswer
           ? null
           : BoxDecoration(
               borderRadius: radius,
@@ -155,7 +167,7 @@ class _ChoiceTileState extends State<ChoiceTile> {
               MediaQuery.textScalerOf(context).scale(fontSize) > fontSize;
           if (trailing != null &&
               enlarged &&
-              constraints.maxWidth < BookletSize.readingColumn) {
+              constraints.maxWidth < AppSize.readingColumn) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
@@ -170,7 +182,7 @@ class _ChoiceTileState extends State<ChoiceTile> {
           }
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: BookletSpace.s3,
+            spacing: AppSpace.s3,
             children: [
               Expanded(child: body),
               ?trailing,
@@ -183,12 +195,26 @@ class _ChoiceTileState extends State<ChoiceTile> {
       tile = CustomPaint(
         foregroundPainter: DashedBorderPainter(
           color: look.border,
-          radius: BookletRadius.sm,
+          radius: AppRadius.choice,
         ),
         child: tile,
       );
     }
 
+    tile = ChoiceFeedbackMotion(
+      correct:
+          widget.state == ChoiceTileState.correct ||
+          widget.state == ChoiceTileState.yourAnswerCorrect,
+      wrong:
+          widget.state == ChoiceTileState.incorrect ||
+          widget.state == ChoiceTileState.yourAnswerWrong,
+      outline: widget.state == ChoiceTileState.correctAnswer,
+      color: look.border,
+      child: Opacity(
+        opacity: widget.state == ChoiceTileState.reviewOther ? 0.45 : 1,
+        child: tile,
+      ),
+    );
     return Semantics(
       container: true,
       inMutuallyExclusiveGroup: true,
@@ -213,10 +239,22 @@ class _ChoiceTileState extends State<ChoiceTile> {
         child: GestureDetector(
           behavior: HitTestBehavior.opaque,
           onTap: _interactive ? widget.onSelect : null,
+          onTapDown: _interactive
+              ? (_) => setState(() => _pressed = true)
+              : null,
+          onTapUp: _interactive
+              ? (_) => setState(() => _pressed = false)
+              : null,
+          onTapCancel: () => setState(() => _pressed = false),
           child: FocusRing(
             visible: _focused && _interactive,
-            borderRadius: BookletRadius.sm,
-            child: tile,
+            borderRadius: AppRadius.choice,
+            child: AnimatedScale(
+              scale: _pressed ? 0.98 : 1,
+              duration: AppMotion.resolve(context, AppMotion.press),
+              curve: AppMotion.standard,
+              child: tile,
+            ),
           ),
         ),
       ),
@@ -227,13 +265,38 @@ class _ChoiceTileState extends State<ChoiceTile> {
     final status = look.status;
     if (status != null) {
       return ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: BookletSize.touchTarget),
+        constraints: const BoxConstraints(minHeight: AppSize.touchTarget),
         child: Align(
           widthFactor: 1,
-          child: FeedbackLabel(
-            icon: status.icon,
-            label: widget.statusLabel ?? status.label,
-            color: status.color,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            spacing: AppSpace.s1,
+            children: [
+              if (status.icon == AppIcons.correct)
+                CheckStroke(
+                  key: ValueKey(widget.state),
+                  color: status.color,
+                  child: Icon(
+                    status.icon,
+                    color: status.color,
+                    size: AppSize.iconStatus,
+                  ),
+                )
+              else
+                Icon(
+                  status.icon,
+                  color: status.color,
+                  size: AppSize.iconStatus,
+                ),
+              Flexible(
+                child: Text(
+                  widget.statusLabel ?? status.label,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.labelSmall?.copyWith(color: status.color),
+                ),
+              ),
+            ],
           ),
         ),
       );
@@ -243,9 +306,9 @@ class _ChoiceTileState extends State<ChoiceTile> {
       return TextButton.icon(
         onPressed: widget.onRestore,
         style: TextButton.styleFrom(
-          padding: const EdgeInsets.symmetric(horizontal: BookletSpace.s3),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3),
         ),
-        icon: const Icon(AppIcons.undo, size: BookletSize.iconSmall),
+        icon: const Icon(AppIcons.undo, size: AppSize.iconSmall),
         label: Text(
           'Undo',
           semanticsLabel: 'Restore choice ${widget.letter}',
@@ -259,7 +322,7 @@ class _ChoiceTileState extends State<ChoiceTile> {
         color: Theme.of(context).colorScheme.onSurfaceVariant,
         icon: const Icon(
           AppIcons.eliminate,
-          size: BookletSize.iconSmall,
+          size: AppSize.iconSmall,
         ),
       );
     }
@@ -277,8 +340,8 @@ class _Badge extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       constraints: const BoxConstraints(
-        minWidth: BookletSize.choiceBadge,
-        minHeight: BookletSize.choiceBadge,
+        minWidth: AppSize.choiceBadge,
+        minHeight: AppSize.choiceBadge,
       ),
       alignment: Alignment.center,
       decoration: BoxDecoration(
@@ -288,14 +351,14 @@ class _Badge extends StatelessWidget {
           width: look.badgeBorderWidth,
         ),
         borderRadius: const BorderRadius.all(
-          Radius.circular(BookletRadius.xs),
+          Radius.circular(AppRadius.card),
         ),
       ),
       child: Text(
         letter,
         style: Theme.of(context).textTheme.labelLarge?.copyWith(
           color: look.badgeText,
-          fontWeight: look.badgeWeight,
+          fontWeight: FontWeight.w600,
           letterSpacing: 0,
         ),
       ),
@@ -315,7 +378,6 @@ final class _ChoiceLook {
     required this.badgeText,
     required this.text,
     this.badgeFill,
-    this.badgeWeight = FontWeight.w600,
     this.dashed = false,
     this.status,
   });
@@ -330,9 +392,9 @@ final class _ChoiceLook {
   }) => _ChoiceLook(
     background: background,
     border: border,
-    borderWidth: BookletStroke.thin,
+    borderWidth: AppStroke.thin,
     badgeBorder: badgeBorder,
-    badgeBorderWidth: BookletStroke.badge,
+    badgeBorderWidth: AppStroke.badge,
     badgeText: text,
     text: text,
     dashed: dashed,
@@ -348,10 +410,10 @@ final class _ChoiceLook {
   }) => _ChoiceLook(
     background: container,
     border: accent,
-    borderWidth: BookletStroke.strong,
+    borderWidth: AppStroke.strong,
     badgeFill: accent,
     badgeBorder: accent,
-    badgeBorderWidth: BookletStroke.badge,
+    badgeBorderWidth: AppStroke.badge,
     badgeText: onAccent,
     text: text,
     status: status,
@@ -363,12 +425,12 @@ final class _ChoiceLook {
     required bool hovered,
   }) {
     final s = Theme.of(context).colorScheme;
-    final b = context.booklet;
+    final b = context.appColors;
     return switch (state) {
       ChoiceTileState.idle => _ChoiceLook.plain(
         background: hovered ? s.surfaceContainer : s.surface,
-        border: hovered ? b.inkDisabled : s.outlineVariant,
-        badgeBorder: s.outline,
+        border: hovered ? b.inkTertiary : b.lineStrong,
+        badgeBorder: b.lineStrong,
         text: s.onSurface,
       ),
       ChoiceTileState.selected => _ChoiceLook.filled(
@@ -380,48 +442,48 @@ final class _ChoiceLook {
       ChoiceTileState.eliminated => _ChoiceLook.plain(
         background: s.surface,
         border: s.outlineVariant,
-        badgeBorder: b.inkDisabled,
-        text: b.inkDisabled,
+        badgeBorder: b.inkTertiary,
+        text: b.inkTertiary,
         dashed: true,
       ),
       ChoiceTileState.disabled => _ChoiceLook.plain(
         background: s.surface,
         border: s.outlineVariant,
-        badgeBorder: b.inkDisabled,
-        text: b.inkDisabled,
+        badgeBorder: b.inkTertiary,
+        text: b.inkTertiary,
       ),
       ChoiceTileState.reviewOther => _ChoiceLook.plain(
         background: s.surface,
         border: s.outlineVariant,
-        badgeBorder: b.inkDisabled,
+        badgeBorder: b.inkTertiary,
         text: s.onSurfaceVariant,
       ),
       ChoiceTileState.correct => _ChoiceLook.filled(
-        accent: b.greenTick,
-        container: b.greenTickContainer,
-        onAccent: s.surface,
+        accent: b.correct,
+        container: b.correctWash,
+        onAccent: b.background,
         text: s.onSurface,
         status: (
           icon: AppIcons.correct,
           label: 'Correct',
-          color: b.greenTick,
+          color: b.correct,
         ),
       ),
       ChoiceTileState.yourAnswerCorrect => _ChoiceLook.filled(
-        accent: b.greenTick,
-        container: b.greenTickContainer,
-        onAccent: s.surface,
+        accent: b.correct,
+        container: b.correctWash,
+        onAccent: b.background,
         text: s.onSurface,
         status: (
           icon: AppIcons.correct,
           label: 'Your answer · Correct',
-          color: b.greenTick,
+          color: b.correct,
         ),
       ),
       ChoiceTileState.incorrect => _ChoiceLook.filled(
         accent: s.error,
         container: s.errorContainer,
-        onAccent: s.surface,
+        onAccent: b.background,
         text: s.onSurface,
         status: (
           icon: AppIcons.incorrect,
@@ -432,7 +494,7 @@ final class _ChoiceLook {
       ChoiceTileState.yourAnswerWrong => _ChoiceLook.filled(
         accent: s.error,
         container: s.errorContainer,
-        onAccent: s.surface,
+        onAccent: b.background,
         text: s.onSurface,
         status: (
           icon: AppIcons.incorrect,
@@ -440,19 +502,15 @@ final class _ChoiceLook {
           color: s.error,
         ),
       ),
-      ChoiceTileState.correctAnswer => _ChoiceLook(
-        background: s.surface,
-        border: b.greenTick,
-        borderWidth: BookletStroke.strong,
-        badgeBorder: b.greenTick,
-        badgeBorderWidth: BookletStroke.strong,
-        badgeText: b.greenTick,
-        badgeWeight: FontWeight.w700,
-        text: s.onSurface,
+      ChoiceTileState.correctAnswer => _ChoiceLook.filled(
+        accent: b.correct,
+        container: b.correctWash,
+        onAccent: b.background,
+        text: b.ink,
         status: (
           icon: AppIcons.correct,
           label: 'Correct answer',
-          color: b.greenTick,
+          color: b.correct,
         ),
       ),
     };
@@ -465,7 +523,6 @@ final class _ChoiceLook {
   final Color badgeBorder;
   final double badgeBorderWidth;
   final Color badgeText;
-  final FontWeight badgeWeight;
   final Color text;
   final bool dashed;
   final _Status? status;

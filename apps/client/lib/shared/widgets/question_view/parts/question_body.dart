@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/math_render/math_text.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/choice_list.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
-import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/practice_question_layout.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/quiz_question_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/spr_answer_area.dart';
-import 'package:sat_east_client/shared/widgets/question_view/parts/worked_example.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
 import 'package:sat_east_client/shared/widgets/spr_input.dart';
 
-/// Scrollable body: exercise header, stem, figures, answer area and the
-/// feedback blocks. At `expanded` the margin note is a 300 px aside.
+/// Scrollable question column shared by every mode; practice feedback lives
+/// in the pinned dock.
 class QuestionBody extends StatelessWidget {
   const QuestionBody({
     required this.question,
@@ -35,7 +35,7 @@ class QuestionBody extends StatelessWidget {
   final QuestionData question;
   final QuestionViewMode mode;
   final AnswerState answer;
-  final BookletLayout layout;
+  final AppLayout layout;
   final ValueChanged<String>? onSelect;
   final ValueChanged<String>? onEliminate;
   final ValueChanged<String>? onRestore;
@@ -43,7 +43,7 @@ class QuestionBody extends StatelessWidget {
   final VoidCallback? onMark;
   final Widget Function(BuildContext, String path)? figureBuilder;
 
-  static const double _gap = BookletSpace.s5;
+  static const double _gap = AppSpace.s5;
 
   SprInputState get _sprState => switch (mode) {
     PracticeMode(:final feedback) => switch (feedback) {
@@ -62,50 +62,8 @@ class QuestionBody extends StatelessWidget {
     _ => null,
   };
 
-  /// Note, hint and explanation for the current feedback (rulings R1, R3).
-  ({MarginNote? note, String? hint, String? explanation}) _feedbackParts({
-    required bool inline,
-  }) {
-    MarginNote noteOf(MarginNoteTone tone, String body, String? author) =>
-        MarginNote(tone: tone, author: author, bodyMd: body, inline: inline);
-    if (mode case PracticeMode(:final feedback, :final noteAuthor)) {
-      switch (feedback) {
-        case FirstMiss(:final noteMd, :final hintMd):
-          final body = noteMd ?? hintMd;
-          return (
-            note: body == null
-                ? null
-                : noteOf(MarginNoteTone.miss, body, noteAuthor),
-            hint: noteMd == null ? null : hintMd,
-            explanation: null,
-          );
-        case Correct(:final noteMd, :final explanationMd):
-          return (
-            note: noteOf(MarginNoteTone.correct, noteMd ?? '', noteAuthor),
-            hint: null,
-            explanation: explanationMd,
-          );
-        case Revealed(:final noteMd, :final explanationMd):
-          return (
-            note: noteMd == null
-                ? null
-                : noteOf(MarginNoteTone.miss, noteMd, noteAuthor),
-            hint: null,
-            explanation: explanationMd,
-          );
-        case Idle() || Checking():
-          break;
-      }
-    }
-    return (note: null, hint: null, explanation: null);
-  }
-
   @override
   Widget build(BuildContext context) {
-    final aside = layout == BookletLayout.expanded && mode is PracticeMode;
-    final parts = _feedbackParts(inline: !aside);
-    final theme = Theme.of(context);
-
     final column = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: _gap,
@@ -122,55 +80,32 @@ class QuestionBody extends StatelessWidget {
             skill: question.skill,
           ),
         },
-        MathText(question.stemMd, style: theme.textTheme.bodyLarge),
+        MathText(
+          question.stemMd,
+          style: layout == AppLayout.compact
+              ? AppType.stemCompact
+              : AppType.stem,
+        ),
         if (figureBuilder case final build?)
           for (final path in question.imagePaths) build(context, path),
         _answerArea(),
-        if (!aside && parts.note != null) parts.note!,
-        if (parts.hint != null) HintPanel(md: parts.hint!),
-        if (parts.explanation != null)
-          WorkedExample(label: question.label, md: parts.explanation!),
+        if (mode case PracticeMode(
+          feedback: FirstMiss(noteMd: String(), hintMd: final hint?),
+        ))
+          HintPanel(md: hint),
       ],
     );
 
-    final compact = layout == BookletLayout.compact;
-    final Widget content = aside
-        ? Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Flexible(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: BookletSize.questionColumn,
-                  ),
-                  child: column,
-                ),
-              ),
-              const SizedBox(width: BookletSpace.s8),
-              SizedBox(width: BookletSize.marginNote, child: parts.note),
-            ],
-          )
-        : column;
-
-    return SingleChildScrollView(
-      key: ValueKey(question.id),
-      padding: EdgeInsets.fromLTRB(
-        compact ? BookletSpace.s4 : BookletSpace.s8,
-        BookletSpace.s6,
-        compact ? BookletSpace.s4 : BookletSpace.s8,
-        BookletSpace.s8,
-      ),
+    return _QuestionScroll(
+      questionId: question.id,
+      layout: layout,
       child: Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: aside
-                ? BookletSize.questionColumn +
-                      BookletSpace.s8 +
-                      BookletSize.marginNote
-                : BookletSize.questionColumn,
+          constraints: const BoxConstraints(
+            maxWidth: AppSize.questionColumn,
           ),
-          child: content,
+          child: column,
         ),
       ),
     );
@@ -191,10 +126,37 @@ class QuestionBody extends StatelessWidget {
         key: ValueKey(question.id),
         text: answer.sprText,
         state: _sprState,
-        useKeypad: layout == BookletLayout.compact,
+        useKeypad: layout == AppLayout.compact,
         correctAnswer: _sprKey,
         onChanged: mode.choicesInteractive ? onSprChanged : null,
       ),
     };
+  }
+}
+
+class _QuestionScroll extends StatelessWidget {
+  const _QuestionScroll({
+    required this.questionId,
+    required this.layout,
+    required this.child,
+  });
+
+  final String questionId;
+  final AppLayout layout;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    final compact = layout == AppLayout.compact;
+    return SingleChildScrollView(
+      key: ValueKey(questionId),
+      padding: EdgeInsets.fromLTRB(
+        compact ? AppSpace.s5 : AppSpace.s6,
+        compact ? AppSpace.s4 : AppSpace.s12,
+        compact ? AppSpace.s5 : AppSpace.s6,
+        AppSpace.s8 + PracticeQuestionLayout.bottomInsetOf(context),
+      ),
+      child: child,
+    );
   }
 }

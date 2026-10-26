@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/submit_dialog.dart';
@@ -33,7 +33,7 @@ class HomeworkNavigatorPanel extends StatelessWidget {
     final unanswered = total - answered.length;
     return SizedBox(
       key: const ValueKey('homework-navigator-panel'),
-      width: BookletSize.navigatorPanel,
+      width: AppSize.navigatorPanel,
       child: DecoratedBox(
         decoration: BoxDecoration(
           color: scheme.surface,
@@ -42,7 +42,7 @@ class HomeworkNavigatorPanel extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(BookletSpace.s5),
+          padding: const EdgeInsets.all(AppSpace.s5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -50,7 +50,7 @@ class HomeworkNavigatorPanel extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
-                    spacing: BookletSpace.s3,
+                    spacing: AppSpace.s3,
                     children: [
                       Text(title, style: theme.textTheme.titleMedium),
                       const NavigatorLegend(),
@@ -66,10 +66,10 @@ class HomeworkNavigatorPanel extends StatelessWidget {
                   ),
                 ),
               ),
-              Divider(color: scheme.outlineVariant, height: BookletSpace.s5),
+              Divider(color: scheme.outlineVariant, height: AppSpace.s5),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: BookletSpace.s3,
+                spacing: AppSpace.s3,
                 children: [
                   Text(
                     '${answered.length} of $total answered · $unanswered '

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -37,12 +37,12 @@ Future<void> showQuizTimeUpDialog(
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: BookletSpace.s3,
+          spacing: AppSpace.s3,
           children: [
             Icon(
               AppIcons.time,
-              size: BookletSize.statusIcon,
-              color: dialogContext.booklet.warning,
+              size: AppSize.statusIcon,
+              color: dialogContext.appColors.warning,
             ),
             Text('$body Unanswered questions count as incorrect.'),
           ],

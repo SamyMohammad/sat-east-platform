@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/framed_panel.dart';
 
 class WorkedExample extends StatelessWidget {
@@ -13,7 +13,7 @@ class WorkedExample extends StatelessWidget {
   Widget build(BuildContext context) => FramedPanel(
     title: 'WORKED EXAMPLE · ${label.toUpperCase()}',
     md: md,
-    padding: BookletSpace.s4 + BookletSpace.s1,
+    padding: AppSpace.s4 + AppSpace.s1,
     titleColor: Theme.of(context).colorScheme.onSurfaceVariant,
   );
 }

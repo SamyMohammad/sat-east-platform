@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/spr_input.dart';
 import 'package:sat_east_client/shared/widgets/spr_keypad.dart';
 
@@ -57,7 +57,7 @@ class _SprAnswerAreaState extends State<SprAnswerArea> {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s3,
+      spacing: AppSpace.s3,
       children: [
         // A raw pointer listener never loses the gesture arena to the field.
         Listener(
