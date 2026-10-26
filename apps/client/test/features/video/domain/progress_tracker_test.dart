@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:sat_east_client/features/video/domain/services/progress_tracker.dart';
 
 void main() {
@@ -12,6 +11,30 @@ void main() {
     expect(tracker.takeSpans().map((s) => (s.fromS, s.toS)), [(0, 14)]);
     expect(tracker.hasPending, isFalse);
     expect(tracker.takeSpans(), isEmpty);
+  });
+  test('LRN-02: continuous playback has no gaps across flushes', () {
+    final tracker = ProgressTracker(intervalS: 15);
+    for (var s = 0; s <= 14; s++) {
+      tracker.onPosition(s.toDouble());
+    }
+    final spans = tracker.takeSpans().toList();
+    for (var tick = 0; tick <= 62; tick++) {
+      tracker.onPosition(14.3 + tick * 0.25);
+    }
+    tracker.onPosition(30);
+    spans.addAll(tracker.takeSpans());
+    expect(spans.map((s) => (s.fromS, s.toS)), [(0, 14), (14, 30)]);
+  });
+  test('LRN-02: fractional heartbeat boundaries stay adjacent', () {
+    final tracker = ProgressTracker(intervalS: 15);
+    for (var tick = 0; tick <= 27; tick++) {
+      tracker.onPosition(tick * 0.25);
+    }
+    expect(tracker.takeSpans().map((s) => (s.fromS, s.toS)), [(0, 6)]);
+    for (var tick = 28; tick <= 85; tick++) {
+      tracker.onPosition(tick * 0.25);
+    }
+    expect(tracker.takeSpans().map((s) => (s.fromS, s.toS)), [(6, 21)]);
   });
   test('LRN-02: forward seek closes at old position and skips gap', () {
     final tracker = ProgressTracker(intervalS: 15);

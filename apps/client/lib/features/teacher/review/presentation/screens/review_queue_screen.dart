@@ -92,7 +92,10 @@ class _ReviewQueueScreenState extends State<ReviewQueueScreen> {
                       crossAxisAlignment: WrapCrossAlignment.center,
                       spacing: BookletSpace.s3,
                       children: [
-                        Text('${page.total} questions'),
+                        Text(
+                          '${page.total} '
+                          '${page.total == 1 ? 'question' : 'questions'}',
+                        ),
                         Wrap(
                           alignment: WrapAlignment.end,
                           crossAxisAlignment: WrapCrossAlignment.center,

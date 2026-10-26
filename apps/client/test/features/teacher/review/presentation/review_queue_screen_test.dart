@@ -10,6 +10,23 @@ import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 import '../review_fixtures.dart';
 
 void main() {
+  for (final (count, label) in [(1, '1 question'), (2, '2 questions')]) {
+    testWidgets('T-08: queue count pluralizes $count', (tester) async {
+      final repo = FakeReviewRepository()
+        ..pending = Future.value(Success(reviewPage(total: count)));
+      registerReviewFakes(repository: repo);
+      addTearDown(unregisterReviewFakes);
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: const Scaffold(body: ReviewQueueScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text(label), findsOneWidget);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
   for (final width in [360.0, 1280.0]) {
     testWidgets('T-08: tabs, paging, row navigation and layout at $width', (
       tester,

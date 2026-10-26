@@ -1,4 +1,5 @@
 import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/presentation/format_percentage.dart';
 import 'package:sat_east_client/core/presentation/learning_copy.dart';
 
 abstract final class HomeworkCopy {
@@ -8,10 +9,8 @@ abstract final class HomeworkCopy {
   static const practiceNeeded = 'Complete the practice first.';
   static String continueHomework(int answered, int total) =>
       'Continue homework ($answered / $total answered)';
-  static String submitted(double score) {
-    final value = score == score.truncateToDouble() ? score.toInt() : score;
-    return 'Submitted \u00b7 $value%';
-  }
+  static String submitted(double score) =>
+      'Submitted \u00b7 ${formatPercentage(score)}';
 
   static const submitting = 'Submitting homework\u2026';
   static const retry = 'Retry';

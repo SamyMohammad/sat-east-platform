@@ -33,7 +33,7 @@ void main() {
                     homework: TopicHomework(
                       state: state,
                       attemptId: 'hw1',
-                      scorePct: 70,
+                      scorePct: 8.33,
                       total: 20,
                       answered: 8,
                     ),
@@ -57,7 +57,7 @@ void main() {
             await tester.tap(find.text('Continue homework (8 / 20 answered)'));
             expect(opened, 1);
           case HomeworkState.submitted:
-            expect(find.text('Submitted \u00b7 70%'), findsOneWidget);
+            expect(find.text('Submitted \u00b7 8%'), findsOneWidget);
             await tester.tap(find.text('View report'));
             expect(reviewed, 1);
           case HomeworkState.skipped:
