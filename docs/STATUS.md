@@ -2,33 +2,31 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-24 (evening)
+> Last updated: 2026-10-26
 
-## Now
+## Now — closed beta prep
 
-| Story / Req | Spec | Plan | Branch | PR | State |
-|-------------|------|------|--------|----|-------|
-| Lane 1c — catalogue + course page (P-1, PAY-01) | [spec](superpowers/specs/2026-10-19-p1-lane1c-catalogue-design.md) | [plan](superpowers/plans/2026-10-19-p1-lane1c-catalogue.md) | `feat/P1-lane1c-catalogue` | — | in review |
-| C-6 — question reports + review queue (QB-04, QB-08) | [spec](superpowers/specs/2026-10-24-p1-c6-review-queue-design.md) | [plan](superpowers/plans/2026-10-24-p1-c6-review-queue.md) | `feat/P1-c6-review-queue` | #52 | in review |
-| L-2a — protected video server (SEC-01, LRN-02, C-2) | [spec](superpowers/specs/2026-10-24-p1-l2-video-design.md) | [plan](superpowers/plans/2026-10-24-p1-l2a-video-server.md) | `feat/P1-l2-video` | #53 | in review |
-| P1 slice staging fixes | — | — | `fix/P1-staging-check` | #34 | open |
+Code for the closed beta (activation codes, no Paymob) is done and staging-checked. What is left is setup and content.
 
-## Next — parallel lanes
+| Item | Owner | State |
+|------|-------|-------|
+| Prod Supabase project (Free for beta) + GitHub environments, vars, secrets — [prod runbook](setup/prod.md) | user | to do |
+| First prod deploy (`Deploy prod` workflow) + restore drill | router + user | after the prod project exists |
+| Teacher taxonomy loaded into `skills`; first real topics (videos, notes, questions) | teacher | waiting |
+| Retire the demo seed before real SAT content (see Open: Demo course code) | router | when content arrives |
+| Staging: Confirm email OFF for the beta (no SMTP yet) | user | check |
 
-Up to 3 lanes at once, each in its own `git worktree` branched from `main` (never stacked). Each lane still goes brainstorm → plan → Codex → review → PR.
+## Next — after launch
 
-| Lane | Scope | Write set |
-|------|-------|-----------|
-| 1 — Student UI (Flutter) | 1a account (#37, done) → 1b activation code + test date (#38, done) → 1c catalogue + course page (P-1). Google sign-in (A-1) deferred | `lib/features/auth`, `lib/features/activation`, `lib/features/catalogue` |
-| 2 — Backend only | **Done** (#35, #36) | — |
-| 3 — Teacher area (Flutter) | 3a C-1 course builder (#40, #41, done) → 3b C-7 settings (#42, #43, done) → 3c-1 import (#44, #45, done) → 3c-2 bank + editor (#46) → 3c C-4/C-5 question import + editor | `lib/features/teacher/*` |
+Deferred for the closed beta (user, 2026-10-25): Paymob (P-2/P-3, blocked on Q-03), SMTP emails (Resend), coupons, live sessions, announcements, completion matrix (ANL-05), quiz spiral + difficulty blueprint, homework E/M/H blueprint, Google sign-in (A-1), free-topic access without enrolment.
+
+### How we work (lanes)
+Up to 3 lanes at once, each in its own `git worktree` branched from `main` (never stacked). Each lane goes brainstorm → plan → Codex → review → PR.
 
 Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml`, migration timestamps, `docs/07` §9 error codes, this file.
 - Lanes only append to DI and the router; each plan reserves its migration names and error codes up front.
 - Only the router session edits this file, after a merge; other lanes rebase on `main` after each merge and re-run gates.
 - Run Flutter gates one lane at a time (`flutter test -j 2`, OOM otherwise). Open a draft PR early so CI runs pgTAP.
-
-Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teacher videos), P-2/P-3 Paymob (blocked on Q-03). Phase 1 slice staging check (login → course → topic → practice → quiz → unlock) is the user's.
 
 ## Open
 
@@ -39,10 +37,10 @@ Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teache
 | Demo seed in prod | Prod workflow has no seed step, guards demo seed paths and asserts prod/staging refs differ (`.github/workflows/deploy-prod.yml`) |
 | Prod backups | Nightly encrypted R2 backups and backup-before-migrate; owner setup + restore drill: [prod runbook](setup/prod.md) |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
-| Quiz follow-ups | Spiral + difficulty blueprint; review-set UI (S-23) and attempt-review UI; quiz repeats on the 12-question demo pools (accepted for the slice) |
+| Quiz follow-ups | Spiral + difficulty blueprint; review-set UI (S-23); link the quiz result to the shared attempt report (#57 built it for homework; the quiz result screen has no attempt id yet); quiz repeats on the 12-question demo pools (accepted for the slice) |
 | Rate-limit rollback | `private.hit_rate_limit` counts only calls that don't raise (a raise rolls back the increment). Fine for practice/quiz RPCs; guess-style RPCs must return errors instead of raising (lane 1b `redeem_activation_code` does) |
-| Auth Site URL | Staging Site URL was the default `localhost:3000` (confirmation link redirected there). Set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, staging dashboard; repeat for prod |
-| Password reset redirect | Add `<site>/?flow=recovery` to Supabase Redirect URLs on staging and prod (`docs/setup/auth.md` §0) — user |
+| Auth Site URL | Staging done (2026-10-24). Prod: set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, part of the [prod runbook](setup/prod.md) |
+| Password reset redirect | Staging done (2026-10-24). Prod: add `<site>/?flow=recovery` (`docs/setup/auth.md` §0) — user |
 | Free topic access | Course page shows a Free badge only; opening a free topic without an enrolment is its own later story (user, 2026-10-19) |
 | Skill taxonomy | Import rejects unknown skill codes; the teacher's taxonomy (`docs/09` §4) must be loaded into `skills` before real imports |
 | Regrade after key fix | Fixing a key (editor / review queue) does not regrade past attempts; its own story |
@@ -51,12 +49,21 @@ Later: L-2 video (needs an R2 bucket + keys as Edge Function secrets, and teache
 | register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |
 | Login type size | Login screens use labelLarge 14/600 vs design 13/600 |
 | Login a11y | Verify AuthTextField semantics with a screen reader on staging |
+| Video CLI on Windows | Scoop's ffmpeg shim fails on the dev machine; prepend `%LOCALAPPDATA%\Microsoft\WinGet\Links` to PATH before `tools/video-pipeline` |
 | Teacher asks | `15` §0 list — Paymob onboarding, taxonomy, pilot topic block launch more than code |
 
 ## Done
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| P1 | Staging-check polish: no lost video seconds, whole percents, MB quota, report rows | #60 |
+| P1 | Trim EF video secrets (staging R2 key had a stray character) | #59 |
+| P1 | Prod deploy (manual) + nightly encrypted backups to R2 + prod runbook | #58 |
+| P1 | Homework (PRC-02, PRC-05, ANL-02) + shared attempt report, staging-checked | #57 |
+| L-2c | Video client: player, watermark, progress, teacher Videos screen (LRN-02, SEC-01, C-2), staging-checked | #56 |
+| L-2b | Video publish CLI + presigned uploads (C-2) | #54, #55 |
+| L-2a | Protected video server (SEC-01, LRN-02) | #53 |
+| C-6 | Question reports + review queue (QB-04, QB-08), staging-checked | #52 |
 | 1 | F-1 scaffold | — |
 | 2 | F-2 hardening + SQL templates | #1 |
 | 2b | F-2 schema + settings seed | #3 |
