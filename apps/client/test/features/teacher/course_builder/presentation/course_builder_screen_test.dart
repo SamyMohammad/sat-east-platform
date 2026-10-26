@@ -89,6 +89,40 @@ void main() {
     expect(find.text('Notes manager'), findsOneWidget);
     await tester.pumpWidget(const SizedBox.shrink());
   });
+  testWidgets('C-2: topic Videos menu opens its teacher manager', (
+    tester,
+  ) async {
+    final cubit = CourseBuilderCubit(FakeBuilderRepository());
+    addTearDown(cubit.close);
+    await cubit.load('c1');
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => TeacherShell(
+            child: BlocProvider.value(
+              value: cubit,
+              child: const CourseBuilderView(courseId: 'c1'),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/teacher/courses/c1/topics/t1/videos',
+          builder: (_, _) => const Scaffold(body: Text('Videos manager')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    );
+    await tester.pumpAndSettle();
+    await openMenu(tester, 't1');
+    await tester.tap(find.text('Videos\u2026'));
+    await tester.pumpAndSettle();
+    expect(find.text('Videos manager'), findsOneWidget);
+    await tester.pumpWidget(const SizedBox.shrink());
+  });
 
   for (final width in [360.0, 768.0, 1280.0]) {
     testWidgets('C-1: numbered tree fits $width', (tester) async {

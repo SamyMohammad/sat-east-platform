@@ -6,6 +6,7 @@ abstract final class ErrorCodes {
   static const inUse = 'in_use';
   static const versionConflict = 'version_conflict';
   static const deviceLimit = 'device_limit';
+  static const deviceRevoked = 'device_revoked';
   static const rateLimited = 'rate_limited';
   static const internal = 'internal';
   static const notEnrolled = 'not_enrolled';
@@ -14,6 +15,8 @@ abstract final class ErrorCodes {
   static const poolExhausted = 'pool_exhausted';
   static const practiceNeeded = 'practice_needed';
   static const notesNeeded = 'notes_needed';
+  static const videoNeeded = 'video_needed';
+  static const quotaExceeded = 'quota_exceeded';
   static const cooldownActive = 'cooldown_active';
   static const deadlinePassed = 'deadline_passed';
   static const codeInvalid = 'code_invalid';
@@ -27,6 +30,7 @@ abstract final class ErrorCodes {
   static const weakPassword = 'weak_password';
   static const linkExpired = 'link_expired';
   static const network = 'network';
+  static const unsupported = 'unsupported';
 
   /// The user dismissed a picker; callers keep their previous state.
   static const cancelled = 'cancelled';
@@ -44,6 +48,7 @@ abstract final class ErrorCodes {
     inUse,
     versionConflict,
     deviceLimit,
+    deviceRevoked,
     rateLimited,
     internal,
     notEnrolled,
@@ -52,6 +57,8 @@ abstract final class ErrorCodes {
     poolExhausted,
     practiceNeeded,
     notesNeeded,
+    videoNeeded,
+    quotaExceeded,
     cooldownActive,
     deadlinePassed,
     codeInvalid,

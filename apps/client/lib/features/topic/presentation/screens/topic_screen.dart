@@ -1,8 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
@@ -61,6 +63,13 @@ class TopicView extends StatelessWidget {
                 TopicLoaded(:final topic) => TopicContent(
                   topic: topic,
                   title: title,
+                  onVideo: (video) async {
+                    await context.push<void>(
+                      AppRoutes.video(topicId, video.assetId),
+                    );
+                    // RouteRefreshListener reloads the retained topic on
+                    // return.
+                  },
                   onNotes: (note) => unawaited(
                     context.push<void>(AppRoutes.notes(topicId, note.assetId)),
                   ),

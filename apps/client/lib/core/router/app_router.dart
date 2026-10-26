@@ -34,7 +34,11 @@ import 'package:sat_east_client/features/teacher/questions/presentation/screens/
 import 'package:sat_east_client/features/teacher/review/presentation/screens/review_queue_screen.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/screens/teacher_videos_screen.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
+import 'package:sat_east_client/features/video/presentation/screens/video_player_screen.dart'
+    deferred as video_player;
+import 'package:sat_east_client/features/video/presentation/video_copy.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_splash.dart';
@@ -47,6 +51,8 @@ abstract final class AppRoutes {
   static const activate = '/activate';
   static const courses = '/courses';
   static String topic(String id) => '/courses/topics/$id';
+  static String video(String topicId, String assetId) =>
+      '/courses/topics/$topicId/video/$assetId';
   static String notes(String topicId, String assetId) =>
       '/courses/topics/$topicId/notes/$assetId';
   static String practice(String id) => '/courses/topics/$id/practice';
@@ -64,6 +70,8 @@ abstract final class AppRoutes {
   static const teacher = '/teacher';
   static const teacherQuestions = '/teacher/questions';
   static const teacherQuestionImport = '/teacher/questions/import';
+  static String teacherVideos(String courseId, String topicId) =>
+      '/teacher/courses/$courseId/topics/$topicId/videos';
   static String teacherNotes(String courseId, String topicId) =>
       '/teacher/courses/$courseId/topics/$topicId/notes';
   static const teacherSettings = '/teacher/settings';
@@ -84,6 +92,7 @@ GoRouter createRouter({
 }) {
   assert(refresh == null || auth != null, 'refresh requires auth');
   final galleryEnabled = !Env.isProd && (includeGallery ?? true);
+  final videoKey = GlobalKey<_DeferredVideoPlayerState>();
   final newEditorKey = GlobalKey<QuestionEditorScreenState>();
   final editorKey = GlobalKey<QuestionEditorScreenState>();
   Future<bool> confirmEditorExit(
@@ -133,9 +142,8 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: AppRoutes.teacherSettings,
-        builder: (context, state) => const TeacherShell(
-          child: TeacherSettingsScreen(),
-        ),
+        builder: (context, state) =>
+            const TeacherShell(child: TeacherSettingsScreen()),
       ),
       GoRoute(
         path: AppRoutes.teacherQuestionImport,
@@ -167,6 +175,15 @@ GoRouter createRouter({
         path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/notes',
         builder: (context, state) => TeacherShell(
           child: TeacherNotesScreen(
+            courseId: state.pathParameters['courseId']!,
+            topicId: state.pathParameters['topicId']!,
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/videos',
+        builder: (context, state) => TeacherShell(
+          child: TeacherVideosScreen(
             courseId: state.pathParameters['courseId']!,
             topicId: state.pathParameters['topicId']!,
           ),
@@ -218,6 +235,16 @@ GoRouter createRouter({
                             _ => null,
                           },
                         ),
+                      ),
+                      GoRoute(
+                        path: 'topics/:topicId/video/:assetId',
+                        builder: (context, state) => _DeferredVideoPlayer(
+                          key: videoKey,
+                          topicId: state.pathParameters['topicId']!,
+                          assetId: state.pathParameters['assetId']!,
+                        ),
+                        onExit: (_, _) =>
+                            videoKey.currentState?.confirmExit() ?? true,
                       ),
                       GoRoute(
                         path: 'topics/:topicId/notes/:assetId',
@@ -397,6 +424,64 @@ class _DeferredNotesViewerState extends State<_DeferredNotesViewer> {
         return const Center(child: CircularProgressIndicator());
       }
       return notes_viewer.NotesViewerScreen(
+        topicId: widget.topicId,
+        assetId: widget.assetId,
+      );
+    },
+  );
+}
+
+class _DeferredVideoPlayer extends StatefulWidget {
+  const _DeferredVideoPlayer({
+    required this.topicId,
+    required this.assetId,
+    super.key,
+  });
+  final String topicId;
+  final String assetId;
+  @override
+  State<_DeferredVideoPlayer> createState() => _DeferredVideoPlayerState();
+}
+
+class _DeferredVideoPlayerState extends State<_DeferredVideoPlayer> {
+  late Future<void> _loaded;
+  Future<void> Function()? _prepareExit;
+  @override
+  void initState() {
+    super.initState();
+    _loaded = video_player.loadLibrary();
+  }
+
+  Future<bool> confirmExit() async {
+    await _prepareExit?.call();
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<void>(
+    future: _loaded,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(VideoCopy.error(ErrorCodes.internal)),
+              TextButton(
+                onPressed: () => setState(() {
+                  _loaded = video_player.loadLibrary();
+                }),
+                child: const Text(VideoCopy.retry),
+              ),
+            ],
+          ),
+        );
+      }
+      if (snapshot.connectionState != ConnectionState.done) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return video_player.VideoPlayerScreen(
+        onPrepareExit: (prepareExit) => _prepareExit = prepareExit,
         topicId: widget.topicId,
         assetId: widget.assetId,
       );
