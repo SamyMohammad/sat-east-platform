@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 /// Labelled text field: label above, 48 px control, inline error with the
 /// theme's 2 px error border, optional password visibility toggle.
@@ -43,7 +42,7 @@ class _AuthTextFieldState extends State<AuthTextField> {
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: BookletSpace.s2,
+      spacing: AppSpace.s2,
       children: [
         ExcludeSemantics(
           child: Text(widget.label, style: theme.textTheme.labelLarge),
@@ -63,11 +62,11 @@ class _AuthTextFieldState extends State<AuthTextField> {
             decoration: InputDecoration(
               isDense: true,
               constraints: const BoxConstraints(
-                minHeight: BookletSize.touchTarget,
+                minHeight: AppSize.touchTarget,
               ),
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: BookletSpace.s3,
-                vertical: BookletSpace.s3,
+                horizontal: AppSpace.s3,
+                vertical: AppSpace.s3,
               ),
               error: widget.error,
               suffixIcon: widget.isPassword

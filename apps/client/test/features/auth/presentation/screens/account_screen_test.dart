@@ -5,9 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/core/theme/theme_mode_cubit.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_profile.dart';
@@ -19,6 +21,8 @@ import 'package:sat_east_client/features/auth/presentation/screens/account_scree
 import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 import 'auth_screen_harness.dart';
+
+class _Theme extends MockCubit<ThemeMode> implements ThemeModeCubit {}
 
 class _Account extends MockCubit<AccountState> implements AccountCubit {}
 
@@ -35,12 +39,21 @@ void main() {
   late _Account account;
   late MockAuthCubit auth;
   setUp(() {
+    final theme = _Theme();
+    whenListen(
+      theme,
+      const Stream<ThemeMode>.empty(),
+      initialState: ThemeMode.system,
+    );
+    getIt.registerSingleton<ThemeModeCubit>(theme);
     account = _Account();
     auth = mockCubit(const AuthSignedOut());
     when(account.load).thenAnswer((_) async {});
     when(() => account.changePassword(any())).thenAnswer((_) async {});
     when(() => account.removeDevice(any())).thenAnswer((_) async {});
   });
+
+  tearDown(() => getIt.unregister<ThemeModeCubit>());
 
   Future<void> pump(
     WidgetTester tester,

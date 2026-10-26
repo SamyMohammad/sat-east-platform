@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 
 class ShellHeader extends StatelessWidget {
@@ -12,7 +11,7 @@ class ShellHeader extends StatelessWidget {
     this.onNotifications,
   });
 
-  final BookletLayout layout;
+  final AppLayout layout;
   final AppShellDestination destination;
   final VoidCallback? onNotifications;
 
@@ -20,22 +19,22 @@ class ShellHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (height, margin) = switch (layout) {
-      BookletLayout.compact => (
-        BookletSize.shellCompactHeader,
-        BookletSpace.s4,
+      AppLayout.compact => (
+        AppSize.shellCompactHeader,
+        AppSpace.s4,
       ),
-      BookletLayout.medium => (
-        BookletSize.shellMediumHeader,
-        BookletSpace.s6,
+      AppLayout.medium => (
+        AppSize.shellMediumHeader,
+        AppSpace.s6,
       ),
-      BookletLayout.expanded => (
-        BookletSize.shellExpandedHeader,
-        BookletSpace.s8,
+      AppLayout.expanded => (
+        AppSize.shellExpandedHeader,
+        AppSpace.s8,
       ),
     };
-    final verticalPadding = layout == BookletLayout.compact
-        ? BookletSpace.s1
-        : BookletSpace.s2;
+    final verticalPadding = layout == AppLayout.compact
+        ? AppSpace.s1
+        : AppSpace.s2;
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border(
@@ -50,19 +49,19 @@ class ShellHeader extends StatelessWidget {
           padding: EdgeInsetsDirectional.fromSTEB(
             margin,
             verticalPadding,
-            BookletSpace.s1,
+            AppSpace.s1,
             verticalPadding,
           ),
           child: Row(
             children: [
-              if (layout == BookletLayout.compact) ...[
+              if (layout == AppLayout.compact) ...[
                 const ShellMonogram(compact: true),
-                const SizedBox(width: BookletSpace.s3),
+                const SizedBox(width: AppSpace.s3),
               ],
               Expanded(
                 child: Text(
                   destination.label,
-                  style: layout == BookletLayout.expanded
+                  style: layout == AppLayout.expanded
                       ? theme.textTheme.headlineSmall
                       : theme.textTheme.titleLarge,
                 ),
@@ -88,16 +87,14 @@ class ShellMonogram extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final size = compact
-        ? BookletSize.shellCompactMonogram
-        : BookletSize.shellMonogram;
+    final size = compact ? AppSize.shellCompactMonogram : AppSize.shellMonogram;
     return ExcludeSemantics(
       child: Container(
         constraints: BoxConstraints(minWidth: size, minHeight: size),
-        padding: const EdgeInsets.all(BookletSpace.s1),
+        padding: const EdgeInsets.all(AppSpace.s1),
         decoration: BoxDecoration(
           color: theme.colorScheme.primary,
-          borderRadius: BorderRadius.circular(BookletRadius.sm),
+          borderRadius: BorderRadius.circular(AppRadius.control),
         ),
         child: Center(
           widthFactor: 1,
@@ -116,34 +113,28 @@ class ShellMonogram extends StatelessWidget {
 }
 
 class ShellWordmark extends StatelessWidget {
-  const ShellWordmark({super.key});
+  const ShellWordmark({
+    super.key,
+    this.padding = const EdgeInsets.all(AppSpace.s6),
+  });
+
+  final EdgeInsetsGeometry padding;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.all(BookletSpace.s6),
+      padding: padding,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text.rich(
-            TextSpan(
-              children: [
-                const TextSpan(text: 'Abdelrahman '),
-                TextSpan(
-                  text: 'Elmenshawy',
-                  style: TextStyle(
-                    decoration: TextDecoration.underline,
-                    decorationColor: theme.colorScheme.primary,
-                  ),
-                ),
-              ],
-            ),
-            style: theme.textTheme.titleLarge?.copyWith(
+          Text(
+            'Abdelrahman Elmenshawy',
+            style: theme.textTheme.titleSmall?.copyWith(
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: BookletSpace.s2),
+          const SizedBox(height: AppSpace.s2),
           Text(
             'SAT & EST Math',
             style: theme.textTheme.labelSmall?.copyWith(

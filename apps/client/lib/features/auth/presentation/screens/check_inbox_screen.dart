@@ -4,6 +4,7 @@ import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -20,6 +21,7 @@ class CheckInboxScreen extends StatelessWidget {
         ),
         builder: (context, info) => AppStatusFrame(
           icon: AppIcons.inbox,
+          illustration: AppIllustrationName.inbox,
           title: 'Check your inbox',
           message: info.$2
               ? 'If an account exists for that email, we sent a reset link.'

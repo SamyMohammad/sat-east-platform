@@ -5,7 +5,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/theme_mode_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_state.dart';
@@ -41,14 +43,15 @@ class AccountView extends StatelessWidget {
   Widget build(BuildContext context) => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: BookletSize.readingColumn),
+      constraints: const BoxConstraints(maxWidth: AppSize.readingColumn),
       child: Column(
         children: [
+          const _AppearanceControl(),
           Expanded(
             child: BlocBuilder<AccountCubit, AccountState>(
               builder: (context, state) => switch (state) {
                 AccountLoading() => const Padding(
-                  padding: EdgeInsets.all(BookletSpace.s4),
+                  padding: EdgeInsets.all(AppSpace.s4),
                   child: AppSkeleton(),
                 ),
                 AccountError(:final error) => ErrorRetry(
@@ -61,7 +64,7 @@ class AccountView extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(BookletSpace.s4),
+            padding: const EdgeInsets.all(AppSpace.s4),
             child: LoadingButton(
               label: 'Sign out',
               expanded: true,
@@ -76,10 +79,10 @@ class AccountView extends StatelessWidget {
 
   Widget _loaded(BuildContext context, AccountLoaded state) =>
       SingleChildScrollView(
-        padding: const EdgeInsets.all(BookletSpace.s4),
+        padding: const EdgeInsets.all(AppSpace.s4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: BookletSpace.s5,
+          spacing: AppSpace.s5,
           children: [
             Text(
               'My account',
@@ -111,4 +114,49 @@ class AccountView extends StatelessWidget {
           ],
         ),
       );
+}
+
+class _AppearanceControl extends StatelessWidget {
+  const _AppearanceControl();
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.all(AppSpace.s4),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: AppSpace.s3,
+      children: [
+        Text('Appearance', style: Theme.of(context).textTheme.titleMedium),
+        BlocBuilder<ThemeModeCubit, ThemeMode>(
+          bloc: getIt<ThemeModeCubit>(),
+          builder: (context, mode) => SegmentedButton<ThemeMode>(
+            direction: MediaQuery.textScalerOf(context).scale(14) > 20
+                ? Axis.vertical
+                : Axis.horizontal,
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.system,
+                icon: Icon(AppIcons.systemTheme),
+                label: Text('System'),
+              ),
+              ButtonSegment(
+                value: ThemeMode.light,
+                icon: Icon(AppIcons.lightTheme),
+                label: Text('Light'),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                icon: Icon(AppIcons.darkTheme),
+                label: Text('Dark'),
+              ),
+            ],
+            showSelectedIcon: false,
+            selected: {mode},
+            onSelectionChanged: (selection) =>
+                unawaited(getIt<ThemeModeCubit>().set(selection.single)),
+          ),
+        ),
+      ],
+    ),
+  );
 }

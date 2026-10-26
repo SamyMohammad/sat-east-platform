@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_header.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_navigation.dart';
@@ -53,12 +52,12 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final layout = BookletLayout.forWidth(MediaQuery.sizeOf(context).width);
-    final compact = layout == BookletLayout.compact;
+    final layout = AppLayout.forWidth(MediaQuery.sizeOf(context).width);
+    final compact = layout == AppLayout.compact;
     final margin = switch (layout) {
-      BookletLayout.compact => BookletSpace.s4,
-      BookletLayout.medium => BookletSpace.s6,
-      BookletLayout.expanded => BookletSpace.s8,
+      AppLayout.compact => AppSpace.s4,
+      AppLayout.medium => AppSpace.s6,
+      AppLayout.expanded => AppSpace.s8,
     };
     return Scaffold(
       body: SafeArea(
@@ -123,8 +122,8 @@ class _AppShellState extends State<AppShell> {
                 ],
               ),
               PositionedDirectional(
-                top: BookletSpace.s2,
-                start: BookletSpace.s2,
+                top: AppSpace.s2,
+                start: AppSpace.s2,
                 child: _skipLink(context),
               ),
             ],
@@ -139,7 +138,7 @@ class _AppShellState extends State<AppShell> {
     child: FocusTraversalGroup(child: child),
   );
 
-  Widget _navigation(BookletLayout layout) => ShellNavigation(
+  Widget _navigation(AppLayout layout) => ShellNavigation(
     layout: layout,
     selectedIndex: widget.selectedIndex,
     onDestinationSelected: widget.onDestinationSelected,
@@ -155,7 +154,7 @@ class _AppShellState extends State<AppShell> {
           opacity: _skipFocus.hasFocus ? 1 : 0,
           child: Material(
             color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(BookletRadius.sm),
+            borderRadius: BorderRadius.circular(AppRadius.control),
             child: TextButton(
               focusNode: _skipFocus,
               onPressed: _contentFocus.requestFocus,

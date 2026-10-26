@@ -1,8 +1,9 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_navigation_metrics.dart';
 
@@ -17,7 +18,7 @@ class ShellBottomNavigation extends StatelessWidget {
   final ValueChanged<int> onDestinationSelected;
 
   static const _indicator = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
+    borderRadius: BorderRadius.all(Radius.circular(AppRadius.control)),
   );
 
   @override
@@ -40,7 +41,7 @@ class ShellBottomNavigation extends StatelessWidget {
         builder: (context, constraints) {
           final labelWidth =
               constraints.maxWidth / AppShellDestination.values.length -
-              BookletSpace.s2;
+              AppSpace.s2;
           final labelHeight = maxShellLabelHeight(
             context,
             scaledLabel,
@@ -54,16 +55,19 @@ class ShellBottomNavigation extends StatelessWidget {
               textScaler: TextScaler.noScaling,
             ),
             child: NavigationBar(
+              animationDuration: AppMotion.resolve(context, AppMotion.state),
               selectedIndex: selectedIndex,
               onDestinationSelected: onDestinationSelected,
               height: math.max(
-                BookletSize.shellNavigation,
-                BookletSize.chipVisual + labelHeight + BookletSpace.s4,
+                AppSize.shellNavigation,
+                AppSize.chipVisual + labelHeight + AppSpace.s4,
               ),
-              backgroundColor: theme.colorScheme.surface,
+              backgroundColor: context.appColors.surface,
               elevation: 0,
-              indicatorColor: theme.colorScheme.primaryContainer,
-              indicatorShape: _indicator,
+              indicatorColor: context.appColors.raised,
+              indicatorShape: _indicator.copyWith(
+                side: BorderSide(color: context.appColors.line),
+              ),
               labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
               labelTextStyle: WidgetStateProperty.resolveWith(
                 (states) => scaledLabel.copyWith(
@@ -74,9 +78,9 @@ class ShellBottomNavigation extends StatelessWidget {
                 ),
               ),
               labelPadding: const EdgeInsetsDirectional.only(
-                top: BookletSpace.s1,
-                start: BookletSpace.s1,
-                end: BookletSpace.s1,
+                top: AppSpace.s1,
+                start: AppSpace.s1,
+                end: AppSpace.s1,
               ),
               destinations: [
                 for (final destination in AppShellDestination.values)

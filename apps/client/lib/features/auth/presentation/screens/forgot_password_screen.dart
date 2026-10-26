@@ -11,6 +11,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) => AuthCard(
+    illustration: AppIllustrationName.resetPassword,
     footer: Column(
       mainAxisSize: MainAxisSize.min,
       children: [

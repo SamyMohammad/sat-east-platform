@@ -1,8 +1,8 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_bottom_navigation.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_header.dart';
@@ -16,22 +16,22 @@ class ShellNavigation extends StatelessWidget {
     super.key,
   });
 
-  final BookletLayout layout;
+  final AppLayout layout;
   final int selectedIndex;
   final ValueChanged<int> onDestinationSelected;
 
   static const _indicator = RoundedRectangleBorder(
-    borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
+    borderRadius: BorderRadius.all(Radius.circular(AppRadius.control)),
   );
 
   @override
   Widget build(BuildContext context) => switch (layout) {
-    BookletLayout.compact => ShellBottomNavigation(
+    AppLayout.compact => ShellBottomNavigation(
       selectedIndex: selectedIndex,
       onDestinationSelected: onDestinationSelected,
     ),
-    BookletLayout.medium => _rail(context),
-    BookletLayout.expanded => _drawer(context),
+    AppLayout.medium => _rail(context),
+    AppLayout.expanded => _drawer(context),
   };
 
   Widget _rail(BuildContext context) {
@@ -40,7 +40,7 @@ class ShellNavigation extends StatelessWidget {
     final scale =
         MediaQuery.textScalerOf(context).scale(label.fontSize!) /
         label.fontSize!;
-    final width = BookletSize.shellRail * math.max(1, scale);
+    final width = AppSize.shellRail * math.max(1, scale);
     return SizedBox(
       width: width,
       child: NavigationRail(
@@ -49,11 +49,13 @@ class ShellNavigation extends StatelessWidget {
         minWidth: width,
         scrollable: true,
         groupAlignment: -1,
-        backgroundColor: theme.colorScheme.surface,
+        backgroundColor: context.appColors.surface,
         labelType: NavigationRailLabelType.all,
         useIndicator: true,
-        indicatorColor: theme.colorScheme.primaryContainer,
-        indicatorShape: _indicator,
+        indicatorColor: context.appColors.raised,
+        indicatorShape: _indicator.copyWith(
+          side: BorderSide(color: context.appColors.line),
+        ),
         selectedIconTheme: IconThemeData(color: theme.colorScheme.primary),
         unselectedIconTheme: IconThemeData(
           color: theme.colorScheme.onSurfaceVariant,
@@ -61,7 +63,7 @@ class ShellNavigation extends StatelessWidget {
         selectedLabelTextStyle: label.copyWith(fontWeight: FontWeight.w700),
         unselectedLabelTextStyle: label.copyWith(fontWeight: FontWeight.w500),
         leading: const Padding(
-          padding: EdgeInsets.symmetric(vertical: BookletSpace.s4),
+          padding: EdgeInsets.symmetric(vertical: AppSpace.s4),
           child: ShellMonogram(),
         ),
         destinations: [
@@ -70,7 +72,7 @@ class ShellNavigation extends StatelessWidget {
               icon: Icon(destination.icon),
               selectedIcon: Icon(destination.selectedIcon),
               label: SizedBox(
-                width: width - BookletSpace.s4,
+                width: width - AppSpace.s4,
                 child: Text(destination.label, textAlign: TextAlign.center),
               ),
             ),
@@ -83,28 +85,28 @@ class ShellNavigation extends StatelessWidget {
     final theme = Theme.of(context);
     final label = theme.textTheme.labelLarge!;
     const labelWidth =
-        BookletSize.shellSidebar -
-        BookletSpace.s6 -
-        BookletSpace.s4 -
-        BookletSpace.s6 -
-        BookletSpace.s3;
+        AppSize.shellSidebar -
+        AppSpace.s6 -
+        AppSpace.s4 -
+        AppSpace.s6 -
+        AppSpace.s3;
     final height = math.max(
-      BookletSize.touchTarget,
+      AppSize.touchTarget,
       maxShellLabelHeight(
             context,
             label,
             labelWidth,
             MediaQuery.textScalerOf(context),
           ) +
-          BookletSpace.s4,
+          AppSpace.s4,
     );
     return SizedBox(
-      width: BookletSize.shellSidebar,
+      width: AppSize.shellSidebar,
       child: NavigationDrawerTheme(
         data: NavigationDrawerThemeData(
           tileHeight: height,
           indicatorSize: Size(
-            BookletSize.shellSidebar - BookletSpace.s6,
+            AppSize.shellSidebar - AppSpace.s6,
             height,
           ),
           labelTextStyle: WidgetStateProperty.resolveWith(
@@ -118,14 +120,16 @@ class ShellNavigation extends StatelessWidget {
         child: NavigationDrawer(
           selectedIndex: selectedIndex,
           onDestinationSelected: onDestinationSelected,
-          backgroundColor: theme.colorScheme.surface,
+          backgroundColor: context.appColors.surface,
           elevation: 0,
-          indicatorColor: theme.colorScheme.primaryContainer,
-          indicatorShape: _indicator,
+          indicatorColor: context.appColors.raised,
+          indicatorShape: _indicator.copyWith(
+            side: BorderSide(color: context.appColors.line),
+          ),
           children: [
             const ShellWordmark(),
             const Divider(),
-            const SizedBox(height: BookletSpace.s3),
+            const SizedBox(height: AppSpace.s3),
             for (final destination in AppShellDestination.values)
               NavigationDrawerDestination(
                 icon: Icon(

@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/form_rules.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_state.dart';
@@ -54,7 +54,7 @@ class _AccountPasswordFormState extends State<AccountPasswordForm> {
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: BookletSpace.s3,
+          spacing: AppSpace.s3,
           children: [
             Text('Password', style: Theme.of(context).textTheme.titleLarge),
             AuthTextField(

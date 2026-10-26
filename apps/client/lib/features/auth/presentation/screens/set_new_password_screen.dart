@@ -11,6 +11,7 @@ import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dar
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
 import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class SetNewPasswordScreen extends StatefulWidget {
@@ -52,6 +53,7 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
         builder: (context, recovering) => recovering
             ? _recoveryForm(context)
             : const AuthCard(
+                illustration: AppIllustrationName.resetPassword,
                 children: [
                   Text('Request a reset link to choose a new password.'),
                   AuthFooterLink(
@@ -64,6 +66,7 @@ class _SetNewPasswordScreenState extends State<SetNewPasswordScreen> {
       );
 
   Widget _recoveryForm(BuildContext context) => AuthCard(
+    illustration: AppIllustrationName.resetPassword,
     footer: BlocSelector<AuthCubit, AuthState, bool>(
       selector: (state) => state is AuthRecovery && state.saving,
       builder: (context, saving) => ListenableBuilder(

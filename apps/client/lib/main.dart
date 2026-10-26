@@ -8,6 +8,7 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
 import 'package:sat_east_client/core/observability/sentry_error_reporter.dart';
+import 'package:sat_east_client/core/theme/theme_mode_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -40,6 +41,7 @@ Future<void> _start(ErrorReporter errorReporter) async {
 
   await Hive.initFlutter();
   final deviceBox = await Hive.openBox<String>('device');
+  final settingsBox = await Hive.openBox<String>('settings');
   await Supabase.initialize(
     url: Env.supabaseUrl,
     publishableKey: Env.supabasePublishableKey,
@@ -53,8 +55,9 @@ Future<void> _start(ErrorReporter errorReporter) async {
     errorReporter: errorReporter,
     analytics: analytics,
     deviceBox: deviceBox,
+    settingsBox: settingsBox,
   );
   unawaited(getIt<AuthCubit>().start());
 
-  runApp(App(auth: getIt<AuthCubit>()));
+  runApp(App(auth: getIt<AuthCubit>(), themeMode: getIt<ThemeModeCubit>()));
 }

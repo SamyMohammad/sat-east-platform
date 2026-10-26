@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/form_rules.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
@@ -69,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final theme = Theme.of(context);
     return AuthCard(
       footer: Column(
-        spacing: BookletSpace.s3,
+        spacing: AppSpace.s3,
         children: [
           BlocSelector<AuthCubit, AuthState, bool>(
             selector: (state) => state is AuthBusy,
@@ -177,7 +177,7 @@ class _EmailTakenError extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Wrap(
     crossAxisAlignment: WrapCrossAlignment.center,
-    spacing: BookletSpace.s2,
+    spacing: AppSpace.s2,
     children: [
       const Text('This email already has an account.'),
       LoadingButton(
@@ -200,7 +200,7 @@ class _PasswordRules extends StatelessWidget {
     final length = rules.hasMinLength ? base : '$base · ${rules.length} so far';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: BookletSpace.s1,
+      spacing: AppSpace.s1,
       children: [
         _Rule(label: length, met: rules.hasMinLength),
         _Rule(label: 'A number', met: rules.hasNumber),
@@ -226,11 +226,11 @@ class _Rule extends StatelessWidget {
       label: '$label, ${met ? 'met' : 'not met'}',
       excludeSemantics: true,
       child: Row(
-        spacing: BookletSpace.s2,
+        spacing: AppSpace.s2,
         children: [
           Icon(
             met ? AppIcons.correct : AppIcons.unselected,
-            size: BookletSize.iconStatus,
+            size: AppSize.iconStatus,
             color: color,
           ),
           Expanded(

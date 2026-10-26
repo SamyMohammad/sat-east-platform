@@ -5,6 +5,7 @@ import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
+import 'package:sat_east_client/core/router/transitions.dart';
 import 'package:sat_east_client/features/activation/presentation/screens/activate_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
@@ -27,6 +28,7 @@ import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.d
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/shared/widgets/app_shell/shell_branch_stack.dart';
 import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 abstract final class AppRoutes {
@@ -76,15 +78,28 @@ GoRouter createRouter({
     routes: [
       GoRoute(
         path: AppRoutes.catalogue,
-        builder: (context, state) => const CatalogueScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const CatalogueScreen(),
+        ),
       ),
       GoRoute(
         path: '${AppRoutes.catalogue}/:slug',
-        builder: (context, state) => CoursePageScreen(
-          slug: state.pathParameters['slug']!,
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: CoursePageScreen(
+            slug: state.pathParameters['slug']!,
+          ),
         ),
       ),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
+        navigatorContainerBuilder: (context, shell, children) =>
+            ShellBranchStack(
+              currentIndex: shell.currentIndex,
+              children: children,
+            ),
         builder: (context, state, shell) {
           final appShell = AppShell(
             selectedIndex: shell.currentIndex,
@@ -113,32 +128,44 @@ GoRouter createRouter({
               routes: [
                 GoRoute(
                   path: _pathFor(destination),
-                  builder: (context, state) => switch (destination) {
-                    AppShellDestination.courses => const CourseMapScreen(),
-                    AppShellDestination.home => const PlaceholderScreen(),
-                    AppShellDestination.profile => const AccountScreen(),
-                    _ => PlaceholderScreen(title: destination.label),
-                  },
+                  pageBuilder: (context, state) => fadeThroughPage(
+                    context,
+                    key: state.pageKey,
+                    child: switch (destination) {
+                      AppShellDestination.courses => const CourseMapScreen(),
+                      AppShellDestination.home => const PlaceholderScreen(),
+                      AppShellDestination.profile => const AccountScreen(),
+                      _ => PlaceholderScreen(title: destination.label),
+                    },
+                  ),
                   routes: [
                     if (destination == AppShellDestination.courses) ...[
                       GoRoute(
                         path: 'topics/:topicId',
-                        builder: (context, state) => TopicScreen(
-                          topicId: state.pathParameters['topicId']!,
-                          title: switch (state.extra) {
-                            final String t => t,
-                            _ => null,
-                          },
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: TopicScreen(
+                            topicId: state.pathParameters['topicId']!,
+                            title: switch (state.extra) {
+                              final String t => t,
+                              _ => null,
+                            },
+                          ),
                         ),
                       ),
                       GoRoute(
                         path: 'topics/:topicId/practice',
-                        builder: (context, state) => PracticeScreen(
-                          topicId: state.pathParameters['topicId']!,
-                          title: switch (state.extra) {
-                            final String t => t,
-                            _ => null,
-                          },
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: PracticeScreen(
+                            topicId: state.pathParameters['topicId']!,
+                            title: switch (state.extra) {
+                              final String t => t,
+                              _ => null,
+                            },
+                          ),
                         ),
                       ),
                       GoRoute(
@@ -147,8 +174,12 @@ GoRouter createRouter({
                             state.extra == QuizEntry.startOrResume
                             ? null
                             : AppRoutes.topic(state.pathParameters['topicId']!),
-                        builder: (context, state) => QuizScreen(
-                          topicId: state.pathParameters['topicId']!,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: QuizScreen(
+                            topicId: state.pathParameters['topicId']!,
+                          ),
                         ),
                       ),
                       GoRoute(
@@ -156,10 +187,14 @@ GoRouter createRouter({
                         redirect: (context, state) => state.extra is QuizReport
                             ? null
                             : AppRoutes.topic(state.pathParameters['topicId']!),
-                        builder: (context, state) => QuizResultScreen(
-                          topicId: state.pathParameters['topicId']!,
-                          // The redirect above requires a report.
-                          report: state.extra! as QuizReport,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: QuizResultScreen(
+                            topicId: state.pathParameters['topicId']!,
+                            // The redirect above requires a report.
+                            report: state.extra! as QuizReport,
+                          ),
                         ),
                       ),
                     ],
@@ -171,37 +206,68 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: AppRoutes.activate,
-        builder: (context, state) => const ActivateScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const ActivateScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.signIn,
-        builder: (context, state) => const SignInScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const SignInScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.signUp,
-        builder: (context, state) => const SignUpScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const SignUpScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
-        builder: (context, state) => const ForgotPasswordScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const ForgotPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.resetPassword,
-        builder: (context, state) => const SetNewPasswordScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const SetNewPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.checkInbox,
-        builder: (context, state) => const CheckInboxScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const CheckInboxScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.devices,
-        builder: (context, state) => const DeviceGateScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const DeviceGateScreen(),
+        ),
       ),
       if (galleryEnabled)
         GoRoute(
           path: AppRoutes.gallery,
-          builder: (context, state) =>
-              GalleryScreen(entryId: state.uri.queryParameters['entry']),
+          pageBuilder: (context, state) => fadeThroughPage(
+            context,
+            key: state.pageKey,
+            child: GalleryScreen(entryId: state.uri.queryParameters['entry']),
+          ),
         ),
     ],
   );

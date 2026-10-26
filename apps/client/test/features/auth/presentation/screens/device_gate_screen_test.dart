@@ -190,8 +190,19 @@ void main() {
         final cubit = await pump(tester, _gate());
         await tester.tap(find.text('Chrome on Windows'));
         await tester.pump();
+        expect(removeButton(), findsOneWidget);
+        expect(find.text('iOS app').hitTestable(), findsOneWidget);
+        expect(
+          tester.getBottomLeft(find.text('iOS app')).dy,
+          lessThan(tester.getTopLeft(removeButton()).dy),
+        );
         await tester.tap(find.text('iOS app'));
         await tester.pump();
+        expect(removeButton(), findsOneWidget);
+        expect(
+          loadingButton('Remove iOS app and continue'),
+          findsOneWidget,
+        );
         await tester.tap(removeButton());
         await tester.pumpAndSettle();
         await tester.tap(find.text('Remove'));

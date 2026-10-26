@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 
 class AccountCourses extends StatelessWidget {
@@ -11,7 +11,7 @@ class AccountCourses extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
-    spacing: BookletSpace.s3,
+    spacing: AppSpace.s3,
     children: [
       Text('Course', style: Theme.of(context).textTheme.titleLarge),
       for (final enrollment in enrollments) ...[
@@ -42,7 +42,7 @@ class _DateRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Row(
     crossAxisAlignment: CrossAxisAlignment.start,
-    spacing: BookletSpace.s3,
+    spacing: AppSpace.s3,
     children: [
       Expanded(child: Text(label)),
       Flexible(

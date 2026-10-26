@@ -1,9 +1,11 @@
 import 'package:flutter/widgets.dart';
-
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 @staticIconProvider
 abstract final class AppIcons {
+  static const IconData systemTheme = LucideIcons.monitor;
+  static const IconData lightTheme = LucideIcons.sun;
+  static const IconData darkTheme = LucideIcons.moon;
   static const IconData calendar = LucideIcons.calendar;
   static const IconData inbox = LucideIcons.mailOpen;
   static const IconData correct = LucideIcons.circleCheck;
