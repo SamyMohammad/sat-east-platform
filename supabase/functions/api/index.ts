@@ -7,13 +7,15 @@ import { R2Storage } from './video/r2.ts';
 initSentry('api');
 
 function videoFromEnv(): Deps['video'] {
-  const secret = Deno.env.get('VIDEO_TOKEN_SECRET');
-  const supabaseUrl = Deno.env.get('SUPABASE_URL');
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-  const accountId = Deno.env.get('R2_ACCOUNT_ID');
-  const accessKeyId = Deno.env.get('R2_ACCESS_KEY_ID');
-  const secretAccessKey = Deno.env.get('R2_SECRET_ACCESS_KEY');
-  const bucket = Deno.env.get('R2_BUCKET');
+  // Dashboard pastes can carry a trailing newline/space; R2 then rejects the key length.
+  const env = (name: string) => Deno.env.get(name)?.trim();
+  const secret = env('VIDEO_TOKEN_SECRET');
+  const supabaseUrl = env('SUPABASE_URL');
+  const serviceRoleKey = env('SUPABASE_SERVICE_ROLE_KEY');
+  const accountId = env('R2_ACCOUNT_ID');
+  const accessKeyId = env('R2_ACCESS_KEY_ID');
+  const secretAccessKey = env('R2_SECRET_ACCESS_KEY');
+  const bucket = env('R2_BUCKET');
   if (!secret || !supabaseUrl || !serviceRoleKey || !accountId || !accessKeyId || !secretAccessKey || !bucket) return undefined;
   return {
     secret, supabaseUrl,
