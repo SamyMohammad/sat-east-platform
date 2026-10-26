@@ -27,7 +27,7 @@ before/after Check). Direction contract: `.impeccable/surfaces/presentation-scre
   to fit the new layout; list any such change in the PR).
 - No student analytics/Skills screen (ANL-01, S-24). That is the next project, designed separately
   on top of this system.
-- No new logo or brand illustration set.
+- No new logo or custom-drawn illustration set (we use unDraw, recoloured).
 
 ## Anti-goals (a failure even if it works)
 
@@ -39,8 +39,8 @@ before/after Check). Direction contract: `.impeccable/surfaces/presentation-scre
 
 - Repo rules in `CLAUDE.md` (layers, no codegen, `const`, controllers in `initState`, go_router only,
   DI in `injection.dart`, mixed-direction content).
-- No new packages unless a phase brief justifies one (SDK animation APIs are enough for everything
-  below). Keep `Noto Sans` + `Noto Sans Arabic` (already bundled) and `flutter_math_fork` for LaTeX.
+- No new packages beyond `lucide_icons_flutter` and `flutter_svg` (see Icons, illustration and
+  vitality); SDK animation APIs are enough for all motion. Keep `Noto Sans` + `Noto Sans Arabic` (already bundled) and `flutter_math_fork` for LaTeX.
 - WCAG AA contrast in both themes; full keyboard path on web; 360 px and 1280 px checked.
 
 ## The system (decided)
@@ -68,6 +68,28 @@ Tokens live in `lib/core/theme/` as new `App*` classes (colours as a `ThemeExten
 dark instances, plus space, radius, type, motion). Booklet files and names are removed; shared
 widgets named `booklet_*` are renamed to neutral names in the same move (my call: leaving "Booklet"
 in names would mislead every future reader).
+
+## Icons, illustration and vitality (owner feedback after phase 1)
+
+The owner found the Material icons weak and the pages too flat ("صماء"). Decisions:
+
+- **Icons: Lucide** via `lucide_icons_flutter` (MIT, 160/160 pub points). Every Material `Icons.*`
+  in the app is replaced through one `AppIcons` map in `lib/core/theme/` (semantic names such as
+  `AppIcons.courses`, `AppIcons.hint`, `AppIcons.correct`), 1.75 stroke look, sizes 16/20/24.
+- **Illustrations: unDraw** (free, no attribution; usage stays inside the app, never redistributed
+  as a set). Rendered with `flutter_svg` (flutter.dev). Each SVG's accent is recoloured to the brand
+  role at runtime so light and dark both match. Set of ~10, one per moment: welcome/home header,
+  empty courses, check your inbox, reset password, device limit, practice set done, quiz passed,
+  quiz not passed yet, offline/error, teacher builder empty state. Sizes: 160–220 px tall on
+  phone, up to 280 px on desktop; never inside the question/answer area.
+- **Subject hues:** five accent hues give units and topics their own colour, cycled by unit order
+  (presentation only, no data change): blue `#2F5BEA`, teal `#0E9F8E`, violet `#7C5CE0`, amber
+  `#D98A00`, rose `#E0567A`, each with a light wash and a dark-mode pair. Used for course card cover
+  bands, unit headers on the course map, topic icon tiles and skill chips. Text on a hue's wash is
+  always ink; hues alone never carry status.
+- **Livelier surfaces:** tinted icon tiles (icon on its hue's wash, 40 px, 10 px radius) at the
+  start of list rows and cards; a greeting header with an illustration on the home/courses screen;
+  illustrated empty, success and error states instead of plain text.
 
 ## Motion (my proposals as UX lead)
 

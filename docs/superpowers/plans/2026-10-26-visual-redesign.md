@@ -6,7 +6,7 @@
 
 **Architecture:** New `App*` tokens + `AppColors` ThemeExtension (light/dark) + `AppMotion` replace Booklet in `lib/core/theme/`. A temporary shim keeps old Booklet names compiling and pointing at new values, so phase 1 restyles everything at once; later phases move each area off the shim and rebuild its widgets to the new look; phase 7 deletes the shim. Motion uses SDK APIs only.
 
-**Tech Stack:** Flutter 3.44.1, flutter_bloc, go_router, get_it, hive_ce, flutter_math_fork. No new packages.
+**Tech Stack:** Flutter 3.44.1, flutter_bloc, go_router, get_it, hive_ce, flutter_math_fork; new: `lucide_icons_flutter`, `flutter_svg` (owner-approved, Task 1.2).
 
 **Spec:** `C:\Users\Lenovo\sat-east-redesign\docs\superpowers\specs\2026-10-26-visual-redesign-design.md` (approved). Reference mock: `.impeccable/mocks/canon-example.html`. Direction contract: `.impeccable/surfaces/presentation-screens-practice-screen-dart-*.md`. Plan copied to `docs/superpowers/plans/2026-10-26-visual-redesign.md` on approval.
 
@@ -55,6 +55,18 @@ The client "works but looks basic". The owner chose the category standard (Khan 
 - [ ] Step 3: Implement files above with spec values.
 - [ ] Step 4: Run all gates; regenerate all goldens (`--update-goldens`); eyeball: app now white/blue/Noto everywhere.
 - [ ] Step 5: Owner checkpoint (first look of the whole app). Commit `feat(redesign): app tokens, light/dark themes, motion, booklet shim`.
+
+### Task 1.2: Lucide icons, illustration pipeline, subject hues
+
+**Files:**
+- Modify: `apps/client/pubspec.yaml` (add `lucide_icons_flutter`, `flutter_svg`, latest stable; register `assets/illustrations/`).
+- Create: `lib/core/theme/app_icons.dart` (`abstract final class AppIcons`, semantic `static const IconData` names mapped to Lucide), `lib/core/theme/app_hues.dart` (`enum SubjectHue { blue, teal, violet, amber, rose }` with `Color color(Brightness)`, `Color wash(Brightness)`, `static SubjectHue forIndex(int i)` cycling), `lib/shared/widgets/app_illustration.dart` (`AppIllustration(AppIllustrationName name, {double? height})`, recolours unDraw's accent `#6C63FF` to `appColors.brand` and adapts neutrals for dark), `lib/shared/widgets/icon_tile.dart` (`IconTile(IconData icon, {SubjectHue hue})`, 40 px, radius 10, icon on wash), `assets/illustrations/{welcome,empty_courses,inbox,reset_password,device_limit,practice_done,quiz_passed,quiz_retry,offline,builder_empty}.svg` + `assets/illustrations/SOURCES.md`.
+- Modify: every `Icons.*` in `lib/` → `AppIcons.*` (no layout changes).
+- Test: `app_icons_test` (`no_material_icons_left`), `app_hues_test` (`forIndex_cycles`, `hue_on_wash_meets_3_to_1` both themes), `app_illustration_test` (`every_name_has_an_asset`, `renders_in_dark_without_exception`).
+
+- [ ] Failing tests → implement → gates + goldens → commit `feat(redesign): lucide icons, illustrations, subject hues`.
+
+Later phases use them where they touch the screen: 2.1 empty/error states (offline); 3.1 shell icons; 3.3 inbox, reset password, device limit; 4.1 greeting header (welcome), empty courses, course card hue bands; 4.2 unit hues + topic icon tiles; 5.1 practice done, quiz passed / retry; 6.1 builder empty.
 
 ## Phase 2: Shared widgets and QuestionView
 
