@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/form_rules.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
@@ -228,7 +229,7 @@ class _Rule extends StatelessWidget {
         spacing: BookletSpace.s2,
         children: [
           Icon(
-            met ? Icons.check_circle : Icons.radio_button_unchecked,
+            met ? AppIcons.correct : AppIcons.unselected,
             size: BookletSize.iconStatus,
             color: color,
           ),

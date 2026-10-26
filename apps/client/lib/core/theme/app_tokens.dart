@@ -49,6 +49,8 @@ abstract final class AppSize {
   static const double sprInputWidth = 200;
   static const double sprPreviewWidth = 128;
   static const double iconSmall = 20;
+  static const double iconTile = 40;
+  static const double illustration = 200;
   static const double iconStatus = 18;
   static const double spinner = 20;
   static const double progressThickness = 6;

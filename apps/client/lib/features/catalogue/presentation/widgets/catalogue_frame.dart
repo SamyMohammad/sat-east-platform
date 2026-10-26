@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/catalogue/presentation/catalogue_copy.dart';
 
@@ -20,7 +21,7 @@ class CatalogueFrame extends StatelessWidget {
       leading: context.canPop()
           ? const BackButton()
           : IconButton(
-              icon: const Icon(Icons.arrow_back),
+              icon: const Icon(AppIcons.back),
               tooltip: 'Back',
               onPressed: () => context.go(fallbackLocation),
             ),

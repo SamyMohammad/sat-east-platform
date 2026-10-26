@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
 /// Top bar of the question screen: back, title, mode label, segmented
@@ -44,7 +45,7 @@ class QuestionHeader extends StatelessWidget {
     final back = IconButton(
       onPressed: onBack,
       tooltip: 'Back to topic',
-      icon: const Icon(Icons.arrow_back_rounded),
+      icon: const Icon(AppIcons.back),
     );
     final titles = Column(
       mainAxisSize: MainAxisSize.min,

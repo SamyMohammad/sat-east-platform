@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/choice_tile.dart';
@@ -143,18 +144,18 @@ void main() {
   });
 
   for (final (state, label, icon) in [
-    (ChoiceTileState.correct, 'Correct', Icons.check_circle_rounded),
-    (ChoiceTileState.incorrect, 'Incorrect', Icons.cancel_rounded),
-    (ChoiceTileState.yourAnswerWrong, 'Your answer', Icons.cancel_rounded),
+    (ChoiceTileState.correct, 'Correct', AppIcons.correct),
+    (ChoiceTileState.incorrect, 'Incorrect', AppIcons.incorrect),
+    (ChoiceTileState.yourAnswerWrong, 'Your answer', AppIcons.incorrect),
     (
       ChoiceTileState.correctAnswer,
       'Correct answer',
-      Icons.check_circle_outline_rounded,
+      AppIcons.correct,
     ),
     (
       ChoiceTileState.yourAnswerCorrect,
       'Your answer · Correct',
-      Icons.check_circle_rounded,
+      AppIcons.correct,
     ),
   ]) {
     testWidgets('F-4: ${state.name} shows "$label"', (t) async {

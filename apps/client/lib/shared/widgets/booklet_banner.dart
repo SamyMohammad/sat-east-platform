@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
@@ -33,22 +34,22 @@ class BookletBanner extends StatelessWidget {
       BookletBannerKind.info => (
         context.booklet.info,
         context.booklet.infoContainer,
-        Icons.info_outline,
+        AppIcons.info,
       ),
       BookletBannerKind.warning => (
         context.booklet.warning,
         context.booklet.warningContainer,
-        Icons.schedule,
+        AppIcons.time,
       ),
       BookletBannerKind.offline => (
         scheme.onSurface,
         scheme.surfaceContainer,
-        Icons.cloud_off,
+        AppIcons.unsynced,
       ),
       BookletBannerKind.error => (
         scheme.error,
         scheme.errorContainer,
-        Icons.error_outline,
+        AppIcons.error,
       ),
     };
     final text = Semantics(

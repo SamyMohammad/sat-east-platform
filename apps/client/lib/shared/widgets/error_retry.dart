@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -26,14 +27,14 @@ class ErrorRetry extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BookletStatusFrame(
-    icon: Icons.wifi_off,
+    icon: AppIcons.offline,
     iconColor: Theme.of(context).colorScheme.onSurface,
     title: title,
     message: message,
     actions: [
       LoadingButton(
         label: 'Retry',
-        icon: Icons.refresh,
+        icon: AppIcons.retry,
         onPressed: onRetry,
         isLoading: isRetrying,
       ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
@@ -159,7 +160,7 @@ class LoadingButton extends StatelessWidget {
       spacing: BookletSpace.s1,
       children: [
         Icon(
-          Icons.error_outline,
+          AppIcons.error,
           size: BookletSize.iconStatus,
           color: Theme.of(context).colorScheme.onSurface,
         ),

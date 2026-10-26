@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/focus_ring.dart';
 
@@ -67,7 +68,7 @@ class SprKeypad extends StatelessWidget {
                   (digit(3), 1),
                   (
                     _KeypadKey(
-                      icon: Icons.backspace_outlined,
+                      icon: AppIcons.backspace,
                       semanticsLabel: 'Delete',
                       operator: true,
                       onTap: () => onKey(SprKey.backspace),
@@ -116,7 +117,7 @@ class SprKeypad extends StatelessWidget {
                   (digit(0), 2),
                   (
                     _KeypadKey(
-                      icon: Icons.keyboard_hide_outlined,
+                      icon: AppIcons.hideKeyboard,
                       semanticsLabel: 'Hide keypad',
                       operator: true,
                       onTap: onHide,

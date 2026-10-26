@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_entries.dart';
 
@@ -58,7 +59,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                 ),
               ),
               IconButton(
-                icon: const Icon(Icons.chevron_left),
+                icon: const Icon(AppIcons.previous),
                 tooltip: 'Previous entry',
                 onPressed: hasPrevious
                     ? () => context.go(
@@ -67,7 +68,7 @@ class _GalleryScreenState extends State<GalleryScreen> {
                     : null,
               ),
               IconButton(
-                icon: const Icon(Icons.chevron_right),
+                icon: const Icon(AppIcons.next),
                 tooltip: 'Next entry',
                 onPressed: hasNext
                     ? () => context.go(

@@ -57,7 +57,7 @@ class _Hint extends StatelessWidget {
         spacing: BookletSpace.s1,
         children: [
           Icon(
-            Icons.info_outline_rounded,
+            AppIcons.info,
             size: BookletSize.iconStatus,
             color: context.booklet.info,
           ),
@@ -116,7 +116,7 @@ class _ReviewBox extends StatelessWidget {
             style: style,
           ),
           FeedbackLabel(
-            icon: correct ? Icons.check_circle_rounded : Icons.cancel_rounded,
+            icon: correct ? AppIcons.correct : AppIcons.incorrect,
             label: correct ? 'Correct' : 'Incorrect',
             color: accent,
           ),
@@ -141,7 +141,7 @@ class _CorrectAnswer extends StatelessWidget {
       spacing: BookletSpace.s1,
       children: [
         Icon(
-          Icons.check_circle_outline_rounded,
+          AppIcons.correct,
           size: BookletSize.iconStatus,
           color: context.booklet.greenTick,
         ),

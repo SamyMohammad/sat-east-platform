@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/presentation/learning_copy.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/features/practice/presentation/practice_copy.dart';
 import 'package:sat_east_client/shared/widgets/booklet_status_frame.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -23,7 +24,7 @@ class PracticeSummaryView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => BookletStatusFrame(
-    icon: Icons.task_alt,
+    icon: AppIcons.completed,
     title: PracticeCopy.summaryTitle,
     message: PracticeCopy.summaryBody(correctFirstTry, total),
     actions: [

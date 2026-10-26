@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
+
 enum AppShellDestination {
-  home('Home', Icons.home_outlined, Icons.home),
-  courses('Courses', Icons.menu_book_outlined, Icons.menu_book),
-  skills('Skills', Icons.insights_outlined, Icons.insights),
-  mockExams('Mock exams', Icons.timer_outlined, Icons.timer),
-  profile('Profile', Icons.person_outline, Icons.person);
+  home('Home', AppIcons.home, AppIcons.home),
+  courses('Courses', AppIcons.courses, AppIcons.courses),
+  skills('Skills', AppIcons.skills, AppIcons.skills),
+  mockExams('Mock exams', AppIcons.mockExams, AppIcons.mockExams),
+  profile('Profile', AppIcons.profile, AppIcons.profile);
 
   const AppShellDestination(this.label, this.icon, this.selectedIcon);
 

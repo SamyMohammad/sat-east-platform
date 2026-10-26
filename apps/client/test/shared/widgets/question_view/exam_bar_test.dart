@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
@@ -205,7 +206,7 @@ void main() {
       );
 
       expect(find.text('Timer hidden'), findsOneWidget);
-      expect(find.byIcon(Icons.timer_off), findsOneWidget);
+      expect(find.byIcon(AppIcons.timerHidden), findsOneWidget);
       expect(find.text('14:30'), findsNothing);
       expect(find.text('Hide'), findsNothing);
       await tester.tap(find.text('Show'));
@@ -224,13 +225,13 @@ void main() {
       );
 
       expect(clockColor(tester, '04:00'), colors.examBarWarning);
-      expect(find.byIcon(Icons.schedule), findsOneWidget);
+      expect(find.byIcon(AppIcons.time), findsOneWidget);
     });
 
     testWidgets('F-4: no schedule icon when not warning', (tester) async {
       await pump(tester, bar(), width: 1280);
 
-      expect(find.byIcon(Icons.schedule), findsNothing);
+      expect(find.byIcon(AppIcons.time), findsNothing);
     });
 
     testWidgets('F-4: Hide is absent and clock shown when timerHidden', (
@@ -352,7 +353,7 @@ void main() {
     ) async {
       await banner(tester, const Duration(minutes: 5), onReviewMarked: () {});
 
-      final icon = tester.getRect(find.byIcon(Icons.schedule));
+      final icon = tester.getRect(find.byIcon(AppIcons.time));
       final text = tester.getRect(
         find.textContaining('minutes left.', findRichText: true),
       );
@@ -412,7 +413,7 @@ void main() {
       await header(tester, marked: true, onMark: () {});
 
       expect(find.text('Marked for review'), findsOneWidget);
-      expect(find.byIcon(Icons.bookmark), findsOneWidget);
+      expect(find.byIcon(AppIcons.bookmarked), findsOneWidget);
       final toggled = tester
           .widgetList<Semantics>(find.byType(Semantics))
           .where((s) => s.properties.toggled == true);
@@ -432,7 +433,7 @@ void main() {
             .where((s) => s.properties.toggled == true),
         isEmpty,
       );
-      expect(find.byIcon(Icons.bookmark_border), findsOneWidget);
+      expect(find.byIcon(AppIcons.bookmark), findsOneWidget);
     });
 
     testWidgets('F-4: unmarked toggle is 40 visual and 48 tappable', (

@@ -1,0 +1,49 @@
+import 'package:flutter/widgets.dart';
+
+import 'package:lucide_icons_flutter/lucide_icons.dart';
+
+@staticIconProvider
+abstract final class AppIcons {
+  static const IconData calendar = LucideIcons.calendar;
+  static const IconData inbox = LucideIcons.mailOpen;
+  static const IconData correct = LucideIcons.circleCheck;
+  static const IconData unselected = LucideIcons.circle;
+  static const IconData showPassword = LucideIcons.eye;
+  static const IconData hidePassword = LucideIcons.eyeOff;
+  static const IconData back = LucideIcons.arrowLeftDir;
+  static const IconData forward = LucideIcons.arrowRightDir;
+  static const IconData next = LucideIcons.chevronRightDir;
+  static const IconData previous = LucideIcons.chevronLeftDir;
+  static const IconData locked = LucideIcons.lockKeyhole;
+  static const IconData completed = LucideIcons.circleCheckBig;
+  static const IconData home = LucideIcons.house;
+  static const IconData skills = LucideIcons.chartNoAxesCombined;
+  static const IconData courses = LucideIcons.bookOpen;
+  static const IconData profile = LucideIcons.user;
+  static const IconData mockExams = LucideIcons.timer;
+  static const IconData notifications = LucideIcons.bell;
+  static const IconData unsynced = LucideIcons.cloudOff;
+  static const IconData error = LucideIcons.circleAlert;
+  static const IconData info = LucideIcons.info;
+  static const IconData time = LucideIcons.clock;
+  static const IconData close = LucideIcons.x;
+  static const IconData incorrect = LucideIcons.circleX;
+  static const IconData eliminate = LucideIcons.strikethrough;
+  static const IconData undo = LucideIcons.undo2Dir;
+  static const IconData quiz = LucideIcons.fileQuestionMark;
+  static const IconData retry = LucideIcons.rotateCw;
+  static const IconData offline = LucideIcons.wifiOff;
+  static const IconData timerHidden = LucideIcons.timerOff;
+  static const IconData topic = LucideIcons.tag;
+  static const IconData hint = LucideIcons.lightbulb;
+  static const IconData workedExample = LucideIcons.pencilLine;
+  static const IconData bookmarked = LucideIcons.bookmarkCheck;
+  static const IconData bookmark = LucideIcons.bookmark;
+  static const IconData saved = LucideIcons.cloudCheck;
+  static const IconData unanswered = LucideIcons.circleMinus;
+  static const IconData collapse = LucideIcons.chevronUp;
+  static const IconData backspace = LucideIcons.deleteDir;
+  static const IconData hideKeyboard = LucideIcons.keyboardOff;
+  static const IconData more = LucideIcons.ellipsisVertical;
+  static const IconData editNote = LucideIcons.notebookPen;
+}

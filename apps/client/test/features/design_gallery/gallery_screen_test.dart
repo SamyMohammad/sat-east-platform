@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_entries.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
@@ -98,8 +99,8 @@ void main() {
         );
         try {
           await _pumpGallery(tester, router);
-          expect(_button(tester, Icons.chevron_left).onPressed, isNull);
-          expect(_button(tester, Icons.chevron_right).onPressed, isNotNull);
+          expect(_button(tester, AppIcons.previous).onPressed, isNull);
+          expect(_button(tester, AppIcons.next).onPressed, isNotNull);
         } finally {
           await _dispose(tester, router);
         }
@@ -113,8 +114,8 @@ void main() {
         );
         try {
           await _pumpGallery(tester, router);
-          expect(_button(tester, Icons.chevron_right).onPressed, isNull);
-          expect(_button(tester, Icons.chevron_left).onPressed, isNotNull);
+          expect(_button(tester, AppIcons.next).onPressed, isNull);
+          expect(_button(tester, AppIcons.previous).onPressed, isNotNull);
         } finally {
           await _dispose(tester, router);
         }

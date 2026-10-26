@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
@@ -60,7 +61,7 @@ class ExerciseHeader extends StatelessWidget {
                 ),
               if (skill != null)
                 BookletChip(
-                  icon: Icons.sell_outlined,
+                  icon: AppIcons.topic,
                   label: skill!,
                 ),
             ],

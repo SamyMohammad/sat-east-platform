@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/feedback_label.dart';
@@ -243,7 +245,7 @@ class _ChoiceTileState extends State<ChoiceTile> {
         style: TextButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: BookletSpace.s3),
         ),
-        icon: const Icon(Icons.undo_rounded, size: BookletSize.iconSmall),
+        icon: const Icon(AppIcons.undo, size: BookletSize.iconSmall),
         label: Text(
           'Undo',
           semanticsLabel: 'Restore choice ${widget.letter}',
@@ -256,7 +258,7 @@ class _ChoiceTileState extends State<ChoiceTile> {
         tooltip: 'Cross out choice ${widget.letter}',
         color: Theme.of(context).colorScheme.onSurfaceVariant,
         icon: const Icon(
-          Icons.strikethrough_s_rounded,
+          AppIcons.eliminate,
           size: BookletSize.iconSmall,
         ),
       );
@@ -400,7 +402,7 @@ final class _ChoiceLook {
         onAccent: s.surface,
         text: s.onSurface,
         status: (
-          icon: Icons.check_circle_rounded,
+          icon: AppIcons.correct,
           label: 'Correct',
           color: b.greenTick,
         ),
@@ -411,7 +413,7 @@ final class _ChoiceLook {
         onAccent: s.surface,
         text: s.onSurface,
         status: (
-          icon: Icons.check_circle_rounded,
+          icon: AppIcons.correct,
           label: 'Your answer · Correct',
           color: b.greenTick,
         ),
@@ -422,7 +424,7 @@ final class _ChoiceLook {
         onAccent: s.surface,
         text: s.onSurface,
         status: (
-          icon: Icons.cancel_rounded,
+          icon: AppIcons.incorrect,
           label: 'Incorrect',
           color: s.error,
         ),
@@ -433,7 +435,7 @@ final class _ChoiceLook {
         onAccent: s.surface,
         text: s.onSurface,
         status: (
-          icon: Icons.cancel_rounded,
+          icon: AppIcons.incorrect,
           label: 'Your answer',
           color: s.error,
         ),
@@ -448,7 +450,7 @@ final class _ChoiceLook {
         badgeWeight: FontWeight.w700,
         text: s.onSurface,
         status: (
-          icon: Icons.check_circle_outline_rounded,
+          icon: AppIcons.correct,
           label: 'Correct answer',
           color: b.greenTick,
         ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -185,7 +186,7 @@ void main() {
         expect(t.getSize(_panel).width, 280);
         expect(t.getTopRight(_panel).dx, size.width);
         expect(find.byType(HomeworkNavigatorPanel), findsOneWidget);
-        expect(find.byIcon(Icons.expand_less), findsNothing);
+        expect(find.byIcon(AppIcons.collapse), findsNothing);
       });
 
       testWidgets('F-4: panel shows title, legend, summary and submit', (
@@ -234,7 +235,7 @@ void main() {
       await _pump(t, size: _phone);
       expect(_panel, findsNothing);
       expect(find.byType(QuestionNavigatorGrid), findsNothing);
-      expect(find.byIcon(Icons.expand_less), findsOneWidget);
+      expect(find.byIcon(AppIcons.collapse), findsOneWidget);
 
       await t.tap(find.text('Question 6 of 20'));
       await t.pumpAndSettle();
@@ -253,7 +254,7 @@ void main() {
       expect(find.text('Answered'), findsOneWidget);
       expect(find.text('Unanswered'), findsOneWidget);
       expect(find.text('Marked for review'), findsOneWidget);
-      expect(find.byIcon(Icons.bookmark), findsWidgets);
+      expect(find.byIcon(AppIcons.bookmarked), findsWidgets);
       expect(find.text('Submit homework'), findsOneWidget);
       expect(t.getTopLeft(_cell(5)).dy, t.getTopLeft(_cell(0)).dy);
       expect(

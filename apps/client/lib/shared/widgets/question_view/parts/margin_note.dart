@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
@@ -39,7 +40,7 @@ class MarginNote extends StatelessWidget {
         Row(
           children: [
             Icon(
-              miss ? Icons.draw_outlined : Icons.check_circle_rounded,
+              miss ? AppIcons.workedExample : AppIcons.correct,
               size: BookletSize.iconStatus,
               color: color,
             ),

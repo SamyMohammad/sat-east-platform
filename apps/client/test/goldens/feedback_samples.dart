@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
 import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
@@ -41,7 +42,7 @@ Widget controlsSheet() => _sheet([
   LoadingButton(
     label: 'Retry',
     errorText: 'Not sent. Retry.',
-    icon: Icons.refresh,
+    icon: AppIcons.retry,
     onPressed: () {},
   ),
   Wrap(
@@ -49,7 +50,7 @@ Widget controlsSheet() => _sheet([
     runSpacing: 12,
     children: [
       const BookletChip(label: 'E · Easy', kind: BookletChipKind.difficulty),
-      const BookletChip(label: 'Linear equations', icon: Icons.sell_outlined),
+      const BookletChip(label: 'Linear equations', icon: AppIcons.topic),
       BookletChip(
         label: 'Filter',
         kind: BookletChipKind.filter,

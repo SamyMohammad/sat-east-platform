@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
@@ -72,8 +73,8 @@ void main() {
         expect(find.text('A number'), findsOneWidget);
         expect(find.text('A letter'), findsOneWidget);
         expect(find.textContaining('At least 8 characters'), findsOneWidget);
-        expect(find.byIcon(Icons.radio_button_unchecked), findsNWidgets(3));
-        expect(find.byIcon(Icons.check_circle), findsNothing);
+        expect(find.byIcon(AppIcons.unselected), findsNWidgets(3));
+        expect(find.byIcon(AppIcons.correct), findsNothing);
       });
 
       testWidgets('P1-2: the length rule counts characters so far', (
@@ -92,13 +93,13 @@ void main() {
 
         await tester.enterText(find.byType(TextField).at(2), 'abc');
         await tester.pump();
-        expect(find.byIcon(Icons.check_circle), findsOneWidget);
-        expect(find.byIcon(Icons.radio_button_unchecked), findsNWidgets(2));
+        expect(find.byIcon(AppIcons.correct), findsOneWidget);
+        expect(find.byIcon(AppIcons.unselected), findsNWidgets(2));
 
         await tester.enterText(find.byType(TextField).at(2), 'abc1');
         await tester.pump();
-        expect(find.byIcon(Icons.check_circle), findsNWidgets(2));
-        expect(find.byIcon(Icons.radio_button_unchecked), findsOneWidget);
+        expect(find.byIcon(AppIcons.correct), findsNWidgets(2));
+        expect(find.byIcon(AppIcons.unselected), findsOneWidget);
       });
 
       testWidgets('P1-2: all rules met removes the so far hint', (
@@ -109,8 +110,8 @@ void main() {
         await tester.enterText(find.byType(TextField).at(2), 'abcdefg1');
         await tester.pump();
 
-        expect(find.byIcon(Icons.check_circle), findsNWidgets(3));
-        expect(find.byIcon(Icons.radio_button_unchecked), findsNothing);
+        expect(find.byIcon(AppIcons.correct), findsNWidgets(3));
+        expect(find.byIcon(AppIcons.unselected), findsNothing);
         expect(find.textContaining('so far'), findsNothing);
       });
 

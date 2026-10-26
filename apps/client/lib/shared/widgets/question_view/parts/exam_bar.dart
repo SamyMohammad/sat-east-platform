@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_clock.dart';
@@ -62,7 +63,7 @@ class ExamBar extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(Icons.schedule, size: BookletSize.iconSmall, color: color),
+        Icon(AppIcons.time, size: BookletSize.iconSmall, color: color),
         const SizedBox(width: BookletSpace.s1),
         text,
       ],
@@ -180,7 +181,7 @@ class ExamBar extends StatelessWidget {
                   children: [
                     if (hidden) ...[
                       Icon(
-                        Icons.timer_off,
+                        AppIcons.timerHidden,
                         size: BookletSize.iconSmall,
                         color: colors.onExamBarVariant,
                       ),
@@ -281,7 +282,7 @@ class ExamWarningBanner extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: BookletSpace.s1),
                     child: Icon(
-                      Icons.schedule,
+                      AppIcons.time,
                       size: BookletSize.iconSmall,
                       color: colors.warning,
                     ),

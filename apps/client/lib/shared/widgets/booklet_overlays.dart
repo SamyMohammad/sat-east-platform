@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
@@ -107,7 +108,7 @@ Future<T?> showBookletSheet<T>({
               child: IconButton(
                 tooltip: 'Close sheet',
                 onPressed: () => Navigator.of(modalContext).pop(),
-                icon: const Icon(Icons.close),
+                icon: const Icon(AppIcons.close),
               ),
             ),
             Flexible(

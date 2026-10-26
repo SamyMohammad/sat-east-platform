@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 
@@ -69,7 +70,7 @@ class ShellHeader extends StatelessWidget {
               IconButton(
                 tooltip: 'Notifications',
                 onPressed: onNotifications,
-                icon: const Icon(Icons.notifications_outlined),
+                icon: const Icon(AppIcons.notifications),
               ),
             ],
           ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
@@ -168,7 +169,7 @@ void main() {
     testWidgets('F-4: has no overflow menu on phone', (tester) async {
       await pump(tester, header());
 
-      expect(find.byIcon(Icons.more_vert), findsNothing);
+      expect(find.byIcon(AppIcons.more), findsNothing);
     });
   });
 
@@ -185,7 +186,7 @@ void main() {
     testWidgets('F-4: has no overflow menu on wide', (tester) async {
       await pump(tester, header(), width: 1280);
 
-      expect(find.byIcon(Icons.more_vert), findsNothing);
+      expect(find.byIcon(AppIcons.more), findsNothing);
     });
   });
 
@@ -195,7 +196,7 @@ void main() {
     ) async {
       await pump(tester, const SaveStatusLabel(status: SaveStatus.saved));
 
-      expect(find.byIcon(Icons.cloud_done_outlined), findsOneWidget);
+      expect(find.byIcon(AppIcons.saved), findsOneWidget);
       expect(find.text('Saved'), findsOneWidget);
     });
 
@@ -213,7 +214,7 @@ void main() {
     ) async {
       await pump(tester, const SaveStatusLabel(status: SaveStatus.offline));
 
-      expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
+      expect(find.byIcon(AppIcons.unsynced), findsOneWidget);
       expect(find.text('Offline — will sync'), findsOneWidget);
     });
 
@@ -226,7 +227,7 @@ void main() {
         SaveStatusLabel(status: SaveStatus.failed, onRetry: () => retries++),
       );
 
-      expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+      expect(find.byIcon(AppIcons.error), findsOneWidget);
       expect(find.text("Couldn't save"), findsOneWidget);
       await tester.tap(find.text('Retry'));
       expect(retries, 1);
@@ -277,7 +278,7 @@ void main() {
 
       final chip = tester.widget<BookletChip>(find.byType(BookletChip));
       expect(chip.kind, BookletChipKind.skill);
-      expect(chip.icon, Icons.sell_outlined);
+      expect(chip.icon, AppIcons.topic);
       expect(chip.label, 'Linear equations');
     });
 
@@ -306,11 +307,11 @@ void main() {
       final error = Theme.of(
         tester.element(find.byType(MarginNote)),
       ).colorScheme.error;
-      expect(find.byIcon(Icons.draw_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.edit_note_rounded), findsNothing);
+      expect(find.byIcon(AppIcons.workedExample), findsOneWidget);
+      expect(find.byIcon(AppIcons.editNote), findsNothing);
       expect(find.text('Mr. Samy'), findsOneWidget);
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.draw_outlined)).color,
+        tester.widget<Icon>(find.byIcon(AppIcons.workedExample)).color,
         error,
       );
       expect(textColor(tester, 'Mr. Samy'), error);
@@ -329,11 +330,11 @@ void main() {
       );
 
       final green = tester.element(find.byType(MarginNote)).booklet.greenTick;
-      expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+      expect(find.byIcon(AppIcons.correct), findsOneWidget);
       expect(find.text('Correct'), findsOneWidget);
       expect(textColor(tester, 'Correct'), green);
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.check_circle_rounded)).color,
+        tester.widget<Icon>(find.byIcon(AppIcons.correct)).color,
         green,
       );
     });
@@ -359,7 +360,7 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.draw_outlined), findsOneWidget);
+      expect(find.byIcon(AppIcons.workedExample), findsOneWidget);
       expect(find.text('Mr. Samy'), findsNothing);
       expect(find.text('Correct'), findsNothing);
     });

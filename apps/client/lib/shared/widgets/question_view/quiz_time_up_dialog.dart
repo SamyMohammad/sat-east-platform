@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
@@ -39,7 +40,7 @@ Future<void> showQuizTimeUpDialog(
           spacing: BookletSpace.s3,
           children: [
             Icon(
-              Icons.schedule,
+              AppIcons.time,
               size: BookletSize.statusIcon,
               color: dialogContext.booklet.warning,
             ),

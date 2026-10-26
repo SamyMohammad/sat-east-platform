@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
@@ -32,17 +33,17 @@ class TopicRow extends StatelessWidget {
 
     final leading = switch (status) {
       TopicStatus.completed => Icon(
-        Icons.check_circle,
+        AppIcons.correct,
         color: booklet.greenTick,
         size: BookletSize.iconSmall,
       ),
       TopicStatus.open => Icon(
-        Icons.radio_button_unchecked,
+        AppIcons.unselected,
         color: scheme.primary,
         size: BookletSize.iconSmall,
       ),
       TopicStatus.locked => Icon(
-        Icons.lock_outline,
+        AppIcons.locked,
         color: booklet.inkDisabled,
         size: BookletSize.iconSmall,
       ),
@@ -97,7 +98,7 @@ class TopicRow extends StatelessWidget {
           ],
           if (!locked)
             Icon(
-              Icons.chevron_right,
+              AppIcons.next,
               color: open ? scheme.primary : scheme.onSurfaceVariant,
             ),
         ],

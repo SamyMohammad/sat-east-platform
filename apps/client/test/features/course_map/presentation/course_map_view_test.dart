@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
@@ -175,9 +176,9 @@ void main() {
     tester,
   ) async {
     await _pump(tester, CourseMapLoaded(_map()));
-    expect(find.byIcon(Icons.check_circle), findsOneWidget);
-    expect(find.byIcon(Icons.lock_outline), findsOneWidget);
-    expect(find.byIcon(Icons.chevron_right), findsNWidgets(2));
+    expect(find.byIcon(AppIcons.correct), findsOneWidget);
+    expect(find.byIcon(AppIcons.locked), findsOneWidget);
+    expect(find.byIcon(AppIcons.next), findsNWidgets(2));
     expect(find.text('Free'), findsOneWidget);
     expect(find.text('Pass the Systems quiz to unlock'), findsOneWidget);
   });

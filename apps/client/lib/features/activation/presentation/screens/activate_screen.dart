@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/activation/presentation/activation_copy.dart';
 import 'package:sat_east_client/features/activation/presentation/cubit/activation_cubit.dart';
@@ -154,7 +155,7 @@ class _ActivateViewState extends State<ActivateView> {
                                   labelText: ActivationCopy.dateLabel,
                                   errorText: formState.$2,
                                   suffixIcon: const Icon(
-                                    Icons.calendar_today_outlined,
+                                    AppIcons.calendar,
                                   ),
                                 ),
                                 validator: (value) =>

@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
 import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
@@ -76,7 +77,7 @@ void main() {
           label: label,
           kind: kind,
           selected: true,
-          icon: Icons.sell_outlined,
+          icon: AppIcons.topic,
           onSelected: (_) {},
         ),
         scale: 2,

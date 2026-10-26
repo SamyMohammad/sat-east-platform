@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -134,7 +135,7 @@ class _NavigatorCell extends StatelessWidget {
                           top: 0,
                           right: BookletSpace.s1,
                           child: Icon(
-                            Icons.bookmark_rounded,
+                            AppIcons.bookmarked,
                             size: BookletSize.iconStatus,
                             color: textColor,
                           ),
@@ -186,7 +187,7 @@ class _LegendItem extends StatelessWidget {
         ),
       ),
       _Swatch.marked => Icon(
-        Icons.bookmark,
+        AppIcons.bookmarked,
         size: size,
         color: scheme.onSurfaceVariant,
       ),
@@ -280,7 +281,7 @@ class _NavigatorContent extends StatelessWidget {
               IconButton(
                 tooltip: 'Close navigator',
                 onPressed: () => Navigator.of(overlayContext).pop(),
-                icon: const Icon(Icons.close),
+                icon: const Icon(AppIcons.close),
               ),
           ],
         ),

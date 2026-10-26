@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
@@ -601,7 +602,7 @@ void main() {
         t.widget<BookletDialog>(_dialog).title,
         "Time's up. Quiz 4.2 submitted.",
       );
-      expect(_inDialog(find.byIcon(Icons.schedule)), findsOneWidget);
+      expect(_inDialog(find.byIcon(AppIcons.time)), findsOneWidget);
       expect(_inDialog(find.text('Continue')), findsOneWidget);
     });
   });

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 import 'package:sat_east_client/features/topic/presentation/topic_copy.dart';
@@ -75,7 +77,7 @@ class TopicContent extends StatelessWidget {
                 if (quiz.passed)
                   const BookletChip(
                     label: TopicCopy.passed,
-                    icon: Icons.check_circle_outline,
+                    icon: AppIcons.correct,
                   ),
                 if (description != null) Text(description),
                 LoadingButton(

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
 import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
@@ -78,7 +79,7 @@ class _UnansweredList extends StatelessWidget {
           spacing: BookletSpace.s2,
           children: [
             Icon(
-              Icons.do_not_disturb_on_outlined,
+              AppIcons.unanswered,
               size: BookletSize.iconSmall,
               color: scheme.onSurface,
             ),

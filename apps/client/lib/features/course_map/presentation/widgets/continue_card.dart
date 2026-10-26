@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/text/text_direction.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/features/course_map/presentation/course_map_copy.dart';
@@ -46,7 +47,7 @@ class ContinueCard extends StatelessWidget {
           const SizedBox(height: BookletSpace.s3),
           LoadingButton(
             label: CourseMapCopy.continueButton,
-            icon: Icons.arrow_forward,
+            icon: AppIcons.forward,
             onPressed: () =>
                 context.go(AppRoutes.topic(topic.topicId), extra: topic.title),
           ),

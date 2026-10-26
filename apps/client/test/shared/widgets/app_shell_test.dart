@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
@@ -217,7 +218,7 @@ void main() {
       await _pumpShell(tester);
       final button = find.widgetWithIcon(
         IconButton,
-        Icons.notifications_outlined,
+        AppIcons.notifications,
       );
       expect(tester.widget<IconButton>(button).onPressed, isNull);
       final notificationSemantics = tester.getSemantics(button);

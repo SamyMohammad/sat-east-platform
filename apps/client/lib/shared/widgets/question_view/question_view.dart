@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
@@ -324,7 +325,7 @@ class QuestionView extends StatelessWidget {
         spacing: BookletSpace.s1,
         children: [
           Flexible(child: Text(label, textAlign: TextAlign.center)),
-          const Icon(Icons.expand_less, size: BookletSize.iconStatus),
+          const Icon(AppIcons.collapse, size: BookletSize.iconStatus),
         ],
       ),
     );
@@ -404,7 +405,7 @@ class _NavigatorFooterButton extends StatelessWidget {
         spacing: BookletSpace.s1,
         children: [
           Flexible(child: Text(label, textAlign: TextAlign.center)),
-          const Icon(Icons.expand_less, size: BookletSize.iconStatus),
+          const Icon(AppIcons.collapse, size: BookletSize.iconStatus),
         ],
       ),
     );

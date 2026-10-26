@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
@@ -57,7 +58,7 @@ class QuizQuestionHeader extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onMark,
                   icon: Icon(
-                    marked ? Icons.bookmark : Icons.bookmark_border,
+                    marked ? AppIcons.bookmarked : AppIcons.bookmark,
                     size: BookletSize.iconSmall,
                   ),
                   label: Text(

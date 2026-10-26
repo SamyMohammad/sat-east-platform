@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
 /// Labelled text field: label above, 48 px control, inline error with the
@@ -72,7 +74,9 @@ class _AuthTextFieldState extends State<AuthTextField> {
                   ? IconButton(
                       tooltip: _obscured ? 'Show password' : 'Hide password',
                       icon: Icon(
-                        _obscured ? Icons.visibility : Icons.visibility_off,
+                        _obscured
+                            ? AppIcons.showPassword
+                            : AppIcons.hidePassword,
                       ),
                       onPressed: () => setState(() => _obscured = !_obscured),
                     )
