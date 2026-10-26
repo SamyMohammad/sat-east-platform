@@ -19,6 +19,7 @@ import 'package:sat_east_client/features/catalogue/presentation/screens/catalogu
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/design_gallery/presentation/restyle_prototype/restyle_prototype_screen.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
@@ -80,9 +81,8 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: '${AppRoutes.catalogue}/:slug',
-        builder: (context, state) => CoursePageScreen(
-          slug: state.pathParameters['slug']!,
-        ),
+        builder: (context, state) =>
+            CoursePageScreen(slug: state.pathParameters['slug']!),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) {
@@ -197,12 +197,17 @@ GoRouter createRouter({
         path: AppRoutes.devices,
         builder: (context, state) => const DeviceGateScreen(),
       ),
-      if (galleryEnabled)
+      if (galleryEnabled) ...[
         GoRoute(
           path: AppRoutes.gallery,
           builder: (context, state) =>
               GalleryScreen(entryId: state.uri.queryParameters['entry']),
         ),
+        GoRoute(
+          path: '/gallery/restyle',
+          builder: (context, state) => const RestylePrototypeScreen(),
+        ),
+      ],
     ],
   );
 }
@@ -223,7 +228,10 @@ String? _authRedirect(AuthState state, String path, bool galleryEnabled) {
   if (state is AuthSignedOut && state.error?.code == ErrorCodes.linkExpired) {
     return path == AppRoutes.forgotPassword ? null : AppRoutes.forgotPassword;
   }
-  if (galleryEnabled && path == AppRoutes.gallery) return null;
+  if (galleryEnabled &&
+      (path == AppRoutes.gallery || path == '/gallery/restyle')) {
+    return null;
+  }
   if ((state is AuthSignedOut || state is AuthSignedIn) && _isPublic(path)) {
     return null;
   }
