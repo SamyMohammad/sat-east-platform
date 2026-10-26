@@ -55,11 +55,16 @@ void main() {
           of: find.byType(Card),
           matching: find.byType(ShellWordmark),
         );
-        expect(
-          tester.getTopLeft(find.text('Form title')).dy -
-              tester.getBottomLeft(brand).dy,
-          24,
-        );
+        if (wide) {
+          // The welcome pane carries the wordmark; the card does not repeat it.
+          expect(brand, findsNothing);
+        } else {
+          expect(
+            tester.getTopLeft(find.text('Form title')).dy -
+                tester.getBottomLeft(brand).dy,
+            24,
+          );
+        }
         expect(tester.takeException(), isNull);
       });
     }

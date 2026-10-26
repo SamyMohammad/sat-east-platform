@@ -66,9 +66,9 @@ void main() {
           final wide = size.width >= 960;
           expect(
             find.text('Abdelrahman Elmenshawy'),
-            findsNWidgets(wide ? 2 : 1),
+            findsOneWidget,
           );
-          expect(find.text('SAT & EST Math'), findsNWidgets(wide ? 2 : 1));
+          expect(find.text('SAT & EST Math'), findsOneWidget);
           expect(find.byType(Card), findsOneWidget);
           expect(
             tester.getSize(find.byType(Card)).width,

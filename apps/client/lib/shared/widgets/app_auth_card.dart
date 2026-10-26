@@ -79,10 +79,12 @@ class AppAuthCard extends StatelessWidget {
                       AppIllustrationName.welcome,
                       height: 120,
                     ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: AppSpace.s3),
-                    child: ShellWordmark(padding: EdgeInsets.zero),
-                  ),
+                  // The welcome pane carries the wordmark on wide layouts.
+                  if (!wide)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: AppSpace.s3),
+                      child: ShellWordmark(padding: EdgeInsets.zero),
+                    ),
                   if (illustration case final name?) AppIllustration(name),
                   ...children,
                 ],
