@@ -1,70 +1,15 @@
 import 'package:flutter/material.dart';
 
-/// Material roles, hex from Foundations.dc.html (light + dark columns).
-abstract final class BookletSchemes {
-  static const ColorScheme light = ColorScheme(
-    brightness: Brightness.light,
-    primary: Color(0xFF1F4FD6),
-    onPrimary: Color(0xFFFFFFFF),
-    primaryContainer: Color(0xFFE9EEFB),
-    onPrimaryContainer: Color(0xFF1A1D24),
-    secondary: Color(0xFF4B5262),
-    onSecondary: Color(0xFFFFFFFF),
-    error: Color(0xFFD2343A),
-    onError: Color(0xFFFFFFFF),
-    errorContainer: Color(0xFFFBEBEC),
-    onErrorContainer: Color(0xFF1A1D24),
-    surface: Color(0xFFFFFFFF),
-    onSurface: Color(0xFF1A1D24),
-    onSurfaceVariant: Color(0xFF4B5262),
-    surfaceContainerLowest: Color(0xFFFFFFFF),
-    surfaceContainerLow: Color(0xFFFFFFFF),
-    surfaceContainer: Color(0xFFF6F7F9),
-    surfaceContainerHigh: Color(0xFFF6F7F9),
-    surfaceContainerHighest: Color(0xFFEEF2F8),
-    outline: Color(0xFF1A1D24),
-    outlineVariant: Color(0xFFD8DDE6),
-    inverseSurface: Color(0xFF1A1D24),
-    onInverseSurface: Color(0xFFFFFFFF),
-    inversePrimary: Color(0xFF86A5FF),
-    shadow: Color(0xFF1A1D24),
-    scrim: Color(0xFF1A1D24),
-    surfaceTint: Color(0x00000000),
-  );
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_palette.dart';
 
-  static const ColorScheme dark = ColorScheme(
-    brightness: Brightness.dark,
-    primary: Color(0xFF86A5FF),
-    onPrimary: Color(0xFF0B1026),
-    primaryContainer: Color(0xFF1C2850),
-    onPrimaryContainer: Color(0xFFE7E9EE),
-    secondary: Color(0xFFA8AFBC),
-    onSecondary: Color(0xFF11141A),
-    error: Color(0xFFFF7A7E),
-    onError: Color(0xFF11141A),
-    errorContainer: Color(0xFF3A1D21),
-    onErrorContainer: Color(0xFFE7E9EE),
-    surface: Color(0xFF11141A),
-    onSurface: Color(0xFFE7E9EE),
-    onSurfaceVariant: Color(0xFFA8AFBC),
-    surfaceContainerLowest: Color(0xFF11141A),
-    surfaceContainerLow: Color(0xFF181C24),
-    surfaceContainer: Color(0xFF1D222C),
-    surfaceContainerHigh: Color(0xFF1D222C),
-    surfaceContainerHighest: Color(0xFF1E2533),
-    outline: Color(0xFFE7E9EE),
-    outlineVariant: Color(0xFF2B313D),
-    inverseSurface: Color(0xFFE7E9EE),
-    onInverseSurface: Color(0xFF11141A),
-    inversePrimary: Color(0xFF1F4FD6),
-    shadow: Color(0xFF000000),
-    scrim: Color(0xFF000000),
-    surfaceTint: Color(0x00000000),
-  );
+/// Deprecated shim: use App* tokens.
+abstract final class BookletSchemes {
+  static const ColorScheme light = AppSchemes.light;
+  static const ColorScheme dark = AppSchemes.dark;
 }
 
-/// Booklet roles Material has no slot for (Foundations.dc.html,
-/// QuestionView.dc.html exam bar). Read with `context.booklet`.
+/// Deprecated shim: use App* tokens.
 @immutable
 class BookletColors extends ThemeExtension<BookletColors> {
   const BookletColors({
@@ -90,48 +35,48 @@ class BookletColors extends ThemeExtension<BookletColors> {
   });
 
   static const light = BookletColors(
-    frameTint: Color(0xFFEEF2F8),
-    inkDisabled: Color(0xFF9AA1AD),
-    primaryHover: Color(0xFF1B45BC),
-    greenTick: Color(0xFF1E7F4F),
-    greenTickContainer: Color(0xFFE4F2EA),
-    highlighter: Color(0xFFF6D743),
-    onHighlighter: Color(0xFF1A1D24),
-    warning: Color(0xFFB45309),
-    warningContainer: Color(0xFFFCEFE1),
-    info: Color(0xFF0E6A86),
-    infoContainer: Color(0xFFE3F1F5),
-    examBar: Color(0xFF1A1D24),
-    onExamBar: Color(0xFFE7E9EE),
-    onExamBarVariant: Color(0xFFA8AFBC),
-    examBarRule: Color(0xFF3A404D),
-    examBarPrimary: Color(0xFF86A5FF),
-    examBarWarning: Color(0xFFF5A04D),
-    scrim: Color(0x7A1A1D24), // ink @ 48%
-    overlayShadow: Color(0x1A1A1D24), // ink @ 10%
+    frameTint: AppLightPalette.surface,
+    inkDisabled: AppLightPalette.inkTertiary,
+    primaryHover: AppLightPalette.brand,
+    greenTick: AppLightPalette.correct,
+    greenTickContainer: AppLightPalette.correctWash,
+    highlighter: AppLightPalette.brandWash,
+    onHighlighter: AppLightPalette.ink,
+    warning: AppLightPalette.warning,
+    warningContainer: AppLightPalette.warningWash,
+    info: AppLightPalette.brand,
+    infoContainer: AppLightPalette.brandWash,
+    examBar: AppLightPalette.examBar,
+    onExamBar: AppLightPalette.onExamBar,
+    onExamBarVariant: AppLightPalette.onExamBarVariant,
+    examBarRule: AppLightPalette.examBarRule,
+    examBarPrimary: AppLightPalette.examBarPrimary,
+    examBarWarning: AppLightPalette.examBarWarning,
+    scrim: AppLightPalette.scrim,
+    overlayShadow: AppLightPalette.shadow,
   );
 
-  /// Exam bar is already ink-dark; the design has no separate dark bar.
+  /// The exam bar uses the same dark surface in both themes.
   static const dark = BookletColors(
-    frameTint: Color(0xFF1E2533),
-    inkDisabled: Color(0xFF5E6573),
-    primaryHover: Color(0xFF98B2FD),
-    greenTick: Color(0xFF5BC48C),
-    greenTickContainer: Color(0xFF16301F),
-    highlighter: Color(0xFFE9C935),
-    onHighlighter: Color(0xFF1A1D24),
-    warning: Color(0xFFF5A04D),
-    warningContainer: Color(0xFF3A2614),
-    info: Color(0xFF5BC0DC),
-    infoContainer: Color(0xFF13303A),
-    examBar: Color(0xFF1A1D24),
-    onExamBar: Color(0xFFE7E9EE),
-    onExamBarVariant: Color(0xFFA8AFBC),
-    examBarRule: Color(0xFF3A404D),
-    examBarPrimary: Color(0xFF86A5FF),
-    examBarWarning: Color(0xFFF5A04D),
-    scrim: Color(0x99000000), // black @ 60%
-    overlayShadow: Color(0x00000000), // no shadow in dark
+    frameTint: AppDarkPalette.surface,
+    inkDisabled: AppDarkPalette.inkTertiary,
+    primaryHover: AppDarkPalette.brand,
+    greenTick: AppDarkPalette.correct,
+    greenTickContainer: AppDarkPalette.correctWash,
+    highlighter: AppDarkPalette.brandWash,
+    onHighlighter: AppDarkPalette.ink,
+    warning: AppDarkPalette.warning,
+    warningContainer: AppDarkPalette.warningWash,
+    info: AppDarkPalette.brand,
+    infoContainer: AppDarkPalette.brandWash,
+    examBar: AppDarkPalette.examBar,
+    onExamBar: AppDarkPalette.onExamBar,
+    onExamBarVariant: AppDarkPalette.onExamBarVariant,
+    examBarRule: AppDarkPalette.examBarRule,
+    examBarPrimary: AppDarkPalette.examBarPrimary,
+    examBarWarning: AppDarkPalette.examBarWarning,
+    scrim: AppDarkPalette.scrim,
+    overlayShadow: AppDarkPalette.shadow,
   );
 
   final Color frameTint;

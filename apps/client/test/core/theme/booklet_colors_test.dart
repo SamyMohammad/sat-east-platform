@@ -7,15 +7,15 @@ void main() {
   test(
     'F-4: brand primary is the ballpoint blue, not the seed placeholder',
     () {
-      expect(BookletSchemes.light.primary, const Color(0xFF1F4FD6));
-      expect(BookletSchemes.dark.primary, const Color(0xFF86A5FF));
+      expect(BookletSchemes.light.primary, const Color(0xFF2F5BEA));
+      expect(BookletSchemes.dark.primary, const Color(0xFF7C9BFF));
     },
   );
 
   test('F-4: red pen and ink match Foundations', () {
-    expect(BookletSchemes.light.error, const Color(0xFFD2343A));
-    expect(BookletSchemes.light.onSurface, const Color(0xFF1A1D24));
-    expect(BookletSchemes.dark.surface, const Color(0xFF11141A));
+    expect(BookletSchemes.light.error, const Color(0xFFC9392F));
+    expect(BookletSchemes.light.onSurface, const Color(0xFF14171F));
+    expect(BookletSchemes.dark.surface, const Color(0xFF0F1218));
   });
 
   test('F-4: every non-exam-bar booklet role has its own dark value', () {

@@ -1,138 +1,120 @@
 import 'package:flutter/widgets.dart';
 
-/// Spacing scale, 4-pt (Foundations.dc.html "space.*").
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+
+/// Deprecated shim: use App* tokens.
 abstract final class BookletSpace {
-  static const double s1 = 4;
-  static const double s2 = 8;
-  static const double s3 = 12;
-  static const double s4 = 16;
-  static const double s5 = 20;
-  static const double s6 = 24;
-  static const double s8 = 32;
-  static const double s12 = 48;
-  static const double s16 = 64;
+  static const double s1 = AppSpace.s1;
+  static const double s2 = AppSpace.s2;
+  static const double s3 = AppSpace.s3;
+  static const double s4 = AppSpace.s4;
+  static const double s5 = AppSpace.s5;
+  static const double s6 = AppSpace.s6;
+  static const double s8 = AppSpace.s8;
+  static const double s12 = AppSpace.s12;
+  static const double s16 = AppSpace.s16;
 }
 
-/// Corner radii (Foundations.dc.html "radius.*").
+/// Deprecated shim: use App* tokens.
 abstract final class BookletRadius {
-  static const double none = 0;
-  static const double xs = 2;
-  static const double sm = 4;
-  static const double md = 8;
+  static const double none = AppRadius.none;
+  static const double xs = AppRadius.card;
+  static const double sm = AppRadius.control;
+  static const double md = AppRadius.card;
 }
 
-/// Fixed sizes shared by many widgets.
+/// Deprecated shim: use App* tokens.
 abstract final class BookletSize {
-  static const double touchTarget = 48;
-
-  /// Choice tile min height, SPR field height, keypad key height.
-  static const double largeControl = 56;
-  static const double choiceBadge = 28;
-  static const double sprInputWidth = 200;
-  static const double sprPreviewWidth = 128;
-  static const double iconSmall = 20;
-  static const double iconStatus = 18;
-  static const double spinner = 20;
-  static const double progressThickness = 4;
-  static const double progressSegmentGap = 3;
-  static const double headerProgress = 300;
-  static const double statusIcon = 32;
-  static const double chipVisual = 32;
-  static const double dialogWidth = 400;
-
-  /// Max width of the sign-in / sign-up / device-gate card.
-  static const double authCard = 400;
-  static const double skeletonLabel = 12;
-  static const double skeletonBody = 20;
-  static const double skeletonLabelFraction = 0.3;
-  static const double skeletonLongFraction = 0.85;
-  static const double skeletonShortFraction = 0.6;
-  static const double readingColumn = 640;
-  static const double questionColumn = 720;
-  static const double shellRail = 80;
-  static const double shellSidebar = 256;
-  static const double shellCompactHeader = 56;
-  static const double shellMediumHeader = 64;
-  static const double shellExpandedHeader = 72;
-  static const double shellCompactMonogram = 32;
-  static const double shellMonogram = 40;
-  static const double shellNavigation = 80;
-  static const double blockMathMinHeight = 64;
-  static const double footerHeight = 72;
-  static const double marginNote = 300;
-  static const double navigatorPanel = 280;
-  static const double galleryPicker = 280;
-  static const double navigatorPopover = 456;
-  static const int navigatorSheetColumns = 6;
-  static const int navigatorPopoverColumns = 7;
-  static const double navigatorCell = 48;
-  static const double navigatorUnderlineWidth = 20;
-  static const double navigatorUnderlineHeight = 3;
-  static const double legendSwatch = 16;
-  static const double submitChipMinWidth = 56;
-  static const double examBarCompact = 56;
-  static const double examBarWide = 76;
-  static const double examBudgetCompact = 96;
-  static const double examBudgetWide = 200;
-  static const double examBudgetThinThickness = 3;
-  static const double examToggleHeight = 40;
-  static const double examTimerButtonHeight = 32;
-  static const double examQuestionBadge = 32;
-  static const double warningBannerMinHeight = 56;
+  static const double touchTarget = AppSize.touchTarget;
+  static const double largeControl = AppSize.largeControl;
+  static const double choiceBadge = AppSize.choiceBadge;
+  static const double sprInputWidth = AppSize.sprInputWidth;
+  static const double sprPreviewWidth = AppSize.sprPreviewWidth;
+  static const double iconSmall = AppSize.iconSmall;
+  static const double iconStatus = AppSize.iconStatus;
+  static const double spinner = AppSize.spinner;
+  static const double progressThickness = AppSize.progressThickness;
+  static const double progressSegmentGap = AppSize.progressSegmentGap;
+  static const double headerProgress = AppSize.headerProgress;
+  static const double statusIcon = AppSize.statusIcon;
+  static const double chipVisual = AppSize.chipVisual;
+  static const double dialogWidth = AppSize.dialogWidth;
+  static const double authCard = AppSize.authCard;
+  static const double skeletonLabel = AppSize.skeletonLabel;
+  static const double skeletonBody = AppSize.skeletonBody;
+  static const double skeletonLabelFraction = AppSize.skeletonLabelFraction;
+  static const double skeletonLongFraction = AppSize.skeletonLongFraction;
+  static const double skeletonShortFraction = AppSize.skeletonShortFraction;
+  static const double readingColumn = AppSize.readingColumn;
+  static const double questionColumn = AppSize.questionColumn;
+  static const double shellRail = AppSize.shellRail;
+  static const double shellSidebar = AppSize.shellSidebar;
+  static const double shellCompactHeader = AppSize.shellCompactHeader;
+  static const double shellMediumHeader = AppSize.shellMediumHeader;
+  static const double shellExpandedHeader = AppSize.shellExpandedHeader;
+  static const double shellCompactMonogram = AppSize.shellCompactMonogram;
+  static const double shellMonogram = AppSize.shellMonogram;
+  static const double shellNavigation = AppSize.shellNavigation;
+  static const double blockMathMinHeight = AppSize.blockMathMinHeight;
+  static const double footerHeight = AppSize.footerHeight;
+  static const double marginNote = AppSize.marginNote;
+  static const double navigatorPanel = AppSize.navigatorPanel;
+  static const double galleryPicker = AppSize.galleryPicker;
+  static const double navigatorPopover = AppSize.navigatorPopover;
+  static const int navigatorSheetColumns = AppSize.navigatorSheetColumns;
+  static const int navigatorPopoverColumns = AppSize.navigatorPopoverColumns;
+  static const double navigatorCell = AppSize.navigatorCell;
+  static const double navigatorUnderlineWidth = AppSize.navigatorUnderlineWidth;
+  static const double navigatorUnderlineHeight =
+      AppSize.navigatorUnderlineHeight;
+  static const double legendSwatch = AppSize.legendSwatch;
+  static const double submitChipMinWidth = AppSize.submitChipMinWidth;
+  static const double examBarCompact = AppSize.examBarCompact;
+  static const double examBarWide = AppSize.examBarWide;
+  static const double examBudgetCompact = AppSize.examBudgetCompact;
+  static const double examBudgetWide = AppSize.examBudgetWide;
+  static const double examBudgetThinThickness = AppSize.examBudgetThinThickness;
+  static const double examToggleHeight = AppSize.examToggleHeight;
+  static const double examTimerButtonHeight = AppSize.examTimerButtonHeight;
+  static const double examQuestionBadge = AppSize.examQuestionBadge;
+  static const double warningBannerMinHeight = AppSize.warningBannerMinHeight;
 }
 
-/// Letter-spacing in logical px for the 12 px caption style
-/// (`labelSmall` is 0.06 em = 0.72; uppercase panel titles are 0.08 em).
+/// Deprecated shim: use App* tokens.
 abstract final class BookletTracking {
-  static const double caps = 0.96;
+  static const double caps = AppTracking.caps;
 }
 
-/// Line widths (Components.dc.html borders, outlines, strike).
+/// Deprecated shim: use App* tokens.
 abstract final class BookletStroke {
-  static const double thin = 1;
-  static const double badge = 1.5;
-  static const double current = 2.5;
-  static const double strong = 2;
-  static const double strike = 1.5;
-  static const double focusRing = 2;
-  static const double focusGap = 2;
-  static const double dash = 4;
-  static const double dashGap = 3;
+  static const double thin = AppStroke.thin;
+  static const double badge = AppStroke.badge;
+  static const double current = AppStroke.current;
+  static const double strong = AppStroke.strong;
+  static const double strike = AppStroke.strike;
+  static const double focusRing = AppStroke.focusRing;
+  static const double focusGap = AppStroke.focusGap;
+  static const double dash = AppStroke.dash;
+  static const double dashGap = AppStroke.dashGap;
 }
 
-/// Opacity roles.
+/// Deprecated shim: use App* tokens.
 abstract final class BookletOpacity {
-  /// Text of a crossed-out choice.
-  static const double eliminated = 0.6;
+  static const double eliminated = AppOpacity.eliminated;
 }
 
-/// App shell layouts: bottom nav, rail, sidebar (App Shell.dc.html).
-enum BookletLayout {
-  compact,
-  medium,
-  expanded;
+/// Deprecated shim: use App* tokens.
+typedef BookletLayout = AppLayout;
 
-  static BookletLayout forWidth(double width) {
-    if (width <= 600) return compact;
-    if (width < 1024) return medium;
-    return expanded;
-  }
-}
-
-/// Motion tokens (Foundations.dc.html "motion.*"). No bounce or spring.
+/// Deprecated shim: use App* tokens.
 abstract final class BookletMotion {
-  static const Duration fast = Duration(milliseconds: 100);
-  static const Duration base = Duration(milliseconds: 180);
-  static const Duration slow = Duration(milliseconds: 280);
-
-  static const Curve standard = Cubic(0.2, 0, 0, 1);
-  static const Curve enter = Cubic(0.05, 0.7, 0.1, 1);
-  static const Curve exit = Cubic(0.3, 0, 0.8, 0.15);
-
-  /// Applies reduced motion: slow → instant, base → fast fade.
-  static Duration resolve(BuildContext context, Duration duration) {
-    if (!MediaQuery.disableAnimationsOf(context)) return duration;
-    if (duration >= slow) return Duration.zero;
-    return duration > fast ? fast : duration;
-  }
+  static const Duration fast = AppMotion.press;
+  static const Duration base = AppMotion.state;
+  static const Duration slow = AppMotion.enter;
+  static const Curve standard = AppMotion.standard;
+  static const Curve enter = AppMotion.emphasized;
+  static const Curve exit = AppMotion.standard;
+  static Duration resolve(BuildContext context, Duration duration) =>
+      AppMotion.resolve(context, duration);
 }

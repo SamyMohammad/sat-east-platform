@@ -31,7 +31,7 @@ void main() {
 
   test('F-4: answer controls are 56 and the badge centres in a 48 row', () {
     expect(BookletSize.largeControl, 56);
-    expect((BookletSize.touchTarget - BookletSize.choiceBadge) / 2, 10);
+    expect((BookletSize.touchTarget - BookletSize.choiceBadge) / 2, 9);
     expect(BookletStroke.strong - BookletStroke.thin, 1);
   });
 
@@ -69,10 +69,10 @@ void main() {
     );
   });
 
-  testWidgets('F-4: reduced motion turns base into fast', (t) async {
+  testWidgets('F-4: reduced motion makes base instant', (t) async {
     expect(
       await resolveWith(t, reduced: true, duration: BookletMotion.base),
-      BookletMotion.fast,
+      Duration.zero,
     );
   });
 }
