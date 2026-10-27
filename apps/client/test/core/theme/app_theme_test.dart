@@ -4,17 +4,15 @@ import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/core/theme/app_type.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_type.dart';
 
 void main() {
-  for (final (name, theme, scheme, booklet) in [
-    ('light', AppTheme.light(), BookletSchemes.light, BookletColors.light),
-    ('dark', AppTheme.dark(), BookletSchemes.dark, BookletColors.dark),
+  for (final (name, theme, scheme, colors) in [
+    ('light', AppTheme.light(), AppSchemes.light, AppColors.light),
+    ('dark', AppTheme.dark(), AppSchemes.dark, AppColors.dark),
   ]) {
-    test('F-4: $name theme uses the booklet scheme and extension', () {
+    test('F-4: $name theme uses the app scheme and extension', () {
       expect(theme.colorScheme, scheme);
-      expect(theme.extension<BookletColors>(), booklet);
+      expect(theme.extension<AppColors>(), colors);
     });
   }
 
@@ -24,7 +22,7 @@ void main() {
     expect(stem.height, closeTo(24 / 16, 1e-9));
     expect(stem.fontWeight, FontWeight.w400);
     expect(AppFonts.sans, 'Lexend');
-    expect(BookletFonts.sans, AppFonts.sans);
+    expect(AppFonts.sans, AppFonts.sans);
     expect(stem.fontFamily, 'Lexend');
   });
 
@@ -33,7 +31,7 @@ void main() {
     expect(style.minimumSize!.resolve({})!.height, 48);
   });
 
-  test('F-4: no ripple (booklet has no splash)', () {
+  test('F-4: no ripple (the app has no splash)', () {
     expect(AppTheme.light().splashFactory, NoSplash.splashFactory);
   });
 
@@ -113,27 +111,24 @@ void main() {
 
   test('F-4: timer uses tabular figures', () {
     expect(
-      BookletType.timer.fontFeatures,
+      AppType.timer.fontFeatures,
       contains(const FontFeature.tabularFigures()),
     );
   });
 
-  testWidgets('F-4: context.booklet resolves under AppTheme', (tester) async {
-    late BookletColors resolved;
+  testWidgets('F-4: context.appColors resolves under AppTheme', (tester) async {
     late AppColors appColors;
     await tester.pumpWidget(
       MaterialApp(
         theme: AppTheme.light(),
         home: Builder(
           builder: (context) {
-            resolved = context.booklet;
             appColors = context.appColors;
             return const SizedBox();
           },
         ),
       ),
     );
-    expect(resolved, BookletColors.light);
     expect(appColors, AppColors.light);
   });
 }

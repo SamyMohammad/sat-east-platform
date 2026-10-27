@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 const List<double> goldenWidths = [360.0, 1280.0];
 
 const ValueKey<String> _boundary = ValueKey('golden-boundary');
 
-/// Pumps [child] in the booklet theme at [width] and compares it with
+/// Pumps [child] in the app theme at [width] and compares it with
 /// `goldens/<name>.png` next to the calling test. Wide layouts are capped at
 /// the question column, as in QuestionView.
 Future<void> expectGolden(
@@ -41,12 +42,12 @@ Future<void> expectGolden(
               child: ColoredBox(
                 color: theme.colorScheme.surface,
                 child: Padding(
-                  padding: const EdgeInsets.all(BookletSpace.s4),
+                  padding: const EdgeInsets.all(AppSpace.s4),
                   child: Align(
                     alignment: AlignmentDirectional.topStart,
                     child: ConstrainedBox(
                       constraints: const BoxConstraints(
-                        maxWidth: BookletSize.questionColumn,
+                        maxWidth: AppSize.questionColumn,
                       ),
                       child: freezeAnimations
                           ? ValueListenableBuilder<bool>(
@@ -71,7 +72,7 @@ Future<void> expectGolden(
   if (freezeAnimations) {
     // Sample a visible loading phase before stopping decorative tickers.
     await tester.pump();
-    await tester.pump(BookletMotion.base);
+    await tester.pump(AppMotion.state);
     animations.value = false;
   }
   await tester.pumpAndSettle();

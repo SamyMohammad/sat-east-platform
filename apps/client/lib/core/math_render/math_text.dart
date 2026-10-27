@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:sat_east_client/core/math_render/math_markup.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/core/theme/booklet_type.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 
 /// Renders English content text with TeX math.
 /// The only widget that knows the math engine.
@@ -28,7 +28,7 @@ class MathText extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
-        spacing: BookletSpace.s2,
+        spacing: AppSpace.s2,
         children: children,
       ),
     );
@@ -147,7 +147,7 @@ class MathText extends StatelessWidget {
 }
 
 TextStyle _mathStyle(TextStyle style) => style.copyWith(
-  fontSize: (style.fontSize ?? 16) * BookletType.mathScale,
+  fontSize: (style.fontSize ?? 16) * AppType.mathScale,
 );
 
 Widget _tex(String tex, TextStyle style, MathStyle mathStyle) => Math.tex(
@@ -200,7 +200,7 @@ class _BlockMathView extends StatelessWidget {
           )
         : Wrap(
             spacing: (style.fontSize ?? 16) * 0.35,
-            runSpacing: BookletSpace.s2,
+            runSpacing: AppSpace.s2,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               for (final c in chunks) _tex(c, style, MathStyle.display),
@@ -210,7 +210,7 @@ class _BlockMathView extends StatelessWidget {
       textDirection: TextDirection.ltr,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          minHeight: BookletSize.blockMathMinHeight,
+          minHeight: AppSize.blockMathMinHeight,
         ),
         child: Align(alignment: Alignment.centerLeft, child: content),
       ),

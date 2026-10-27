@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 
 typedef ReportProblem = ({String reason, String? note});
@@ -19,10 +19,10 @@ Future<ReportProblem?> showReportProblemSheet(
     context: context,
     builder: (_) => Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: BookletSize.dialogWidth),
+        constraints: const BoxConstraints(maxWidth: AppSize.dialogWidth),
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(BookletSpace.s5),
+            padding: const EdgeInsets.all(AppSpace.s5),
             child: ReportProblemSheet(reasons: reasons),
           ),
         ),
@@ -69,7 +69,7 @@ class _ReportProblemSheetState extends State<ReportProblemSheet> {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s3,
+      spacing: AppSpace.s3,
       children: [
         Text('Report a problem', style: Theme.of(context).textTheme.titleLarge),
         RadioGroup<String>(
@@ -108,7 +108,7 @@ class _ReportProblemSheetState extends State<ReportProblemSheet> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          spacing: BookletSpace.s2,
+          spacing: AppSpace.s2,
           children: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),

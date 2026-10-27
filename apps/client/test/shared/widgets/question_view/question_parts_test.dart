@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_chip.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/framed_panel.dart';
@@ -330,7 +328,7 @@ void main() {
         ),
       );
 
-      final green = tester.element(find.byType(MarginNote)).booklet.greenTick;
+      final green = tester.element(find.byType(MarginNote)).appColors.correct;
       expect(find.byIcon(AppIcons.correct), findsOneWidget);
       expect(find.text('Correct'), findsOneWidget);
       expect(textColor(tester, 'Correct'), green);
@@ -480,7 +478,7 @@ void main() {
     final rule = find.descendant(
       of: panel,
       matching: find.byWidgetPredicate(
-        (w) => w is SizedBox && w.height == BookletStroke.thin,
+        (w) => w is SizedBox && w.height == AppStroke.thin,
       ),
     );
     expect(rule, findsOneWidget);

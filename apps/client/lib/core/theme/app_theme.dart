@@ -3,21 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/core/theme/app_type.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
 
-/// The shared visual system, with Booklet compatibility during migration.
+/// The shared visual system.
 abstract final class AppTheme {
-  static ThemeData light() =>
-      _build(AppSchemes.light, AppColors.light, BookletColors.light);
+  static ThemeData light() => _build(AppSchemes.light, AppColors.light);
 
-  static ThemeData dark() =>
-      _build(AppSchemes.dark, AppColors.dark, BookletColors.dark);
+  static ThemeData dark() => _build(AppSchemes.dark, AppColors.dark);
 
-  static ThemeData _build(
-    ColorScheme scheme,
-    AppColors colors,
-    BookletColors booklet,
-  ) {
+  static ThemeData _build(ColorScheme scheme, AppColors colors) {
     final text = AppType.textTheme().apply(
       fontFamily: AppFonts.sans,
       bodyColor: colors.ink,
@@ -62,7 +55,7 @@ abstract final class AppTheme {
       shadowColor: colors.shadow,
       focusColor: colors.brandLine,
       splashFactory: NoSplash.splashFactory,
-      extensions: [colors, booklet],
+      extensions: [colors],
       dividerTheme: DividerThemeData(
         color: colors.line,
         thickness: AppStroke.thin,

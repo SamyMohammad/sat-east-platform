@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_clock.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/quiz_question_header.dart';
@@ -74,12 +74,12 @@ void expectButtonSizes(
   expect(tester.getSize(surface).height, visual);
   expect(
     tester.getSize(button).height,
-    greaterThanOrEqualTo(BookletSize.touchTarget),
+    greaterThanOrEqualTo(AppSize.touchTarget),
   );
 }
 
 void main() {
-  const colors = BookletColors.light;
+  const colors = AppColors.light;
 
   group('F-4: formatClock', () {
     test('F-4: negative duration clamps to 00:00', () {
@@ -172,7 +172,7 @@ void main() {
     ) async {
       await pump(tester, bar(onToggleTimer: () {}), width: 1280);
 
-      expectButtonSizes(tester, visual: BookletSize.examTimerButtonHeight);
+      expectButtonSizes(tester, visual: AppSize.examTimerButtonHeight);
     });
 
     testWidgets('F-4: Show button is 32 visual and 48 tappable', (
@@ -184,7 +184,7 @@ void main() {
         width: 1280,
       );
 
-      expectButtonSizes(tester, visual: BookletSize.examTimerButtonHeight);
+      expectButtonSizes(tester, visual: AppSize.examTimerButtonHeight);
     });
 
     testWidgets('F-4: no Hide button when onToggleTimer is null', (
@@ -441,7 +441,7 @@ void main() {
     ) async {
       await header(tester, onMark: () {});
 
-      expectButtonSizes(tester, visual: BookletSize.examToggleHeight);
+      expectButtonSizes(tester, visual: AppSize.examToggleHeight);
     });
 
     testWidgets('F-4: marked toggle is 40 visual and 48 tappable', (
@@ -449,7 +449,7 @@ void main() {
     ) async {
       await header(tester, marked: true, onMark: () {});
 
-      expectButtonSizes(tester, visual: BookletSize.examToggleHeight);
+      expectButtonSizes(tester, visual: AppSize.examToggleHeight);
     });
 
     testWidgets('F-4: null onMark disables the toggle', (tester) async {

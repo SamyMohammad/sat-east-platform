@@ -5,7 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/submit_dialog.dart';
@@ -157,15 +157,15 @@ void main() {
           .ancestor(of: _grid, matching: find.byType(Material))
           .first;
       final rect = t.getRect(popover);
-      expect(rect.width, lessThanOrEqualTo(BookletSize.navigatorPopover));
+      expect(rect.width, lessThanOrEqualTo(AppSize.navigatorPopover));
       expect(
         rect.bottom,
-        lessThanOrEqualTo(_wide.height - BookletSize.footerHeight),
+        lessThanOrEqualTo(_wide.height - AppSize.footerHeight),
       );
       expect(
         rect.bottom,
         closeTo(
-          _wide.height - BookletSize.footerHeight - BookletSpace.s3,
+          _wide.height - AppSize.footerHeight - AppSpace.s3,
           0.5,
         ),
       );

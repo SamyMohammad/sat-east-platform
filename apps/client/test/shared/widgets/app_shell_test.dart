@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/focus_mode_scaffold.dart';
@@ -102,9 +102,9 @@ void main() {
         await _pumpShell(tester);
 
         final expectedHeight = switch (width) {
-          <= 600 => BookletSize.shellCompactHeader,
-          < 1024 => BookletSize.shellMediumHeader,
-          _ => BookletSize.shellExpandedHeader,
+          <= 600 => AppSize.shellCompactHeader,
+          < 1024 => AppSize.shellMediumHeader,
+          _ => AppSize.shellExpandedHeader,
         };
         expect(tester.getSize(find.byType(ShellHeader)).height, expectedHeight);
       },
@@ -262,7 +262,7 @@ void main() {
 
     expect(
       tester.getSize(find.byType(ShellMonogram)).width,
-      BookletSize.shellMonogram,
+      AppSize.shellMonogram,
     );
   });
 
