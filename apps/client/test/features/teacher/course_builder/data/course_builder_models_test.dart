@@ -16,7 +16,7 @@ void main() {
     expect(topic.subtopics, isEmpty);
     expect(
       tree.units.first.topics.first.subtopics.last.title,
-      '\u062c\u0628\u0631',
+      'Algebra',
     );
   });
   test('C-1: parses unpublished teacher course', () {

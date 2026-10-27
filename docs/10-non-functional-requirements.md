@@ -18,7 +18,7 @@
 | NFR-14 | Accessibility | Readable math, contrast, font scaling | WCAG AA contrast; LaTeX scales with text size; keyboard navigation in exam on web |
 | NFR-15 | Responsiveness | 360 px → 1920 px | All student screens tested at 360, 768, 1280 |
 | NFR-16 | Time zones | Students worldwide | Store UTC; show in user's time zone (live sessions, deadlines) |
-| NFR-17 | Localisation | UI English; content may contain Arabic | Text widgets support mixed RTL/LTR in notes/AI replies |
+| NFR-17 | Language | English-only product for international schools | UI, notes, explanations, hints, AI replies and seed data are English; text renders LTR |
 | NFR-18 | Observability | Errors and key events | Sentry for crashes; product events: signup, purchase, step_complete, quiz_pass/fail, mock_complete |
 | NFR-19 | Backups | DB | Supabase daily backups + PITR on prod; weekly export of question bank to storage |
 | NFR-20 | Cost | Monthly infra visible to teacher | Dashboard/notes of Supabase, video, Desmos, LLM, email costs; alert thresholds |

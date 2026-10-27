@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 
 typedef ReportProblem = ({String reason, String? note});
 
@@ -11,19 +10,19 @@ Future<ReportProblem?> showReportProblemSheet(
   required Map<String, String> reasons,
 }) {
   if (MediaQuery.sizeOf(context).width < 600) {
-    return showBookletSheet<ReportProblem>(
+    return showAppSheet<ReportProblem>(
       context: context,
       builder: (_) => ReportProblemSheet(reasons: reasons),
     );
   }
-  return showBookletDialog<ReportProblem>(
+  return showAppDialog<ReportProblem>(
     context: context,
     builder: (_) => Dialog(
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: BookletSize.dialogWidth),
+        constraints: const BoxConstraints(maxWidth: AppSize.dialogWidth),
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(BookletSpace.s5),
+            padding: const EdgeInsets.all(AppSpace.s5),
             child: ReportProblemSheet(reasons: reasons),
           ),
         ),
@@ -70,7 +69,7 @@ class _ReportProblemSheetState extends State<ReportProblemSheet> {
     child: Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s3,
+      spacing: AppSpace.s3,
       children: [
         Text('Report a problem', style: Theme.of(context).textTheme.titleLarge),
         RadioGroup<String>(
@@ -100,7 +99,7 @@ class _ReportProblemSheetState extends State<ReportProblemSheet> {
                 required isFocused,
                 maxLength,
               }) => Text('${_note.text.trim().runes.length}/500'),
-          textDirection: detectTextDirection(_note.text),
+          textDirection: TextDirection.ltr,
           decoration: const InputDecoration(labelText: 'Note (optional)'),
           onChanged: (_) => setState(() {}),
           validator: (value) => (value?.trim().runes.length ?? 0) > 500
@@ -109,7 +108,7 @@ class _ReportProblemSheetState extends State<ReportProblemSheet> {
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
-          spacing: BookletSpace.s2,
+          spacing: AppSpace.s2,
           children: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),

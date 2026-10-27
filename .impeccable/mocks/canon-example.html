@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice · Canon example</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#FFFFFF; --surface:#F6F7F9; --line:#E3E6EC; --line-2:#CDD2DB;
+  --ink:#14171F; --ink-2:#555C6B; --ink-3:#8A91A0;
+  --brand:#2F5BEA; --brand-ink:#FFFFFF; --brand-wash:#EEF2FE; --brand-line:#B9C8F8;
+  --ok:#14834B; --ok-wash:#E8F6EE; --ok-line:#9ED3B5;
+  --bad:#D2483E; --bad-wash:#FDEEEC; --bad-line:#F2B4AE;
+  --warm:#FFF7EB; --warm-line:#F1D9B5; --warm-ink:#8A5A12;
+  --sans:"Noto Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --math:"Cambria Math","Latin Modern Math","STIX Two Math",Cambria,"Times New Roman",serif;
+}
+*{box-sizing:border-box;margin:0}
+::selection{background:var(--brand-wash);color:var(--ink)}
+body{background:#E9ECF1;font-family:var(--sans);color:var(--ink);padding:24px 16px 64px}
+.page-head{max-width:1320px;margin:0 auto 16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.page-head h1{font-size:15px;font-weight:600}
+.page-head p{font-size:13px;color:var(--ink-2)}
+.toggle{display:inline-flex;background:#fff;border:1px solid var(--line-2);border-radius:10px;padding:3px;gap:2px}
+.toggle button{font:600 13px var(--sans);padding:7px 12px;border:0;border-radius:7px;background:transparent;color:var(--ink-2);cursor:pointer}
+.toggle button[aria-pressed=true]{background:var(--ink);color:#fff}
+.stage{max-width:1320px;margin:0 auto;display:flex;gap:24px;align-items:flex-start;flex-wrap:wrap}
+.frame-label{font:600 11px var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);margin-bottom:8px}
+.desk-wrap{flex:1 1 760px;min-width:0}
+.desk-viewport{width:100%;aspect-ratio:1280/800;overflow:hidden;border:1px solid var(--line-2);border-radius:10px;position:relative;background:var(--bg)}
+.desk-viewport > .app{width:1280px;height:800px;transform-origin:0 0;position:absolute;top:0;left:0}
+.phone-viewport{width:360px;height:760px;overflow:hidden;border:1px solid var(--line-2);border-radius:28px;background:var(--bg);position:relative}
+.phone-viewport > .app{height:100%}
+
+/* ===== app ===== */
+.app{display:flex;background:var(--bg)}
+.side{width:232px;border-right:1px solid var(--line);padding:20px 12px;display:flex;flex-direction:column;gap:2px;background:var(--surface)}
+.phone .side{display:none}
+.brand{font-weight:700;font-size:14px;padding:4px 12px 18px;line-height:1.3}
+.brand small{display:block;color:var(--ink-3);font-weight:500;font-size:12px}
+.nav{display:flex;gap:10px;align-items:center;padding:9px 12px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:14px;font-weight:500}
+.nav:hover{background:#ECEEF2}
+.nav[aria-current=page]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(20,23,31,.06),0 0 0 1px var(--line)}
+.nav svg{width:18px;height:18px;flex:none}
+.main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative}
+.top{height:64px;display:flex;align-items:center;gap:16px;padding:0 24px;border-bottom:1px solid var(--line)}
+.phone .top{height:56px;padding:0 8px 0 4px;gap:8px;border:0}
+.iconbtn{width:40px;height:40px;display:grid;place-items:center;border:0;background:transparent;border-radius:10px;color:var(--ink-2);cursor:pointer;flex:none}
+.iconbtn:hover{background:var(--surface);color:var(--ink)}
+.title{display:flex;flex-direction:column;min-width:0}
+.title b{font-size:15px;font-weight:600;white-space:nowrap}
+.title span{font-size:12px;color:var(--ink-3)}
+.phone .title{display:none}
+.prog{flex:1;display:flex;gap:4px;align-items:center;max-width:360px;margin-left:auto}
+.phone .prog{max-width:none;margin:0}
+.seg{flex:1;height:6px;border-radius:3px;background:var(--line)}
+.seg.ok{background:var(--ok)} .seg.bad{background:var(--bad)} .seg.now{background:var(--brand)}
+.count{font-size:13px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums;min-width:40px;text-align:right}
+.hint{font:600 14px var(--sans);height:36px;padding:0 14px;border-radius:10px;border:1px solid var(--line-2);background:#fff;color:var(--ink);display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.phone .hint span{display:none} .phone .hint{padding:0 10px}
+
+.scroll{flex:1;overflow:auto;padding:48px 24px 140px}
+.phone .scroll{padding:16px 20px 180px}
+.col{max-width:680px;margin:0 auto}
+.skill{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink-2);margin-bottom:14px}
+.pill{font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink-2)}
+.pill.easy{background:var(--ok-wash);border-color:var(--ok-line);color:var(--ok)}
+.stem{font-size:22px;line-height:1.5;font-weight:500;letter-spacing:-.01em;margin-bottom:28px}
+.phone .stem{font-size:19px;margin-bottom:22px}
+.m{font-family:var(--math);font-style:italic;font-size:1.1em;font-weight:400}
+.m .n{font-style:normal}
+.choices{display:flex;flex-direction:column;gap:12px}
+.choice{display:flex;align-items:center;gap:14px;min-height:60px;padding:12px 16px;border:1.5px solid var(--line-2);border-radius:12px;background:#fff;cursor:pointer;font-size:18px;transition:border-color .15s, background .15s, box-shadow .15s, opacity .2s;text-align:left;width:100%;font-family:inherit;color:inherit}
+.choice:hover{border-color:#9AA3B5;background:#FCFCFD}
+.choice:focus-visible{outline:3px solid var(--brand-line);outline-offset:2px}
+.choice .k{width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:8px;border:1.5px solid var(--line-2);font:700 13px var(--sans);color:var(--ink-2)}
+.choice.sel{border-color:var(--brand);background:var(--brand-wash);box-shadow:0 0 0 3px rgba(47,91,234,.12)}
+.choice.sel .k{background:var(--brand);border-color:var(--brand);color:#fff}
+.choice .tag{margin-left:auto;display:none;align-items:center;gap:6px;font:600 13px var(--sans)}
+.checked .choice{cursor:default}
+.checked .choice.dim{opacity:.45}
+.choice.right{border-color:var(--ok);background:var(--ok-wash);box-shadow:none}
+.choice.right .k{background:var(--ok);border-color:var(--ok);color:#fff}
+.choice.right .tag{display:inline-flex;color:var(--ok)}
+.choice.wrong{border-color:var(--bad);background:var(--bad-wash);box-shadow:none}
+.choice.wrong .k{background:var(--bad);border-color:var(--bad);color:#fff}
+.choice.wrong .tag{display:inline-flex;color:var(--bad)}
+.kbd{margin-top:18px;font-size:12px;color:var(--ink-3)}
+.phone .kbd{display:none}
+.kbd kbd{font:600 11px var(--sans);border:1px solid var(--line-2);border-bottom-width:2px;border-radius:5px;padding:1px 5px;background:#fff;color:var(--ink-2)}
+
+/* bottom action bar -> feedback sheet */
+.dock{position:absolute;left:0;right:0;bottom:0;border-top:1px solid var(--line);background:#fff;transition:background .25s,border-color .25s}
+.dock-in{max-width:728px;margin:0 auto;padding:16px 24px;display:flex;align-items:center;gap:16px}
+.phone .dock-in{flex-direction:column;align-items:stretch;padding:14px 16px 20px;gap:12px}
+.verdict{display:none;flex:1;gap:12px;align-items:flex-start;min-width:0}
+.vicon{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;color:#fff}
+.vtext b{display:block;font-size:17px;font-weight:700;margin-bottom:2px}
+.vtext p{font-size:14px;line-height:1.5;color:var(--ink)}
+.vtext .who{font-size:12px;font-weight:600;color:var(--ink-2);margin-top:6px}
+.actions{margin-left:auto;display:flex;gap:10px;flex:none}
+.phone .actions{margin:0;flex-direction:column-reverse}
+.btn{font:700 15px var(--sans);height:48px;padding:0 24px;border-radius:10px;border:0;cursor:pointer;letter-spacing:.01em;transition:transform .08s, background .15s}
+.btn:active{transform:translateY(1px)}
+.btn.primary{background:var(--brand);color:#fff;box-shadow:0 1px 0 rgba(20,23,31,.12),0 2px 6px rgba(47,91,234,.25);min-width:180px}
+.btn.primary:hover{background:#2850D6}
+.btn.primary:disabled{background:var(--line);color:var(--ink-3);box-shadow:none;cursor:not-allowed}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line-2)}
+.phone .btn{width:100%}
+.dock.is-ok{background:var(--ok-wash);border-color:var(--ok-line)}
+.dock.is-bad{background:var(--bad-wash);border-color:var(--bad-line)}
+.dock.is-ok .verdict,.dock.is-bad .verdict{display:flex;animation:rise .35s cubic-bezier(.16,1,.3,1) both}
+.dock.is-ok .vicon{background:var(--ok)} .dock.is-ok .vtext b{color:var(--ok)}
+.dock.is-bad .vicon{background:var(--bad)} .dock.is-bad .vtext b{color:var(--bad)}
+.dock.is-ok .btn.primary{background:var(--ok);box-shadow:0 2px 6px rgba(20,131,75,.25)}
+.dock.is-bad .btn.primary{background:var(--bad);box-shadow:0 2px 6px rgba(210,72,62,.25)}
+.step{display:none;margin-top:10px;padding:10px 12px;background:#fff;border:1px solid var(--bad-line);border-radius:8px;font-size:15px}
+.dock.is-bad .step{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(8px)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="page-head">
+  <div>
+    <h1>Category standard, full craft: practice question</h1>
+    <p>Example only. Same screen at 1280px and 360px. Pick a choice and press Check, or use the toggle.</p>
+  </div>
+  <div class="toggle" role="group" aria-label="State">
+    <button id="tBefore" aria-pressed="true">Before check</button>
+    <button id="tBad" aria-pressed="false">Wrong answer</button>
+    <button id="tOk" aria-pressed="false">Right answer</button>
+  </div>
+</div>
+<div class="stage">
+  <div class="desk-wrap"><div class="frame-label">Laptop · 1280</div><div class="desk-viewport" id="desk"></div></div>
+  <div><div class="frame-label">Phone · 360</div><div class="phone-viewport phone" id="phone"></div></div>
+</div>
+
+<template id="tpl">
+<div class="app">
+  <nav class="side" aria-label="Main">
+    <div class="brand">Abdelrahman Elmenshawy<small>SAT Math</small></div>
+    <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>Courses</a>
+    <a class="nav" aria-current="page" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></svg>Practice</a>
+    <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20V11M12 20V5M19 20v-6"/></svg>Skills</a>
+    <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 1.5M9.5 2h5"/></svg>Mock exams</a>
+    <a class="nav" href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20.5c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5"/></svg>Profile</a>
+  </nav>
+  <div class="main">
+    <header class="top">
+      <button class="iconbtn" aria-label="Close practice"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+      <div class="title"><b>Linear equations</b><span>Topic 4.2 · Practice</span></div>
+      <div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="10" aria-valuenow="3" aria-label="Question 3 of 10">
+        <i class="seg ok"></i><i class="seg bad"></i><i class="seg now"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i><i class="seg"></i>
+      </div>
+      <span class="count">3 / 10</span>
+      <button class="hint"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></svg><span>Hint</span></button>
+    </header>
+    <div class="scroll">
+      <div class="col">
+        <div class="skill"><span>Linear equations · one variable</span><span class="pill easy">Easy</span></div>
+        <p class="stem">Solve for <span class="m">x</span>:&ensp;<span class="m">3x <span class="n">−</span> 7 <span class="n">=</span> 29</span></p>
+        <div class="choices" role="radiogroup" aria-label="Choices">
+          <button class="choice" data-k="A" role="radio"><span class="k">A</span><span class="m">x <span class="n">=</span> 7</span><span class="tag"></span></button>
+          <button class="choice" data-k="B" role="radio"><span class="k">B</span><span class="m">x <span class="n">=</span> 12</span><span class="tag"></span></button>
+          <button class="choice" data-k="C" role="radio"><span class="k">C</span><span class="m">x <span class="n">=</span> 22/3</span><span class="tag"></span></button>
+          <button class="choice" data-k="D" role="radio"><span class="k">D</span><span class="m">x <span class="n">=</span> 36</span><span class="tag"></span></button>
+        </div>
+        <p class="kbd">Press <kbd>A</kbd>–<kbd>D</kbd> to choose, <kbd>Enter</kbd> to check.</p>
+      </div>
+    </div>
+    <div class="dock" role="region" aria-live="polite">
+      <div class="dock-in">
+        <div class="verdict">
+          <div class="vicon"></div>
+          <div class="vtext"><b></b><p class="msg"></p>
+            <div class="step"><span class="m">3x <span class="n">=</span> 36</span>&ensp;→&ensp;<span class="m">x <span class="n">=</span> 36 <span class="n">÷</span> 3 <span class="n">=</span> 12</span></div>
+            <div class="who">Mr. Abdelrahman</div>
+          </div>
+        </div>
+        <div class="actions"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</template>
+
+<script>
+const ICON_OK='<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+const ICON_BAD='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>';
+const tpl=document.getElementById('tpl');
+const hosts=[document.getElementById('desk'),document.getElementById('phone')];
+let st={sel:null,checked:false};
+function mount(){
+  hosts.forEach(h=>{h.innerHTML='';h.appendChild(tpl.content.cloneNode(true));
+    h.querySelectorAll('.choice').forEach(c=>c.addEventListener('click',()=>{if(!st.checked){st.sel=c.dataset.k;render();}}));
+    h.addEventListener('click',e=>{const b=e.target.closest('[data-act]');if(!b)return;
+      if(b.dataset.act==='check'){st.checked=true;render();}
+      if(b.dataset.act==='retry'){st={sel:null,checked:false};render();}
+      if(b.dataset.act==='next'){st={sel:null,checked:false};render();}});
+  });
+  fit();render();
+}
+function render(){
+  const ok=st.sel==='B';
+  hosts.forEach(h=>{
+    h.querySelector('.col').classList.toggle('checked',st.checked);
+    h.querySelectorAll('.choice').forEach(c=>{const k=c.dataset.k;
+      c.className='choice'+(k===st.sel?' sel':'');c.setAttribute('aria-checked',k===st.sel);
+      const t=c.querySelector('.tag');t.innerHTML='';
+      if(st.checked){
+        if(k==='B'){c.classList.add('right');t.innerHTML=ICON_OK+(ok?'Your answer':'Correct answer');}
+        else if(k===st.sel){c.classList.add('wrong');t.innerHTML=ICON_BAD+'Your answer';}
+        else c.classList.add('dim');}
+    });
+    const dock=h.querySelector('.dock');dock.className='dock'+(st.checked?(ok?' is-ok':' is-bad'):'');
+    h.querySelector('.vicon').innerHTML=ok?ICON_OK:ICON_BAD;
+    h.querySelector('.vtext b').textContent=ok?'Correct':'Not quite';
+    h.querySelector('.msg').textContent=ok
+      ?'Clean work. You added 7, then divided by 3. Next one adds a fraction.'
+      :'You got 3x = 36, then stopped. Divide both sides by 3, then check: 3(12) − 7 = 29.';
+    h.querySelector('.actions').innerHTML=!st.checked
+      ?`<button class="btn primary" data-act="check" ${st.sel?'':'disabled'}>Check</button>`
+      :ok?'<button class="btn primary" data-act="next">Continue</button>'
+         :'<button class="btn ghost">Ask about this</button><button class="btn primary" data-act="retry">Try a similar one</button>';
+  });
+  document.getElementById('tBefore').setAttribute('aria-pressed',!st.checked);
+  document.getElementById('tBad').setAttribute('aria-pressed',st.checked&&!ok);
+  document.getElementById('tOk').setAttribute('aria-pressed',st.checked&&ok);
+}
+function fit(){const v=document.getElementById('desk'),a=v.querySelector('.app');if(a)a.style.transform=`scale(${v.clientWidth/1280})`;}
+document.getElementById('tBefore').onclick=()=>{st={sel:'D',checked:false};render();};
+document.getElementById('tBad').onclick=()=>{st={sel:'D',checked:true};render();};
+document.getElementById('tOk').onclick=()=>{st={sel:'B',checked:true};render();};
+addEventListener('resize',fit);
+addEventListener('keydown',e=>{if(st.checked)return;const k=e.key.toUpperCase();
+  if(k.length===1&&'ABCD'.includes(k)){st.sel=k;render();}
+  if(e.key==='Enter'&&st.sel){st.checked=true;render();}});
+mount();
+</script>
+</body>
+</html>

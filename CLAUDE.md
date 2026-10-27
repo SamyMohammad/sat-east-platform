@@ -19,7 +19,7 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 5. Tunable values (pass mark, cooldowns, pool split, device limit, blueprints, scale tables) come from the `settings` table — no magic numbers.
 6. One shared `QuestionView` widget for practice, homework, quiz and mock.
 7. Purchase UI only in the web build (`ENABLE_PURCHASE` flag) — see ADR-006.
-8. UI copy is English. Content (notes, AI replies) may contain Arabic → support mixed-direction text.
+8. The product targets international schools. UI and all content (notes, explanations, hints, AI replies and seed data) are English only; content renders LTR.
 9. New functions are not executable by default — every RPC gets an explicit `grant execute ... to authenticated`.
 10. Every new SQL file starts from `supabase/templates/` and passes the review checklist in `docs/16` §2.
 
@@ -52,7 +52,7 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 6. **DI:** `get_it`, registered only in `lib/core/di/injection.dart` — lazy singletons for services/repos, factories for cubits. Never instantiate them by hand in widgets.
 7. **Build discipline:** `const` wherever possible. Never create `TextEditingController`, `AnimationController`, `FocusNode`, `ScrollController` or streams in `build()`; create in `initState`, dispose in `dispose()`. No heavy work in `build()`. Small composed widgets; `BlocBuilder`/`BlocSelector` on the smallest subtree, never at the top of a screen.
 8. **Navigation:** `go_router` only (`lib/core/router/`); no `Navigator.push` with ad-hoc routes.
-9. **Layout & text:** check web at 360 px and 1280 px. Content text (notes, AI replies) uses direction-aware widgets (`Directionality` / `TextDirection` detection) — rule 8.
+9. **Layout & text:** check web at 360 px and 1280 px. All content renders LTR in English — rule 8.
 
 ## Commands
 Client (run from `apps/client/`; copy `env/<flavor>.example.json` to `env/<flavor>.json` first):
@@ -78,7 +78,7 @@ Skills by task:
 - Scaffold feature: `flutter-feature` · Cubit/Bloc: `flutter-code-quality:state-management` · architecture: `flutter-code-quality:architecture`.
 - Tests: `dart-flutter:flutter-add-widget-test`, `dart-flutter:dart-add-unit-test`, `dart-flutter:flutter-add-integration-test`, `dart-flutter:dart-generate-test-mocks`, `flutter-design-fidelity:golden-tests`; Codex writes tests in delegated tasks, `test-writer` agent on the Sonnet fallback.
 - Routing / JSON / l10n: `dart-flutter:flutter-setup-declarative-routing`, `dart-flutter:flutter-implement-json-serialization`, `dart-flutter:flutter-setup-localization`.
-- Layout & UI: `flutter-code-quality:responsive-adaptive`, `dart-flutter:flutter-fix-layout-issues`, `flutter-code-quality:a11y-and-rtl` (mixed Arabic/English, rule 8), `flutter-design-fidelity:design-tokens` / `figma-to-widget` / `visual-verification`.
+- Layout & UI: `flutter-code-quality:responsive-adaptive`, `dart-flutter:flutter-fix-layout-issues`, accessibility checks (English-only content, rule 8), `flutter-design-fidelity:design-tokens` / `figma-to-widget` / `visual-verification`.
 - Debugging: `dart-flutter:dart-fix-runtime-errors`, `dart-flutter:dart-resolve-package-conflicts`, `debugger` agent.
 - Before commit/PR: `flutter-code-quality:review-gate`, then `code-reviewer` / `pr-reviewer` agents.
 - Not for this project: `flutter-use-http-package` (we use `supabase_flutter`, no Dio/http), `flutter-webview-shell`, FFI skills.

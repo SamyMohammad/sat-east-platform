@@ -6,6 +6,8 @@ import 'package:sat_east_client/core/analytics/analytics_service.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
 import 'package:sat_east_client/core/supabase/edge_caller.dart';
 import 'package:sat_east_client/core/supabase/rpc_caller.dart';
+import 'package:sat_east_client/core/theme/theme_mode_cubit.dart';
+import 'package:sat_east_client/core/theme/theme_mode_store.dart';
 import 'package:sat_east_client/core/time/ticker.dart';
 import 'package:sat_east_client/features/activation/data/datasources/activation_remote_data_source.dart';
 import 'package:sat_east_client/features/activation/data/repositories/activation_repository_impl.dart';
@@ -114,6 +116,7 @@ void configureDependencies({
   required ErrorReporter errorReporter,
   required AnalyticsService analytics,
   required Box<String> deviceBox,
+  required Box<String> settingsBox,
 }) {
   getIt
     ..registerLazySingleton<SupabaseClient>(() => Supabase.instance.client)
@@ -131,6 +134,14 @@ void configureDependencies({
     )
     ..registerSingleton<ErrorReporter>(errorReporter)
     ..registerSingleton<AnalyticsService>(analytics)
+    ..registerLazySingleton<ThemeModeStore>(
+      () => ThemeModeStore(settingsBox, getIt<ErrorReporter>()),
+    )
+    // App-wide preference state, like the session cubit below.
+    ..registerLazySingleton<ThemeModeCubit>(
+      () => ThemeModeCubit(getIt<ThemeModeStore>())..load(),
+      dispose: (cubit) => cubit.close(),
+    )
     // Auth and device registration (P1).
     ..registerLazySingleton<DeviceIdStore>(() => DeviceIdStore(deviceBox))
     ..registerLazySingleton<DeviceInfo>(DeviceInfo.new)

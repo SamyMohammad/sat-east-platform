@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 /// Identity watermark drawn over one PDF page (SEC-02). It sits in the page's
 /// own coordinates, so it scales and scrolls with the page at every zoom, and
-/// it ignores pointer events. The text may be Arabic: Flutter shapes it.
+/// it ignores pointer events. The identity text is English.
 class PageWatermark extends StatelessWidget {
   const PageWatermark({required this.text, super.key});
 

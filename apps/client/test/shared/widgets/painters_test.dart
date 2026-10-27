@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/focus_ring.dart';
 import 'package:sat_east_client/shared/widgets/painters/dashed_border.dart';
 import 'package:sat_east_client/shared/widgets/painters/strike_through.dart';
@@ -49,9 +50,9 @@ void main() {
     await t.pumpWidget(build(struck: false));
     expect(_progress(t), 0);
     await t.pumpWidget(build(struck: true));
-    await t.pump(BookletMotion.base ~/ 2);
+    await t.pump(AppMotion.state ~/ 2);
     expect(_progress(t), inExclusiveRange(0, 1));
-    await t.pump(BookletMotion.base);
+    await t.pump(AppMotion.state);
     expect(_progress(t), 1);
   });
 
@@ -68,7 +69,7 @@ void main() {
     );
     await t.pumpWidget(build(struck: false));
     await t.pumpWidget(build(struck: true));
-    await t.pump(BookletMotion.fast);
+    await t.pump(AppMotion.press);
     expect(_progress(t), 1);
   });
 
@@ -102,7 +103,7 @@ void main() {
 
   test('F-4: focus ring sits 2 px outside the child', () {
     final rect = FocusRingPainter.ringRect(const Size(100, 50));
-    const outset = BookletStroke.focusGap + BookletStroke.focusRing / 2;
+    const outset = AppStroke.focusGap + AppStroke.focusRing / 2;
     expect(
       rect,
       const Rect.fromLTRB(-outset, -outset, 100 + outset, 50 + outset),

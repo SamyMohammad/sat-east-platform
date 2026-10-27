@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 /// Icon + short status text ("Correct", "Your answer"), Components.dc.html.
 class FeedbackLabel extends StatelessWidget {
@@ -18,9 +19,9 @@ class FeedbackLabel extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
-      spacing: BookletSpace.s1,
+      spacing: AppSpace.s1,
       children: [
-        Icon(icon, size: BookletSize.iconStatus, color: color),
+        Icon(icon, size: AppSize.iconStatus, color: color),
         Flexible(
           child: Text(
             label,

@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:sat_east_client/core/theme/app_hues.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/video/video_provider.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_homework.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 import 'package:sat_east_client/features/topic/presentation/topic_copy.dart';
 import 'package:sat_east_client/features/topic/presentation/widgets/topic_content.dart';
+import 'package:sat_east_client/shared/widgets/icon_tile.dart';
 
 void main() {
-  TopicDetail topic({bool videos = true, bool done = false}) => TopicDetail(
+  TopicDetail topic({
+    bool videos = true,
+    bool done = false,
+    TopicHomework homework = const TopicHomework(state: HomeworkState.skipped),
+  }) => TopicDetail(
     id: 't',
+    homework: homework,
     title: 'Topic',
     sortLabel: '1',
     status: TopicStatus.open,
@@ -57,6 +64,23 @@ void main() {
     ),
   );
 
+  testWidgets('LRN-02 PRC-02: all five topic steps retain distinct hues', (
+    tester,
+  ) async {
+    await pump(
+      tester,
+      topic(homework: const TopicHomework(state: HomeworkState.available)),
+    );
+    final tiles = tester.widgetList<IconTile>(find.byType(IconTile));
+    expect(tiles.map((tile) => tile.hue), [
+      SubjectHue.blue,
+      SubjectHue.teal,
+      SubjectHue.violet,
+      SubjectHue.amber,
+      SubjectHue.rose,
+    ]);
+    expect(tester.takeException(), isNull);
+  });
   testWidgets('LRN-02: Video precedes Notes and shows duration and progress', (
     tester,
   ) async {
@@ -98,7 +122,7 @@ void main() {
     tester,
   ) async {
     await pump(tester, topic(done: true));
-    expect(find.byIcon(Icons.check_circle_outline), findsOneWidget);
+    expect(find.byIcon(AppIcons.correct), findsOneWidget);
     expect(find.text(TopicCopy.openNotesFirst), findsOneWidget);
   });
   testWidgets('LRN-02: topic without videos has no Video step', (tester) async {

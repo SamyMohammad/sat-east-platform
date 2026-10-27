@@ -1,13 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/review/domain/entities/review.dart';
 import 'package:sat_east_client/features/teacher/review/presentation/cubit/review_queue_cubit.dart';
 import 'package:sat_east_client/features/teacher/review/presentation/widgets/review_error.dart';
 import 'package:sat_east_client/features/teacher/review/presentation/widgets/review_queue_table.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 
 class ReviewQueueScreen extends StatefulWidget {
   const ReviewQueueScreen({super.key});
@@ -32,12 +35,12 @@ class _ReviewQueueScreenState extends State<ReviewQueueScreen> {
 
   @override
   Widget build(BuildContext context) => Padding(
-    padding: const EdgeInsets.all(BookletSpace.s4),
+    padding: const EdgeInsets.all(AppSpace.s4),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Text('Review queue', style: Theme.of(context).textTheme.headlineMedium),
-        const SizedBox(height: BookletSpace.s4),
+        const SizedBox(height: AppSpace.s4),
         BlocSelector<ReviewQueueCubit, ReviewQueueState, ReviewSection>(
           bloc: _cubit,
           selector: (s) => s.section,
@@ -65,7 +68,7 @@ class _ReviewQueueScreenState extends State<ReviewQueueScreen> {
             ],
           ),
         ),
-        const SizedBox(height: BookletSpace.s3),
+        const SizedBox(height: AppSpace.s3),
         Expanded(
           child: BlocBuilder<ReviewQueueCubit, ReviewQueueState>(
             bloc: _cubit,
@@ -73,7 +76,7 @@ class _ReviewQueueScreenState extends State<ReviewQueueScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (state.loading) const LinearProgressIndicator(),
+                  if (state.loading) const AppSkeleton(),
                   if (state.error case final error?)
                     ReviewError(
                       code: error.code,
@@ -82,7 +85,7 @@ class _ReviewQueueScreenState extends State<ReviewQueueScreen> {
                   if (state.result case final page?) ...[
                     if (page.rows.isEmpty && !state.loading)
                       const Padding(
-                        padding: EdgeInsets.all(BookletSpace.s4),
+                        padding: EdgeInsets.all(AppSpace.s4),
                         child: Text('No questions to review.'),
                       )
                     else
@@ -90,7 +93,7 @@ class _ReviewQueueScreenState extends State<ReviewQueueScreen> {
                     Wrap(
                       alignment: WrapAlignment.spaceBetween,
                       crossAxisAlignment: WrapCrossAlignment.center,
-                      spacing: BookletSpace.s3,
+                      spacing: AppSpace.s3,
                       children: [
                         Text(
                           '${page.total} '
@@ -99,7 +102,7 @@ class _ReviewQueueScreenState extends State<ReviewQueueScreen> {
                         Wrap(
                           alignment: WrapAlignment.end,
                           crossAxisAlignment: WrapCrossAlignment.center,
-                          spacing: BookletSpace.s2,
+                          spacing: AppSpace.s2,
                           children: [
                             TextButton(
                               onPressed: !state.loading && page.hasPrevious

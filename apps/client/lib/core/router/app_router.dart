@@ -5,6 +5,7 @@ import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
+import 'package:sat_east_client/core/router/transitions.dart';
 import 'package:sat_east_client/features/activation/presentation/screens/activate_screen.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/screens/attempt_review_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
@@ -43,6 +44,7 @@ import 'package:sat_east_client/features/video/presentation/screens/video_player
 import 'package:sat_east_client/features/video/presentation/video_copy.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/shared/widgets/app_shell/shell_branch_stack.dart';
 import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 abstract final class AppRoutes {
@@ -120,80 +122,127 @@ GoRouter createRouter({
     routes: [
       GoRoute(
         path: AppRoutes.catalogue,
-        builder: (context, state) => const CatalogueScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const CatalogueScreen(),
+        ),
       ),
       GoRoute(
         path: '${AppRoutes.catalogue}/:slug',
-        builder: (context, state) =>
-            CoursePageScreen(slug: state.pathParameters['slug']!),
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: CoursePageScreen(slug: state.pathParameters['slug']!),
+        ),
       ),
       GoRoute(
         path: AppRoutes.teacher,
-        builder: (context, state) =>
-            const TeacherShell(child: CourseBuilderScreen()),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: CourseBuilderScreen()),
+        ),
       ),
       GoRoute(
         path: '${AppRoutes.teacher}/courses/:courseId',
-        builder: (context, state) => TeacherShell(
-          child: CourseBuilderScreen(
-            courseId: state.pathParameters['courseId'],
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: CourseBuilderScreen(
+              courseId: state.pathParameters['courseId'],
+            ),
           ),
         ),
       ),
       GoRoute(
         path: AppRoutes.teacherReview,
-        builder: (_, _) => const TeacherShell(child: ReviewQueueScreen()),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: ReviewQueueScreen()),
+        ),
       ),
       GoRoute(
         path: AppRoutes.teacherSettings,
-        builder: (context, state) =>
-            const TeacherShell(child: TeacherSettingsScreen()),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: TeacherSettingsScreen()),
+        ),
       ),
       GoRoute(
         path: AppRoutes.teacherQuestionImport,
-        builder: (context, state) =>
-            const TeacherShell(child: QuestionImportScreen()),
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: QuestionImportScreen()),
+        ),
       ),
       GoRoute(
         path: AppRoutes.teacherQuestions,
-        builder: (context, state) =>
-            const TeacherShell(child: QuestionBankScreen()),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: QuestionBankScreen()),
+        ),
       ),
       GoRoute(
         path: '${AppRoutes.teacherQuestions}/new',
-        builder: (context, state) =>
-            TeacherShell(child: QuestionEditorScreen(key: newEditorKey)),
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(child: QuestionEditorScreen(key: newEditorKey)),
+        ),
         onExit: (context, state) => confirmEditorExit(newEditorKey),
       ),
       GoRoute(
         path: '${AppRoutes.teacherQuestions}/:id',
-        builder: (context, state) => TeacherShell(
-          child: QuestionEditorScreen(
-            key: editorKey,
-            questionId: state.pathParameters['id'],
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: QuestionEditorScreen(
+              key: editorKey,
+              questionId: state.pathParameters['id'],
+            ),
           ),
         ),
         onExit: (context, state) => confirmEditorExit(editorKey),
       ),
       GoRoute(
         path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/notes',
-        builder: (context, state) => TeacherShell(
-          child: TeacherNotesScreen(
-            courseId: state.pathParameters['courseId']!,
-            topicId: state.pathParameters['topicId']!,
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: TeacherNotesScreen(
+              courseId: state.pathParameters['courseId']!,
+              topicId: state.pathParameters['topicId']!,
+            ),
           ),
         ),
       ),
       GoRoute(
         path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/videos',
-        builder: (context, state) => TeacherShell(
-          child: TeacherVideosScreen(
-            courseId: state.pathParameters['courseId']!,
-            topicId: state.pathParameters['topicId']!,
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: TeacherVideosScreen(
+              courseId: state.pathParameters['courseId']!,
+              topicId: state.pathParameters['topicId']!,
+            ),
           ),
         ),
       ),
-      StatefulShellRoute.indexedStack(
+      StatefulShellRoute(
+        navigatorContainerBuilder: (context, shell, children) =>
+            ShellBranchStack(
+              currentIndex: shell.currentIndex,
+              children: children,
+            ),
         builder: (context, state, shell) {
           final appShell = AppShell(
             selectedIndex: shell.currentIndex,
@@ -222,61 +271,89 @@ GoRouter createRouter({
               routes: [
                 GoRoute(
                   path: _pathFor(destination),
-                  builder: (context, state) => switch (destination) {
-                    AppShellDestination.courses => const CourseMapScreen(),
-                    AppShellDestination.home => const PlaceholderScreen(),
-                    AppShellDestination.profile => const AccountScreen(),
-                    _ => PlaceholderScreen(title: destination.label),
-                  },
+                  pageBuilder: (context, state) => fadeThroughPage(
+                    context,
+                    key: state.pageKey,
+                    child: switch (destination) {
+                      AppShellDestination.courses => const CourseMapScreen(),
+                      AppShellDestination.home => const PlaceholderScreen(),
+                      AppShellDestination.profile => const AccountScreen(),
+                      _ => PlaceholderScreen(title: destination.label),
+                    },
+                  ),
                   routes: [
                     if (destination == AppShellDestination.courses) ...[
                       GoRoute(
                         path: 'topics/:topicId',
-                        builder: (context, state) => TopicScreen(
-                          topicId: state.pathParameters['topicId']!,
-                          title: switch (state.extra) {
-                            final String t => t,
-                            _ => null,
-                          },
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: TopicScreen(
+                            topicId: state.pathParameters['topicId']!,
+                            title: switch (state.extra) {
+                              final String t => t,
+                              _ => null,
+                            },
+                          ),
                         ),
                       ),
                       GoRoute(
                         path: 'topics/:topicId/video/:assetId',
-                        builder: (context, state) => _DeferredVideoPlayer(
-                          key: videoKey,
-                          topicId: state.pathParameters['topicId']!,
-                          assetId: state.pathParameters['assetId']!,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: _DeferredVideoPlayer(
+                            key: videoKey,
+                            topicId: state.pathParameters['topicId']!,
+                            assetId: state.pathParameters['assetId']!,
+                          ),
                         ),
                         onExit: (_, _) =>
                             videoKey.currentState?.confirmExit() ?? true,
                       ),
                       GoRoute(
                         path: 'topics/:topicId/notes/:assetId',
-                        builder: (context, state) => _DeferredNotesViewer(
-                          topicId: state.pathParameters['topicId']!,
-                          assetId: state.pathParameters['assetId']!,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: _DeferredNotesViewer(
+                            topicId: state.pathParameters['topicId']!,
+                            assetId: state.pathParameters['assetId']!,
+                          ),
                         ),
                       ),
                       GoRoute(
                         path: 'topics/:topicId/practice',
-                        builder: (context, state) => PracticeScreen(
-                          topicId: state.pathParameters['topicId']!,
-                          title: switch (state.extra) {
-                            final String t => t,
-                            _ => null,
-                          },
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: PracticeScreen(
+                            topicId: state.pathParameters['topicId']!,
+                            title: switch (state.extra) {
+                              final String t => t,
+                              _ => null,
+                            },
+                          ),
                         ),
                       ),
                       GoRoute(
                         path: 'topics/:topicId/homework',
-                        builder: (context, state) => HomeworkScreen(
-                          topicId: state.pathParameters['topicId']!,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: HomeworkScreen(
+                            topicId: state.pathParameters['topicId']!,
+                          ),
                         ),
                       ),
                       GoRoute(
                         path: 'attempts/:attemptId/review',
-                        builder: (context, state) => AttemptReviewScreen(
-                          attemptId: state.pathParameters['attemptId']!,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: AttemptReviewScreen(
+                            attemptId: state.pathParameters['attemptId']!,
+                          ),
                         ),
                       ),
                       GoRoute(
@@ -285,8 +362,12 @@ GoRouter createRouter({
                             state.extra == QuizEntry.startOrResume
                             ? null
                             : AppRoutes.topic(state.pathParameters['topicId']!),
-                        builder: (context, state) => QuizScreen(
-                          topicId: state.pathParameters['topicId']!,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: QuizScreen(
+                            topicId: state.pathParameters['topicId']!,
+                          ),
                         ),
                       ),
                       GoRoute(
@@ -294,10 +375,14 @@ GoRouter createRouter({
                         redirect: (context, state) => state.extra is QuizReport
                             ? null
                             : AppRoutes.topic(state.pathParameters['topicId']!),
-                        builder: (context, state) => QuizResultScreen(
-                          topicId: state.pathParameters['topicId']!,
-                          // The redirect above requires a report.
-                          report: state.extra! as QuizReport,
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: QuizResultScreen(
+                            topicId: state.pathParameters['topicId']!,
+                            // The redirect above requires a report.
+                            report: state.extra! as QuizReport,
+                          ),
                         ),
                       ),
                     ],
@@ -309,37 +394,68 @@ GoRouter createRouter({
       ),
       GoRoute(
         path: AppRoutes.activate,
-        builder: (context, state) => const ActivateScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const ActivateScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.signIn,
-        builder: (context, state) => const SignInScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const SignInScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.signUp,
-        builder: (context, state) => const SignUpScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const SignUpScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
-        builder: (context, state) => const ForgotPasswordScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const ForgotPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.resetPassword,
-        builder: (context, state) => const SetNewPasswordScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const SetNewPasswordScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.checkInbox,
-        builder: (context, state) => const CheckInboxScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const CheckInboxScreen(),
+        ),
       ),
       GoRoute(
         path: AppRoutes.devices,
-        builder: (context, state) => const DeviceGateScreen(),
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const DeviceGateScreen(),
+        ),
       ),
       if (galleryEnabled)
         GoRoute(
           path: AppRoutes.gallery,
-          builder: (context, state) =>
-              GalleryScreen(entryId: state.uri.queryParameters['entry']),
+          pageBuilder: (context, state) => fadeThroughPage(
+            context,
+            key: state.pageKey,
+            child: GalleryScreen(entryId: state.uri.queryParameters['entry']),
+          ),
         ),
     ],
   );

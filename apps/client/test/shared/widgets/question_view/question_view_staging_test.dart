@@ -24,7 +24,17 @@ void main() {
     tester,
   ) async {
     await _pump(tester, 'q1', _practice);
-    expect(find.text('Rep 2 of 10 — Quiz unlocks at 10'), findsOneWidget);
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is Semantics &&
+            (widget.properties.label?.contains(
+                  'Rep 2 of 10 \u2014 Quiz unlocks at 10',
+                ) ??
+                false),
+      ),
+      findsOneWidget,
+    );
   });
 
   for (final (label, mode) in [('practice', _practice), ('quiz', _quiz)]) {

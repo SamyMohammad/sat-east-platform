@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
@@ -24,6 +25,73 @@ void main() {
   late _MockRepo repo;
 
   setUp(() => repo = _MockRepo());
+
+  for (final name in [
+    'reload_marks_newly_unlocked_topic',
+    'first_load_marks_nothing',
+    'acknowledge_clears',
+  ]) {
+    test(name, () async {
+      CourseMap map(TopicStatus status) => CourseMap(
+        courseId: 'c1',
+        slug: 'sat',
+        title: 'SAT',
+        continueTopic: null,
+        units: [
+          MapUnit(
+            title: 'Algebra',
+            topics: [
+              MapTopic(
+                id: 't1',
+                slug: 'linear',
+                title: 'Linear',
+                sortLabel: '1.1',
+                isFreePreview: false,
+                status: status,
+                lockReason: null,
+              ),
+            ],
+          ),
+        ],
+      );
+      var current = map(
+        name == 'first_load_marks_nothing'
+            ? TopicStatus.open
+            : TopicStatus.locked,
+      );
+      when(() => repo.getCourseMap()).thenAnswer((_) async => Success(current));
+      final cubit = CourseMapCubit(repo);
+      addTearDown(cubit.close);
+      await cubit.load();
+      if (name == 'first_load_marks_nothing') {
+        expect((cubit.state as CourseMapLoaded).justUnlocked, isEmpty);
+        return;
+      }
+      current = map(TopicStatus.open);
+      await cubit.load();
+      expect((cubit.state as CourseMapLoaded).justUnlocked, {'t1'});
+      if (name == 'acknowledge_clears') {
+        cubit.acknowledgeUnlock();
+        expect((cubit.state as CourseMapLoaded).justUnlocked, isEmpty);
+        cubit.acknowledgeUnlock();
+        await cubit.load();
+        expect((cubit.state as CourseMapLoaded).justUnlocked, isEmpty);
+      }
+    });
+  }
+
+  test('acknowledge_without_loaded_unlock_is_safe', () async {
+    final cubit = CourseMapCubit(repo)..acknowledgeUnlock();
+    expect(cubit.state, const CourseMapLoading());
+    when(
+      () => repo.getCourseMap(),
+    ).thenAnswer((_) async => const Failure(AppError(ErrorCodes.network)));
+    await cubit.load();
+    cubit.acknowledgeUnlock();
+    expect(cubit.state, const CourseMapFailed(AppError(ErrorCodes.network)));
+    await cubit.close();
+    cubit.acknowledgeUnlock();
+  });
 
   test('L-1: latest overlapping refresh wins over a stale failure', () async {
     final older = Completer<Result<CourseMap>>();

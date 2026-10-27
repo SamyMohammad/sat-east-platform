@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
 
 /// Homework autosave state: icon + copy, announced as a live region.
@@ -20,9 +21,9 @@ class SaveStatusLabel extends StatelessWidget {
     final style = theme.textTheme.labelSmall?.copyWith(color: color);
     final (icon, copy) = switch (status) {
       SaveStatus.saving => (null, 'Saving…'),
-      SaveStatus.saved => (Icons.cloud_done_outlined, 'Saved'),
-      SaveStatus.offline => (Icons.cloud_off_outlined, 'Offline — will sync'),
-      SaveStatus.failed => (Icons.error_outline_rounded, "Couldn't save"),
+      SaveStatus.saved => (AppIcons.saved, 'Saved'),
+      SaveStatus.offline => (AppIcons.unsynced, 'Offline — will sync'),
+      SaveStatus.failed => (AppIcons.error, "Couldn't save"),
     };
     return Semantics(
       liveRegion: true,
@@ -32,15 +33,15 @@ class SaveStatusLabel extends StatelessWidget {
         children: [
           if (icon == null)
             SizedBox.square(
-              dimension: BookletSize.iconStatus,
+              dimension: AppSize.iconStatus,
               child: CircularProgressIndicator(
-                strokeWidth: BookletStroke.strong,
+                strokeWidth: AppStroke.strong,
                 color: color,
               ),
             )
           else
-            Icon(icon, size: BookletSize.iconStatus, color: color),
-          const SizedBox(width: BookletSpace.s2),
+            Icon(icon, size: AppSize.iconStatus, color: color),
+          const SizedBox(width: AppSpace.s2),
           Flexible(
             child: Text(
               copy,
@@ -53,7 +54,7 @@ class SaveStatusLabel extends StatelessWidget {
             TextButton(
               onPressed: onRetry,
               style: TextButton.styleFrom(
-                minimumSize: const Size(0, BookletSize.touchTarget),
+                minimumSize: const Size(0, AppSize.touchTarget),
               ),
               child: const Text('Retry'),
             ),

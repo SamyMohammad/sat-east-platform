@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 /// Pinned 72 px action bar. Phone: leading, centred middle, primary. Wide:
 /// 1fr / auto / 1fr grid with the optional [helper] beside the primary.
@@ -31,8 +31,7 @@ class QuestionFooter extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         final compact =
-            BookletLayout.forWidth(constraints.maxWidth) ==
-            BookletLayout.compact;
+            AppLayout.forWidth(constraints.maxWidth) == AppLayout.compact;
         final scheme = Theme.of(context).colorScheme;
         return DecoratedBox(
           decoration: BoxDecoration(
@@ -43,12 +42,12 @@ class QuestionFooter extends StatelessWidget {
             top: false,
             child: ConstrainedBox(
               constraints: const BoxConstraints(
-                minHeight: BookletSize.footerHeight,
+                minHeight: AppSize.footerHeight,
               ),
               child: Padding(
                 padding: EdgeInsets.symmetric(
-                  horizontal: compact ? BookletSpace.s3 : BookletSpace.s8,
-                  vertical: compact ? BookletSpace.s2 : 0,
+                  horizontal: compact ? AppSpace.s3 : AppSpace.s8,
+                  vertical: compact ? AppSpace.s2 : 0,
                 ),
                 child: compact || phoneComposition
                     ? _compact(context)
@@ -66,7 +65,7 @@ class QuestionFooter extends StatelessWidget {
     if (stack) {
       return Column(
         mainAxisSize: MainAxisSize.min,
-        spacing: BookletSpace.s2,
+        spacing: AppSpace.s2,
         children: [
           middle,
           Row(
@@ -82,7 +81,7 @@ class QuestionFooter extends StatelessWidget {
       );
     }
     return Row(
-      spacing: BookletSpace.s1,
+      spacing: AppSpace.s1,
       children: [
         ?leading,
         Expanded(child: Center(child: middle)),
@@ -107,7 +106,7 @@ class QuestionFooter extends StatelessWidget {
             alignment: AlignmentDirectional.centerEnd,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              spacing: BookletSpace.s4,
+              spacing: AppSpace.s4,
               children: [
                 if (helper != null)
                   Flexible(

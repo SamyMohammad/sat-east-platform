@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
+
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 class BuilderTitleDialog extends StatefulWidget {
   const BuilderTitleDialog({required this.label, super.key});
@@ -24,8 +25,8 @@ class _BuilderTitleDialogState extends State<BuilderTitleDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.label),
+  Widget build(BuildContext context) => AppDialog(
+    title: widget.label,
     content: Form(
       key: _form,
       child: TextFormField(
@@ -33,7 +34,7 @@ class _BuilderTitleDialogState extends State<BuilderTitleDialog> {
         autofocus: true,
         maxLength: 120,
         decoration: const InputDecoration(labelText: 'Title'),
-        textDirection: detectTextDirection(_controller.text),
+        textDirection: TextDirection.ltr,
         onChanged: (_) => setState(() {}),
         validator: (value) =>
             value == null || value.trim().isEmpty ? 'Enter a title.' : null,

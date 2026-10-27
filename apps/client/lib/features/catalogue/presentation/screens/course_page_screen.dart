@@ -1,14 +1,15 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/catalogue/domain/entities/course_page.dart';
@@ -18,7 +19,7 @@ import 'package:sat_east_client/features/catalogue/presentation/cubit/course_pag
 import 'package:sat_east_client/features/catalogue/presentation/price_format.dart';
 import 'package:sat_east_client/features/catalogue/presentation/widgets/catalogue_frame.dart';
 import 'package:sat_east_client/features/catalogue/presentation/widgets/syllabus_unit.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
@@ -55,8 +56,8 @@ class CoursePageView extends StatelessWidget {
     child: BlocBuilder<CoursePageCubit, CoursePageState>(
       builder: (context, state) => switch (state) {
         CoursePageLoading() => const Padding(
-          padding: EdgeInsets.all(BookletSpace.s6),
-          child: BookletSkeleton(),
+          padding: EdgeInsets.all(AppSpace.s6),
+          child: AppSkeleton(),
         ),
         CoursePageFailed(:final error)
             when error.code == ErrorCodes.invalidInput =>
@@ -90,21 +91,21 @@ class _CourseContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(BookletSpace.s6),
+      padding: const EdgeInsets.all(AppSpace.s6),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: BookletSpace.s5,
+        spacing: AppSpace.s5,
         children: [
           Text(
             page.title,
             style: theme.textTheme.headlineLarge,
-            textDirection: detectTextDirection(page.title),
+            textDirection: TextDirection.ltr,
           ),
           if (page.description case final description?)
             Text(
               description,
               style: theme.textTheme.bodyLarge,
-              textDirection: detectTextDirection(description),
+              textDirection: TextDirection.ltr,
             ),
           const Divider(),
           Text(CatalogueCopy.contents, style: theme.textTheme.headlineSmall),

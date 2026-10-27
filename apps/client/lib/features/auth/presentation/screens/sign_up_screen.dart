@@ -5,7 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/form_rules.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
@@ -13,7 +14,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class SignUpScreen extends StatefulWidget {
@@ -68,7 +69,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     final theme = Theme.of(context);
     return AuthCard(
       footer: Column(
-        spacing: BookletSpace.s3,
+        spacing: AppSpace.s3,
         children: [
           BlocSelector<AuthCubit, AuthState, bool>(
             selector: (state) => state is AuthBusy,
@@ -101,7 +102,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           selector: _bannerMessage,
           builder: (context, message) => message == null
               ? const SizedBox.shrink()
-              : BookletBanner(message: message, kind: BookletBannerKind.error),
+              : AppBanner(message: message, kind: AppBannerKind.error),
         ),
         AuthTextField(
           label: 'Full name',
@@ -176,12 +177,12 @@ class _EmailTakenError extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Wrap(
     crossAxisAlignment: WrapCrossAlignment.center,
-    spacing: BookletSpace.s2,
+    spacing: AppSpace.s2,
     children: [
       const Text('This email already has an account.'),
       LoadingButton(
         label: 'Sign in instead',
-        variant: BookletButtonVariant.tertiary,
+        variant: AppButtonVariant.tertiary,
         onPressed: () => context.go(AppRoutes.signIn),
       ),
     ],
@@ -199,7 +200,7 @@ class _PasswordRules extends StatelessWidget {
     final length = rules.hasMinLength ? base : '$base · ${rules.length} so far';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: BookletSpace.s1,
+      spacing: AppSpace.s1,
       children: [
         _Rule(label: length, met: rules.hasMinLength),
         _Rule(label: 'A number', met: rules.hasNumber),
@@ -225,11 +226,11 @@ class _Rule extends StatelessWidget {
       label: '$label, ${met ? 'met' : 'not met'}',
       excludeSemantics: true,
       child: Row(
-        spacing: BookletSpace.s2,
+        spacing: AppSpace.s2,
         children: [
           Icon(
-            met ? Icons.check_circle : Icons.radio_button_unchecked,
-            size: BookletSize.iconStatus,
+            met ? AppIcons.correct : AppIcons.unselected,
+            size: AppSize.iconStatus,
             color: color,
           ),
           Expanded(

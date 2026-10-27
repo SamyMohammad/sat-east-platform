@@ -7,10 +7,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
-import 'package:sat_east_client/shared/widgets/booklet_progress.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_progress.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
@@ -96,13 +96,13 @@ void main() {
                   child: const Text('Done'),
                 );
                 result = sheet
-                    ? showBookletSheet<String>(
+                    ? showAppSheet<String>(
                         context: context,
                         builder: content,
                       )
-                    : showBookletDialog<String>(
+                    : showAppDialog<String>(
                         context: context,
-                        builder: (ctx) => BookletDialog(
+                        builder: (ctx) => AppDialog(
                           title: 'Confirm',
                           content: content(ctx),
                         ),
@@ -130,13 +130,13 @@ void main() {
             builder: (context) => TextButton(
               onPressed: () {
                 result = sheet
-                    ? showBookletSheet<String>(
+                    ? showAppSheet<String>(
                         context: context,
                         builder: (_) => const Text('Reference'),
                       )
-                    : showBookletDialog<String>(
+                    : showAppDialog<String>(
                         context: context,
-                        builder: (_) => const BookletDialog(
+                        builder: (_) => const AppDialog(
                           title: 'Confirm',
                           content: Text('Reference'),
                         ),
@@ -176,16 +176,16 @@ void main() {
                 );
                 if (sheet) {
                   unawaited(
-                    showBookletSheet<void>(
+                    showAppSheet<void>(
                       context: context,
                       builder: content,
                     ),
                   );
                 } else {
                   unawaited(
-                    showBookletDialog<void>(
+                    showAppDialog<void>(
                       context: context,
-                      builder: (ctx) => BookletDialog(
+                      builder: (ctx) => AppDialog(
                         title: 'Reference',
                         content: content(ctx),
                       ),
@@ -218,10 +218,10 @@ void main() {
       tester,
       Builder(
         builder: (context) => TextButton(
-          onPressed: () => showBookletDialog<void>(
+          onPressed: () => showAppDialog<void>(
             context: context,
             barrierDismissible: false,
-            builder: (_) => const BookletDialog(
+            builder: (_) => const AppDialog(
               title: 'Confirm',
               content: Text('Keep going'),
             ),
@@ -246,7 +246,7 @@ void main() {
       Builder(
         builder: (context) => TextButton(
           onPressed: () {
-            snack = showBookletSnackBar(
+            snack = showAppSnackBar(
               context: context,
               message: 'Choice D crossed out.',
               actionLabel: 'Undo',
@@ -275,7 +275,7 @@ void main() {
         tester,
         Builder(
           builder: (context) => TextButton(
-            onPressed: () => showBookletSnackBar(
+            onPressed: () => showAppSnackBar(
               context: context,
               message: 'Choice D crossed out.',
               actionLabel: 'Undo',
@@ -310,7 +310,7 @@ void main() {
       try {
         await _pump(
           tester,
-          BookletProgress(label: 'Saving answers', value: value),
+          AppProgress(label: 'Saving answers', value: value),
         );
         expect(
           tester
@@ -334,7 +334,7 @@ void main() {
     testWidgets('F-4: progress clamps $input for rendering', (tester) async {
       await _pump(
         tester,
-        BookletProgress(label: 'Topic progress', value: input),
+        AppProgress(label: 'Topic progress', value: input),
       );
       expect(
         tester
@@ -351,7 +351,7 @@ void main() {
     try {
       await _pump(
         tester,
-        const BookletProgress(
+        const AppProgress(
           label: 'Topic 4 of 40',
           value: .1,
           valueLabel: '10%',
@@ -374,7 +374,7 @@ void main() {
   ) async {
     await _pump(
       tester,
-      const BookletProgress(label: 'Saving answers'),
+      const AppProgress(label: 'Saving answers'),
       reducedMotion: true,
     );
     await tester.pump(const Duration(seconds: 1));
@@ -387,7 +387,7 @@ void main() {
     try {
       await _pump(
         tester,
-        const BookletSkeleton(label: 'Loading question'),
+        const AppSkeleton(label: 'Loading question'),
         dark: true,
       );
       expect(find.bySemanticsLabel('Loading question'), findsOneWidget);
@@ -524,7 +524,7 @@ void main() {
               secondaryLabel: copy,
               onSecondary: () {},
             ),
-            const BookletProgress(label: copy, value: .5, valueLabel: copy),
+            const AppProgress(label: copy, value: .5, valueLabel: copy),
           ],
         ),
       ),

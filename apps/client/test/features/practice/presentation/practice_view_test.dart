@@ -12,7 +12,7 @@ import 'package:sat_east_client/features/practice/domain/entities/practice.dart'
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_cubit.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart'
     as feedback;
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
@@ -175,7 +175,7 @@ void main() {
 
   testWidgets('PRC-01: loading shows a skeleton', (tester) async {
     await _pump(tester, _cubit(const PracticeLoading()));
-    expect(find.byType(BookletSkeleton), findsOneWidget);
+    expect(find.byType(AppSkeleton), findsOneWidget);
   });
 
   testWidgets('PRC-01: answering maps MCQ data, progress and answer', (

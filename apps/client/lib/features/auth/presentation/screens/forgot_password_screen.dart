@@ -10,7 +10,8 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) => AuthCard(
+    illustration: AppIllustrationName.resetPassword,
     footer: Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -56,7 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ),
         LoadingButton(
           label: 'Back to sign in',
-          variant: BookletButtonVariant.tertiary,
+          variant: AppButtonVariant.tertiary,
           onPressed: () {
             context.read<AuthCubit>().clearError();
             context.go(AppRoutes.signIn);
@@ -73,9 +75,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         selector: (state) => state is AuthSignedOut ? state.error?.code : null,
         builder: (context, code) => code == null
             ? const SizedBox.shrink()
-            : BookletBanner(
+            : AppBanner(
                 message: authErrorCopy(code),
-                kind: BookletBannerKind.error,
+                kind: AppBannerKind.error,
               ),
       ),
       AuthTextField(

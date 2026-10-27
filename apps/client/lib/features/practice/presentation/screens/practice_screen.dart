@@ -10,13 +10,13 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/presentation/learning_copy.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_cubit.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart';
 import 'package:sat_east_client/features/practice/presentation/practice_copy.dart';
 import 'package:sat_east_client/features/practice/presentation/widgets/practice_question.dart';
 import 'package:sat_east_client/features/practice/presentation/widgets/practice_summary.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
@@ -48,7 +48,7 @@ class PracticeView extends StatelessWidget {
   Widget build(BuildContext context) => SafeArea(
     child: BlocBuilder<PracticeCubit, PracticeState>(
       builder: (context, state) => switch (state) {
-        PracticeLoading() => const _StatusContent(child: BookletSkeleton()),
+        PracticeLoading() => const _StatusContent(child: AppSkeleton()),
         PracticeFailed(:final error) => _StatusContent(
           child: _Failed(topicId: topicId, error: error),
         ),
@@ -80,9 +80,9 @@ class _StatusContent extends StatelessWidget {
   Widget build(BuildContext context) => Align(
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: BookletSize.readingColumn),
+      constraints: const BoxConstraints(maxWidth: AppSize.readingColumn),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(BookletSpace.s4),
+        padding: const EdgeInsets.all(AppSpace.s4),
         child: child,
       ),
     ),

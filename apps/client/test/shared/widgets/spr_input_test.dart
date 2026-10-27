@@ -4,6 +4,7 @@ import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/spr_input.dart';
 
@@ -167,7 +168,7 @@ void main() {
     testWidgets('F-4: "$value" shows an info hint', (t) async {
       await pumpSpr(t, value: value);
       expect(find.textContaining(phrase), findsOneWidget);
-      expect(find.byIcon(Icons.info_outline_rounded), findsOneWidget);
+      expect(find.byIcon(AppIcons.info), findsOneWidget);
     });
   }
 

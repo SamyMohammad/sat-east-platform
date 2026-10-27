@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 
 class NotesPageWatermark extends StatelessWidget {
   const NotesPageWatermark({required this.text, super.key});
@@ -23,7 +22,7 @@ class NotesPageWatermark extends StatelessWidget {
                     child: Text(
                       text,
                       textAlign: TextAlign.center,
-                      textDirection: detectTextDirection(text),
+                      textDirection: TextDirection.ltr,
                       maxLines: 1,
                       style: TextStyle(
                         fontSize: bounds.maxWidth / 32,

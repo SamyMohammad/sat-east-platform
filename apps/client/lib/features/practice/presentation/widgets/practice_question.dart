@@ -11,7 +11,7 @@ import 'package:sat_east_client/features/practice/presentation/cubit/practice_cu
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart'
     as practice;
 import 'package:sat_east_client/features/practice/presentation/practice_copy.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
@@ -54,9 +54,9 @@ class PracticeQuestionView extends StatelessWidget {
     return Column(
       children: [
         if (progress.checkError != null)
-          const BookletBanner(
+          const AppBanner(
             message: PracticeCopy.checkError,
-            kind: BookletBannerKind.error,
+            kind: AppBannerKind.error,
           ),
         Expanded(
           child: QuestionView(

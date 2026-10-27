@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_answer.dart';
@@ -39,7 +42,8 @@ class _EditorFormState extends State<EditorForm> {
       unawaited(
         Scrollable.ensureVisible(
           targetContext,
-          duration: const Duration(milliseconds: 200),
+          duration: AppMotion.resolve(context, AppMotion.state),
+          curve: AppMotion.standard,
         ),
       );
     }
@@ -53,7 +57,8 @@ class _EditorFormState extends State<EditorForm> {
         unawaited(
           Scrollable.ensureVisible(
             summaryContext,
-            duration: const Duration(milliseconds: 200),
+            duration: AppMotion.resolve(context, AppMotion.state),
+            curve: AppMotion.standard,
           ),
         );
       }
@@ -69,7 +74,7 @@ class _EditorFormState extends State<EditorForm> {
       listener: (_, _) => _showSummary(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: BookletSpace.s4,
+        spacing: AppSpace.s4,
         children: [
           EditorErrorSummary(key: _summaryKey, onJump: _jumpTo),
           EditorSection(

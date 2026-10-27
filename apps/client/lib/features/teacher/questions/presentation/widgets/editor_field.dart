@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/question_draft.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
@@ -108,7 +107,7 @@ class _EditorTextInputState extends State<EditorTextInput> {
       controller: _controller,
       enabled: widget.enabled,
       onChanged: widget.onChanged,
-      textDirection: detectTextDirection(widget.value),
+      textDirection: TextDirection.ltr,
       minLines: widget.multiline ? 2 : 1,
       maxLines: widget.multiline ? 5 : 1,
       keyboardType: widget.numeric

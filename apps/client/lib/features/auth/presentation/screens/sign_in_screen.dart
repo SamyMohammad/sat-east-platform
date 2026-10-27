@@ -10,7 +10,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class SignInScreen extends StatefulWidget {
@@ -52,6 +52,7 @@ class _SignInScreenState extends State<SignInScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AuthCard(
+      showWelcomeIllustration: true,
       children: [
         Text('Sign in', style: theme.textTheme.headlineSmall),
         Text(
@@ -64,7 +65,7 @@ class _SignInScreenState extends State<SignInScreen> {
           selector: _bannerMessage,
           builder: (context, message) => message == null
               ? const SizedBox.shrink()
-              : BookletBanner(message: message, kind: BookletBannerKind.error),
+              : AppBanner(message: message, kind: AppBannerKind.error),
         ),
         AuthTextField(
           label: 'Email',

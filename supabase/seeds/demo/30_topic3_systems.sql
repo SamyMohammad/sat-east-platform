@@ -165,7 +165,7 @@ Substitute into \(3x + 2y = 16\): \(9 + 2y = 16\), so \(2y = 7\) and \(y = \frac
 
 Check: \(5(3) - 2(3.5) = 15 - 7 = 8\).
 
-الخطوة الأساسية: نجمع المعادلتين فيُحذف \(y\) لأن معاملَيه متعاكسان، فنحصل على \(8x = 24\) أي \(x = 3\)، ثم نعوّض لنجد \(y = \frac{7}{2}\).$q$,
+Key step: add the equations to eliminate \(y\) because its coefficients are opposites, giving \(8x = 24\), so \(x = 3\). Substitute to find \(y = \frac{7}{2}\).$q$,
   jsonb_build_object(
     'A', $q$3 is the value of \(x\), not \(y\).$q$,
     'B', $q$7 is the value of \(2y\). Divide by 2 to find \(y\).$q$),
@@ -553,7 +553,7 @@ The \(y\)-coefficient 4 is twice 2, so the first equation must be twice the seco
 
 Match: \(a = 6\) and \(2c = 8\), so \(c = 4\). Then \(a + c = 10\).
 
-الخطوة الأساسية: لكي يكون للنظام عدد لا نهائي من الحلول يجب أن تكون المعادلة الأولى مضاعفًا للثانية؛ نضرب الثانية في 2 فنجد \(a = 6\) و\(c = 4\)، إذن \(a + c = 10\).$q$,
+Key step: for the system to have infinitely many solutions, the first equation must be a multiple of the second. Multiply the second by 2 to find \(a = 6\) and \(c = 4\), so \(a + c = 10\).$q$,
   jsonb_build_object(
     'B', $q$You doubled the constant instead of halving it: \(2c = 8\) gives \(c = 4\), not 8.$q$,
     'A', $q$You took \(a = 3\) without scaling. Every coefficient of the second equation must be doubled to match \(4y\).$q$),

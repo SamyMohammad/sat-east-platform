@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
@@ -121,7 +122,7 @@ LoadingButton _button(WidgetTester t, String label) => t.widget<LoadingButton>(
 
 Finder _cell(int i) => find.byKey(ValueKey('nav-cell-$i'));
 final Finder _grid = find.byType(QuestionNavigatorGrid);
-final Finder _dialog = find.byType(BookletDialog);
+final Finder _dialog = find.byType(AppDialog);
 Finder _inDialog(Finder f) => find.descendant(of: _dialog, matching: f);
 final Finder _markToggle = find.descendant(
   of: find.byType(QuizQuestionHeader),
@@ -206,14 +207,14 @@ void main() {
         );
         expect(find.text('Marked for review'), findsOneWidget);
         expect(find.text('Mark for review'), findsNothing);
-        expect(find.byIcon(Icons.bookmark), findsOneWidget);
+        expect(find.byIcon(AppIcons.bookmarked), findsOneWidget);
       });
 
       testWidgets('F-4: footer button opens the right navigator and cells '
           'jump', (t) async {
         final calls = await _pump(t, size: size);
         expect(find.text(navLabel), findsOneWidget);
-        expect(find.byIcon(Icons.expand_less), findsOneWidget);
+        expect(find.byIcon(AppIcons.collapse), findsOneWidget);
 
         await t.tap(find.text(navLabel));
         await t.pumpAndSettle();
@@ -264,7 +265,7 @@ void main() {
         await t.pumpAndSettle();
 
         expect(_grid, findsNothing);
-        expect(t.widget<BookletDialog>(_dialog).title, 'Submit quiz?');
+        expect(t.widget<AppDialog>(_dialog).title, 'Submit quiz?');
         expect(
           _inDialog(
             find.text('After you submit, your answers are locked and marked.'),
@@ -289,7 +290,7 @@ void main() {
 
         await t.tap(find.text('Submit quiz'));
         await t.pumpAndSettle();
-        expect(t.widget<BookletDialog>(_dialog).title, 'Submit quiz?');
+        expect(t.widget<AppDialog>(_dialog).title, 'Submit quiz?');
         expect(calls.submits, 0);
 
         await t.tap(_inDialog(find.text('Submit quiz')));

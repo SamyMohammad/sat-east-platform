@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/homework/presentation/homework_copy.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_homework.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -19,43 +19,36 @@ class TopicHomeworkStep extends StatelessWidget {
     final state = homework.state;
     if (state == HomeworkState.skipped) return const SizedBox.shrink();
     final attemptId = homework.attemptId;
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BookletSpace.s4),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: BookletSpace.s3,
-          children: [
-            Text(
-              HomeworkCopy.title,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (state == HomeworkState.submitted) ...[
-              Text(HomeworkCopy.submitted(homework.scorePct ?? 0)),
-              TextButton(
-                onPressed: attemptId == null || onReport == null
-                    ? null
-                    : () => onReport!(attemptId),
-                child: const Text(HomeworkCopy.viewReport),
-              ),
-            ] else ...[
-              if (state == HomeworkState.lockedByPractice)
-                const Text(HomeworkCopy.practiceNeeded),
-              LoadingButton(
-                label: state == HomeworkState.inProgress
-                    ? HomeworkCopy.continueHomework(
-                        homework.answered,
-                        homework.total ?? 0,
-                      )
-                    : HomeworkCopy.start,
-                onPressed: state == HomeworkState.lockedByPractice
-                    ? null
-                    : onStart,
-              ),
-            ],
-          ],
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: AppSpace.s3,
+      children: [
+        Text(
+          HomeworkCopy.title,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-      ),
+        if (state == HomeworkState.submitted) ...[
+          Text(HomeworkCopy.submitted(homework.scorePct ?? 0)),
+          TextButton(
+            onPressed: attemptId == null || onReport == null
+                ? null
+                : () => onReport!(attemptId),
+            child: const Text(HomeworkCopy.viewReport),
+          ),
+        ] else ...[
+          if (state == HomeworkState.lockedByPractice)
+            const Text(HomeworkCopy.practiceNeeded),
+          LoadingButton(
+            label: state == HomeworkState.inProgress
+                ? HomeworkCopy.continueHomework(
+                    homework.answered,
+                    homework.total ?? 0,
+                  )
+                : HomeworkCopy.start,
+            onPressed: state == HomeworkState.lockedByPractice ? null : onStart,
+          ),
+        ],
+      ],
     );
   }
 }

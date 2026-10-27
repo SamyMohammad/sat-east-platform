@@ -1,11 +1,16 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/feedback_dock.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navigator.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/practice_question_layout.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_body.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_footer.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
@@ -71,7 +76,7 @@ class QuestionView extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final layout = BookletLayout.forWidth(constraints.maxWidth);
+        final layout = AppLayout.forWidth(constraints.maxWidth);
         return QuestionShortcuts(
           labels: switch (question.kind) {
             McqKind(:final choices) => [for (final c in choices) c.label],
@@ -86,8 +91,17 @@ class QuestionView extends StatelessWidget {
           child: Column(
             children: [
               if (showNavigation) _header(context, layout),
-              Expanded(child: _bodyWithPanel(layout)),
-              if (showNavigation) _footer(context, layout),
+              if (mode is PracticeMode && showNavigation)
+                Expanded(
+                  child: PracticeQuestionLayout(
+                    body: _animatedBody(context, layout),
+                    dock: _footer(context, layout),
+                  ),
+                )
+              else ...[
+                Expanded(child: _animatedBody(context, layout)),
+                if (showNavigation) _footer(context, layout),
+              ],
             ],
           ),
         );
@@ -95,7 +109,30 @@ class QuestionView extends StatelessWidget {
     );
   }
 
-  Widget _bodyWithPanel(BookletLayout layout) {
+  Widget _animatedBody(
+    BuildContext context,
+    AppLayout layout,
+  ) => AnimatedSwitcher(
+    duration: AppMotion.resolve(context, AppMotion.enter),
+    switchInCurve: AppMotion.emphasized,
+    switchOutCurve: AppMotion.standard,
+    layoutBuilder: (current, previous) => current ?? const SizedBox.shrink(),
+    transitionBuilder: (child, animation) => FadeTransition(
+      opacity: animation,
+      child: SlideTransition(
+        position: animation.drive(
+          Tween(begin: const Offset(0.06, 0), end: Offset.zero),
+        ),
+        child: child,
+      ),
+    ),
+    child: KeyedSubtree(
+      key: ValueKey(question.id),
+      child: _bodyWithPanel(layout),
+    ),
+  );
+
+  Widget _bodyWithPanel(AppLayout layout) {
     final body = _withReport(
       QuestionBody(
         question: question,
@@ -108,6 +145,7 @@ class QuestionView extends StatelessWidget {
         onSprChanged: onSprChanged,
         onMark: onMark,
         figureBuilder: figureBuilder,
+        showInlineFeedback: !showNavigation,
       ),
       layout,
     );
@@ -117,7 +155,7 @@ class QuestionView extends StatelessWidget {
       :final total,
       :final answered,
       :final marked,
-    ) when layout != BookletLayout.compact) {
+    ) when layout != AppLayout.compact) {
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -137,39 +175,42 @@ class QuestionView extends StatelessWidget {
     return body;
   }
 
-  Widget _withReport(Widget body, BookletLayout layout) {
+  Widget _withReport(Widget body, AppLayout layout) {
     final report = onReport;
     if (report == null) return body;
-    return Column(
-      children: [
-        Expanded(child: body),
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: layout == BookletLayout.compact
-                ? BookletSpace.s4
-                : BookletSpace.s8,
-          ),
-          child: Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-                maxWidth: BookletSize.questionColumn,
-              ),
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: TextButton(
-                  onPressed: report,
-                  child: const Text('Report a problem'),
+    return Builder(
+      builder: (context) => Column(
+        children: [
+          Expanded(child: body),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              layout == AppLayout.compact ? AppSpace.s4 : AppSpace.s8,
+              0,
+              layout == AppLayout.compact ? AppSpace.s4 : AppSpace.s8,
+              PracticeQuestionLayout.bottomInsetOf(context),
+            ),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSize.questionColumn,
+                ),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton(
+                    onPressed: report,
+                    child: const Text('Report a problem'),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _header(BuildContext context, BookletLayout layout) => switch (mode) {
+  Widget _header(BuildContext context, AppLayout layout) => switch (mode) {
     PracticeMode(:final rep, :final repTarget) => QuestionHeader(
       title: title,
       modeLabel: 'Practice',
@@ -204,7 +245,7 @@ class QuestionView extends StatelessWidget {
           timeBudget: quiz.timeBudget,
           warning: quiz.isWarning,
           timerHidden: quiz.timerHidden,
-          compact: layout == BookletLayout.compact,
+          compact: layout == AppLayout.compact,
           onToggleTimer: onToggleTimer,
         ),
         if (quiz.showsWarningBanner)
@@ -218,7 +259,7 @@ class QuestionView extends StatelessWidget {
     ),
   };
 
-  Widget _footer(BuildContext context, BookletLayout layout) {
+  Widget _footer(BuildContext context, AppLayout layout) {
     final theme = Theme.of(context);
     final style = theme.textTheme.labelSmall?.copyWith(
       color: theme.colorScheme.onSurfaceVariant,
@@ -227,8 +268,9 @@ class QuestionView extends StatelessWidget {
         ? null
         : LoadingButton(
             label: 'Back',
+            expanded: layout == AppLayout.compact,
             onPressed: mode.backAction(onPrev),
-            variant: BookletButtonVariant.secondary,
+            variant: AppButtonVariant.secondary,
           );
     Widget middle(String text) => Text(
       text,
@@ -239,27 +281,37 @@ class QuestionView extends StatelessWidget {
     );
 
     switch (mode) {
-      case PracticeMode(:final feedback, :final rep, :final repTarget):
+      case PracticeMode(
+        :final feedback,
+        :final noteAuthor,
+      ):
         final done = feedback is Correct || feedback is Revealed;
         final checkEnabled =
             onCheck != null && answer.hasAnswer && !_repeatsMiss(feedback);
         final blockedByMiss = feedback is FirstMiss && !checkEnabled;
-        return QuestionFooter(
-          leading: leading,
-          middle: middle('Rep $rep of $repTarget'),
-          helper: blockedByMiss && layout != BookletLayout.compact
-              ? 'Pick another answer'
-              : null,
-          primary: done
-              ? LoadingButton(
-                  label: 'Next',
-                  onPressed: mode.forwardAction(onNext),
-                )
-              : LoadingButton(
-                  label: 'Check',
-                  isLoading: feedback is Checking,
-                  onPressed: checkEnabled ? onCheck : null,
-                ),
+        return FeedbackDock(
+          key: ValueKey('dock-${question.id}'),
+          feedback: feedback,
+          author: noteAuthor,
+          onCheck: checkEnabled ? onCheck : null,
+          actions: [
+            ?leading,
+            if (blockedByMiss && layout != AppLayout.compact)
+              Text(
+                'Pick another answer',
+                textAlign: TextAlign.end,
+                style: style,
+              ),
+            if (done)
+              LoadingButton(
+                label: 'Next',
+                expanded: layout == AppLayout.compact,
+                minWidth: layout == AppLayout.compact
+                    ? null
+                    : AppSize.dockPrimaryMinWidth,
+                onPressed: mode.forwardAction(onNext),
+              ),
+          ],
         );
       case HomeworkMode(
         :final title,
@@ -273,9 +325,9 @@ class QuestionView extends StatelessWidget {
           leading: LoadingButton(
             label: 'Back',
             onPressed: mode.backAction(onPrev),
-            variant: BookletButtonVariant.secondary,
+            variant: AppButtonVariant.secondary,
           ),
-          middle: layout == BookletLayout.compact
+          middle: layout == AppLayout.compact
               ? _NavigatorFooterButton(
                   label: label,
                   onPressed: () => showHomeworkNavigatorSheet(
@@ -302,18 +354,17 @@ class QuestionView extends StatelessWidget {
 
   Widget _quizFooter(
     BuildContext context,
-    BookletLayout layout,
+    AppLayout layout,
     QuizMode quiz,
   ) {
     final index = quiz.index;
     final total = quiz.total;
-    final compact = layout == BookletLayout.compact;
-    final scheme = Theme.of(context).colorScheme;
+    final compact = layout == AppLayout.compact;
     final label = 'Question ${index + 1} of $total';
     final back = LoadingButton(
       label: 'Back',
       onPressed: quiz.backAction(onPrev),
-      variant: BookletButtonVariant.secondary,
+      variant: AppButtonVariant.secondary,
     );
     final primary = index == total - 1
         ? LoadingButton(
@@ -323,46 +374,48 @@ class QuestionView extends StatelessWidget {
         : LoadingButton(label: 'Next', onPressed: quiz.forwardAction(onNext));
     void open() => _openNavigator(context, layout, quiz);
 
-    if (layout != BookletLayout.expanded) {
+    if (layout != AppLayout.expanded) {
       // Phone and medium widths: Back on the left, primary on the right.
       return QuestionFooter(
         phoneComposition: true,
         leading: back,
         middle: compact
             ? _NavigatorFooterButton(label: label, onPressed: open)
-            : _inkNavigatorButton(scheme, label, open),
+            : _inkNavigatorButton(context, label, open),
         primary: primary,
       );
     }
     return QuestionFooter(
       leading: null,
-      middle: _inkNavigatorButton(scheme, label, open),
+      middle: _inkNavigatorButton(context, label, open),
       primary: Row(
         mainAxisSize: MainAxisSize.min,
-        spacing: BookletSpace.s3,
+        spacing: AppSpace.s3,
         children: [back, primary],
       ),
     );
   }
 
   Widget _inkNavigatorButton(
-    ColorScheme scheme,
+    BuildContext context,
     String label,
     VoidCallback onPressed,
   ) {
+    final colors = context.appColors;
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: scheme.onSurface,
-        foregroundColor: scheme.surface,
-        minimumSize: const Size(0, BookletSize.touchTarget),
+        backgroundColor: colors.raised,
+        foregroundColor: colors.ink,
+        side: BorderSide(color: colors.lineStrong),
+        minimumSize: const Size(0, AppSize.touchTarget),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        spacing: BookletSpace.s1,
+        spacing: AppSpace.s1,
         children: [
           Flexible(child: Text(label, textAlign: TextAlign.center)),
-          const Icon(Icons.expand_less, size: BookletSize.iconStatus),
+          const Icon(AppIcons.collapse, size: AppSize.iconStatus),
         ],
       ),
     );
@@ -372,10 +425,10 @@ class QuestionView extends StatelessWidget {
   /// until time is up.
   void _openNavigator(
     BuildContext context,
-    BookletLayout layout,
+    AppLayout layout,
     QuizMode quiz,
   ) {
-    final open = layout == BookletLayout.compact
+    final open = layout == AppLayout.compact
         ? showNavigatorSheet
         : showNavigatorPopover;
     unawaited(
@@ -435,14 +488,14 @@ class _NavigatorFooterButton extends StatelessWidget {
       onPressed: onPressed,
       style: TextButton.styleFrom(
         padding: EdgeInsets.zero,
-        minimumSize: const Size(0, BookletSize.touchTarget),
+        minimumSize: const Size(0, AppSize.touchTarget),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        spacing: BookletSpace.s1,
+        spacing: AppSpace.s1,
         children: [
           Flexible(child: Text(label, textAlign: TextAlign.center)),
-          const Icon(Icons.expand_less, size: BookletSize.iconStatus),
+          const Icon(AppIcons.collapse, size: AppSize.iconStatus),
         ],
       ),
     );

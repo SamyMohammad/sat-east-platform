@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:sat_east_client/core/math_render/math_markup.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/core/theme/booklet_type.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 
-/// Renders content text with TeX math and mixed Arabic/English (rule 8).
+/// Renders English content text with TeX math.
 /// The only widget that knows the math engine.
 class MathText extends StatelessWidget {
   const MathText(this.source, {super.key, this.style});
@@ -13,34 +12,23 @@ class MathText extends StatelessWidget {
   final String source;
   final TextStyle? style;
 
-  static final _glue = RegExp('^[.,;:!?)\\]\u00BB\u201D\u060C\u061B\u061F]+');
+  static final _glue = RegExp('^[.,;:!?)\\]\u00BB\u201D]+');
 
   @override
   Widget build(BuildContext context) {
     final paragraphs = _paragraphs(parseMathMarkup(source));
     final baseStyle = DefaultTextStyle.of(context).style.merge(style);
 
-    final children = <Widget>[];
-    TextDirection? first;
-    for (final segments in paragraphs) {
-      final direction = detectTextDirection(
-        segments.whereType<TextRun>().map((r) => r.text).join(),
-      );
-      first ??= direction;
-      // Each paragraph carries its own direction so inline-math punctuation
-      // (which reads the ambient direction) follows it, not the first one.
-      children.addAll([
-        for (final w in _paragraph(segments, direction, baseStyle))
-          Directionality(textDirection: direction, child: w),
-      ]);
-    }
+    final children = [
+      for (final segments in paragraphs) ..._paragraph(segments, baseStyle),
+    ];
 
     return Directionality(
-      textDirection: first ?? TextDirection.ltr,
+      textDirection: TextDirection.ltr,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisSize: MainAxisSize.min,
-        spacing: BookletSpace.s2,
+        spacing: AppSpace.s2,
         children: children,
       ),
     );
@@ -48,8 +36,8 @@ class MathText extends StatelessWidget {
 
   static final _blankLine = RegExp(r'\n\s*\n');
 
-  /// Splits segments into paragraphs on blank lines (rule 8: one direction per
-  /// paragraph). Only [TextRun]s are split, so a blank line inside a block
+  /// Splits segments into paragraphs on blank lines.
+  /// Only [TextRun]s are split, so a blank line inside a block
   /// equation `\[...\]` never breaks it.
   static List<List<MathSegment>> _paragraphs(List<MathSegment> segments) {
     final out = <List<MathSegment>>[[]];
@@ -72,20 +60,9 @@ class MathText extends StatelessWidget {
 
   List<Widget> _paragraph(
     List<MathSegment> segments,
-    TextDirection direction,
     TextStyle baseStyle,
   ) {
-    var base = baseStyle;
-    if (direction == TextDirection.rtl) {
-      base = base.merge(
-        BookletType.arabic.copyWith(
-          fontSize: base.fontSize,
-          fontWeight: base.fontWeight,
-          color: base.color,
-        ),
-      );
-    }
-
+    final base = baseStyle;
     final children = <Widget>[];
     var inline = <MathSegment>[];
     void flushInline() {
@@ -93,7 +70,7 @@ class MathText extends StatelessWidget {
       children.add(
         Text.rich(
           TextSpan(style: base, children: _spans(inline, base)),
-          textDirection: direction,
+          textDirection: TextDirection.ltr,
         ),
       );
       inline = [];
@@ -169,8 +146,11 @@ class MathText extends StatelessWidget {
   }
 }
 
+/// The KaTeX math faces only exist at regular weight; a heavier body weight
+/// (the stem is w500) makes the engine fall back to an upright face.
 TextStyle _mathStyle(TextStyle style) => style.copyWith(
-  fontSize: (style.fontSize ?? 16) * BookletType.mathScale,
+  fontSize: (style.fontSize ?? 16) * AppType.mathScale,
+  fontWeight: FontWeight.w400,
 );
 
 Widget _tex(String tex, TextStyle style, MathStyle mathStyle) => Math.tex(
@@ -223,7 +203,7 @@ class _BlockMathView extends StatelessWidget {
           )
         : Wrap(
             spacing: (style.fontSize ?? 16) * 0.35,
-            runSpacing: BookletSpace.s2,
+            runSpacing: AppSpace.s2,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               for (final c in chunks) _tex(c, style, MathStyle.display),
@@ -233,7 +213,7 @@ class _BlockMathView extends StatelessWidget {
       textDirection: TextDirection.ltr,
       child: ConstrainedBox(
         constraints: const BoxConstraints(
-          minHeight: BookletSize.blockMathMinHeight,
+          minHeight: AppSize.blockMathMinHeight,
         ),
         child: Align(alignment: Alignment.centerLeft, child: content),
       ),

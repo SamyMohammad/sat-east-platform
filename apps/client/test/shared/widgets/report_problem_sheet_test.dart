@@ -171,7 +171,7 @@ void main() {
       isNull,
     );
   });
-  testWidgets('QB-04: phone form stays usable with keyboard and RTL note', (
+  testWidgets('QB-04: phone form stays usable with keyboard and note', (
     tester,
   ) async {
     tester.view.devicePixelRatio = 1;
@@ -203,12 +203,12 @@ void main() {
     await tester.tap(find.text('Other'));
     await tester.enterText(
       find.byType(TextFormField),
-      '\u0645\u0644\u0627\u062d\u0638\u0629',
+      'Please review this question',
     );
     await tester.pump();
     expect(
       tester.widget<TextField>(find.byType(TextField)).textDirection,
-      TextDirection.rtl,
+      TextDirection.ltr,
     );
     await tester.ensureVisible(find.text('Submit'));
     await tester.tap(find.text('Submit'));

@@ -156,4 +156,40 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
     });
   }
+
+  testWidgets('ADM-01: desktop sidebar matches the student shell styling', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(1280, 800);
+    addTearDown(tester.view.reset);
+    final router = GoRouter(
+      initialLocation: '/teacher',
+      routes: [
+        GoRoute(
+          path: '/teacher',
+          builder: (_, _) => const TeacherShell(child: Text('Body')),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    );
+    await tester.pumpAndSettle();
+
+    final label = AppTheme.light().textTheme.labelLarge!;
+    for (final name in ['Course builder', 'Settings', 'Questions', 'Review']) {
+      final tile = tester.widget<ListTile>(find.widgetWithText(ListTile, name));
+      expect(tile.titleTextStyle?.fontSize, label.fontSize, reason: name);
+    }
+    // "Teacher area" is a small section label, not a stacked heading.
+    final area = tester.widget<Text>(find.text('Teacher area'));
+    expect(area.style?.fontSize, lessThan(label.fontSize! + 1));
+    expect(
+      tester.getTopLeft(find.text('Teacher area')).dx,
+      tester.getTopLeft(find.text('Abdelrahman Elmenshawy')).dx,
+    );
+    expect(find.byType(NavigationBar), findsNothing);
+  });
 }

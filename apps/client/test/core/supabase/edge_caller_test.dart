@@ -1,7 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
@@ -20,6 +19,7 @@ void main() {
         errorReporter: const NoopErrorReporter(),
         analytics: const NoopAnalyticsService(),
         deviceBox: _Box(),
+        settingsBox: _Box(),
       );
       final edge = getIt<EdgeCaller>(instanceName: edgeCallerInstanceName);
       final rpc = getIt<RpcCaller>();

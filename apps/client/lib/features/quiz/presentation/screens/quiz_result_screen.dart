@@ -1,12 +1,18 @@
+// Feature-local imports follow the project convention.
+// ignore_for_file: always_use_package_imports
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/presentation/learning_copy.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
-import 'package:sat_east_client/features/quiz/presentation/quiz_copy.dart';
-import 'package:sat_east_client/features/quiz/presentation/widgets/quiz_status_content.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
+
+import '../../domain/entities/quiz.dart';
+import '../quiz_copy.dart';
+import '../widgets/quiz_result_score.dart';
+import '../widgets/quiz_status_content.dart';
 
 class QuizResultScreen extends StatelessWidget {
   const QuizResultScreen({
@@ -20,46 +26,47 @@ class QuizResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final next = report.nextTopic;
     final retakeAt = report.retakeAt;
+    final compact =
+        AppLayout.forWidth(MediaQuery.sizeOf(context).width) ==
+        AppLayout.compact;
     return SafeArea(
       child: QuizStatusContent(
+        maxWidth: 560,
+        alignment: Alignment.center,
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: BookletSpace.s4,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: AppSpace.s4,
           children: [
-            Text(
-              report.passed ? QuizCopy.passed : QuizCopy.notPassed,
-              style: theme.textTheme.headlineSmall,
+            AppIllustration(
+              report.passed
+                  ? AppIllustrationName.quizPassed
+                  : AppIllustrationName.quizRetry,
             ),
-            Text(
-              QuizCopy.score(
-                report.scoreRaw,
-                report.scoreTotal,
-                report.scorePct,
-              ),
-              style: theme.textTheme.titleLarge,
-            ),
-            Text(QuizCopy.passMark(report.passMark)),
+            QuizResultScore(report: report),
             if (!report.passed)
               Text(
+                textAlign: TextAlign.center,
                 retakeAt == null
                     ? QuizCopy.retakeUnavailable
                     : QuizCopy.retake(_localTime(context, retakeAt)),
               ),
-            LoadingButton(
-              label: report.passed
-                  ? next == null
-                        ? QuizCopy.backToCourse
-                        : QuizCopy.nextTopic
-                  : LearningCopy.backToTopic,
-              onPressed: () => context.go(
-                report.passed
+            Center(
+              child: LoadingButton(
+                expanded: compact,
+                label: report.passed
                     ? next == null
-                          ? AppRoutes.courses
-                          : AppRoutes.topic(next.id)
-                    : AppRoutes.topic(topicId),
+                          ? QuizCopy.backToCourse
+                          : QuizCopy.nextTopic
+                    : LearningCopy.backToTopic,
+                onPressed: () => context.go(
+                  report.passed
+                      ? next == null
+                            ? AppRoutes.courses
+                            : AppRoutes.topic(next.id)
+                      : AppRoutes.topic(topicId),
+                ),
               ),
             ),
           ],

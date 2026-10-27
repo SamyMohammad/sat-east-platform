@@ -1,17 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_hues.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/features/course_map/presentation/course_map_copy.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/features/course_map/presentation/widgets/topic_path.dart';
+import 'package:sat_east_client/features/course_map/presentation/widgets/topic_unlock.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
+import 'package:sat_east_client/shared/widgets/topic_number_tile.dart';
 
 class TopicRow extends StatelessWidget {
-  const TopicRow({required this.topic, super.key});
+  const TopicRow({
+    required this.topic,
+    super.key,
+    this.hue = SubjectHue.blue,
+    this.justUnlocked = false,
+    this.connectFromPrevious = false,
+    this.hasPrevious = false,
+    this.hasNext = false,
+    this.nextLocked = false,
+    this.onUnlockComplete,
+  });
 
   final MapTopic topic;
+  final SubjectHue hue;
+  final bool justUnlocked;
+  final bool connectFromPrevious;
+
+  /// A topic sits above / below this one in the same unit; the row draws its
+  /// half of the path to it.
+  final bool hasPrevious;
+  final bool hasNext;
+  final bool nextLocked;
+  final VoidCallback? onUnlockComplete;
 
   void _open(BuildContext context) =>
       context.go(AppRoutes.topic(topic.id), extra: topic.title);
@@ -20,58 +44,52 @@ class TopicRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final booklet = context.booklet;
+    final colors = context.appColors;
     final status = topic.status;
     final locked = status == TopicStatus.locked;
     final open = status == TopicStatus.open;
-    final titleColor = locked ? booklet.inkDisabled : scheme.onSurface;
+    final titleColor = locked ? colors.inkSecondary : scheme.onSurface;
     final reason = topic.lockReason;
     final lockLine = locked && reason is PreviousQuiz
         ? CourseMapCopy.lockLine(reason.afterTitle)
         : null;
 
-    final leading = switch (status) {
-      TopicStatus.completed => Icon(
-        Icons.check_circle,
-        color: booklet.greenTick,
-        size: BookletSize.iconSmall,
-      ),
-      TopicStatus.open => Icon(
-        Icons.radio_button_unchecked,
-        color: scheme.primary,
-        size: BookletSize.iconSmall,
-      ),
-      TopicStatus.locked => Icon(
-        Icons.lock_outline,
-        color: booklet.inkDisabled,
-        size: BookletSize.iconSmall,
-      ),
+    final statusWord = switch (status) {
+      TopicStatus.completed => CourseMapCopy.statusCompleted,
+      TopicStatus.open => CourseMapCopy.statusOpen,
+      TopicStatus.locked => CourseMapCopy.statusLocked,
+    };
+    final statusIcon = switch (status) {
+      TopicStatus.completed => AppIcons.correct,
+      TopicStatus.open => AppIcons.unselected,
+      TopicStatus.locked => AppIcons.locked,
     };
 
-    final content = Container(
-      constraints: const BoxConstraints(minHeight: BookletSize.touchTarget),
+    final lineColor = hue.color(theme.brightness);
+    final dashColor = colors.inkTertiary;
+    TopicPathSegment segment({required bool solid}) =>
+        TopicPathSegment(solid: solid, color: solid ? lineColor : dashColor);
+    final solidIn = connectFromPrevious && !locked;
+    final body = Container(
+      constraints: const BoxConstraints(minHeight: AppSize.touchTarget),
       padding: const EdgeInsets.symmetric(
-        horizontal: BookletSpace.s3,
-        vertical: BookletSpace.s2,
+        horizontal: AppSpace.s3,
+        vertical: AppSpace.s3,
       ),
       decoration: BoxDecoration(
-        color: open ? scheme.primaryContainer : null,
-        border: Border(
-          bottom: BorderSide(color: scheme.outlineVariant),
-          left: open
-              ? BorderSide(color: scheme.primary, width: BookletStroke.current)
-              : BorderSide.none,
-        ),
+        color: open ? colors.brandWash : null,
+        borderRadius: open ? BorderRadius.circular(AppRadius.card) : null,
+        border: open
+            ? Border.all(color: colors.brand)
+            : Border(bottom: BorderSide(color: colors.line)),
       ),
       child: Row(
         children: [
-          leading,
-          const SizedBox(width: BookletSpace.s3),
-          Text(
-            topic.sortLabel,
-            style: theme.textTheme.labelLarge?.copyWith(color: titleColor),
+          Opacity(
+            opacity: locked ? AppOpacity.eliminated : 1,
+            child: TopicNumberTile(topic.sortLabel, hue: hue),
           ),
-          const SizedBox(width: BookletSpace.s3),
+          const SizedBox(width: AppSpace.s3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -79,36 +97,60 @@ class TopicRow extends StatelessWidget {
                 Text(
                   topic.title,
                   style: theme.textTheme.bodyLarge?.copyWith(color: titleColor),
-                  textDirection: detectTextDirection(topic.title),
+                  textDirection: TextDirection.ltr,
+                ),
+                Wrap(
+                  spacing: AppSpace.s2,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Icon(
+                      statusIcon,
+                      size: AppSize.iconSmall,
+                      color: status == TopicStatus.completed
+                          ? colors.correct
+                          : titleColor,
+                    ),
+                    Text(
+                      statusWord,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: titleColor,
+                      ),
+                    ),
+                    if (topic.isFreePreview)
+                      const AppChip(label: CourseMapCopy.freeChip),
+                  ],
                 ),
                 if (lockLine != null)
                   Text(
                     lockLine,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: booklet.inkDisabled,
+                      color: colors.inkSecondary,
                     ),
                   ),
               ],
             ),
           ),
-          if (topic.isFreePreview) ...[
-            const SizedBox(width: BookletSpace.s2),
-            const BookletChip(label: CourseMapCopy.freeChip),
-          ],
           if (!locked)
             Icon(
-              Icons.chevron_right,
+              AppIcons.next,
               color: open ? scheme.primary : scheme.onSurfaceVariant,
             ),
         ],
       ),
     );
 
-    final statusWord = switch (status) {
-      TopicStatus.completed => CourseMapCopy.statusCompleted,
-      TopicStatus.open => CourseMapCopy.statusOpen,
-      TopicStatus.locked => CourseMapCopy.statusLocked,
-    };
+    final content = CustomPaint(
+      foregroundPainter: TopicPathPainter(
+        upper: hasPrevious && !solidIn ? segment(solid: false) : null,
+        lower: hasNext
+            ? segment(
+                solid: status == TopicStatus.completed && !nextLocked,
+              )
+            : null,
+      ),
+      child: body,
+    );
+
     // The row hides its children from semantics, so the label must carry
     // everything a sighted user sees: status, the lock reason and the chip.
     final label = [
@@ -118,16 +160,22 @@ class TopicRow extends StatelessWidget {
       if (topic.isFreePreview) CourseMapCopy.freeChip,
     ].join(', ');
 
-    return Semantics(
-      container: true,
-      label: label,
-      button: !locked,
-      enabled: !locked,
-      excludeSemantics: true,
-      onTap: locked ? null : () => _open(context),
-      child: locked
-          ? content
-          : InkWell(onTap: () => _open(context), child: content),
+    return TopicUnlock(
+      active: justUnlocked,
+      connectFromPrevious: solidIn,
+      hue: hue,
+      onComplete: onUnlockComplete,
+      child: Semantics(
+        container: true,
+        label: label,
+        button: !locked,
+        enabled: !locked,
+        excludeSemantics: true,
+        onTap: locked ? null : () => _open(context),
+        child: locked
+            ? content
+            : InkWell(onTap: () => _open(context), child: content),
+      ),
     );
   }
 }

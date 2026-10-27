@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/last_used.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 /// Device-limit gate (S-11): choose a device to remove, or sign out.
@@ -29,15 +30,15 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
   Future<void> _confirmRemove(Device device) async {
     final cubit = context.read<AuthCubit>();
     final name = _nameOf(device);
-    final confirmed = await showBookletDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
-      builder: (dialogContext) => BookletDialog(
+      builder: (dialogContext) => AppDialog(
         title: 'Remove $name?',
         content: const Text('It will be signed out there.'),
         actions: [
           LoadingButton(
             label: 'Cancel',
-            variant: BookletButtonVariant.tertiary,
+            variant: AppButtonVariant.tertiary,
             onPressed: () => Navigator.of(dialogContext).pop(false),
           ),
           LoadingButton(
@@ -58,13 +59,18 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
         alignment: AlignmentDirectional.centerEnd,
         child: LoadingButton(
           label: 'Sign out',
-          variant: BookletButtonVariant.tertiary,
+          variant: AppButtonVariant.tertiary,
           onPressed: state is AuthDeviceGate && state.removing
               ? null
               : context.read<AuthCubit>().signOut,
         ),
       );
-      if (state is! AuthDeviceGate) return AuthCard(children: [signOut]);
+      if (state is! AuthDeviceGate) {
+        return AuthCard(
+          illustration: AppIllustrationName.deviceLimit,
+          children: [signOut],
+        );
+      }
       return _gate(context, state, signOut);
     },
   );
@@ -82,7 +88,7 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
     return AuthCard(
       footer: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: BookletSpace.s3,
+        spacing: AppSpace.s3,
         children: [
           LoadingButton(
             label: selected == null
@@ -96,7 +102,7 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
           ),
           LoadingButton(
             label: 'Sign out instead',
-            variant: BookletButtonVariant.secondary,
+            variant: AppButtonVariant.secondary,
             expanded: true,
             onPressed: gate.removing ? null : context.read<AuthCubit>().signOut,
           ),
@@ -110,18 +116,10 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
               : "You're already using $n devices",
           style: theme.textTheme.headlineSmall,
         ),
-        Text(
-          exhausted
-              ? 'Keep using one of your current devices, '
-                    'or contact your teacher.'
-              : 'You can use $n devices. '
-                    'To continue on this device, remove one of them.',
-          style: muted,
-        ),
         if (gate.error case final error?)
-          BookletBanner(
+          AppBanner(
             message: authErrorCopy(error.code),
-            kind: BookletBannerKind.error,
+            kind: AppBannerKind.error,
           ),
         RadioGroup<String>(
           groupValue: _selectedId,
@@ -143,12 +141,21 @@ class _DeviceGateScreenState extends State<DeviceGateScreen> {
             ],
           ),
         ),
+        Text(
+          exhausted
+              ? 'Keep using one of your current devices, '
+                    'or contact your teacher.'
+              : 'You can use $n devices. '
+                    'To continue on this device, remove one of them.',
+          style: muted,
+        ),
         if (!exhausted)
           Text(
             'Removing a device signs it out and uses 1 change. '
             'You have ${gate.changesLeft} $changes left this month.',
             style: muted,
           ),
+        const AppIllustration(AppIllustrationName.deviceLimit),
       ],
     );
   }

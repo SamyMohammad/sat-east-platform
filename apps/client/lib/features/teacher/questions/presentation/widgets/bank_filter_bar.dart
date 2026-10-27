@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/bank_copy.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_state.dart';
@@ -34,20 +37,21 @@ class BankFilterBar extends StatelessWidget {
       }
 
       return Column(
-        spacing: BookletSpace.s4,
+        spacing: AppSpace.s4,
         children: [
           _BankSearch(value: filter.q, onChanged: (q) => change('q', q)),
           LayoutBuilder(
             builder: (context, constraints) {
-              final columns = switch (BookletLayout.forWidth(
+              final columns = switch (AppLayout.forWidth(
                 constraints.maxWidth,
               )) {
-                BookletLayout.compact => 2,
-                BookletLayout.medium => 3,
-                BookletLayout.expanded => 4,
+                AppLayout.compact =>
+                  MediaQuery.textScalerOf(context).scale(13) > 13 ? 1 : 2,
+                AppLayout.medium => 3,
+                AppLayout.expanded => 4,
               };
               final width =
-                  (constraints.maxWidth - BookletSpace.s3 * (columns - 1)) /
+                  (constraints.maxWidth - AppSpace.s3 * (columns - 1)) /
                   columns;
               Widget select(
                 String key,
@@ -65,8 +69,8 @@ class BankFilterBar extends StatelessWidget {
                 ),
               );
               return Wrap(
-                spacing: BookletSpace.s3,
-                runSpacing: BookletSpace.s4,
+                spacing: AppSpace.s3,
+                runSpacing: AppSpace.s4,
                 children: [
                   select('courseCode', 'Course', filter.courseCode, [
                     for (final c in state.topics) (c.courseCode, c.courseCode),
@@ -179,7 +183,7 @@ class _BankSearchState extends State<_BankSearch> {
     onChanged: widget.onChanged,
     decoration: const InputDecoration(
       labelText: 'Search questions',
-      prefixIcon: Icon(Icons.search),
+      prefixIcon: Icon(AppIcons.search),
     ),
   );
 }

@@ -24,6 +24,9 @@ abstract final class QuizCopy {
 
   static String passMark(int mark) => 'Pass mark $mark%';
 
+  static String resultDetail(int raw, int total, int mark) =>
+      '$raw of $total correct · ${passMark(mark)}';
+
   static String retake(String localTime) =>
       'You can retake it after $localTime.';
 

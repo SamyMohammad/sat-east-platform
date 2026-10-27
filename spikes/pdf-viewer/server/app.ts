@@ -42,7 +42,7 @@ export function createApp(deps: Deps) {
   }));
 
   app.post('/pdf-url', async (c) => {
-    // Percent-encoded: HTTP headers cannot carry Arabic names.
+    // Percent-encoded to preserve names safely in HTTP headers.
     let user: string | undefined;
     try {
       user = decodeURIComponent(c.req.header('x-spike-user') ?? '').trim();

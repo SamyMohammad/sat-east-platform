@@ -59,8 +59,8 @@ EST coverage is a bonus, not the core claim.
   sometimes with figures or tables. SPR follows the official entry rules (max 5 chars, 6 if negative;
   no mixed numbers).
 - Grading, unlocking and scoring are server-side; answer keys never reach the client before submit.
-- UI copy is **English only**. Content (notes, explanations, AI replies) may mix Arabic, English and
-  math; text must support mixed direction.
+- **English only** for international schools: UI, notes, explanations, hints, AI replies and seed data.
+  All content renders LTR; math uses LaTeX.
 - Prices are shown in the student's market currency (EGP in Egypt, USD elsewhere); not EGP-only.
 - Purchase UI exists only in the web build.
 - Content protection: watermarked video and PDF, device limit, screenshot blocking on mobile.
@@ -76,6 +76,11 @@ EST coverage is a bonus, not the core claim.
   next concrete step ("Close. Check the sign in step 2 and try again."), never empty praise and
   never harsh.
 - No logo, colours, photos or video assets exist yet.
+- Visual direction (decided 2026-10-26): **the category standard, executed at full craft**, not
+  an invented world. The bar is Khan Academy (math legibility, calm practice), Brilliant (polished
+  interactive feedback), Linear / Notion (typography and spacing discipline) and Duolingo for
+  structure only (an obvious next step, a decisive Check moment; none of its playful styling).
+  Must not feel cold/corporate, childish/gamified, cluttered on a phone, or like Bluebook.
 
 ## Evidence on Hand
 
@@ -94,5 +99,5 @@ original (not College Board or publisher items).
 ## Accessibility & Inclusion
 
 WCAG AA contrast; LaTeX scales with the user's text size; full keyboard path through the exam on
-web; status never shown by colour alone; mixed RTL/LTR content in explanations and AI replies. Many
+web; status never shown by colour alone; English-only explanations and AI replies. Many
 students use mid-range phones on 4G: first paint < 4 s on web.

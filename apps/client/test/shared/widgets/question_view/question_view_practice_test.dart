@@ -7,8 +7,10 @@ import 'package:sat_east_client/shared/widgets/choice_tile.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/feedback_dock.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/question_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/worked_example.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
@@ -111,19 +113,166 @@ MarginNote _note(WidgetTester t) => t.widget<MarginNote>(
 void main() {
   for (final size in [_phone, _wide]) {
     final w = size.width.toInt();
+    testWidgets(
+      'F-4: last choice scrolls above the FirstMiss dock at $w',
+      (t) async {
+        await _pump(
+          t,
+          size: size,
+          feedback: const FirstMiss(
+            missed: 'A',
+            noteMd: 'Check the sign.',
+            hintMd: 'Subtract 3 first.',
+          ),
+          answer: const AnswerState(selected: 'A'),
+          onCheck: () {},
+        );
+        await t.pumpAndSettle();
+        final questionScroll = find.byType(Scrollable).first;
+        await t.drag(questionScroll, const Offset(0, -2000));
+        await t.pumpAndSettle();
+        final choice = t.getRect(find.byKey(const ValueKey('choice-D')));
+        final dock = t.getRect(find.byType(FeedbackDock));
+        expect(choice.bottom, lessThanOrEqualTo(dock.top));
+        final scroll = t.widget<SingleChildScrollView>(
+          find.byType(SingleChildScrollView).first,
+        );
+        expect(
+          scroll.padding!.resolve(TextDirection.ltr).bottom,
+          greaterThanOrEqualTo(dock.height),
+        );
+        expect(
+          choice.top,
+          greaterThanOrEqualTo(t.getRect(find.byType(QuestionHeader)).bottom),
+        );
+        expect(
+          find.byKey(const ValueKey('choice-D')).hitTestable(),
+          findsOneWidget,
+        );
+        expect(t.takeException(), isNull);
+      },
+    );
+  }
+
+  for (final feedback in <PracticeFeedback>[
+    const Correct(
+      noteMd: 'Nice work. Keep the sign when you move the 3.',
+      explanationMd: 'Subtract 3 from both sides, then divide by 2.',
+    ),
+    const Revealed(
+      key: McqAnswerKey('C'),
+      firstTry: 'A',
+      noteMd: 'Watch the sign.',
+      explanationMd: 'Subtract 3 from both sides, then divide by 2.',
+    ),
+  ]) {
+    testWidgets(
+      'F-4: verdict dock at 360 keeps the selected choice visible and '
+      'holds no worked example (${feedback.runtimeType})',
+      (t) async {
+        await _pump(
+          t,
+          size: _phone,
+          feedback: feedback,
+          answer: const AnswerState(selected: 'B'),
+          onNext: () {},
+        );
+        await t.pumpAndSettle();
+        final dock = t.getRect(find.byType(FeedbackDock));
+        final selected = t.getRect(find.byKey(const ValueKey('choice-B')));
+        expect(selected.bottom, lessThanOrEqualTo(dock.top));
+        expect(dock.height, lessThan(_phone.height * 0.4));
+        expect(
+          find.descendant(
+            of: find.byType(FeedbackDock),
+            matching: find.byType(WorkedExample),
+          ),
+          findsNothing,
+        );
+        // The worked example lives in the scroll body, below the choices.
+        final example = find.byType(WorkedExample);
+        expect(example, findsOneWidget);
+        expect(
+          t.getRect(example).top,
+          greaterThan(t.getRect(find.byKey(const ValueKey('choice-D'))).bottom),
+        );
+        expect(t.takeException(), isNull);
+      },
+    );
+  }
+
+  for (final size in [_phone, _wide]) {
+    testWidgets(
+      'F-4: practice progress line shares the content column at '
+      '${size.width.toInt()}',
+      (t) async {
+        await _pump(t, size: size, feedback: const Idle());
+        expect(
+          t.getTopLeft(find.textContaining('Quiz unlocks at 10')).dx,
+          t.getTopLeft(find.byType(ExerciseHeader)).dx,
+        );
+      },
+    );
+  }
+
+  testWidgets('F-4: dock primary buttons are at least 180 wide on desktop', (
+    t,
+  ) async {
+    await _pump(
+      t,
+      size: _wide,
+      feedback: const Idle(),
+      answer: const AnswerState(selected: 'A'),
+      onCheck: () {},
+    );
+    expect(
+      t.getSize(find.widgetWithText(FilledButton, 'Check')).width,
+      greaterThanOrEqualTo(180),
+    );
+    await _pump(
+      t,
+      size: _wide,
+      feedback: const Correct(),
+      answer: const AnswerState(selected: 'C'),
+      onNext: () {},
+    );
+    expect(
+      t.getSize(find.widgetWithText(FilledButton, 'Next')).width,
+      greaterThanOrEqualTo(180),
+    );
+  });
+
+  for (final size in [_phone, _wide]) {
+    final w = size.width.toInt();
 
     group('QuestionView practice at $w', () {
       testWidgets('F-4: Idle shows the practice copy and header', (t) async {
+        final semantics = t.ensureSemantics();
         await _pump(t, size: size, feedback: const Idle());
-        expect(find.text('Linear equations'), findsOneWidget);
-        expect(find.text('Practice'), findsOneWidget);
+        expect(
+          find.text('Linear equations'),
+          size == _wide ? findsOneWidget : findsNothing,
+        );
+        expect(
+          find.text('Practice'),
+          size == _wide ? findsOneWidget : findsNothing,
+        );
         expect(find.byType(ExerciseHeader), findsOneWidget);
         expect(
-          find.textContaining('Rep 7 of 10 — Quiz unlocks at 10'),
+          find.bySemanticsLabel(
+            'Linear equations. Practice. Rep 7 of 10 \u2014 Quiz unlocks at 10',
+          ),
           findsOneWidget,
         );
-        expect(find.text('Rep 7 of 10'), findsOneWidget);
+        expect(find.textContaining('Quiz unlocks at 10'), findsOneWidget);
+        expect(
+          find.textContaining('Quiz unlocks at 10').hitTestable(),
+          findsOneWidget,
+        );
+        expect(find.text('7 / 10'), findsOneWidget);
+        expect(find.text('Rep 7 of 10'), findsNothing);
         expect(find.byType(ChoiceTile), findsNWidgets(4));
+        semantics.dispose();
       });
 
       testWidgets('F-4: Idle with nothing selected disables Check', (t) async {
@@ -230,6 +379,13 @@ void main() {
         expect(note.bodyMd, 'You added instead of subtracting.');
         expect(find.byType(HintPanel), findsOneWidget);
         expect(
+          find.descendant(
+            of: find.byType(FeedbackDock),
+            matching: find.byType(HintPanel),
+          ),
+          findsNothing,
+        );
+        expect(
           t.widget<HintPanel>(find.byType(HintPanel)).md,
           'Subtract 3 first.',
         );
@@ -328,7 +484,7 @@ void main() {
         expect(nexts, 1);
       });
 
-      testWidgets('F-4: Correct without noteMd shows a header-only note', (
+      testWidgets('F-4: Correct without noteMd shows the verdict, no note', (
         t,
       ) async {
         await _pump(
@@ -338,8 +494,9 @@ void main() {
           answer: const AnswerState(selected: 'C'),
           onNext: () {},
         );
-        expect(_note(t).tone, MarginNoteTone.correct);
-        expect(_note(t).bodyMd, isEmpty);
+        // The dock title carries the verdict; an empty teacher line is noise.
+        expect(find.text('Correct'), findsWidgets);
+        expect(find.byType(MarginNote), findsNothing);
         expect(find.byType(WorkedExample), findsNothing);
       });
 
@@ -420,51 +577,36 @@ void main() {
     });
   }
 
-  group('QuestionView margin note placement', () {
-    const miss = FirstMiss(missed: 'A', noteMd: 'Check the sign.');
-
-    for (final size in [_phone, _tablet]) {
-      testWidgets('F-4: note is inline at ${size.width.toInt()}', (t) async {
-        await _pump(
-          t,
-          size: size,
-          feedback: miss,
-          answer: const AnswerState(selected: 'A'),
-        );
-        expect(_note(t).inline, isTrue);
-        expect(
-          t.getTopLeft(find.byType(MarginNote)).dx,
-          t.getTopLeft(find.byType(ExerciseHeader)).dx,
-        );
-        expect(
-          t.getTopLeft(find.byType(MarginNote)).dy,
-          greaterThan(
-            t.getBottomLeft(find.byKey(const ValueKey('choice-D'))).dy,
-          ),
-        );
-      });
+  group('QuestionView feedback dock placement', () {
+    for (final size in [_phone, _tablet, _wide]) {
+      testWidgets(
+        'F-4: teacher note is in the pinned dock at ${size.width.toInt()}',
+        (t) async {
+          await _pump(
+            t,
+            size: size,
+            feedback: const FirstMiss(missed: 'A', noteMd: 'Check the sign.'),
+            answer: const AnswerState(selected: 'A'),
+          );
+          expect(_note(t).inline, isTrue);
+          expect(
+            find.descendant(
+              of: find.byType(FeedbackDock),
+              matching: find.byType(MarginNote),
+            ),
+            findsOneWidget,
+          );
+          expect(
+            t.getRect(find.byType(FeedbackDock)).bottom,
+            lessThanOrEqualTo(size.height),
+          );
+          expect(
+            t.getTopLeft(find.byType(FeedbackDock)).dy,
+            greaterThan(t.getTopLeft(find.byType(ExerciseHeader)).dy),
+          );
+        },
+      );
     }
-
-    testWidgets('F-4: note is an aside beside the column at 1280', (t) async {
-      await _pump(
-        t,
-        size: _wide,
-        feedback: miss,
-        answer: const AnswerState(selected: 'A'),
-      );
-      expect(_note(t).inline, isFalse);
-      final note = find.byType(MarginNote);
-      expect(
-        t.getTopLeft(note).dx,
-        greaterThanOrEqualTo(
-          t.getTopRight(find.byKey(const ValueKey('choice-A'))).dx,
-        ),
-      );
-      expect(
-        t.getTopLeft(note).dx,
-        greaterThan(t.getTopRight(find.byType(ExerciseHeader)).dx - 1),
-      );
-    });
   });
 
   group('QuestionView SPR', () {
@@ -618,14 +760,14 @@ void main() {
     });
 
     testWidgets(
-      'F-4: long Arabic stem, note and hint at 360 / 2x text do not '
+      'F-4: long English stem, note and hint at 360 / 2x text do not '
       'overflow and the footer stays visible',
       (t) async {
         t.platformDispatcher.textScaleFactorTestValue = 2;
         addTearDown(t.platformDispatcher.clearTextScaleFactorTestValue);
-        final arabic = List.filled(
+        final longContent = List.filled(
           40,
-          'احسب قيمة س في المعادلة الخطية التالية بعناية',
+          'Carefully calculate the value of x in the following linear equation',
         ).join(' ');
         await _pump(
           t,
@@ -633,10 +775,14 @@ void main() {
           question: QuestionData(
             id: 'q1',
             label: '4.2 · Ex 7',
-            stemMd: arabic,
+            stemMd: longContent,
             kind: const McqKind(_choices),
           ),
-          feedback: FirstMiss(missed: 'A', noteMd: arabic, hintMd: arabic),
+          feedback: FirstMiss(
+            missed: 'A',
+            noteMd: longContent,
+            hintMd: longContent,
+          ),
           answer: const AnswerState(selected: 'B'),
           onCheck: () {},
           onPrev: () {},

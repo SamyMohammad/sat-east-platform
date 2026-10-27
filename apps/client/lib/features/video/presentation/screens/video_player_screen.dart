@@ -2,17 +2,22 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/video/domain/entities/video_playback.dart';
 import 'package:sat_east_client/features/video/presentation/cubit/video_player_cubit.dart';
 import 'package:sat_east_client/features/video/presentation/cubit/video_player_state.dart';
 import 'package:sat_east_client/features/video/presentation/video_copy.dart';
 import 'package:sat_east_client/features/video/presentation/widgets/moving_watermark.dart';
 import 'package:sat_east_client/features/video/presentation/widgets/video_controls.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 /// Replaces only the platform view in VM widget tests.
 typedef VideoSurfaceBuilder = Widget Function(BuildContext, String);
@@ -117,7 +122,7 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
           controller: _portal,
           overlayChildBuilder: (context) => Positioned.fill(
             child: Material(
-              color: Theme.of(context).colorScheme.surface,
+              color: context.appColors.examBar,
               child: SafeArea(child: _player(context, fullscreen: true)),
             ),
           ),
@@ -143,21 +148,13 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
                       (previous.fullscreen != next.fullscreen ||
                           previous.playback != next.playback)),
               builder: (context, state) => switch (state) {
-                VideoPlayerError(:final code) => Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(BookletSpace.s4),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(VideoCopy.error(code)),
-                        TextButton(
-                          onPressed: () => unawaited(
-                            context.read<VideoPlayerCubit>().retry(),
-                          ),
-                          child: const Text(VideoCopy.retry),
-                        ),
-                      ],
-                    ),
+                VideoPlayerError(:final code) => SingleChildScrollView(
+                  padding: const EdgeInsets.all(AppSpace.s4),
+                  child: ErrorRetry(
+                    title: VideoCopy.error(code),
+                    message: '',
+                    onRetry: () =>
+                        unawaited(context.read<VideoPlayerCubit>().retry()),
                   ),
                 ),
                 VideoPlayerReady(fullscreen: true) => const SizedBox.expand(),
@@ -176,25 +173,29 @@ class _VideoPlayerViewState extends State<VideoPlayerView> {
     final viewType = state is VideoPlayerLoading
         ? state.viewType
         : cubit.viewType;
-    final video = Stack(
-      key: _surfaceKey,
-      fit: StackFit.expand,
-      children: [
-        if (widget.surfaceBuilder != null)
-          widget.surfaceBuilder!(context, viewType ?? '')
-        else if (viewType != null)
-          HtmlElementView(viewType: viewType),
-        if (state case VideoPlayerReady(:final HlsPlayback playback))
-          MovingWatermark(
-            text: playback.watermarkText,
-            period: Duration(seconds: state.watermarkMoveS),
-            random: widget.random,
-          ),
-        if (loading)
-          const Center(
-            child: CircularProgressIndicator(semanticsLabel: VideoCopy.loading),
-          ),
-      ],
+    final video = ColoredBox(
+      color: context.appColors.examBar,
+      child: Stack(
+        key: _surfaceKey,
+        fit: StackFit.expand,
+        children: [
+          if (widget.surfaceBuilder != null)
+            widget.surfaceBuilder!(context, viewType ?? '')
+          else if (viewType != null)
+            HtmlElementView(viewType: viewType),
+          if (state case VideoPlayerReady(:final HlsPlayback playback))
+            MovingWatermark(
+              text: playback.watermarkText,
+              period: Duration(seconds: state.watermarkMoveS),
+              random: widget.random,
+            ),
+          if (loading)
+            const Padding(
+              padding: EdgeInsets.all(AppSpace.s4),
+              child: AppSkeleton(label: VideoCopy.loading),
+            ),
+        ],
+      ),
     );
     return Column(
       children: [

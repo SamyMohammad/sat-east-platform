@@ -30,7 +30,7 @@ On Android/iOS the mode is memory unless you change `loadFromMemory` in `main.da
 
 ## Android checklist (fill in the findings doc table)
 1. Notes open, and pages render sharply at 2–3× pinch zoom.
-2. The watermark (the name, which can be Arabic, plus the short id) is on every page and scales
+2. The watermark (the English name plus the short id) is on every page and scales
    with zoom. Taps and scrolling still work.
 3. Wait longer than `TOKEN_TTL_S`, then scroll to the last page: it still renders.
 4. Cache check: after viewing in **uri** mode, run

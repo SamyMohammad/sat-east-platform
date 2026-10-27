@@ -34,11 +34,13 @@ dependencies:
     sdk: flutter
   flutter_bloc: ^9.1.1
   flutter_math_fork: 0.7.4
+  flutter_svg: ^2.3.0
   get_it: ^9.3.0
   go_router: ^18.0.2
   hive_ce: ^2.20.1
   hive_ce_flutter: ^2.4.0
   http: ^1.6.0
+  lucide_icons_flutter: ^4.0.1
   pdfrx: 2.4.8
   posthog_flutter: ^5.53.0
   sentry_flutter: ^9.30.1
@@ -63,6 +65,9 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/illustrations/
+
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
@@ -74,19 +79,17 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
 
-  # Bundled fonts (F-4). SIL OFL 1.1, see assets/fonts/OFL.txt.
+  # Bundled Lexend fonts, SIL OFL 1.1: assets/fonts/OFL-Lexend.txt.
   fonts:
-    - family: NotoSans
+    - family: Lexend
       fonts:
-        - asset: assets/fonts/NotoSans-Regular.ttf
-        - asset: assets/fonts/NotoSans-Medium.ttf
+        - asset: assets/fonts/Lexend-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Lexend-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Lexend-Medium.ttf
           weight: 500
-        - asset: assets/fonts/NotoSans-SemiBold.ttf
+        - asset: assets/fonts/Lexend-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/NotoSans-Bold.ttf
+        - asset: assets/fonts/Lexend-Bold.ttf
           weight: 700
-    - family: NotoSansArabic
-      fonts:
-        - asset: assets/fonts/NotoSansArabic-Regular.ttf
-        - asset: assets/fonts/NotoSansArabic-SemiBold.ttf
-          weight: 600

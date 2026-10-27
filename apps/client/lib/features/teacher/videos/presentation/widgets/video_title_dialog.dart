@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
+
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 class VideoTitleDialog extends StatefulWidget {
   const VideoTitleDialog({required this.title, super.key});
@@ -32,15 +33,15 @@ class _VideoTitleDialogState extends State<VideoTitleDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text(TeacherVideosCopy.rename),
+  Widget build(BuildContext context) => AppDialog(
+    title: TeacherVideosCopy.rename,
     content: Form(
       key: _form,
       child: TextFormField(
         controller: _title,
         autofocus: true,
         maxLength: 120,
-        textDirection: detectTextDirection(_title.text),
+        textDirection: TextDirection.ltr,
         onChanged: (_) => setState(() {}),
         decoration: const InputDecoration(
           labelText: TeacherVideosCopy.titleLabel,

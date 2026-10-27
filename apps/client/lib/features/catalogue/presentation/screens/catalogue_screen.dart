@@ -6,18 +6,20 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_hues.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/catalogue/domain/entities/catalogue_course.dart';
 import 'package:sat_east_client/features/catalogue/presentation/catalogue_copy.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_state.dart';
 import 'package:sat_east_client/features/catalogue/presentation/price_format.dart';
 import 'package:sat_east_client/features/catalogue/presentation/widgets/catalogue_frame.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/features/catalogue/presentation/widgets/catalogue_greeting.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/course_card.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
-import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class CatalogueScreen extends StatelessWidget {
   const CatalogueScreen({
@@ -49,11 +51,12 @@ class CatalogueView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CatalogueFrame(
     fallbackLocation: AppRoutes.home,
+    showTitle: false,
     child: BlocBuilder<CatalogueCubit, CatalogueState>(
       builder: (context, state) => switch (state) {
         CatalogueLoading() => const Padding(
-          padding: EdgeInsets.all(BookletSpace.s6),
-          child: BookletSkeleton(),
+          padding: EdgeInsets.all(AppSpace.s6),
+          child: AppSkeleton(),
         ),
         CatalogueFailed(:final error) => ErrorRetry(
           title: CatalogueCopy.errorTitle,
@@ -62,19 +65,29 @@ class CatalogueView extends StatelessWidget {
         ),
         CatalogueLoaded(data: final courses) =>
           courses.isEmpty
-              ? const EmptyState(
-                  title: CatalogueCopy.emptyTitle,
-                  message: CatalogueCopy.emptyBody,
+              ? ListView(
+                  padding: const EdgeInsets.all(AppSpace.s6),
+                  children: const [
+                    EmptyState(
+                      illustration: AppIllustrationName.emptyCourses,
+                      title: CatalogueCopy.emptyTitle,
+                      message: CatalogueCopy.emptyBody,
+                    ),
+                  ],
                 )
-              : ListView.separated(
-                  padding: const EdgeInsets.all(BookletSpace.s6),
-                  itemCount: courses.length,
-                  separatorBuilder: (_, _) =>
-                      const SizedBox(height: BookletSpace.s6),
-                  itemBuilder: (_, index) => _CourseCard(
-                    course: courses[index],
-                    enablePurchase: enablePurchase,
-                  ),
+              : ListView(
+                  padding: const EdgeInsets.all(AppSpace.s6),
+                  children: [
+                    const CatalogueGreeting(),
+                    for (final (index, course) in courses.indexed) ...[
+                      const SizedBox(height: AppSpace.s6),
+                      _CourseCard(
+                        course: course,
+                        index: index,
+                        enablePurchase: enablePurchase,
+                      ),
+                    ],
+                  ],
                 ),
       },
     ),
@@ -82,49 +95,29 @@ class CatalogueView extends StatelessWidget {
 }
 
 class _CourseCard extends StatelessWidget {
-  const _CourseCard({required this.course, required this.enablePurchase});
+  const _CourseCard({
+    required this.course,
+    required this.index,
+    required this.enablePurchase,
+  });
 
   final CatalogueCourse course;
+  final int index;
   final bool enablePurchase;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(BookletSpace.s6),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: BookletSpace.s4,
-          children: [
-            Text(
-              course.title,
-              style: theme.textTheme.headlineSmall,
-              textDirection: detectTextDirection(course.title),
-            ),
-            if (course.description case final description?)
-              Text(
-                description,
-                textDirection: detectTextDirection(description),
-              ),
-            Text(
-              CatalogueCopy.topics(course.topicCount),
-              style: theme.textTheme.bodySmall,
-            ),
-            if (course.price case final price? when enablePurchase)
-              Text(
-                formatPrice(price),
-                style: theme.textTheme.titleLarge,
-              ),
-            LoadingButton(
-              label: CatalogueCopy.syllabus,
-              onPressed: () => unawaited(
-                context.push<void>(AppRoutes.coursePage(course.slug)),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CourseCard(
+    hue: SubjectHue.forIndex(index),
+    coverKey: ValueKey('course-hue-$index'),
+    title: course.title,
+    body: course.description,
+    meta: CatalogueCopy.topics(course.topicCount),
+    price: course.price != null && enablePurchase
+        ? formatPrice(course.price!)
+        : null,
+    actionLabel: CatalogueCopy.syllabus,
+    onAction: () => unawaited(
+      context.push<void>(AppRoutes.coursePage(course.slug)),
+    ),
+  );
 }

@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 /// Draws a line through [child] when [struck], animated over motion.base
 /// (reduced motion: motion.fast). Line overhangs the start by space.s1 and
@@ -30,14 +31,14 @@ class _StrikeThroughState extends State<StrikeThrough>
   );
   late final CurvedAnimation _curve = CurvedAnimation(
     parent: _controller,
-    curve: BookletMotion.standard,
+    curve: AppMotion.standard,
   );
 
   @override
   void didUpdateWidget(StrikeThrough oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.struck == widget.struck) return;
-    _controller.duration = BookletMotion.resolve(context, BookletMotion.base);
+    _controller.duration = AppMotion.resolve(context, AppMotion.state);
     if (widget.struck) {
       unawaited(_controller.forward());
     } else {
@@ -58,7 +59,6 @@ class _StrikeThroughState extends State<StrikeThrough>
       foregroundPainter: StrikeThroughPainter(
         progress: _curve,
         color: widget.color,
-        textDirection: Directionality.of(context),
       ),
       child: widget.child,
     );
@@ -69,12 +69,10 @@ class StrikeThroughPainter extends CustomPainter {
   StrikeThroughPainter({
     required this.progress,
     required this.color,
-    required this.textDirection,
   }) : super(repaint: progress);
 
   final Animation<double> progress;
   final Color color;
-  final TextDirection textDirection;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -84,19 +82,12 @@ class StrikeThroughPainter extends CustomPainter {
     final length = size.width * t;
     final paint = Paint()
       ..color = color
-      ..strokeWidth = BookletStroke.strike;
-    if (textDirection == TextDirection.ltr) {
-      const start = -BookletSpace.s1;
-      canvas.drawLine(Offset(start, y), Offset(start + length, y), paint);
-    } else {
-      final start = size.width + BookletSpace.s1;
-      canvas.drawLine(Offset(start, y), Offset(start - length, y), paint);
-    }
+      ..strokeWidth = AppStroke.strike;
+    const start = -AppSpace.s1;
+    canvas.drawLine(Offset(start, y), Offset(start + length, y), paint);
   }
 
   @override
   bool shouldRepaint(StrikeThroughPainter oldDelegate) =>
-      oldDelegate.color != color ||
-      oldDelegate.textDirection != textDirection ||
-      oldDelegate.progress != progress;
+      oldDelegate.color != color || oldDelegate.progress != progress;
 }

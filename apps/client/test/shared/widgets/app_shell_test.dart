@@ -2,17 +2,119 @@ import 'dart:ui' show Tristate;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-
 import 'package:flutter_test/flutter_test.dart';
-
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/focus_mode_scaffold.dart';
+import 'package:sat_east_client/shared/widgets/app_shell/shell_branch_stack.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_header.dart';
 
 void main() {
+  for (final reduced in [false, true]) {
+    testWidgets(
+      'branch fade preserves state and respects reduced motion: $reduced',
+      (tester) async {
+        var index = 0;
+        late StateSetter update;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: MediaQuery(
+              data: MediaQueryData(disableAnimations: reduced),
+              child: StatefulBuilder(
+                builder: (context, setState) {
+                  update = setState;
+                  return Scaffold(
+                    body: ShellBranchStack(
+                      currentIndex: index,
+                      children: const [
+                        _StatefulBody(),
+                        Text('Second branch'),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+        await tester.tap(find.text('Increment'));
+        update(() => index = 1);
+        await tester.pump();
+        final opacity = tester
+            .widget<FadeTransition>(
+              find
+                  .ancestor(
+                    of: find.text('Second branch'),
+                    matching: find.byType(FadeTransition),
+                  )
+                  .first,
+            )
+            .opacity
+            .value;
+        expect(opacity, reduced ? 1 : 0);
+        await tester.pumpAndSettle();
+        update(() => index = 0);
+        await tester.pumpAndSettle();
+        expect(find.text('Count: 1'), findsOneWidget);
+      },
+    );
+  }
+
+  testWidgets('desktop sidebar uses surface and raised bordered selection', (
+    tester,
+  ) async {
+    _viewport(tester, const Size(1280, 800));
+    await _pumpShell(tester);
+    final drawer = tester.widget<NavigationDrawer>(
+      find.byType(NavigationDrawer),
+    );
+    final context = tester.element(find.byType(NavigationDrawer));
+    expect(drawer.backgroundColor, context.appColors.surface);
+    expect(drawer.indicatorColor, context.appColors.raised);
+    final shape = drawer.indicatorShape! as RoundedRectangleBorder;
+    expect(shape.side.color, context.appColors.line);
+    expect(shape.side.width, 1);
+  });
+
+  testWidgets('desktop sidebar is a straight panel with one right border', (
+    tester,
+  ) async {
+    _viewport(tester, const Size(1280, 800));
+    await _pumpShell(tester);
+    final context = tester.element(find.byType(NavigationDrawer));
+    final material = tester.widget<Material>(
+      find
+          .descendant(
+            of: find.byType(NavigationDrawer),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    final shape = material.shape;
+    expect(shape, isA<Border>());
+    final border = shape! as Border;
+    expect(border.right.color, context.appColors.line);
+    expect(border.right.width, 1);
+    expect(border.left, BorderSide.none);
+    // The shell adds no second divider next to the sidebar.
+    expect(
+      find.ancestor(
+        of: find.byType(NavigationDrawer),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is DecoratedBox &&
+              (w.decoration is BoxDecoration) &&
+              (w.decoration as BoxDecoration).border != null,
+        ),
+      ),
+      findsNothing,
+    );
+  });
+
   for (final width in [360.0, 600.0, 601.0, 768.0, 1023.0, 1024.0, 1280.0]) {
     testWidgets('F-4: shell uses native navigation at width $width', (
       tester,
@@ -35,9 +137,9 @@ void main() {
         await _pumpShell(tester);
 
         final expectedHeight = switch (width) {
-          <= 600 => BookletSize.shellCompactHeader,
-          < 1024 => BookletSize.shellMediumHeader,
-          _ => BookletSize.shellExpandedHeader,
+          <= 600 => AppSize.shellCompactHeader,
+          < 1024 => AppSize.shellMediumHeader,
+          _ => AppSize.shellExpandedHeader,
         };
         expect(tester.getSize(find.byType(ShellHeader)).height, expectedHeight);
       },
@@ -195,7 +297,7 @@ void main() {
 
     expect(
       tester.getSize(find.byType(ShellMonogram)).width,
-      BookletSize.shellMonogram,
+      AppSize.shellMonogram,
     );
   });
 
@@ -217,7 +319,7 @@ void main() {
       await _pumpShell(tester);
       final button = find.widgetWithIcon(
         IconButton,
-        Icons.notifications_outlined,
+        AppIcons.notifications,
       );
       expect(tester.widget<IconButton>(button).onPressed, isNull);
       final notificationSemantics = tester.getSemantics(button);

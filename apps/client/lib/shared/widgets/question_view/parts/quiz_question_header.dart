@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 /// Quiz question header: number badge and a "Mark for review" toggle.
 class QuizQuestionHeader extends StatelessWidget {
@@ -22,34 +23,35 @@ class QuizQuestionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final colors = context.booklet;
+    final colors = context.appColors;
     return DecoratedBox(
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: scheme.outlineVariant)),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(bottom: BookletSpace.s3),
+        padding: const EdgeInsets.only(bottom: AppSpace.s3),
         child: Row(
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
-                color: scheme.onSurface,
-                borderRadius: BorderRadius.circular(BookletRadius.xs),
+                color: colors.raised,
+                border: Border.all(color: colors.lineStrong),
+                borderRadius: BorderRadius.circular(AppRadius.card),
               ),
               child: SizedBox.square(
-                dimension: BookletSize.examQuestionBadge,
+                dimension: AppSize.examQuestionBadge,
                 child: Center(
                   child: Text(
                     '$number',
                     style: theme.textTheme.labelLarge?.copyWith(
-                      color: scheme.surface,
+                      color: colors.ink,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
               ),
             ),
-            const SizedBox(width: BookletSpace.s2),
+            const SizedBox(width: AppSpace.s2),
             Flexible(
               child: Semantics(
                 toggled: marked,
@@ -57,8 +59,8 @@ class QuizQuestionHeader extends StatelessWidget {
                 child: OutlinedButton.icon(
                   onPressed: onMark,
                   icon: Icon(
-                    marked ? Icons.bookmark : Icons.bookmark_border,
-                    size: BookletSize.iconSmall,
+                    marked ? AppIcons.bookmarked : AppIcons.bookmark,
+                    size: AppSize.iconSmall,
                   ),
                   label: Text(
                     marked ? 'Marked for review' : 'Mark for review',
@@ -66,18 +68,14 @@ class QuizQuestionHeader extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: marked
-                        ? colors.onHighlighter
-                        : scheme.onSurface,
-                    backgroundColor: marked ? colors.highlighter : null,
-                    minimumSize: const Size(0, BookletSize.examToggleHeight),
+                    foregroundColor: marked ? colors.ink : scheme.onSurface,
+                    backgroundColor: marked ? colors.brandWash : null,
+                    minimumSize: const Size(0, AppSize.examToggleHeight),
                     tapTargetSize: MaterialTapTargetSize.padded,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: BookletSpace.s2,
+                      horizontal: AppSpace.s2,
                       vertical:
-                          (BookletSize.examToggleHeight -
-                              BookletSize.iconSmall) /
-                          2,
+                          (AppSize.examToggleHeight - AppSize.iconSmall) / 2,
                     ),
                   ),
                 ),

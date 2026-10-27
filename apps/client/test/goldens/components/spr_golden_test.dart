@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/grading/spr_editing.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/spr_input.dart';
 import 'package:sat_east_client/shared/widgets/spr_keypad.dart';
 
@@ -27,7 +27,7 @@ const _inputs = <(String, SprInputState, SprKeyHint?)>[
 
 Widget _inputSheet() => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
-  spacing: BookletSpace.s6,
+  spacing: AppSpace.s6,
   children: [
     for (final (value, state, hint) in _inputs)
       SprInput(

@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/entities/device.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/account_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/last_used.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class AccountDevices extends StatelessWidget {
@@ -25,15 +25,15 @@ class AccountDevices extends StatelessWidget {
 
   Future<void> _remove(BuildContext context, Device device) async {
     final cubit = context.read<AccountCubit>();
-    final confirmed = await showBookletDialog<bool>(
+    final confirmed = await showAppDialog<bool>(
       context: context,
-      builder: (dialogContext) => BookletDialog(
+      builder: (dialogContext) => AppDialog(
         title: 'Remove this device?',
         content: const Text('It will be signed out there.'),
         actions: [
           LoadingButton(
             label: 'Cancel',
-            variant: BookletButtonVariant.tertiary,
+            variant: AppButtonVariant.tertiary,
             onPressed: () => Navigator.of(dialogContext).pop(false),
           ),
           LoadingButton(
@@ -51,7 +51,7 @@ class AccountDevices extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Column(
     crossAxisAlignment: CrossAxisAlignment.stretch,
-    spacing: BookletSpace.s3,
+    spacing: AppSpace.s3,
     children: [
       Text('Devices', style: Theme.of(context).textTheme.titleLarge),
       Text(
@@ -71,7 +71,7 @@ class AccountDevices extends StatelessWidget {
         if (device.isCurrent)
           const Align(
             alignment: AlignmentDirectional.centerStart,
-            child: BookletChip(label: 'This device'),
+            child: AppChip(label: 'This device'),
           )
         else
           Align(
@@ -79,7 +79,7 @@ class AccountDevices extends StatelessWidget {
             child: LoadingButton(
               key: ValueKey('remove-device-${device.id}'),
               label: 'Remove',
-              variant: BookletButtonVariant.secondary,
+              variant: AppButtonVariant.secondary,
               onPressed: busy || changesLeft <= 0
                   ? null
                   : () => _remove(context, device),

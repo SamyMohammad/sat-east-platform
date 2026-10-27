@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+
 import 'package:go_router/go_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/bank_table.dart';
 import 'package:sat_east_client/features/teacher/review/domain/entities/review.dart';
 import 'package:sat_east_client/features/teacher/review/presentation/review_copy.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 
 class ReviewQueueTable extends StatelessWidget {
   const ReviewQueueTable({required this.page, super.key});
@@ -33,26 +37,25 @@ class ReviewQueueTable extends StatelessWidget {
                   row.externalRef ?? 'No ref',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  textDirection: detectTextDirection(row.externalRef ?? ''),
+                  textDirection: TextDirection.ltr,
                 ),
               ),
             ),
             DataCell(BankStemPreview(row.stemPreview)),
-            DataCell(Text('${row.openCount}')),
+            DataCell(Text('${row.openCount}', style: AppType.count)),
             DataCell(
               SizedBox(
                 width: 260,
                 child: SingleChildScrollView(
                   child: Wrap(
-                    spacing: BookletSpace.s1,
+                    spacing: AppSpace.s1,
                     children: [
                       for (final reason in row.reasons.entries)
-                        Chip(
-                          label: Text(
-                            '${reviewReasonLabel(reason.key)} '
-                            '(${reason.value})',
-                          ),
-                          visualDensity: VisualDensity.compact,
+                        AppChip(
+                          icon: AppIcons.reviewQueue,
+                          label:
+                              '${reviewReasonLabel(reason.key)} '
+                              '(${reason.value})',
                         ),
                     ],
                   ),
@@ -66,7 +69,7 @@ class ReviewQueueTable extends StatelessWidget {
                   row.latestNote ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  textDirection: detectTextDirection(row.latestNote ?? ''),
+                  textDirection: TextDirection.ltr,
                 ),
               ),
             ),

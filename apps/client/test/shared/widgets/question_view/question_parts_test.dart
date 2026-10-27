@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/framed_panel.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
@@ -107,7 +108,7 @@ void main() {
       ).colorScheme;
       BoxDecoration deco(int i) =>
           tester
-                  .widget<Container>(
+                  .widget<AnimatedContainer>(
                     find.byKey(ValueKey('progress-segment-$i')),
                   )
                   .decoration!
@@ -168,7 +169,7 @@ void main() {
     testWidgets('F-4: has no overflow menu on phone', (tester) async {
       await pump(tester, header());
 
-      expect(find.byIcon(Icons.more_vert), findsNothing);
+      expect(find.byIcon(AppIcons.more), findsNothing);
     });
   });
 
@@ -185,7 +186,7 @@ void main() {
     testWidgets('F-4: has no overflow menu on wide', (tester) async {
       await pump(tester, header(), width: 1280);
 
-      expect(find.byIcon(Icons.more_vert), findsNothing);
+      expect(find.byIcon(AppIcons.more), findsNothing);
     });
   });
 
@@ -195,7 +196,7 @@ void main() {
     ) async {
       await pump(tester, const SaveStatusLabel(status: SaveStatus.saved));
 
-      expect(find.byIcon(Icons.cloud_done_outlined), findsOneWidget);
+      expect(find.byIcon(AppIcons.saved), findsOneWidget);
       expect(find.text('Saved'), findsOneWidget);
     });
 
@@ -213,7 +214,7 @@ void main() {
     ) async {
       await pump(tester, const SaveStatusLabel(status: SaveStatus.offline));
 
-      expect(find.byIcon(Icons.cloud_off_outlined), findsOneWidget);
+      expect(find.byIcon(AppIcons.unsynced), findsOneWidget);
       expect(find.text('Offline — will sync'), findsOneWidget);
     });
 
@@ -226,7 +227,7 @@ void main() {
         SaveStatusLabel(status: SaveStatus.failed, onRetry: () => retries++),
       );
 
-      expect(find.byIcon(Icons.error_outline_rounded), findsOneWidget);
+      expect(find.byIcon(AppIcons.error), findsOneWidget);
       expect(find.text("Couldn't save"), findsOneWidget);
       await tester.tap(find.text('Retry'));
       expect(retries, 1);
@@ -246,10 +247,10 @@ void main() {
   });
 
   group('F-4: ExerciseHeader', () {
-    testWidgets('F-4: label is uppercase', (tester) async {
+    testWidgets('F-4: label keeps its sentence case', (tester) async {
       await pump(tester, const ExerciseHeader(label: '4.2 · Ex 7'));
 
-      expect(find.text('4.2 · EX 7'), findsOneWidget);
+      expect(find.text('4.2 · Ex 7'), findsOneWidget);
     });
 
     for (final (difficulty, copy) in [
@@ -267,7 +268,7 @@ void main() {
       });
     }
 
-    testWidgets('F-4: skill renders as a skill chip with sell icon', (
+    testWidgets('F-4: skill renders as a quiet text line', (
       tester,
     ) async {
       await pump(
@@ -275,10 +276,9 @@ void main() {
         const ExerciseHeader(label: '4.2 · Ex 7', skill: 'Linear equations'),
       );
 
-      final chip = tester.widget<BookletChip>(find.byType(BookletChip));
-      expect(chip.kind, BookletChipKind.skill);
-      expect(chip.icon, Icons.sell_outlined);
-      expect(chip.label, 'Linear equations');
+      expect(find.text('Linear equations'), findsOneWidget);
+      expect(find.byType(AppChip), findsNothing);
+      expect(find.byIcon(AppIcons.topic), findsNothing);
     });
 
     testWidgets('F-4: omits chips when difficulty and skill are null', (
@@ -286,7 +286,7 @@ void main() {
     ) async {
       await pump(tester, const ExerciseHeader(label: '4.2 · Ex 7'));
 
-      expect(find.byType(BookletChip), findsNothing);
+      expect(find.byType(AppChip), findsNothing);
     });
   });
 
@@ -306,11 +306,11 @@ void main() {
       final error = Theme.of(
         tester.element(find.byType(MarginNote)),
       ).colorScheme.error;
-      expect(find.byIcon(Icons.draw_outlined), findsOneWidget);
-      expect(find.byIcon(Icons.edit_note_rounded), findsNothing);
+      expect(find.byIcon(AppIcons.workedExample), findsOneWidget);
+      expect(find.byIcon(AppIcons.editNote), findsNothing);
       expect(find.text('Mr. Samy'), findsOneWidget);
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.draw_outlined)).color,
+        tester.widget<Icon>(find.byIcon(AppIcons.workedExample)).color,
         error,
       );
       expect(textColor(tester, 'Mr. Samy'), error);
@@ -328,12 +328,12 @@ void main() {
         ),
       );
 
-      final green = tester.element(find.byType(MarginNote)).booklet.greenTick;
-      expect(find.byIcon(Icons.check_circle_rounded), findsOneWidget);
+      final green = tester.element(find.byType(MarginNote)).appColors.correct;
+      expect(find.byIcon(AppIcons.correct), findsOneWidget);
       expect(find.text('Correct'), findsOneWidget);
       expect(textColor(tester, 'Correct'), green);
       expect(
-        tester.widget<Icon>(find.byIcon(Icons.check_circle_rounded)).color,
+        tester.widget<Icon>(find.byIcon(AppIcons.correct)).color,
         green,
       );
     });
@@ -359,7 +359,7 @@ void main() {
         ),
       );
 
-      expect(find.byIcon(Icons.draw_outlined), findsOneWidget);
+      expect(find.byIcon(AppIcons.workedExample), findsOneWidget);
       expect(find.text('Mr. Samy'), findsNothing);
       expect(find.text('Correct'), findsNothing);
     });
@@ -470,35 +470,50 @@ void main() {
     });
   });
 
-  testWidgets('F-4: HintPanel heading rule reaches the content right edge', (
-    tester,
-  ) async {
-    await pump(tester, const HintPanel(md: 'Use it'), width: 720);
-    final panel = find.byType(FramedPanel);
-    final rule = find.descendant(
-      of: panel,
-      matching: find.byWidgetPredicate(
-        (w) => w is SizedBox && w.height == BookletStroke.thin,
-      ),
-    );
-    expect(rule, findsOneWidget);
-    final contentRight =
-        tester.getRect(panel).right - tester.widget<FramedPanel>(panel).padding;
-    expect(tester.getRect(rule).right, closeTo(contentRight, 1));
-  });
+  for (final (name, panel) in [
+    ('HintPanel', const HintPanel(md: 'Use it')),
+    ('WorkedExample', const WorkedExample(label: '4.2', md: 'Use it')),
+  ]) {
+    testWidgets('F-4: $name title sits next to its icon with no rule', (
+      tester,
+    ) async {
+      await pump(tester, panel, width: 720);
+      final frame = find.byType(FramedPanel);
+      expect(
+        find.descendant(
+          of: frame,
+          matching: find.byWidgetPredicate(
+            (w) => w is SizedBox && w.height == AppStroke.thin,
+          ),
+        ),
+        findsNothing,
+      );
+      final icon = tester.getRect(
+        find.descendant(of: frame, matching: find.byType(Icon)),
+      );
+      final title = tester.getRect(
+        find.descendant(of: frame, matching: find.byType(Text)).first,
+      );
+      expect(title.left, greaterThan(icon.right));
+      expect((title.center.dy - icon.center.dy).abs(), lessThan(4));
+    });
+  }
 
   group('F-4: HintPanel and WorkedExample', () {
-    testWidgets('F-4: hint shows "HINT" and body via MathText', (tester) async {
+    testWidgets('F-4: hint shows a sentence-case "Hint" and MathText body', (
+      tester,
+    ) async {
       await pump(tester, const HintPanel(md: r'Use \(a^2\)'));
 
-      expect(find.text('HINT'), findsOneWidget);
+      expect(find.text('Hint'), findsOneWidget);
+      expect(find.text('HINT'), findsNothing);
       expect(
         tester.widget<MathText>(find.byType(MathText)).source,
         r'Use \(a^2\)',
       );
     });
 
-    testWidgets('F-4: worked example shows uppercase title and MathText body', (
+    testWidgets('F-4: worked example shows a sentence-case title and body', (
       tester,
     ) async {
       await pump(
@@ -506,7 +521,7 @@ void main() {
         const WorkedExample(label: '4.2 · Ex 7', md: r'\(2x\)'),
       );
 
-      expect(find.text('WORKED EXAMPLE · 4.2 · EX 7'), findsOneWidget);
+      expect(find.text('Worked example · 4.2 · Ex 7'), findsOneWidget);
       expect(tester.widget<MathText>(find.byType(MathText)).source, r'\(2x\)');
     });
   });

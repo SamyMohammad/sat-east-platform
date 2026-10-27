@@ -64,7 +64,8 @@ SprEdit applySprKey(String text, SprKey key) {
   return (text: '$text${key.char}', hint: null);
 }
 
-/// Maps Arabic-Indic / Persian digits, the Arabic decimal separator and
+/// Maps keyboard digits from Arabic-Indic / Persian layouts, their decimal
+/// separator and
 /// U+2212 minus to ASCII. One UTF-16 unit in, one out (keeps selections valid).
 String normalizeSprDigits(String input) {
   final out = StringBuffer();

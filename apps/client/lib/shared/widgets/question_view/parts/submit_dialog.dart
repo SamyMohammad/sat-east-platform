@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/painters/dashed_border.dart';
 
@@ -22,14 +23,14 @@ Future<void> showSubmitConfirmDialog(
     for (var i = 0; i < total; i++)
       if (!answered.contains(i)) i,
   ];
-  return showBookletDialog<void>(
+  return showAppDialog<void>(
     context: context,
-    builder: (dialogContext) => BookletDialog(
+    builder: (dialogContext) => AppDialog(
       title: title,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: BookletSpace.s3,
+        spacing: AppSpace.s3,
         children: [
           Text(body),
           if (unanswered.isNotEmpty)
@@ -72,14 +73,14 @@ class _UnansweredList extends StatelessWidget {
     final n = indices.length;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: BookletSpace.s2,
+      spacing: AppSpace.s2,
       children: [
         Row(
-          spacing: BookletSpace.s2,
+          spacing: AppSpace.s2,
           children: [
             Icon(
-              Icons.do_not_disturb_on_outlined,
-              size: BookletSize.iconSmall,
+              AppIcons.unanswered,
+              size: AppSize.iconSmall,
               color: scheme.onSurface,
             ),
             Flexible(
@@ -94,30 +95,30 @@ class _UnansweredList extends StatelessWidget {
           ],
         ),
         Wrap(
-          spacing: BookletSpace.s2,
-          runSpacing: BookletSpace.s2,
+          spacing: AppSpace.s2,
+          runSpacing: AppSpace.s2,
           children: [
             for (final i in indices)
               ConstrainedBox(
                 constraints: const BoxConstraints(
-                  minWidth: BookletSize.submitChipMinWidth,
-                  minHeight: BookletSize.touchTarget,
+                  minWidth: AppSize.submitChipMinWidth,
+                  minHeight: AppSize.touchTarget,
                 ),
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
                     onTap: () => onPick(i),
-                    borderRadius: BorderRadius.circular(BookletRadius.sm),
+                    borderRadius: BorderRadius.circular(AppRadius.control),
                     child: CustomPaint(
                       foregroundPainter: DashedBorderPainter(
                         color: scheme.onSurfaceVariant,
-                        radius: BookletRadius.sm,
-                        strokeWidth: BookletStroke.badge,
+                        radius: AppRadius.control,
+                        strokeWidth: AppStroke.badge,
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: BookletSpace.s3,
-                          vertical: BookletSpace.s2,
+                          horizontal: AppSpace.s3,
+                          vertical: AppSpace.s2,
                         ),
                         child: Center(
                           widthFactor: 1,

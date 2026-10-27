@@ -3,6 +3,7 @@ import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 
 Future<void> pumpMath(
   WidgetTester tester,
@@ -26,30 +27,30 @@ Future<void> pumpMath(
 }
 
 void main() {
-  group('F-4: inline math punctuation direction per paragraph', () {
+  testWidgets('F-4: English paragraphs remain separate and render LTR', (
+    tester,
+  ) async {
+    await pumpMath(tester, 'Add 7 to both sides.\n\nDivide both sides by 3.');
+    final paragraphs = tester
+        .widgetList<Text>(find.byType(Text))
+        .where((text) => text.textSpan != null)
+        .toList();
+    expect(paragraphs, hasLength(2));
+    expect(paragraphs.first.textSpan!.toPlainText(), 'Add 7 to both sides.');
+    expect(paragraphs.last.textSpan!.toPlainText(), 'Divide both sides by 3.');
+    for (final paragraph in paragraphs) {
+      expect(paragraph.textDirection, TextDirection.ltr);
+    }
+    expect(tester.takeException(), isNull);
+  });
+
+  group('F-4: inline math punctuation direction', () {
     final inlineMath = find.byWidgetPredicate(
       (w) => w.runtimeType.toString() == '_InlineMath',
     );
-    const arabic = r'إذا \(x\)، فإن';
 
     TextDirection directionOf(WidgetTester t) =>
         Directionality.of(t.element(inlineMath));
-
-    testWidgets('F-4: Arabic second paragraph math sits under rtl', (
-      tester,
-    ) async {
-      await pumpMath(tester, 'Intro.\n\n$arabic');
-      expect(inlineMath, findsOneWidget);
-      expect(directionOf(tester), TextDirection.rtl);
-    });
-
-    testWidgets('F-4: Arabic only paragraph math sits under rtl', (
-      tester,
-    ) async {
-      await pumpMath(tester, arabic);
-      expect(inlineMath, findsOneWidget);
-      expect(directionOf(tester), TextDirection.rtl);
-    });
 
     testWidgets('F-4: English only paragraph math sits under ltr', (
       tester,
@@ -103,21 +104,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('F-4: Arabic paragraph is RTL, math stays LTR', (tester) async {
-    await pumpMath(tester, r'لدينا المعادلة \(2x+3=11\) فما قيمة x؟');
-    final paragraph = tester.widget<RichText>(find.byType(RichText).first);
-    expect(paragraph.textDirection, TextDirection.rtl);
-    final mathDir = tester.widget<Directionality>(
-      find
-          .ancestor(
-            of: find.byType(Math),
-            matching: find.byType(Directionality),
-          )
-          .first,
-    );
-    expect(mathDir.textDirection, TextDirection.ltr);
-  });
-
   testWidgets('F-4: trailing punctuation sticks to the formula', (
     tester,
   ) async {
@@ -157,28 +143,26 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.byType(SingleChildScrollView), findsWidgets);
   });
-
-  testWidgets('F-4: each paragraph takes its own direction', (tester) async {
-    await pumpMath(tester, 'Add 7 to both sides.\n\nنضيف ٧ إلى الطرفين.');
-
-    TextDirection? directionOf(String fragment) => tester
-        .widgetList<Text>(find.byType(Text))
-        .where((t) => (t.textSpan?.toPlainText() ?? '').contains(fragment))
-        .single
-        .textDirection;
-
-    expect(directionOf('Add 7'), TextDirection.ltr);
-    expect(directionOf('نضيف'), TextDirection.rtl);
-  });
-
-  testWidgets('F-4: a single mixed paragraph keeps its overall direction', (
+  testWidgets('F-4: stem and choice math use the same glyph style', (
     tester,
   ) async {
-    await pumpMath(tester, r'ميل المستقيم يساوي \(3\).');
+    Future<TextStyle> mathGlyphStyle(TextStyle? style) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(body: MathText(r'\(x\)', style: style)),
+        ),
+      );
+      final math = tester.widget<Math>(find.byType(Math));
+      return math.textStyle!;
+    }
 
-    final text = tester
-        .widgetList<Text>(find.byType(Text))
-        .firstWhere((t) => t.textSpan != null);
-    expect(text.textDirection, TextDirection.rtl);
+    final stem = await mathGlyphStyle(AppType.stem);
+    final choice = await mathGlyphStyle(null);
+
+    // A heavier body weight must not change the math face (upright x).
+    expect(stem.fontWeight, choice.fontWeight);
+    expect(stem.fontWeight, FontWeight.w400);
+    expect(stem.fontStyle, choice.fontStyle);
   });
 }

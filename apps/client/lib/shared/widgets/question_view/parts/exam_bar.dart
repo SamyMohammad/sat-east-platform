@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_clock.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/exam_clock_pulse.dart';
 
 /// Dark quiz bar: title, countdown clock and a budget-elapsed track.
 /// Phone ([compact]) shows the short title; wide adds Hide/Show for the timer.
@@ -33,7 +35,7 @@ class ExamBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: context.booklet.examBar,
+      color: context.appColors.examBar,
       child: SafeArea(
         bottom: false,
         child: compact ? _phone(context) : _wide(context),
@@ -42,7 +44,7 @@ class ExamBar extends StatelessWidget {
   }
 
   Widget _clock(BuildContext context, TextStyle? base) {
-    final colors = context.booklet;
+    final colors = context.appColors;
     final color = warning ? colors.examBarWarning : colors.onExamBar;
     final text = Semantics(
       label: 'Time left ${formatClock(remaining)}',
@@ -58,19 +60,22 @@ class ExamBar extends StatelessWidget {
         ),
       ),
     );
-    if (!warning) return text;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.schedule, size: BookletSize.iconSmall, color: color),
-        const SizedBox(width: BookletSpace.s1),
-        text,
-      ],
+    if (!warning) return ExamClockPulse(warning: warning, child: text);
+    return ExamClockPulse(
+      warning: warning,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(AppIcons.time, size: AppSize.iconSmall, color: color),
+          const SizedBox(width: AppSpace.s1),
+          text,
+        ],
+      ),
     );
   }
 
   Widget _track(BuildContext context, double width, double thickness) {
-    final colors = context.booklet;
+    final colors = context.appColors;
     return SizedBox(
       key: const ValueKey('exam-budget-bar'),
       width: width,
@@ -93,13 +98,13 @@ class ExamBar extends StatelessWidget {
 
   Widget _phone(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final colors = context.booklet;
+    final colors = context.appColors;
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: BookletSize.examBarCompact),
+      constraints: const BoxConstraints(minHeight: AppSize.examBarCompact),
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: BookletSpace.s4,
-          vertical: BookletSpace.s1,
+          horizontal: AppSpace.s4,
+          vertical: AppSpace.s1,
         ),
         child: Row(
           children: [
@@ -132,11 +137,11 @@ class ExamBar extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 _clock(context, textTheme.titleMedium),
-                const SizedBox(height: BookletSpace.s1),
+                const SizedBox(height: AppSpace.s1),
                 _track(
                   context,
-                  BookletSize.examBudgetCompact,
-                  BookletSize.examBudgetThinThickness,
+                  AppSize.examBudgetCompact,
+                  AppSize.examBudgetThinThickness,
                 ),
               ],
             ),
@@ -149,15 +154,15 @@ class ExamBar extends StatelessWidget {
 
   Widget _wide(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    final colors = context.booklet;
+    final colors = context.appColors;
     final showToggle = onToggleTimer != null && !warning;
     final hidden = timerHidden && !warning;
     return ConstrainedBox(
-      constraints: const BoxConstraints(minHeight: BookletSize.examBarWide),
+      constraints: const BoxConstraints(minHeight: AppSize.examBarWide),
       child: Padding(
         padding: const EdgeInsetsDirectional.only(
-          start: BookletSpace.s6,
-          end: BookletSpace.s3,
+          start: AppSpace.s6,
+          end: AppSpace.s3,
         ),
         child: Row(
           children: [
@@ -180,11 +185,11 @@ class ExamBar extends StatelessWidget {
                   children: [
                     if (hidden) ...[
                       Icon(
-                        Icons.timer_off,
-                        size: BookletSize.iconSmall,
+                        AppIcons.timerHidden,
+                        size: AppSize.iconSmall,
                         color: colors.onExamBarVariant,
                       ),
-                      const SizedBox(width: BookletSpace.s2),
+                      const SizedBox(width: AppSpace.s2),
                       Text(
                         'Timer hidden',
                         style: textTheme.bodyMedium?.copyWith(
@@ -194,16 +199,16 @@ class ExamBar extends StatelessWidget {
                     ] else
                       _clock(context, textTheme.titleLarge),
                     if (showToggle) ...[
-                      const SizedBox(width: BookletSpace.s3),
+                      const SizedBox(width: AppSpace.s3),
                       _toggleButton(context, hidden: hidden),
                     ],
                   ],
                 ),
-                const SizedBox(height: BookletSpace.s1),
+                const SizedBox(height: AppSpace.s1),
                 _track(
                   context,
-                  BookletSize.examBudgetWide,
-                  BookletSize.progressThickness,
+                  AppSize.examBudgetWide,
+                  AppSize.progressThickness,
                 ),
               ],
             ),
@@ -215,7 +220,7 @@ class ExamBar extends StatelessWidget {
   }
 
   Widget _toggleButton(BuildContext context, {required bool hidden}) {
-    final colors = context.booklet;
+    final colors = context.appColors;
     return Semantics(
       label: hidden ? 'Show timer' : 'Hide timer',
       button: true,
@@ -226,9 +231,9 @@ class ExamBar extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: colors.onExamBar,
           side: BorderSide(color: colors.examBarRule),
-          minimumSize: const Size(0, BookletSize.examTimerButtonHeight),
+          minimumSize: const Size(0, AppSize.examTimerButtonHeight),
           tapTargetSize: MaterialTapTargetSize.padded,
-          padding: const EdgeInsets.symmetric(horizontal: BookletSpace.s3),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3),
         ),
         child: Text(hidden ? 'Show' : 'Hide'),
       ),
@@ -250,7 +255,7 @@ class ExamWarningBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.booklet;
+    final colors = context.appColors;
     final textTheme = Theme.of(context).textTheme;
     final minutes = (warnAt.inMilliseconds / Duration.millisecondsPerMinute)
         .ceil();
@@ -260,35 +265,35 @@ class ExamWarningBanner extends StatelessWidget {
       liveRegion: true,
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: colors.warningContainer,
+          color: colors.warningWash,
           border: Border(bottom: BorderSide(color: colors.warning)),
         ),
         child: ConstrainedBox(
           constraints: const BoxConstraints(
-            minHeight: BookletSize.warningBannerMinHeight,
+            minHeight: AppSize.warningBannerMinHeight,
           ),
           child: SizedBox(
             width: double.infinity,
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                horizontal: BookletSpace.s4,
-                vertical: BookletSpace.s2,
+                horizontal: AppSpace.s4,
+                vertical: AppSpace.s2,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: BookletSpace.s2,
+                spacing: AppSpace.s2,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(top: BookletSpace.s1),
+                    padding: const EdgeInsets.only(top: AppSpace.s1),
                     child: Icon(
-                      Icons.schedule,
-                      size: BookletSize.iconSmall,
+                      AppIcons.time,
+                      size: AppSize.iconSmall,
                       color: colors.warning,
                     ),
                   ),
                   Expanded(
                     child: Wrap(
-                      spacing: BookletSpace.s2,
+                      spacing: AppSpace.s2,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         Text.rich(
@@ -318,7 +323,7 @@ class ExamWarningBanner extends StatelessWidget {
                               foregroundColor: colors.warning,
                               minimumSize: const Size(
                                 0,
-                                BookletSize.touchTarget,
+                                AppSize.touchTarget,
                               ),
                             ),
                             child: const Text('Review marked'),

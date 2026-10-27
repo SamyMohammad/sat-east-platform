@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_hues.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/catalogue/domain/entities/course_unit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/catalogue_copy.dart';
+import 'package:sat_east_client/shared/widgets/topic_number_tile.dart';
 
 class SyllabusUnit extends StatelessWidget {
   const SyllabusUnit({required this.unit, required this.number, super.key});
@@ -15,35 +17,45 @@ class SyllabusUnit extends StatelessWidget {
     final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s3,
+      spacing: AppSpace.s3,
       children: [
         Semantics(
           header: true,
-          child: Text(
-            unit.title,
-            style: theme.textTheme.titleLarge,
-            textDirection: detectTextDirection(unit.title),
+          child: Container(
+            padding: const EdgeInsets.all(AppSpace.s4),
+            decoration: BoxDecoration(
+              color: SubjectHue.forIndex(number - 1).wash(theme.brightness),
+              borderRadius: BorderRadius.circular(AppRadius.card),
+            ),
+            child: Text(
+              unit.title,
+              style: theme.textTheme.titleLarge,
+              textDirection: TextDirection.ltr,
+            ),
           ),
         ),
         for (final (index, topic) in unit.topics.indexed)
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: BookletSpace.s2),
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.s2),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: BookletSpace.s3,
+              spacing: AppSpace.s3,
               children: [
-                Text('$number.${index + 1}', style: theme.textTheme.labelLarge),
+                TopicNumberTile(
+                  '$number.${index + 1}',
+                  hue: SubjectHue.forIndex(number - 1),
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: BookletSpace.s2,
+                    spacing: AppSpace.s2,
                     children: [
                       Text(
                         topic.title,
-                        textDirection: detectTextDirection(topic.title),
+                        textDirection: TextDirection.ltr,
                       ),
                       Wrap(
-                        spacing: BookletSpace.s3,
+                        spacing: AppSpace.s3,
                         crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           Text(

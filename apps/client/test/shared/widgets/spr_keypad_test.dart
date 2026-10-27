@@ -11,7 +11,6 @@ Future<(List<SprKey>, List<bool>)> pumpKeypad(
   WidgetTester tester, {
   double width = 360,
   double textScale = 1,
-  TextDirection direction = TextDirection.ltr,
 }) async {
   final keys = <SprKey>[];
   final hides = <bool>[];
@@ -25,7 +24,7 @@ Future<(List<SprKey>, List<bool>)> pumpKeypad(
         minScaleFactor: textScale,
         maxScaleFactor: textScale,
         child: Directionality(
-          textDirection: direction,
+          textDirection: TextDirection.ltr,
           child: Scaffold(
             body: Align(
               alignment: Alignment.bottomCenter,
@@ -119,8 +118,8 @@ void main() {
     expect(t.getSize(zero).width, t.getSize(digit).width * 2 + 8);
   });
 
-  testWidgets('F-4: keypad keeps LTR order under RTL', (t) async {
-    await pumpKeypad(t, direction: TextDirection.rtl);
+  testWidgets('F-4: keypad keeps LTR order', (t) async {
+    await pumpKeypad(t);
     expect(
       t.getCenter(find.text('1')).dx,
       lessThan(t.getCenter(find.text('3')).dx),

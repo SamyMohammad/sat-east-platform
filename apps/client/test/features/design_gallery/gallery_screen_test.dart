@@ -5,14 +5,34 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_entries.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
+import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 
 void main() {
+  testWidgets('gallery_theme_toggle_switches_brightness', (tester) async {
+    final router = createRouter(
+      initialLocation: galleryLocation('practice-idle'),
+      includeGallery: true,
+    );
+    try {
+      await _pumpGallery(tester, router);
+      final preview = find.byType(QuestionView);
+      await tester.tap(find.byTooltip('Dark preview'));
+      await _pumpBounded(tester);
+      expect(Theme.of(tester.element(preview)).brightness, Brightness.dark);
+      await tester.tap(find.byTooltip('Light preview'));
+      await _pumpBounded(tester);
+      expect(Theme.of(tester.element(preview)).brightness, Brightness.light);
+    } finally {
+      await _dispose(tester, router);
+    }
+  });
   for (final width in [360.0, 1280.0]) {
     group('F-4: gallery screen at $width', () {
       testWidgets('F-4: /gallery shows the first entry and the title', (
@@ -98,8 +118,8 @@ void main() {
         );
         try {
           await _pumpGallery(tester, router);
-          expect(_button(tester, Icons.chevron_left).onPressed, isNull);
-          expect(_button(tester, Icons.chevron_right).onPressed, isNotNull);
+          expect(_button(tester, AppIcons.previous).onPressed, isNull);
+          expect(_button(tester, AppIcons.next).onPressed, isNotNull);
         } finally {
           await _dispose(tester, router);
         }
@@ -113,8 +133,8 @@ void main() {
         );
         try {
           await _pumpGallery(tester, router);
-          expect(_button(tester, Icons.chevron_right).onPressed, isNull);
-          expect(_button(tester, Icons.chevron_left).onPressed, isNotNull);
+          expect(_button(tester, AppIcons.next).onPressed, isNull);
+          expect(_button(tester, AppIcons.previous).onPressed, isNotNull);
         } finally {
           await _dispose(tester, router);
         }
@@ -180,12 +200,12 @@ void main() {
             MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
           );
           await tester.pumpAndSettle();
-          expect(find.byType(BookletDialog), findsOneWidget);
+          expect(find.byType(AppDialog), findsOneWidget);
 
           router.go(galleryLocation('quiz'));
           await tester.pumpAndSettle();
 
-          expect(find.byType(BookletDialog), findsNothing);
+          expect(find.byType(AppDialog), findsNothing);
           expect(find.byType(ExamBar), findsOneWidget);
           expect(tester.takeException(), isNull);
         } finally {
@@ -227,7 +247,7 @@ void main() {
             MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
           );
           await tester.pumpAndSettle();
-          expect(find.byType(BookletDialog), findsOneWidget);
+          expect(find.byType(AppDialog), findsOneWidget);
           expect(find.text("Time's up. Quiz 4.2 submitted."), findsOneWidget);
           expect(tester.takeException(), isNull);
         } finally {

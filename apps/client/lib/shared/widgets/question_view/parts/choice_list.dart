@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/choice_tile.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/choice_states.dart';
@@ -33,7 +33,7 @@ class ChoiceList extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s3,
+      spacing: AppSpace.s3,
       children: [
         for (final choice in choices) _tile(choice),
       ],

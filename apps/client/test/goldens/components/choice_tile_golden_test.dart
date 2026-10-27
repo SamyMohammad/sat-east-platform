@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/choice_tile.dart';
 
 import '../golden_harness.dart';
@@ -19,7 +19,7 @@ const _rows = <(ChoiceTileState, String)>[
     ChoiceTileState.idle,
     r'The line rises 3 units for each unit to the right, so its slope is \(3\).',
   ),
-  (ChoiceTileState.idle, r'ميل المستقيم يساوي \(3\).'),
+  (ChoiceTileState.idle, r'The slope of the line is \(3\).'),
   (ChoiceTileState.correct, r'\(\frac{3}{4}\)'),
   (ChoiceTileState.incorrect, r'\(x = -3\)'),
   (ChoiceTileState.yourAnswerWrong, r'\(x = 15\)'),
@@ -30,7 +30,7 @@ const _rows = <(ChoiceTileState, String)>[
 
 Widget _sheet() => Column(
   crossAxisAlignment: CrossAxisAlignment.stretch,
-  spacing: BookletSpace.s3,
+  spacing: AppSpace.s3,
   children: [
     for (final (i, (state, content)) in _rows.indexed)
       ChoiceTile(

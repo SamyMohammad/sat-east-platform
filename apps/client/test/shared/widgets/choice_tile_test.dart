@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/choice_tile.dart';
 import 'package:sat_east_client/shared/widgets/focus_ring.dart';
 
@@ -23,7 +24,7 @@ Future<void> pumpTile(
         maxScaleFactor: textScale,
         child: Scaffold(
           body: Padding(
-            padding: const EdgeInsets.all(BookletSpace.s4),
+            padding: const EdgeInsets.all(AppSpace.s4),
             child: Column(children: [tile]),
           ),
         ),
@@ -76,8 +77,8 @@ void main() {
       tile(ChoiceTileState.idle, onSelect: () {}, onEliminate: () {}),
     );
     final size = t.getSize(find.byType(IconButton));
-    expect(size.width, greaterThanOrEqualTo(BookletSize.touchTarget));
-    expect(size.height, greaterThanOrEqualTo(BookletSize.touchTarget));
+    expect(size.width, greaterThanOrEqualTo(AppSize.touchTarget));
+    expect(size.height, greaterThanOrEqualTo(AppSize.touchTarget));
   });
 
   testWidgets('F-4: no cross-out without onEliminate', (t) async {
@@ -143,18 +144,18 @@ void main() {
   });
 
   for (final (state, label, icon) in [
-    (ChoiceTileState.correct, 'Correct', Icons.check_circle_rounded),
-    (ChoiceTileState.incorrect, 'Incorrect', Icons.cancel_rounded),
-    (ChoiceTileState.yourAnswerWrong, 'Your answer', Icons.cancel_rounded),
+    (ChoiceTileState.correct, 'Correct', AppIcons.correct),
+    (ChoiceTileState.incorrect, 'Incorrect', AppIcons.incorrect),
+    (ChoiceTileState.yourAnswerWrong, 'Your answer', AppIcons.incorrect),
     (
       ChoiceTileState.correctAnswer,
       'Correct answer',
-      Icons.check_circle_outline_rounded,
+      AppIcons.correct,
     ),
     (
       ChoiceTileState.yourAnswerCorrect,
       'Your answer · Correct',
-      Icons.check_circle_rounded,
+      AppIcons.correct,
     ),
   ]) {
     testWidgets('F-4: ${state.name} shows "$label"', (t) async {
@@ -257,7 +258,7 @@ void main() {
     expect(t.takeException(), isNull);
     expect(
       t.getSize(find.byType(IconButton)).height,
-      greaterThanOrEqualTo(BookletSize.touchTarget),
+      greaterThanOrEqualTo(AppSize.touchTarget),
     );
   });
 }

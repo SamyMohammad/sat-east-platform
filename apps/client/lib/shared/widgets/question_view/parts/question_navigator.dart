@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/painters/dashed_border.dart';
 
@@ -27,8 +28,8 @@ class QuestionNavigatorGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const cell = BookletSize.navigatorCell;
-    const gap = BookletSpace.s2;
+    const cell = AppSize.navigatorCell;
+    const gap = AppSpace.s2;
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: columns * cell + (columns - 1) * gap,
@@ -76,7 +77,7 @@ class _NavigatorCell extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final radius = BorderRadius.circular(BookletRadius.sm);
+    final radius = BorderRadius.circular(AppRadius.control);
     final textColor = isAnswered ? scheme.onPrimary : scheme.onSurfaceVariant;
     final dashed = !isCurrent && !isAnswered;
     return Semantics(
@@ -84,7 +85,7 @@ class _NavigatorCell extends StatelessWidget {
       button: true,
       label: _label,
       child: SizedBox.square(
-        dimension: BookletSize.navigatorCell,
+        dimension: AppSize.navigatorCell,
         child: Material(
           color: isAnswered ? scheme.primary : Colors.transparent,
           borderRadius: radius,
@@ -96,8 +97,8 @@ class _NavigatorCell extends StatelessWidget {
                 foregroundPainter: dashed
                     ? DashedBorderPainter(
                         color: scheme.onSurfaceVariant,
-                        radius: BookletRadius.sm,
-                        strokeWidth: BookletStroke.badge,
+                        radius: AppRadius.control,
+                        strokeWidth: AppStroke.badge,
                       )
                     : null,
                 child: DecoratedBox(
@@ -106,7 +107,7 @@ class _NavigatorCell extends StatelessWidget {
                     border: isCurrent
                         ? Border.all(
                             color: scheme.onSurface,
-                            width: BookletStroke.current,
+                            width: AppStroke.current,
                           )
                         : null,
                   ),
@@ -122,20 +123,20 @@ class _NavigatorCell extends StatelessWidget {
                       ),
                       if (isCurrent)
                         Positioned(
-                          bottom: BookletSpace.s1,
+                          bottom: AppSpace.s1,
                           child: Container(
-                            width: BookletSize.navigatorUnderlineWidth,
-                            height: BookletSize.navigatorUnderlineHeight,
+                            width: AppSize.navigatorUnderlineWidth,
+                            height: AppSize.navigatorUnderlineHeight,
                             color: textColor,
                           ),
                         ),
                       if (isMarked)
                         Positioned(
                           top: 0,
-                          right: BookletSpace.s1,
+                          right: AppSpace.s1,
                           child: Icon(
-                            Icons.bookmark_rounded,
-                            size: BookletSize.iconStatus,
+                            AppIcons.bookmarked,
+                            size: AppSize.iconStatus,
                             color: textColor,
                           ),
                         ),
@@ -163,15 +164,15 @@ class _LegendItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final radius = BorderRadius.circular(BookletRadius.xs);
-    const size = BookletSize.legendSwatch;
+    final radius = BorderRadius.circular(AppRadius.card);
+    const size = AppSize.legendSwatch;
     final mark = switch (swatch) {
       _Swatch.current => DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: radius,
           border: Border.all(
             color: scheme.onSurface,
-            width: BookletStroke.current,
+            width: AppStroke.current,
           ),
         ),
       ),
@@ -181,19 +182,19 @@ class _LegendItem extends StatelessWidget {
       _Swatch.unanswered => CustomPaint(
         painter: DashedBorderPainter(
           color: scheme.onSurfaceVariant,
-          radius: BookletRadius.xs,
-          strokeWidth: BookletStroke.badge,
+          radius: AppRadius.card,
+          strokeWidth: AppStroke.badge,
         ),
       ),
       _Swatch.marked => Icon(
-        Icons.bookmark,
+        AppIcons.bookmarked,
         size: size,
         color: scheme.onSurfaceVariant,
       ),
     };
     return Row(
       mainAxisSize: MainAxisSize.min,
-      spacing: BookletSpace.s2,
+      spacing: AppSpace.s2,
       children: [
         ExcludeSemantics(
           child: SizedBox.square(dimension: size, child: mark),
@@ -216,8 +217,8 @@ class NavigatorLegend extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => const Wrap(
-    spacing: BookletSpace.s4,
-    runSpacing: BookletSpace.s2,
+    spacing: AppSpace.s4,
+    runSpacing: AppSpace.s2,
     children: [
       _LegendItem(_Swatch.current, 'Current'),
       _LegendItem(_Swatch.answered, 'Answered'),
@@ -264,7 +265,7 @@ class _NavigatorContent extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: BookletSpace.s4,
+      spacing: AppSpace.s4,
       children: [
         Row(
           children: [
@@ -280,7 +281,7 @@ class _NavigatorContent extends StatelessWidget {
               IconButton(
                 tooltip: 'Close navigator',
                 onPressed: () => Navigator.of(overlayContext).pop(),
-                icon: const Icon(Icons.close),
+                icon: const Icon(AppIcons.close),
               ),
           ],
         ),
@@ -302,7 +303,7 @@ class _NavigatorContent extends StatelessWidget {
         LoadingButton(
           label: submitLabel,
           expanded: true,
-          variant: BookletButtonVariant.secondary,
+          variant: AppButtonVariant.secondary,
           onPressed: onSubmitPressed == null
               ? null
               : () {
@@ -329,7 +330,7 @@ Future<void> showNavigatorSheet(
   required ValueChanged<int>? onJumpTo,
   required String submitLabel,
   required VoidCallback? onSubmitPressed,
-}) => showBookletSheet<void>(
+}) => showAppSheet<void>(
   context: context,
   builder: (sheetContext) => _NavigatorContent(
     overlayContext: sheetContext,
@@ -339,7 +340,7 @@ Future<void> showNavigatorSheet(
     index: index,
     answered: answered,
     marked: marked,
-    columns: BookletSize.navigatorSheetColumns,
+    columns: AppSize.navigatorSheetColumns,
     onJumpTo: onJumpTo,
     submitLabel: submitLabel,
     onSubmitPressed: onSubmitPressed,
@@ -358,10 +359,10 @@ Future<void> showNavigatorPopover(
   required ValueChanged<int>? onJumpTo,
   required String submitLabel,
   required VoidCallback? onSubmitPressed,
-}) => showBookletPopover<void>(
+}) => showAppPopover<void>(
   context: context,
-  width: BookletSize.navigatorPopover,
-  bottomOffset: BookletSize.footerHeight + BookletSpace.s3,
+  width: AppSize.navigatorPopover,
+  bottomOffset: AppSize.footerHeight + AppSpace.s3,
   barrierLabel: 'Close navigator',
   builder: (popoverContext) => _NavigatorContent(
     overlayContext: popoverContext,
@@ -371,7 +372,7 @@ Future<void> showNavigatorPopover(
     index: index,
     answered: answered,
     marked: marked,
-    columns: BookletSize.navigatorPopoverColumns,
+    columns: AppSize.navigatorPopoverColumns,
     onJumpTo: onJumpTo,
     submitLabel: submitLabel,
     onSubmitPressed: onSubmitPressed,

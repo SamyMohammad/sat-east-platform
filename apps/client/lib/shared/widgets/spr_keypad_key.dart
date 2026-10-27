@@ -29,14 +29,14 @@ class _KeypadKeyState extends State<_KeypadKey> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final foreground = _pressed ? scheme.primary : scheme.onSurface;
+    final scheme = context.appColors;
+    final foreground = _pressed ? scheme.brand : scheme.ink;
     final icon = widget.icon;
     final background = _pressed
-        ? scheme.primaryContainer
+        ? scheme.brandWash
         : widget.operator
-        ? scheme.surfaceContainer
-        : scheme.surface;
+        ? scheme.surface
+        : scheme.raised;
 
     return Semantics(
       button: true,
@@ -61,7 +61,7 @@ class _KeypadKeyState extends State<_KeypadKey> {
         },
         child: FocusRing(
           visible: _focused,
-          borderRadius: BookletRadius.sm,
+          borderRadius: AppRadius.control,
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTapDown: (_) => _setPressed(true),
@@ -69,15 +69,15 @@ class _KeypadKeyState extends State<_KeypadKey> {
             onTapCancel: () => _setPressed(false),
             onTap: widget.onTap,
             child: Container(
-              height: BookletSize.largeControl,
+              height: AppSize.largeControl,
               alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: background,
                 border: Border.all(
-                  color: _pressed ? scheme.primary : scheme.outlineVariant,
+                  color: _pressed ? scheme.brand : scheme.line,
                 ),
                 borderRadius: const BorderRadius.all(
-                  Radius.circular(BookletRadius.sm),
+                  Radius.circular(AppRadius.control),
                 ),
               ),
               child: icon != null

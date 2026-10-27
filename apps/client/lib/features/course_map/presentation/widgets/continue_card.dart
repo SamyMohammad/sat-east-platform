@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/features/course_map/presentation/course_map_copy.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -16,37 +18,27 @@ class ContinueCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final unitTitle = topic.unitTitle;
     return Container(
-      padding: const EdgeInsets.all(BookletSpace.s4),
+      padding: const EdgeInsets.all(AppSpace.s4),
       decoration: BoxDecoration(
         color: scheme.primaryContainer,
-        border: Border.all(color: scheme.primary, width: BookletStroke.strong),
-        borderRadius: BorderRadius.circular(BookletRadius.md),
+        border: Border.all(color: scheme.primary, width: AppStroke.strong),
+        borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(CourseMapCopy.continueTitle, style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppSpace.s1),
           Text(
-            CourseMapCopy.continueEyebrow,
-            style: theme.textTheme.labelSmall?.copyWith(color: scheme.primary),
+            CourseMapCopy.continueBody(topic.title, topic.unitTitle),
+            style: theme.textTheme.bodyMedium,
+            textDirection: TextDirection.ltr,
           ),
-          const SizedBox(height: BookletSpace.s1),
-          Text(
-            topic.title,
-            style: theme.textTheme.titleMedium,
-            textDirection: detectTextDirection(topic.title),
-          ),
-          if (unitTitle != null)
-            Text(
-              unitTitle,
-              style: theme.textTheme.bodySmall,
-              textDirection: detectTextDirection(unitTitle),
-            ),
-          const SizedBox(height: BookletSpace.s3),
+          const SizedBox(height: AppSpace.s3),
           LoadingButton(
             label: CourseMapCopy.continueButton,
-            icon: Icons.arrow_forward,
+            icon: AppIcons.forward,
             onPressed: () =>
                 context.go(AppRoutes.topic(topic.topicId), extra: topic.title),
           ),

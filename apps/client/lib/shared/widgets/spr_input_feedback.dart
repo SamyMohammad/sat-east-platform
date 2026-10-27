@@ -7,17 +7,17 @@ class _Preview extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final scheme = context.appColors;
     final text = Theme.of(context).textTheme;
     final labelSize = text.bodySmall!.fontSize!;
     final scale = MediaQuery.textScalerOf(context).scale(labelSize) / labelSize;
     return SizedBox(
-      width: BookletSize.sprPreviewWidth * scale,
+      width: AppSize.sprPreviewWidth * scale,
       child: Container(
-        padding: const EdgeInsetsDirectional.only(start: BookletSpace.s4),
+        padding: const EdgeInsetsDirectional.only(start: AppSpace.s4),
         decoration: BoxDecoration(
           border: BorderDirectional(
-            start: BorderSide(color: scheme.outlineVariant),
+            start: BorderSide(color: scheme.line),
           ),
         ),
         child: Column(
@@ -28,7 +28,7 @@ class _Preview extends StatelessWidget {
               'Answer preview',
               style: text.bodySmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                color: scheme.onSurfaceVariant,
+                color: scheme.inkSecondary,
               ),
             ),
             MathText(
@@ -54,18 +54,18 @@ class _Hint extends StatelessWidget {
       liveRegion: true,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: BookletSpace.s1,
+        spacing: AppSpace.s1,
         children: [
           Icon(
-            Icons.info_outline_rounded,
-            size: BookletSize.iconStatus,
-            color: context.booklet.info,
+            AppIcons.info,
+            size: AppSize.iconStatus,
+            color: context.appColors.brand,
           ),
           Flexible(
             child: MathText(
               text,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface,
+                color: context.appColors.ink,
               ),
             ),
           ),
@@ -88,35 +88,34 @@ class _ReviewBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final booklet = context.booklet;
-    final accent = correct ? booklet.greenTick : scheme.error;
-    const radius = BorderRadius.all(Radius.circular(BookletRadius.sm));
+    final scheme = context.appColors;
+    final accent = correct ? scheme.correct : scheme.incorrect;
+    const radius = BorderRadius.all(Radius.circular(AppRadius.control));
     return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: BookletSpace.s4,
-        vertical: BookletSpace.s2,
+        horizontal: AppSpace.s4,
+        vertical: AppSpace.s2,
       ),
       decoration: BoxDecoration(
-        color: correct ? booklet.greenTickContainer : scheme.errorContainer,
+        color: correct ? scheme.correctWash : scheme.incorrectWash,
         borderRadius: radius,
       ),
       foregroundDecoration: BoxDecoration(
         borderRadius: radius,
-        border: Border.all(color: accent, width: BookletStroke.strong),
+        border: Border.all(color: accent, width: AppStroke.strong),
       ),
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
         crossAxisAlignment: WrapCrossAlignment.center,
-        spacing: BookletSpace.s2,
-        runSpacing: BookletSpace.s1,
+        spacing: AppSpace.s2,
+        runSpacing: AppSpace.s1,
         children: [
           Text(
             value,
             style: style,
           ),
           FeedbackLabel(
-            icon: correct ? Icons.check_circle_rounded : Icons.cancel_rounded,
+            icon: correct ? AppIcons.correct : AppIcons.incorrect,
             label: correct ? 'Correct' : 'Incorrect',
             color: accent,
           ),
@@ -138,12 +137,12 @@ class _CorrectAnswer extends StatelessWidget {
     ).textTheme.labelLarge?.copyWith(fontWeight: FontWeight.w400);
     return Row(
       mainAxisSize: MainAxisSize.min,
-      spacing: BookletSpace.s1,
+      spacing: AppSpace.s1,
       children: [
         Icon(
-          Icons.check_circle_outline_rounded,
-          size: BookletSize.iconStatus,
-          color: context.booklet.greenTick,
+          AppIcons.correct,
+          size: AppSize.iconStatus,
+          color: context.appColors.correct,
         ),
         Flexible(
           child: Text.rich(

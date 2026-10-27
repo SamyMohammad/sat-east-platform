@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
+
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 class NotesTitleDialog extends StatefulWidget {
   const NotesTitleDialog({required this.title, super.key});
@@ -30,15 +31,15 @@ class _NotesTitleDialogState extends State<NotesTitleDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Rename'),
+  Widget build(BuildContext context) => AppDialog(
+    title: 'Rename',
     content: Form(
       key: _form,
       child: TextFormField(
         controller: _title,
         autofocus: true,
         maxLength: 120,
-        textDirection: detectTextDirection(_title.text),
+        textDirection: TextDirection.ltr,
         onChanged: (_) => setState(() {}),
         decoration: const InputDecoration(labelText: 'Title'),
         validator: (value) =>

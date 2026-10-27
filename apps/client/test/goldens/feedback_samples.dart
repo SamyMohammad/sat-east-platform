@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/shared/widgets/booklet_banner.dart';
-import 'package:sat_east_client/shared/widgets/booklet_chip.dart';
-import 'package:sat_east_client/shared/widgets/booklet_dialog.dart';
-import 'package:sat_east_client/shared/widgets/booklet_overlays.dart';
-import 'package:sat_east_client/shared/widgets/booklet_progress.dart';
-import 'package:sat_east_client/shared/widgets/booklet_skeleton.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_overlays.dart';
+import 'package:sat_east_client/shared/widgets/app_progress.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -20,7 +21,7 @@ Widget _sheet(List<Widget> children) => Column(
 
 Widget controlsSheet() => _sheet([
   const Text('Buttons and feedback'),
-  for (final variant in BookletButtonVariant.values)
+  for (final variant in AppButtonVariant.values)
     _sheet([
       Text(variant.name),
       Wrap(
@@ -41,55 +42,55 @@ Widget controlsSheet() => _sheet([
   LoadingButton(
     label: 'Retry',
     errorText: 'Not sent. Retry.',
-    icon: Icons.refresh,
+    icon: AppIcons.retry,
     onPressed: () {},
   ),
   Wrap(
     spacing: 12,
     runSpacing: 12,
     children: [
-      const BookletChip(label: 'E · Easy', kind: BookletChipKind.difficulty),
-      const BookletChip(label: 'Linear equations', icon: Icons.sell_outlined),
-      BookletChip(
+      const AppChip(label: 'E · Easy', kind: AppChipKind.difficulty),
+      const AppChip(label: 'Linear equations', icon: AppIcons.topic),
+      AppChip(
         label: 'Filter',
-        kind: BookletChipKind.filter,
+        kind: AppChipKind.filter,
         onSelected: (_) {},
       ),
-      BookletChip(
+      AppChip(
         label: 'Selected',
-        kind: BookletChipKind.filter,
+        kind: AppChipKind.filter,
         selected: true,
         onSelected: (_) {},
       ),
-      const BookletChip(label: 'Disabled', kind: BookletChipKind.filter),
+      const AppChip(label: 'Disabled', kind: AppChipKind.filter),
     ],
   ),
-  BookletBanner(
+  AppBanner(
     message: 'Desmos is available on every question in this module.',
     actionLabel: 'Got it',
     onAction: () {},
   ),
-  BookletBanner(
+  AppBanner(
     message:
         '5 minutes left. Answer the rest; a guess scores better than a blank.',
-    kind: BookletBannerKind.warning,
+    kind: AppBannerKind.warning,
     actionLabel: 'Review marked',
     onAction: () {},
   ),
-  BookletBanner(
+  AppBanner(
     message:
         "You're offline. Answers are kept on this device and sync "
         'when you reconnect.',
-    kind: BookletBannerKind.offline,
+    kind: AppBannerKind.offline,
     actionLabel: 'Retry',
     onAction: () {},
   ),
 ]);
 
 Widget statusesSheet() => _sheet([
-  const BookletProgress(label: 'Topic 4 of 40', value: .1, valueLabel: '10%'),
-  const BookletProgress(label: 'Saving answers', valueLabel: 'Indeterminate'),
-  const BookletSkeleton(),
+  const AppProgress(label: 'Topic 4 of 40', value: .1, valueLabel: '10%'),
+  const AppProgress(label: 'Saving answers', valueLabel: 'Indeterminate'),
+  const AppSkeleton(),
   EmptyState(
     title: 'No mock exams yet',
     message:
@@ -115,7 +116,7 @@ Widget statusesSheet() => _sheet([
 
 Widget overlaysSheet() => _sheet([
   const Text('Dialog'),
-  BookletDialog(
+  AppDialog(
     title: 'Leave the quiz?',
     content: const Text(
       "You've answered 6 of 10. Leaving ends this attempt and it counts "
@@ -124,12 +125,12 @@ Widget overlaysSheet() => _sheet([
     actions: [
       LoadingButton(
         label: 'Keep going',
-        variant: BookletButtonVariant.tertiary,
+        variant: AppButtonVariant.tertiary,
         onPressed: () {},
       ),
       LoadingButton(
         label: 'Leave quiz',
-        variant: BookletButtonVariant.destructive,
+        variant: AppButtonVariant.destructive,
         onPressed: () {},
       ),
     ],
@@ -154,7 +155,7 @@ class _SnackSampleState extends State<_SnackSample> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      showBookletSnackBar(
+      showAppSnackBar(
         context: _scaffold.currentContext!,
         message: 'Choice D crossed out.',
         actionLabel: 'Undo',

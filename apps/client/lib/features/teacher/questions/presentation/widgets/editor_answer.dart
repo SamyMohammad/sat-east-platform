@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/question_draft.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
@@ -129,9 +131,9 @@ class _ChoiceEditor extends StatelessWidget {
         builder: (context, s) {
           final cubit = context.read<QuestionEditorCubit>();
           return Padding(
-            padding: const EdgeInsets.only(bottom: BookletSpace.s4),
+            padding: const EdgeInsets.only(bottom: AppSpace.s4),
             child: Column(
-              spacing: BookletSpace.s3,
+              spacing: AppSpace.s3,
               children: [
                 Row(
                   children: [
@@ -153,8 +155,7 @@ class _ChoiceEditor extends StatelessWidget {
                             }
                           : null,
                     ),
-                    Text('Choice $label'),
-                    const Spacer(),
+                    Expanded(child: Text('Choice $label')),
                     const Text('Key'),
                     Radio<String>(
                       key: ValueKey('editor-key-$label'),

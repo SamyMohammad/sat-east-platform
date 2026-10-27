@@ -1,13 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/notes/domain/entities/teacher_note.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_cubit.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/widgets/notes_title_dialog.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/topic_option.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 class TeacherNoteCard extends StatelessWidget {
   const TeacherNoteCard({
@@ -36,11 +41,11 @@ class TeacherNoteCard extends StatelessWidget {
     final cubit = context.read<TeacherNotesCubit>();
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete'),
+      builder: (context) => AppDialog(
+        title: 'Delete',
         content: Text(
           "Delete ${note.title}? This can't be undone.",
-          textDirection: detectTextDirection(note.title),
+          textDirection: TextDirection.ltr,
         ),
         actions: [
           TextButton(
@@ -61,18 +66,29 @@ class TeacherNoteCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<TeacherNotesCubit>();
     return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: context.appColors.background,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        side: BorderSide(color: context.appColors.line),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(BookletSpace.s4),
+        padding: const EdgeInsets.all(AppSpace.s4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: BookletSpace.s3,
+          spacing: AppSpace.s3,
           children: [
             Text(
               note.title,
-              textDirection: detectTextDirection(note.title),
+              textDirection: TextDirection.ltr,
               style: Theme.of(context).textTheme.titleMedium,
             ),
-            Text('${note.pageCount} pages${note.ready ? '' : ' \u00b7 Draft'}'),
+            AppChip(
+              icon: note.ready ? AppIcons.correct : AppIcons.edit,
+              label:
+                  '${note.pageCount} pages${note.ready ? '' : ' \u00b7 Draft'}',
+            ),
             InputDecorator(
               decoration: const InputDecoration(labelText: 'Subtopic'),
               child: DropdownButtonHideUnderline(
@@ -89,7 +105,7 @@ class TeacherNoteCard extends StatelessWidget {
                           subtopic.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          textDirection: detectTextDirection(subtopic.title),
+                          textDirection: TextDirection.ltr,
                         ),
                       ),
                   ],
@@ -100,7 +116,7 @@ class TeacherNoteCard extends StatelessWidget {
               ),
             ),
             Wrap(
-              spacing: BookletSpace.s2,
+              spacing: AppSpace.s2,
               children: [
                 TextButton(
                   key: ValueKey('rename-${note.id}'),
@@ -113,7 +129,7 @@ class TeacherNoteCard extends StatelessWidget {
                   onPressed: busy || first
                       ? null
                       : () => unawaited(cubit.move(note.id, -1)),
-                  icon: const Icon(Icons.arrow_upward),
+                  icon: const Icon(AppIcons.moveUp),
                 ),
                 IconButton(
                   key: ValueKey('down-${note.id}'),
@@ -121,13 +137,13 @@ class TeacherNoteCard extends StatelessWidget {
                   onPressed: busy || last
                       ? null
                       : () => unawaited(cubit.move(note.id, 1)),
-                  icon: const Icon(Icons.arrow_downward),
+                  icon: const Icon(AppIcons.moveDown),
                 ),
                 IconButton(
                   key: ValueKey('delete-${note.id}'),
                   tooltip: 'Delete',
                   onPressed: busy ? null : () => unawaited(_delete(context)),
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(AppIcons.delete),
                 ),
               ],
             ),

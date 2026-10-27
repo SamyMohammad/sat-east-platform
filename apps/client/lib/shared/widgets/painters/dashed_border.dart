@@ -1,16 +1,16 @@
 import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 /// Dashed rounded-rect outline (eliminated choice, Components.dc.html §2).
 class DashedBorderPainter extends CustomPainter {
   const DashedBorderPainter({
     required this.color,
     required this.radius,
-    this.strokeWidth = BookletStroke.thin,
-    this.dash = BookletStroke.dash,
-    this.gap = BookletStroke.dashGap,
+    this.strokeWidth = AppStroke.thin,
+    this.dash = AppStroke.dash,
+    this.gap = AppStroke.dashGap,
   });
 
   final Color color;

@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/feedback_dock.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
@@ -71,7 +72,7 @@ final _practiceCases = <String, (PracticeFeedback, AnswerState)>{
       explanationMd:
           r'Add 7 to both sides: \(3x = 36\), so \(x = 12\).'
           '\n\n'
-          'نضيف ٧ إلى الطرفين ثم نقسم على ٣.',
+          'Add 7 to both sides, then divide by 3.',
     ),
     const AnswerState(selected: 'C'),
   ),
@@ -160,12 +161,13 @@ Future<void> _openNavigator(WidgetTester tester) async {
   await tester.tap(find.textContaining('Question 4 of 12'));
 }
 
-void _quizGoldens() {
+void _quizGoldens(Brightness brightness) {
   for (final width in [360.0, 1280.0]) {
     final w = width.toInt();
     testWidgets('F-4: golden qv_quiz_$w', (tester) async {
-      await expectViewportGolden(
+      await _golden(
         tester,
+        brightness: brightness,
         name: 'qv_quiz_$w',
         width: width,
         height: 800,
@@ -177,8 +179,9 @@ void _quizGoldens() {
       );
     });
     testWidgets('F-4: golden qv_quiz_warning_$w', (tester) async {
-      await expectViewportGolden(
+      await _golden(
         tester,
+        brightness: brightness,
         name: 'qv_quiz_warning_$w',
         width: width,
         height: 800,
@@ -191,8 +194,9 @@ void _quizGoldens() {
       );
     });
     testWidgets('F-4: golden qv_quiz_navigator_$w', (tester) async {
-      await expectViewportGolden(
+      await _golden(
         tester,
+        brightness: brightness,
         name: 'qv_quiz_navigator_$w',
         width: width,
         height: 800,
@@ -207,8 +211,9 @@ void _quizGoldens() {
   }
 
   testWidgets('F-4: golden qv_quiz_timer_hidden_1280', (tester) async {
-    await expectViewportGolden(
+    await _golden(
       tester,
+      brightness: brightness,
       name: 'qv_quiz_timer_hidden_1280',
       width: 1280,
       height: 800,
@@ -222,8 +227,9 @@ void _quizGoldens() {
   });
 
   testWidgets('F-4: golden qv_quiz_submit_1280', (tester) async {
-    await expectViewportGolden(
+    await _golden(
       tester,
+      brightness: brightness,
       name: 'qv_quiz_submit_1280',
       width: 1280,
       height: 800,
@@ -241,8 +247,9 @@ void _quizGoldens() {
   });
 
   testWidgets('F-4: golden qv_quiz_timeup_360', (tester) async {
-    await expectViewportGolden(
+    await _golden(
       tester,
+      brightness: brightness,
       name: 'qv_quiz_timeup_360',
       width: 360,
       height: 800,
@@ -261,14 +268,15 @@ void _quizGoldens() {
   });
 }
 
-void main() {
-  _quizGoldens();
+void _viewGoldens(Brightness brightness) {
+  _quizGoldens(brightness);
   for (final width in [360.0, 1280.0]) {
     for (final entry in _practiceCases.entries) {
       final name = '${entry.key}_${width.toInt()}';
       testWidgets('F-4: golden $name', (tester) async {
-        await expectViewportGolden(
+        await _golden(
           tester,
+          brightness: brightness,
           name: name,
           width: width,
           height: 800,
@@ -279,8 +287,9 @@ void main() {
 
     final homeworkName = 'qv_homework_${width.toInt()}';
     testWidgets('F-4: golden $homeworkName', (tester) async {
-      await expectViewportGolden(
+      await _golden(
         tester,
+        brightness: brightness,
         name: homeworkName,
         width: width,
         height: 800,
@@ -291,8 +300,9 @@ void main() {
 
   testWidgets('F-4: golden qv_practice_first_miss_360_text2x', (tester) async {
     final (feedback, answer) = _practiceCases['qv_practice_first_miss']!;
-    await expectViewportGolden(
+    await _golden(
       tester,
+      brightness: brightness,
       name: 'qv_practice_first_miss_360_text2x',
       width: 360,
       height: 800,
@@ -300,4 +310,65 @@ void main() {
       child: _practiceView(feedback, answer),
     );
   });
+}
+
+Future<void> _golden(
+  WidgetTester tester, {
+  required Brightness brightness,
+  required String name,
+  required double width,
+  required double height,
+  required Widget child,
+  double textScale = 1,
+  Future<void> Function(WidgetTester)? interact,
+}) => expectViewportGolden(
+  tester,
+  name: brightness == Brightness.dark ? '${name}_dark' : name,
+  brightness: brightness,
+  width: width,
+  height: height,
+  child: child,
+  textScale: textScale,
+  interact: interact,
+);
+
+void main() {
+  for (final brightness in Brightness.values) {
+    group(brightness.name, () => _viewGoldens(brightness));
+  }
+  for (final variant in [
+    'light_360',
+    'dark_360',
+    'light_360_text2x',
+  ]) {
+    testWidgets('feedback_dock_$variant', (tester) async {
+      await expectViewportGolden(
+        tester,
+        name: 'feedback_dock_$variant',
+        width: 360,
+        height: 800,
+        brightness: variant.startsWith('dark')
+            ? Brightness.dark
+            : Brightness.light,
+        textScale: variant.endsWith('text2x') ? 2 : 1,
+        child: Scaffold(
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: FeedbackDock(
+              feedback: const Revealed(
+                key: McqAnswerKey('B'),
+                firstTry: 'A',
+                noteMd: 'Divide both sides by 3, then check your answer.',
+                explanationMd: r'\(3x=36 \Rightarrow x=12\)',
+              ),
+              onCheck: null,
+              actions: [
+                FilledButton(onPressed: () {}, child: const Text('Next')),
+              ],
+            ),
+          ),
+        ),
+      );
+    });
+  }
 }
