@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/practice/domain/entities/practice.dart';
+import 'package:sat_east_client/shared/widgets/question_view/rep_outcome.dart';
 
 sealed class PracticeState extends Equatable {
   const PracticeState();
@@ -31,6 +32,7 @@ final class PracticeInProgress extends PracticeState {
     this.feedback = const Answering(),
     this.firstTry,
     this.checkError,
+    this.outcomes = const [],
   });
 
   final PracticeSet set;
@@ -41,6 +43,9 @@ final class PracticeInProgress extends PracticeState {
   final String? firstTry;
   final AppError? checkError;
 
+  /// Outcome i belongs to rep i, for the reps answered in this session.
+  final List<RepOutcome> outcomes;
+
   @override
   List<Object?> get props => [
     set,
@@ -50,6 +55,7 @@ final class PracticeInProgress extends PracticeState {
     feedback,
     firstTry,
     checkError,
+    outcomes,
   ];
 }
 

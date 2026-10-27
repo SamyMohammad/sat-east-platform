@@ -4,6 +4,7 @@ import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/practice/domain/entities/practice.dart';
 import 'package:sat_east_client/features/practice/domain/repositories/practice_repository.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart';
+import 'package:sat_east_client/shared/widgets/question_view/rep_outcome.dart';
 
 class PracticeCubit extends Cubit<PracticeState> {
   PracticeCubit(this._repository, this._now) : super(const PracticeLoading());
@@ -115,9 +116,21 @@ class PracticeCubit extends Cubit<PracticeState> {
             );
           case CheckCorrect(:final tryNo):
             if (tryNo == 1) _correctFirstTry++;
-            emit(_updated(current, feedback: Done(value)));
+            emit(
+              _updated(
+                current,
+                feedback: Done(value),
+                outcome: tryNo == 1 ? RepOutcome.firstTry : RepOutcome.missed,
+              ),
+            );
           case CheckRevealed():
-            emit(_updated(current, feedback: Done(value)));
+            emit(
+              _updated(
+                current,
+                feedback: Done(value),
+                outcome: RepOutcome.missed,
+              ),
+            );
         }
     }
   }
@@ -140,7 +153,13 @@ class PracticeCubit extends Cubit<PracticeState> {
       return;
     }
     _shownAt = _now();
-    emit(PracticeInProgress(set: current.set, index: index));
+    emit(
+      PracticeInProgress(
+        set: current.set,
+        index: index,
+        outcomes: current.outcomes,
+      ),
+    );
   }
 
   Future<Result<void>> report(String questionId, String reason, String? note) {
@@ -175,6 +194,7 @@ PracticeInProgress _updated(
   PracticeStep? feedback,
   String? firstTry,
   AppError? checkError,
+  RepOutcome? outcome,
 }) => PracticeInProgress(
   set: current.set,
   index: current.index,
@@ -183,4 +203,7 @@ PracticeInProgress _updated(
   feedback: feedback ?? current.feedback,
   firstTry: firstTry ?? current.firstTry,
   checkError: checkError,
+  outcomes: outcome == null || current.outcomes.length > current.index
+      ? current.outcomes
+      : [...current.outcomes, outcome],
 );

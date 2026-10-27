@@ -83,6 +83,7 @@ class PracticeQuestionView extends StatelessWidget {
               feedback: _feedback(progress),
               rep: progress.index + 1,
               repTarget: progress.set.repTarget,
+              outcomes: progress.outcomes,
             ),
             answer: AnswerState(
               selected: progress.selected,

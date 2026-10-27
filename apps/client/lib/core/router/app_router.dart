@@ -493,11 +493,11 @@ String? _authRedirect(AuthState state, String path, bool galleryEnabled) {
     AuthConfirmationSent() || AuthResetLinkSent() =>
       path == AppRoutes.checkInbox ? null : AppRoutes.checkInbox,
     AuthDeviceGate() => path == AppRoutes.devices ? null : AppRoutes.devices,
-    AuthSignedIn() =>
+    AuthSignedIn(:final user) =>
       _signedOutPaths.contains(path) ||
               path == AppRoutes.checkInbox ||
               path == AppRoutes.devices
-          ? AppRoutes.home
+          ? (user.isTeacher ? AppRoutes.teacher : AppRoutes.home)
           : null,
   };
 }

@@ -211,14 +211,17 @@ class QuestionView extends StatelessWidget {
   }
 
   Widget _header(BuildContext context, AppLayout layout) => switch (mode) {
-    PracticeMode(:final rep, :final repTarget) => QuestionHeader(
-      title: title,
-      modeLabel: 'Practice',
-      progressLabel: 'Rep $rep of $repTarget — Quiz unlocks at $repTarget',
-      done: rep,
-      total: repTarget,
-      onBack: onBack,
-    ),
+    PracticeMode(:final rep, :final repTarget, :final outcomes) =>
+      QuestionHeader(
+        title: title,
+        modeLabel: 'Practice',
+        progressLabel: 'Rep $rep of $repTarget — Quiz unlocks at $repTarget',
+        done: rep - 1,
+        total: repTarget,
+        current: rep - 1,
+        outcomes: outcomes,
+        onBack: onBack,
+      ),
     HomeworkMode(
       :final index,
       :final total,

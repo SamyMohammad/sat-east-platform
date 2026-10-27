@@ -209,6 +209,47 @@ void main() {
     }
   }
 
+  for (final (role, from, expected) in <(String, String, String)>[
+    ('teacher', '/sign-in', '/teacher/courses/c1'),
+    ('student', '/sign-in', '/'),
+    ('teacher', '/', '/'),
+  ]) {
+    testWidgets('ADM-01: $role signed in on $from lands on $expected', (
+      tester,
+    ) async {
+      final auth = auth_screens.mockCubit(
+        AuthSignedIn(
+          AppUser(id: 'u1', email: 'email', isTeacher: role == 'teacher'),
+        ),
+      );
+      final refresh = ValueNotifier(0);
+      addTearDown(refresh.dispose);
+      final router = createRouter(
+        initialLocation: from,
+        auth: auth,
+        refresh: refresh,
+      );
+      addTearDown(() async {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpAndSettle();
+        router.dispose();
+      });
+      await tester.pumpWidget(
+        BlocProvider<AuthCubit>.value(
+          value: auth,
+          child: MaterialApp.router(
+            theme: AppTheme.light(),
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(router.routeInformationProvider.value.uri.path, expected);
+      expect(tester.takeException(), isNull);
+      await tester.pumpWidget(const SizedBox.shrink());
+    });
+  }
+
   testWidgets('ADM-01: /teachers is not a teacher path', (tester) async {
     final auth = auth_screens.mockCubit(
       const AuthSignedIn(AppUser(id: 'u1', email: 'email')),
