@@ -2,8 +2,10 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/theme/booklet_colors.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 
 class MovingWatermark extends StatefulWidget {
   const MovingWatermark({
@@ -61,16 +63,16 @@ class _MovingWatermarkState extends State<MovingWatermark> {
       child: LayoutBuilder(
         builder: (context, bounds) {
           final width = bounds.maxWidth * 0.7;
-          final height = min(bounds.maxHeight, BookletSize.largeControl);
+          final height = min(bounds.maxHeight, AppSize.largeControl);
           return ClipRect(
             child: Stack(
               children: [
                 AnimatedPositioned(
-                  duration: BookletMotion.resolve(
+                  duration: AppMotion.resolve(
                     context,
                     const Duration(milliseconds: 1500),
                   ),
-                  curve: BookletMotion.standard,
+                  curve: AppMotion.standard,
                   left: (bounds.maxWidth - width) * _x,
                   top: (bounds.maxHeight - height) * _y,
                   width: width,
@@ -83,13 +85,13 @@ class _MovingWatermarkState extends State<MovingWatermark> {
                       textDirection: TextDirection.ltr,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
-                        color: BookletSchemes.light.surface.withValues(
+                        color: AppColors.light.background.withValues(
                           alpha: 0.55,
                         ),
                         shadows: [
                           Shadow(
-                            color: BookletSchemes.dark.shadow,
-                            blurRadius: BookletSpace.s1,
+                            color: AppColors.dark.shadow,
+                            blurRadius: AppSpace.s1,
                           ),
                         ],
                       ),

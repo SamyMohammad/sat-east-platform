@@ -12,8 +12,27 @@ import 'package:sat_east_client/features/design_gallery/presentation/gallery_scr
 import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exam_bar.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
+import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 
 void main() {
+  testWidgets('gallery_theme_toggle_switches_brightness', (tester) async {
+    final router = createRouter(
+      initialLocation: galleryLocation('practice-idle'),
+      includeGallery: true,
+    );
+    try {
+      await _pumpGallery(tester, router);
+      final preview = find.byType(QuestionView);
+      await tester.tap(find.byTooltip('Dark preview'));
+      await _pumpBounded(tester);
+      expect(Theme.of(tester.element(preview)).brightness, Brightness.dark);
+      await tester.tap(find.byTooltip('Light preview'));
+      await _pumpBounded(tester);
+      expect(Theme.of(tester.element(preview)).brightness, Brightness.light);
+    } finally {
+      await _dispose(tester, router);
+    }
+  });
   for (final width in [360.0, 1280.0]) {
     group('F-4: gallery screen at $width', () {
       testWidgets('F-4: /gallery shows the first entry and the title', (
