@@ -1,0 +1,1363 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T15:02:30+00:00",
+  "title": "Design System: SAT/EST Math Platform",
+  "extensions": {
+    "colorMeta": {
+      "background": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#969696",
+          "#B2B2B2",
+          "#D1D1D1",
+          "#F2F2F2"
+        ]
+      },
+      "surface": {
+        "role": "neutral",
+        "displayName": "Cool Off-White",
+        "canonical": "#F6F7F9",
+        "tonalRamp": [
+          "#1F242E",
+          "#353E50",
+          "#4B5871",
+          "#627293",
+          "#828FAB",
+          "#A3ADC2",
+          "#C8CEDA",
+          "#F0F1F5"
+        ]
+      },
+      "raised": {
+        "role": "neutral",
+        "displayName": "Raised",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#969696",
+          "#B2B2B2",
+          "#D1D1D1",
+          "#F2F2F2"
+        ]
+      },
+      "line": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#E3E6EC",
+        "tonalRamp": [
+          "#1F242E",
+          "#363E4F",
+          "#4C5870",
+          "#637392",
+          "#8290AA",
+          "#A4AEC1",
+          "#C8CEDA",
+          "#F0F1F5"
+        ]
+      },
+      "line-strong": {
+        "role": "neutral",
+        "displayName": "Firm Line",
+        "canonical": "#CDD2DB",
+        "tonalRamp": [
+          "#20242C",
+          "#383F4D",
+          "#4F5A6E",
+          "#66758E",
+          "#8592A7",
+          "#A6AFBF",
+          "#CACFD9",
+          "#F0F2F4"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#14171F",
+        "tonalRamp": [
+          "#1E222E",
+          "#343C51",
+          "#4A5573",
+          "#606E95",
+          "#808CAD",
+          "#A2ABC3",
+          "#C7CDDB",
+          "#F0F1F5"
+        ]
+      },
+      "ink-secondary": {
+        "role": "neutral",
+        "displayName": "Ink Secondary",
+        "canonical": "#555C6B",
+        "tonalRamp": [
+          "#22252B",
+          "#3B404A",
+          "#545A69",
+          "#6C7588",
+          "#8A92A2",
+          "#AAAFBB",
+          "#CCCFD6",
+          "#F1F2F4"
+        ]
+      },
+      "ink-tertiary": {
+        "role": "neutral",
+        "displayName": "Ink Tertiary",
+        "canonical": "#6A7283",
+        "tonalRamp": [
+          "#22252A",
+          "#3B4049",
+          "#545B68",
+          "#6D7687",
+          "#8B92A1",
+          "#AAB0BB",
+          "#CCCFD6",
+          "#F1F2F4"
+        ]
+      },
+      "brand": {
+        "role": "primary",
+        "displayName": "Confident Blue",
+        "canonical": "#2F5BEA",
+        "tonalRamp": [
+          "#071645",
+          "#0C2678",
+          "#1136AB",
+          "#1645DE",
+          "#4169EC",
+          "#7491F1",
+          "#ACBDF7",
+          "#E8EDFD"
+        ]
+      },
+      "on-brand": {
+        "role": "primary",
+        "displayName": "On Blue",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#969696",
+          "#B2B2B2",
+          "#D1D1D1",
+          "#F2F2F2"
+        ]
+      },
+      "brand-wash": {
+        "role": "primary",
+        "displayName": "Blue Wash",
+        "canonical": "#EEF2FE",
+        "tonalRamp": [
+          "#041548",
+          "#07257D",
+          "#0A34B2",
+          "#0E44E7",
+          "#3A68F3",
+          "#6E90F7",
+          "#A8BDFA",
+          "#E7EDFE"
+        ]
+      },
+      "brand-line": {
+        "role": "primary",
+        "displayName": "Blue Line",
+        "canonical": "#B9C8F8",
+        "tonalRamp": [
+          "#071646",
+          "#0C2679",
+          "#1136AC",
+          "#1646DF",
+          "#416AEC",
+          "#7492F1",
+          "#ACBDF7",
+          "#E8EDFD"
+        ]
+      },
+      "correct": {
+        "role": "secondary",
+        "displayName": "Verdict Green",
+        "canonical": "#137F49",
+        "tonalRamp": [
+          "#0A4326",
+          "#117342",
+          "#19A45E",
+          "#20D57A",
+          "#49E496",
+          "#7AEBB3",
+          "#AFF3D1",
+          "#E9FCF2"
+        ]
+      },
+      "correct-wash": {
+        "role": "secondary",
+        "displayName": "Green Wash",
+        "canonical": "#E8F6EE",
+        "tonalRamp": [
+          "#163724",
+          "#255F3E",
+          "#358858",
+          "#45B073",
+          "#69C490",
+          "#91D4AE",
+          "#BDE5CE",
+          "#EDF8F1"
+        ]
+      },
+      "correct-line": {
+        "role": "secondary",
+        "displayName": "Green Line",
+        "canonical": "#9ED3B5",
+        "tonalRamp": [
+          "#183524",
+          "#295B3F",
+          "#3B825A",
+          "#4CA874",
+          "#6FBE91",
+          "#96CFAF",
+          "#C0E2CF",
+          "#EDF7F2"
+        ]
+      },
+      "incorrect": {
+        "role": "secondary",
+        "displayName": "Verdict Coral",
+        "canonical": "#C9392F",
+        "tonalRamp": [
+          "#3E120E",
+          "#6B1E19",
+          "#992B24",
+          "#C6382E",
+          "#D75E56",
+          "#E28983",
+          "#EEB8B5",
+          "#FAEBEA"
+        ]
+      },
+      "incorrect-wash": {
+        "role": "secondary",
+        "displayName": "Coral Wash",
+        "canonical": "#FDEEEC",
+        "tonalRamp": [
+          "#450F07",
+          "#78190D",
+          "#AB2412",
+          "#DD2F17",
+          "#EB5642",
+          "#F08375",
+          "#F6B5AC",
+          "#FDEAE8"
+        ]
+      },
+      "incorrect-line": {
+        "role": "secondary",
+        "displayName": "Coral Line",
+        "canonical": "#F2B4AE",
+        "tonalRamp": [
+          "#420F0B",
+          "#721B12",
+          "#A3261A",
+          "#D33122",
+          "#E2584B",
+          "#EA857B",
+          "#F2B6B0",
+          "#FBEBE9"
+        ]
+      },
+      "warm": {
+        "role": "tertiary",
+        "displayName": "Teacher Warm",
+        "canonical": "#FFF7EB",
+        "tonalRamp": [
+          "#4C2E00",
+          "#855000",
+          "#BD7100",
+          "#F59300",
+          "#FFAB2E",
+          "#FFC266",
+          "#FFDAA3",
+          "#FFF5E5"
+        ]
+      },
+      "warm-line": {
+        "role": "tertiary",
+        "displayName": "Teacher Warm Line",
+        "canonical": "#F1D9B5",
+        "tonalRamp": [
+          "#402B0C",
+          "#704B15",
+          "#9F6B1E",
+          "#CE8B27",
+          "#DEA54F",
+          "#E7BD7E",
+          "#F0D7B2",
+          "#FBF4EA"
+        ]
+      },
+      "warm-ink": {
+        "role": "tertiary",
+        "displayName": "Teacher Warm Ink",
+        "canonical": "#8A5A12",
+        "tonalRamp": [
+          "#442C09",
+          "#754D0F",
+          "#A76D16",
+          "#D98D1C",
+          "#E7A746",
+          "#EDBE78",
+          "#F4D8AE",
+          "#FCF4E8"
+        ]
+      },
+      "warning": {
+        "role": "secondary",
+        "displayName": "Warning Amber",
+        "canonical": "#B25209",
+        "tonalRamp": [
+          "#492204",
+          "#7E3A06",
+          "#B45309",
+          "#E96B0C",
+          "#F58A38",
+          "#F8A96D",
+          "#FBCBA8",
+          "#FEF1E7"
+        ]
+      },
+      "warning-wash": {
+        "role": "secondary",
+        "displayName": "Warning Wash",
+        "canonical": "#FCEFE1",
+        "tonalRamp": [
+          "#462707",
+          "#79440C",
+          "#AC6111",
+          "#DF7E16",
+          "#EC9A41",
+          "#F1B574",
+          "#F7D2AC",
+          "#FDF3E8"
+        ]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Danger Red",
+        "canonical": "#B3342B",
+        "tonalRamp": [
+          "#3E120F",
+          "#6B1F1A",
+          "#982C25",
+          "#C5392F",
+          "#D65F56",
+          "#E18A84",
+          "#EDB9B5",
+          "#FAEBEA"
+        ]
+      },
+      "on-danger": {
+        "role": "secondary",
+        "displayName": "On Danger",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#969696",
+          "#B2B2B2",
+          "#D1D1D1",
+          "#F2F2F2"
+        ]
+      },
+      "danger-hover": {
+        "role": "secondary",
+        "displayName": "Danger Red Hover",
+        "canonical": "#962A22",
+        "tonalRamp": [
+          "#3E110E",
+          "#6C1E19",
+          "#9A2B23",
+          "#C8382D",
+          "#D85E55",
+          "#E38982",
+          "#EEB8B4",
+          "#FAEBEA"
+        ]
+      },
+      "scrim": {
+        "role": "neutral",
+        "displayName": "Scrim",
+        "canonical": "#14171F7A",
+        "tonalRamp": [
+          "#1E222E",
+          "#343C51",
+          "#4A5573",
+          "#606E95",
+          "#808CAD",
+          "#A2ABC3",
+          "#C7CDDB",
+          "#F0F1F5"
+        ],
+        "note": "CSS #RRGGBBAA; Flutter source is 0xAARRGGBB."
+      },
+      "shadow": {
+        "role": "neutral",
+        "displayName": "Shadow",
+        "canonical": "#14171F1A",
+        "tonalRamp": [
+          "#1E222E",
+          "#343C51",
+          "#4A5573",
+          "#606E95",
+          "#808CAD",
+          "#A2ABC3",
+          "#C7CDDB",
+          "#F0F1F5"
+        ],
+        "note": "CSS #RRGGBBAA; Flutter source is 0xAARRGGBB."
+      },
+      "exam-bar": {
+        "role": "tertiary",
+        "displayName": "Exam Bar",
+        "canonical": "#14171F",
+        "tonalRamp": [
+          "#1E222E",
+          "#343C51",
+          "#4A5573",
+          "#606E95",
+          "#808CAD",
+          "#A2ABC3",
+          "#C7CDDB",
+          "#F0F1F5"
+        ]
+      },
+      "on-exam-bar": {
+        "role": "tertiary",
+        "displayName": "On Exam Bar",
+        "canonical": "#E7EAF0",
+        "tonalRamp": [
+          "#1D232F",
+          "#333D52",
+          "#495774",
+          "#5E7197",
+          "#7E8EAF",
+          "#A1ADC4",
+          "#C7CEDC",
+          "#EFF1F5"
+        ]
+      },
+      "on-exam-bar-variant": {
+        "role": "tertiary",
+        "displayName": "On Exam Bar Variant",
+        "canonical": "#A6ADBB",
+        "tonalRamp": [
+          "#21252B",
+          "#393F4B",
+          "#525A6B",
+          "#6A758B",
+          "#8892A4",
+          "#A8AFBD",
+          "#CBCFD7",
+          "#F1F2F4"
+        ]
+      },
+      "exam-bar-rule": {
+        "role": "tertiary",
+        "displayName": "Exam Bar Rule",
+        "canonical": "#3A4250",
+        "tonalRamp": [
+          "#20252C",
+          "#383F4D",
+          "#4F5A6D",
+          "#67758E",
+          "#8692A7",
+          "#A6AFBF",
+          "#CACFD8",
+          "#F0F2F4"
+        ]
+      },
+      "exam-bar-primary": {
+        "role": "tertiary",
+        "displayName": "Exam Bar Blue",
+        "canonical": "#7C9BFF",
+        "tonalRamp": [
+          "#00124C",
+          "#001F85",
+          "#002DBD",
+          "#003AF5",
+          "#2E5FFF",
+          "#668AFF",
+          "#A3B9FF",
+          "#E5ECFF"
+        ]
+      },
+      "exam-bar-warning": {
+        "role": "tertiary",
+        "displayName": "Exam Bar Warning",
+        "canonical": "#F5A04D",
+        "tonalRamp": [
+          "#482604",
+          "#7E4207",
+          "#B35D0A",
+          "#E8790D",
+          "#F49539",
+          "#F7B26E",
+          "#FAD1A8",
+          "#FEF2E7"
+        ]
+      },
+      "hue-blue": {
+        "role": "tertiary",
+        "displayName": "Subject Blue",
+        "canonical": "#2F5BEA",
+        "tonalRamp": [
+          "#071645",
+          "#0C2678",
+          "#1136AB",
+          "#1645DE",
+          "#4169EC",
+          "#7491F1",
+          "#ACBDF7",
+          "#E8EDFD"
+        ],
+        "pairs": {
+          "lightWash": "#EEF2FE",
+          "dark": "#7C9BFF",
+          "darkWash": "#1B2547"
+        }
+      },
+      "hue-teal": {
+        "role": "tertiary",
+        "displayName": "Subject Teal",
+        "canonical": "#0E9F8E",
+        "tonalRamp": [
+          "#06463F",
+          "#0B7A6D",
+          "#0FAD9B",
+          "#14E1C9",
+          "#3FEEDA",
+          "#72F3E4",
+          "#ABF8EF",
+          "#E8FDFA"
+        ],
+        "pairs": {
+          "lightWash": "#F4FCFA",
+          "dark": "#4DD4BF",
+          "darkWash": "#123832"
+        }
+      },
+      "hue-violet": {
+        "role": "tertiary",
+        "displayName": "Subject Violet",
+        "canonical": "#7C5CE0",
+        "tonalRamp": [
+          "#190C40",
+          "#2B156F",
+          "#3D1E9F",
+          "#4F27CE",
+          "#724FDE",
+          "#987EE7",
+          "#C1B2F0",
+          "#EEEAFB"
+        ],
+        "pairs": {
+          "lightWash": "#F4F0FE",
+          "dark": "#B49AFF",
+          "darkWash": "#302347"
+        }
+      },
+      "hue-amber": {
+        "role": "tertiary",
+        "displayName": "Subject Amber",
+        "canonical": "#CE8200",
+        "tonalRamp": [
+          "#4C3000",
+          "#855400",
+          "#BD7700",
+          "#F59A00",
+          "#FFB22E",
+          "#FFC766",
+          "#FFDDA3",
+          "#FFF6E5"
+        ],
+        "note": "Spec amber #D98A00 darkened to #CE8200 in build for icon contrast on white.",
+        "pairs": {
+          "lightWash": "#FFFDF8",
+          "dark": "#F2BE62",
+          "darkWash": "#382A14"
+        }
+      },
+      "hue-rose": {
+        "role": "tertiary",
+        "displayName": "Subject Rose",
+        "canonical": "#E0567A",
+        "tonalRamp": [
+          "#410C1A",
+          "#70152C",
+          "#9F1D3F",
+          "#CF2652",
+          "#DF4E74",
+          "#E77E99",
+          "#F1B1C2",
+          "#FBE9EE"
+        ],
+        "pairs": {
+          "lightWash": "#FFF5F8",
+          "dark": "#FF90AD",
+          "darkWash": "#3B202C"
+        }
+      },
+      "background-dark": {
+        "role": "neutral",
+        "displayName": "Paper White (dark)",
+        "canonical": "#0F1218",
+        "tonalRamp": [
+          "#1D232F",
+          "#333D52",
+          "#495774",
+          "#5E7197",
+          "#7E8EAF",
+          "#A1ADC4",
+          "#C7CEDC",
+          "#EFF1F5"
+        ]
+      },
+      "surface-dark": {
+        "role": "neutral",
+        "displayName": "Cool Off-White (dark)",
+        "canonical": "#171B23",
+        "tonalRamp": [
+          "#1E242E",
+          "#353E50",
+          "#4B5872",
+          "#617294",
+          "#818FAC",
+          "#A3ADC2",
+          "#C8CEDB",
+          "#F0F1F5"
+        ]
+      },
+      "raised-dark": {
+        "role": "neutral",
+        "displayName": "Raised (dark)",
+        "canonical": "#1E232D",
+        "tonalRamp": [
+          "#1F242E",
+          "#353E50",
+          "#4B5871",
+          "#627293",
+          "#828FAB",
+          "#A3ADC2",
+          "#C8CEDA",
+          "#F0F1F5"
+        ]
+      },
+      "line-dark": {
+        "role": "neutral",
+        "displayName": "Hairline (dark)",
+        "canonical": "#2A303C",
+        "tonalRamp": [
+          "#1F242D",
+          "#373E4E",
+          "#4E596F",
+          "#657390",
+          "#8490A9",
+          "#A5AEC0",
+          "#C9CED9",
+          "#F0F2F4"
+        ]
+      },
+      "line-strong-dark": {
+        "role": "neutral",
+        "displayName": "Firm Line (dark)",
+        "canonical": "#3A4250",
+        "tonalRamp": [
+          "#20252C",
+          "#383F4D",
+          "#4F5A6D",
+          "#67758E",
+          "#8692A7",
+          "#A6AFBF",
+          "#CACFD8",
+          "#F0F2F4"
+        ]
+      },
+      "ink-dark": {
+        "role": "neutral",
+        "displayName": "Ink (dark)",
+        "canonical": "#E7EAF0",
+        "tonalRamp": [
+          "#1D232F",
+          "#333D52",
+          "#495774",
+          "#5E7197",
+          "#7E8EAF",
+          "#A1ADC4",
+          "#C7CEDC",
+          "#EFF1F5"
+        ]
+      },
+      "ink-secondary-dark": {
+        "role": "neutral",
+        "displayName": "Ink Secondary (dark)",
+        "canonical": "#A6ADBB",
+        "tonalRamp": [
+          "#21252B",
+          "#393F4B",
+          "#525A6B",
+          "#6A758B",
+          "#8892A4",
+          "#A8AFBD",
+          "#CBCFD7",
+          "#F1F2F4"
+        ]
+      },
+      "ink-tertiary-dark": {
+        "role": "neutral",
+        "displayName": "Ink Tertiary (dark)",
+        "canonical": "#828A9A",
+        "tonalRamp": [
+          "#22252A",
+          "#3B4049",
+          "#545B68",
+          "#6D7687",
+          "#8B93A2",
+          "#AAB0BB",
+          "#CCCFD6",
+          "#F1F2F4"
+        ]
+      },
+      "brand-dark": {
+        "role": "primary",
+        "displayName": "Confident Blue (dark)",
+        "canonical": "#7C9BFF",
+        "tonalRamp": [
+          "#00124C",
+          "#001F85",
+          "#002DBD",
+          "#003AF5",
+          "#2E5FFF",
+          "#668AFF",
+          "#A3B9FF",
+          "#E5ECFF"
+        ]
+      },
+      "on-brand-dark": {
+        "role": "primary",
+        "displayName": "On Blue (dark)",
+        "canonical": "#0F1218",
+        "tonalRamp": [
+          "#1D232F",
+          "#333D52",
+          "#495774",
+          "#5E7197",
+          "#7E8EAF",
+          "#A1ADC4",
+          "#C7CEDC",
+          "#EFF1F5"
+        ]
+      },
+      "brand-wash-dark": {
+        "role": "primary",
+        "displayName": "Blue Wash (dark)",
+        "canonical": "#1B2547",
+        "tonalRamp": [
+          "#151D37",
+          "#253260",
+          "#344789",
+          "#435CB1",
+          "#687DC5",
+          "#90A0D5",
+          "#BCC6E6",
+          "#EDEFF8"
+        ]
+      },
+      "brand-line-dark": {
+        "role": "primary",
+        "displayName": "Blue Line (dark)",
+        "canonical": "#3D5390",
+        "tonalRamp": [
+          "#171F36",
+          "#27365D",
+          "#384C85",
+          "#4963AC",
+          "#6C83C1",
+          "#94A4D1",
+          "#BFC8E4",
+          "#EDF0F7"
+        ]
+      },
+      "correct-dark": {
+        "role": "secondary",
+        "displayName": "Verdict Green (dark)",
+        "canonical": "#4CC38A",
+        "tonalRamp": [
+          "#133927",
+          "#216344",
+          "#2F8D60",
+          "#3DB77D",
+          "#62CB99",
+          "#8CD9B4",
+          "#BAE8D2",
+          "#ECF9F3"
+        ]
+      },
+      "correct-wash-dark": {
+        "role": "secondary",
+        "displayName": "Green Wash (dark)",
+        "canonical": "#12301F",
+        "tonalRamp": [
+          "#153824",
+          "#24603E",
+          "#338959",
+          "#43B273",
+          "#67C690",
+          "#90D5AE",
+          "#BCE6CE",
+          "#ECF8F1"
+        ]
+      },
+      "correct-line-dark": {
+        "role": "secondary",
+        "displayName": "Green Line (dark)",
+        "canonical": "#2B6949",
+        "tonalRamp": [
+          "#163626",
+          "#275E41",
+          "#37865D",
+          "#47AE79",
+          "#6BC295",
+          "#92D3B1",
+          "#BEE4D0",
+          "#EDF8F2"
+        ]
+      },
+      "incorrect-dark": {
+        "role": "secondary",
+        "displayName": "Verdict Coral (dark)",
+        "canonical": "#FF7A70",
+        "tonalRamp": [
+          "#4C0500",
+          "#850900",
+          "#BD0D00",
+          "#F51100",
+          "#FF3D2E",
+          "#FF7166",
+          "#FFAAA3",
+          "#FFE7E5"
+        ]
+      },
+      "incorrect-wash-dark": {
+        "role": "secondary",
+        "displayName": "Coral Wash (dark)",
+        "canonical": "#3A1A18",
+        "tonalRamp": [
+          "#361816",
+          "#5E2A27",
+          "#853C37",
+          "#AD4E48",
+          "#C2706B",
+          "#D29793",
+          "#E4C0BE",
+          "#F8EEED"
+        ]
+      },
+      "incorrect-line-dark": {
+        "role": "secondary",
+        "displayName": "Coral Line (dark)",
+        "canonical": "#873E38",
+        "tonalRamp": [
+          "#361916",
+          "#5E2B27",
+          "#853D37",
+          "#AD4F48",
+          "#C2726B",
+          "#D29893",
+          "#E4C1BE",
+          "#F8EEED"
+        ]
+      },
+      "warm-dark": {
+        "role": "tertiary",
+        "displayName": "Teacher Warm (dark)",
+        "canonical": "#2E2416",
+        "tonalRamp": [
+          "#342819",
+          "#5A462B",
+          "#80643D",
+          "#A6824F",
+          "#BB9D72",
+          "#CEB797",
+          "#E1D4C1",
+          "#F7F3EE"
+        ]
+      },
+      "warm-line-dark": {
+        "role": "tertiary",
+        "displayName": "Teacher Warm Line (dark)",
+        "canonical": "#665032",
+        "tonalRamp": [
+          "#332819",
+          "#59462C",
+          "#7F633E",
+          "#A48151",
+          "#BA9C73",
+          "#CDB798",
+          "#E1D4C1",
+          "#F7F3EE"
+        ]
+      },
+      "warm-ink-dark": {
+        "role": "tertiary",
+        "displayName": "Teacher Warm Ink (dark)",
+        "canonical": "#F2C580",
+        "tonalRamp": [
+          "#452D07",
+          "#784E0C",
+          "#AB6F12",
+          "#DE8F17",
+          "#ECA841",
+          "#F1C074",
+          "#F6D9AC",
+          "#FDF4E8"
+        ]
+      },
+      "warning-dark": {
+        "role": "secondary",
+        "displayName": "Warning Amber (dark)",
+        "canonical": "#F5A04D",
+        "tonalRamp": [
+          "#482604",
+          "#7E4207",
+          "#B35D0A",
+          "#E8790D",
+          "#F49539",
+          "#F7B26E",
+          "#FAD1A8",
+          "#FEF2E7"
+        ]
+      },
+      "warning-wash-dark": {
+        "role": "secondary",
+        "displayName": "Warning Wash (dark)",
+        "canonical": "#3A2614",
+        "tonalRamp": [
+          "#392514",
+          "#634122",
+          "#8C5C30",
+          "#B6773F",
+          "#C99464",
+          "#D8B18D",
+          "#E7D0BB",
+          "#F8F2EC"
+        ]
+      },
+      "danger-dark": {
+        "role": "secondary",
+        "displayName": "Danger Red (dark)",
+        "canonical": "#FF7A70",
+        "tonalRamp": [
+          "#4C0500",
+          "#850900",
+          "#BD0D00",
+          "#F51100",
+          "#FF3D2E",
+          "#FF7166",
+          "#FFAAA3",
+          "#FFE7E5"
+        ]
+      },
+      "on-danger-dark": {
+        "role": "secondary",
+        "displayName": "On Danger (dark)",
+        "canonical": "#0F1218",
+        "tonalRamp": [
+          "#1D232F",
+          "#333D52",
+          "#495774",
+          "#5E7197",
+          "#7E8EAF",
+          "#A1ADC4",
+          "#C7CEDC",
+          "#EFF1F5"
+        ]
+      },
+      "danger-hover-dark": {
+        "role": "secondary",
+        "displayName": "Danger Red Hover (dark)",
+        "canonical": "#FF9189",
+        "tonalRamp": [
+          "#4C0500",
+          "#850900",
+          "#BD0D00",
+          "#F51100",
+          "#FF3C2E",
+          "#FF7066",
+          "#FFA9A3",
+          "#FFE7E5"
+        ]
+      },
+      "scrim-dark": {
+        "role": "neutral",
+        "displayName": "Scrim (dark)",
+        "canonical": "#00000099",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#969696",
+          "#B2B2B2",
+          "#D1D1D1",
+          "#F2F2F2"
+        ],
+        "note": "CSS #RRGGBBAA; Flutter source is 0xAARRGGBB."
+      },
+      "shadow-dark": {
+        "role": "neutral",
+        "displayName": "Shadow (dark)",
+        "canonical": "#00000033",
+        "tonalRamp": [
+          "#262626",
+          "#424242",
+          "#5E5E5E",
+          "#7A7A7A",
+          "#969696",
+          "#B2B2B2",
+          "#D1D1D1",
+          "#F2F2F2"
+        ],
+        "note": "CSS #RRGGBBAA; Flutter source is 0xAARRGGBB."
+      }
+    },
+    "typographyMeta": {
+      "display-score": {
+        "displayName": "Display score",
+        "purpose": "Quiz result score only (displayLarge)."
+      },
+      "display-small": {
+        "displayName": "Display small",
+        "purpose": "Practice summary figure."
+      },
+      "headline-large": {
+        "displayName": "Headline large",
+        "purpose": "Greeting and course page title."
+      },
+      "headline-medium": {
+        "displayName": "Headline medium",
+        "purpose": "Screen titles."
+      },
+      "headline-small": {
+        "displayName": "Headline small",
+        "purpose": "Card titles (CourseCard)."
+      },
+      "title-large": {
+        "displayName": "Title large",
+        "purpose": "Section heads, prices."
+      },
+      "title-medium": {
+        "displayName": "Title medium",
+        "purpose": "List-row titles, dock verdict."
+      },
+      "title-small": {
+        "displayName": "Title small",
+        "purpose": "Small section titles."
+      },
+      "stem": {
+        "displayName": "Stem",
+        "purpose": "Question stem on medium/expanded (AppType.stem)."
+      },
+      "stem-compact": {
+        "displayName": "Stem compact",
+        "purpose": "Question stem on phone (AppType.stemCompact)."
+      },
+      "body-large": {
+        "displayName": "Body large",
+        "purpose": "Emphasised reading copy."
+      },
+      "body-medium": {
+        "displayName": "Body medium",
+        "purpose": "Default reading size; choices and copy."
+      },
+      "body-small": {
+        "displayName": "Body small",
+        "purpose": "Meta lines and secondary copy."
+      },
+      "label-large": {
+        "displayName": "Label large",
+        "purpose": "Buttons, chips, banners, field labels (13px)."
+      },
+      "label-small": {
+        "displayName": "Label small",
+        "purpose": "Nav labels, small captions (labelMedium shares this size)."
+      },
+      "count": {
+        "displayName": "Count",
+        "purpose": "Tabular counts and topic numbers (AppType.count)."
+      },
+      "timer": {
+        "displayName": "Timer",
+        "purpose": "Tabular exam clock (AppType.timer)."
+      }
+    },
+    "shadows": [
+      {
+        "name": "primary-lift",
+        "value": "0 1px 0 #14171F1A, 0 2px 6px rgba(47,91,234,0.25)",
+        "purpose": "Enabled primary LoadingButton only."
+      },
+      {
+        "name": "sheet-lift",
+        "value": "0 -2px 16px #14171F1A",
+        "purpose": "Feedback dock once a verdict shows; teacher save bar (offset -4px)."
+      },
+      {
+        "name": "overlay",
+        "value": "Material elevation 2, shadow role, over scrim",
+        "purpose": "Dialogs and bottom sheets."
+      },
+      {
+        "name": "selected-halo",
+        "value": "0 0 0 3px rgba(185,200,248,0.45)",
+        "purpose": "Selected choice tile halo (spread, not a lift)."
+      }
+    ],
+    "focus": {
+      "ring": "3px solid brand-line (#B9C8F8 light / #3D5390 dark)",
+      "applies": "buttons, icon buttons, fields, chips, choices, nav"
+    },
+    "motion": [
+      {
+        "name": "press",
+        "value": "120ms",
+        "purpose": "Press scale 0.98 on buttons and choices."
+      },
+      {
+        "name": "state",
+        "value": "200ms",
+        "purpose": "State changes: chips, button colours, progress fill."
+      },
+      {
+        "name": "enter",
+        "value": "320ms",
+        "purpose": "Entrances: dock tint, verdict rise, question-to-question, save bar."
+      },
+      {
+        "name": "signature",
+        "value": "500ms",
+        "purpose": "Topic unlock, skeleton shimmer sweep."
+      },
+      {
+        "name": "stagger",
+        "value": "40ms",
+        "purpose": "Step offset in staged reveals."
+      },
+      {
+        "name": "emphasized",
+        "value": "cubic-bezier(0.05, 0.7, 0.1, 1)",
+        "purpose": "Entrances."
+      },
+      {
+        "name": "standard",
+        "value": "cubic-bezier(0.2, 0, 0, 1)",
+        "purpose": "State changes."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "AppMotion.resolve returns Duration.zero when MediaQuery.disableAnimationsOf(context)",
+        "purpose": "Every animation collapses to its end state."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "<=600px"
+      },
+      {
+        "name": "medium",
+        "value": "601-1023px"
+      },
+      {
+        "name": "expanded",
+        "value": ">=1024px"
+      }
+    ],
+    "strokes": {
+      "thin": "1px",
+      "badge": "1.5px",
+      "strong": "2px",
+      "current": "2.5px",
+      "focusRing": "3px",
+      "dash": "4px on / 3px off"
+    },
+    "sizes": {
+      "touchTarget": "48px",
+      "largeControl": "56px",
+      "iconTile": "40px",
+      "icon": "18 / 20 / 32px",
+      "readingColumn": "680px",
+      "questionColumn": "720px",
+      "shellSidebar": "232px",
+      "shellRail": "80px",
+      "dialog": "400px",
+      "illustration": "200px"
+    },
+    "fonts": {
+      "sans": "Lexend (bundled 300-700)",
+      "math": "flutter_math_fork via MathText, scale 1.21"
+    },
+    "icons": "Lucide via lucide_icons_flutter, only through AppIcons semantic names",
+    "illustration": "unDraw SVG via flutter_svg; #6C63FF maps to brand; dark neutrals remapped; decorative"
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "LoadingButton primary: the one filled blue action per surface (Check, Continue).",
+      "html": "<button class=\"ds-btn-primary\">Check</button>",
+      "css": ".ds-btn-primary{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;line-height:20px;min-height:48px;padding:8px 20px;border:none;border-radius:10px;background:#2F5BEA;color:#FFFFFF;box-shadow:0 1px 0 #14171F1A,0 2px 6px rgba(47,91,234,.25);transition:transform 120ms cubic-bezier(.2,0,0,1);cursor:pointer}.ds-btn-primary:active{transform:scale(.98)}.ds-btn-primary:focus-visible{outline:3px solid #B9C8F8;outline-offset:0}.ds-btn-primary:disabled{background:#E3E6EC;color:#6A7283;box-shadow:none}@media (prefers-reduced-motion:reduce){.ds-btn-primary{transition:none}}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "LoadingButton secondary: outlined blue, for the second action.",
+      "html": "<button class=\"ds-btn-secondary\">Explore course</button>",
+      "css": ".ds-btn-secondary{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;min-height:48px;padding:8px 20px;border:1px solid #2F5BEA;border-radius:10px;background:transparent;color:#2F5BEA;transition:transform 120ms cubic-bezier(.2,0,0,1);cursor:pointer}.ds-btn-secondary:active{transform:scale(.98)}.ds-btn-secondary:focus-visible{outline:3px solid #B9C8F8}"
+    },
+    {
+      "name": "Destructive Button",
+      "kind": "button",
+      "refersTo": "button-destructive",
+      "description": "LoadingButton destructive: delete/discard only; never to judge an answer.",
+      "html": "<button class=\"ds-btn-danger\">Delete topic</button>",
+      "css": ".ds-btn-danger{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;min-height:48px;padding:8px 20px;border:none;border-radius:10px;background:#B3342B;color:#FFFFFF;cursor:pointer;transition:background 200ms cubic-bezier(.2,0,0,1)}.ds-btn-danger:hover{background:#962A22}.ds-btn-danger:focus-visible{outline:3px solid #B9C8F8}"
+    },
+    {
+      "name": "Choice Tile",
+      "kind": "custom",
+      "refersTo": "choice-tile",
+      "description": "Answer choice row: letter badge + math content; selected gets wash, brand border and a 3px halo; verdicts add icon + word.",
+      "html": "<div class=\"ds-choices\"><button class=\"ds-choice\"><span class=\"ds-badge\">A</span><span>x = 7</span></button><button class=\"ds-choice ds-choice-sel\"><span class=\"ds-badge\">B</span><span>x = 12</span></button><div class=\"ds-choice ds-choice-ok\"><span class=\"ds-badge\">C</span><span>x = 22/3</span><span class=\"ds-status\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>Correct</span></div></div>",
+      "css": ".ds-choices{display:flex;flex-direction:column;gap:12px;max-width:720px;font-family:Lexend,system-ui,sans-serif;}.ds-choice{display:flex;align-items:center;gap:12px;min-height:56px;padding:4px 12px;border:1px solid #E3E6EC;border-radius:12px;background:#FFFFFF;color:#14171F;font:inherit;font-size:15px;text-align:left;cursor:pointer;transition:transform 120ms cubic-bezier(.2,0,0,1)}.ds-choice:hover{border-color:#CDD2DB}.ds-choice:active{transform:scale(.98)}.ds-choice:focus-visible{outline:3px solid #B9C8F8}.ds-badge{display:inline-grid;place-items:center;width:30px;height:30px;border:1.5px solid #CDD2DB;border-radius:999px;font-size:12px;font-weight:600;color:#555C6B}.ds-choice-sel{background:#EEF2FE;border:2px solid #2F5BEA;box-shadow:0 0 0 3px rgba(185,200,248,.45)}.ds-choice-sel .ds-badge{background:#2F5BEA;border-color:#2F5BEA;color:#FFFFFF}.ds-choice-ok{background:#E8F6EE;border:2px solid #137F49}.ds-choice-ok .ds-badge{background:#137F49;border-color:#137F49;color:#FFFFFF}.ds-status{margin-left:auto;display:inline-flex;align-items:center;gap:4px;color:#137F49;font-size:12px;font-weight:600}"
+    },
+    {
+      "name": "Feedback Dock",
+      "kind": "custom",
+      "refersTo": "feedback-dock-correct",
+      "description": "Sticky verdict dock: tints to the verdict wash, icon + word in a live region, teacher line on warm, action re-themed to verdict colour.",
+      "html": "<div class=\"ds-dock\"><div class=\"ds-dock-main\"><div class=\"ds-verdict\" role=\"status\" aria-live=\"polite\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/></svg>Correct</div><div class=\"ds-teacher\"><strong>A. Elmenshawy</strong><p>Right. Isolate the variable term first, then divide.</p></div></div><button class=\"ds-dock-next\">Next</button></div>",
+      "css": ".ds-dock{font-family:Lexend,system-ui,sans-serif;display:flex;gap:24px;align-items:center;padding:12px 16px;background:#E8F6EE;border-top:1px solid #9ED3B5;box-shadow:0 -2px 16px #14171F1A}.ds-dock-main{flex:1;display:flex;flex-direction:column;gap:12px}.ds-verdict{display:flex;align-items:center;gap:12px;color:#137F49;font-size:16px;font-weight:700}.ds-teacher{background:#FFF7EB;border:1px solid #F1D9B5;border-radius:12px;padding:12px}.ds-teacher strong{color:#8A5A12;font-size:12px}.ds-teacher p{margin:8px 0 0;color:#14171F;font-size:15px}.ds-dock-next{min-width:180px;min-height:48px;border:none;border-radius:10px;background:#137F49;color:#FFFFFF;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.ds-dock-next:focus-visible{outline:3px solid #9ED3B5}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "AppFieldBorder: full rounded outline, label always floating inside above the value, 3px brand-line focus.",
+      "html": "<label class=\"ds-field\"><span>Email</span><input placeholder=\"you@school.org\"></label>",
+      "css": ".ds-field{font-family:Lexend,system-ui,sans-serif;display:flex;flex-direction:column;gap:2px;max-width:360px;padding:8px 12px;border:1px solid #CDD2DB;border-radius:10px;background:#FFFFFF}.ds-field span{font-size:13px;font-weight:600;color:#555C6B}.ds-field input{border:none;outline:none;font:inherit;font-size:15px;color:#14171F;background:transparent}.ds-field input::placeholder{color:#6A7283}.ds-field:focus-within{border:3px solid #B9C8F8;padding:6px 10px}"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "AppChip: pill, surface fill; filter kind turns brand wash/brand when selected.",
+      "html": "<span class=\"ds-chip\">E · Easy</span> <button class=\"ds-chip ds-chip-on\">Algebra</button>",
+      "css": ".ds-chip{font-family:Lexend,system-ui,sans-serif;display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border:1px solid #E3E6EC;border-radius:999px;background:#F6F7F9;color:#14171F;font-size:13px;font-weight:600;transition:background 200ms cubic-bezier(.2,0,0,1)}button.ds-chip{cursor:pointer;border-color:#CDD2DB}button.ds-chip:focus-visible{outline:3px solid #B9C8F8}.ds-chip-on{background:#EEF2FE;border-color:#2F5BEA;color:#2F5BEA}"
+    },
+    {
+      "name": "Course Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "CourseCard: flat card with 8px subject-hue band, 40px IconTile, headline title, 24px padding.",
+      "html": "<article class=\"ds-card\"><div class=\"ds-band\"></div><div class=\"ds-card-body\"><span class=\"ds-tile\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 7v14\"/><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\"/></svg></span><h3>SAT Math</h3><p>Explore algebra, problem solving, and geometry.</p></div></article>",
+      "css": ".ds-card{font-family:Lexend,system-ui,sans-serif;max-width:420px;border:1px solid #E3E6EC;border-radius:12px;background:#FFFFFF;overflow:hidden}.ds-band{height:8px;background:#0E9F8E}.ds-card-body{padding:24px;display:flex;flex-direction:column;gap:16px}.ds-tile{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#F4FCFA;color:#0E9F8E}.ds-card h3{margin:0;font-size:24px;font-weight:600;line-height:32px;color:#14171F}.ds-card p{margin:0;font-size:15px;color:#14171F}"
+    },
+    {
+      "name": "Shell Navigation",
+      "kind": "nav",
+      "refersTo": "shell-sidebar",
+      "description": "Desktop sidebar: surface ground, current item as a raised pill with a hairline border.",
+      "html": "<nav class=\"ds-nav\"><a>Home</a><a class=\"ds-nav-on\" aria-current=\"page\">Courses</a><a>Skills</a></nav>",
+      "css": ".ds-nav{font-family:Lexend,system-ui,sans-serif;display:flex;flex-direction:column;gap:4px;width:232px;padding:16px 12px;background:#F6F7F9;border-right:1px solid #E3E6EC}.ds-nav a{display:flex;align-items:center;min-height:48px;padding:0 12px;border:1px solid transparent;border-radius:10px;color:#555C6B;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}.ds-nav a:hover{color:#14171F}.ds-nav a:focus-visible{outline:3px solid #B9C8F8}.ds-nav a.ds-nav-on{background:#FFFFFF;border-color:#E3E6EC;color:#14171F;font-weight:700}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Category Standard, at Full Craft",
+    "overview": "Khan Academy's calm and math legibility, Brilliant's polished feedback, Linear/Notion type and spacing discipline, and Duolingo's decisive Check structure without its playful styling. White ground, one cool off-white surface, near-black ink, one confident blue. The question and its feedback own the screen; chrome stays quiet.\n\nDensity is relaxed and phone-first: 48px touch targets, 56px choice rows, a 680-720px content column on desktop. Depth comes from 1px lines and tonal surfaces, with soft shadows reserved for surfaces that act (primary button, sheets, dialogs, the feedback dock). Motion is short and purposeful, and every animation collapses to its end state under reduced motion. Light and dark themes share the same roles; every screen ships in both.\n\nConfirmed rejections (from the approved spec): cold grey SaaS, gamified chrome (points, mascots, confetti), exam-software imitation (Bluebook), clutter at 360px.",
+    "keyCharacteristics": [
+      "One brand blue for selection and primary action; green and coral only for verdicts.",
+      "Status is always icon + word, never colour alone.",
+      "Lexend everywhere, tabular numerals for counts, timers and scores; LaTeX via `flutter_math_fork` at 1.21x the surrounding text.",
+      "Flat surfaces separated by 1px lines; shadows only on acting surfaces.",
+      "Lucide icons through one semantic `AppIcons` map.",
+      "unDraw illustrations recoloured to the brand at runtime, never inside the question area."
+    ],
+    "rules": [
+      {
+        "name": "The One Blue Rule",
+        "body": "Blue means \"act here\" or \"you chose this\". Don't use it for decoration, headings or status.",
+        "section": "colors"
+      },
+      {
+        "name": "The Icon-And-Word Rule",
+        "body": "Every status (correct, incorrect, warning, offline, locked, saved) shows a Lucide icon and a word. Colour reinforces the meaning; it never carries it alone.",
+        "section": "colors"
+      },
+      {
+        "name": "The Teacher's Voice Rule",
+        "body": "Warm fill and warm ink are the teacher's voice only. They never mark a verdict. (The warning banner borrows `warm-line` for its border; that is the one shared use.)",
+        "section": "colors"
+      },
+      {
+        "name": "The Hue Is Identity Rule",
+        "body": "Subject hues identify units and topics. They never signal progress, mastery or correctness.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tabular Numbers Rule",
+        "body": "Any number that changes in place (counts, timers, scores, topic numbers) uses `AppType.count`, `AppType.timer` or `FontFeature.tabularFigures()`.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Labels and headings are sentence case. The system has no uppercase or tracked-caps style.",
+        "section": "typography"
+      },
+      {
+        "name": "The Acting Surface Rule",
+        "body": "Only surfaces that ask for action get a shadow: the primary button, the verdict dock, the save bar, dialogs and sheets. Cards, tiles, chips and nav stay flat.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** read colours from `context.appColors` and spacing, radius and sizes from `AppSpace` / `AppRadius` / `AppSize`. Check every new screen in light and dark at 360px and 1280px.",
+      "**Do** pair every status with a Lucide icon and a word, and put verdicts and errors in a `Semantics(liveRegion: true)`.",
+      "**Do** route every animation through `AppMotion.resolve` so it collapses to its end state when animations are disabled.",
+      "**Do** render questions only through the shared `QuestionView`, and math only through `MathText` (`flutter_math_fork`).",
+      "**Do** use tabular figures for any changing number.",
+      "**Do** keep UI copy English and sentence case, and set `TextDirection.ltr` on content text.",
+      "**Do** keep targets at least 48px and give choices, SPR fields and keypad keys 56px."
+    ],
+    "donts": [
+      "**Don't** show status by colour alone, or use subject hues or warm fill for status.",
+      "**Don't** add shadows to cards, chips, tiles or nav. Shadows belong to acting surfaces only.",
+      "**Don't** use `brand` blue for decoration or headings, or `danger` to judge an answer.",
+      "**Don't** add Material `Icons.*`, emoji or text glyphs as icons.",
+      "**Don't** add gamified chrome (points, mascots, confetti) or exam-software imitation.",
+      "**Don't** add uppercase kickers or eyebrow labels. The skill line above the stem is QuestionView anatomy, not a pattern for other titles.",
+      "**Don't** place illustrations inside the question or answer area."
+    ]
+  }
+}
