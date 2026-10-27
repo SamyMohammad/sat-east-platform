@@ -9,6 +9,7 @@ import 'package:sat_east_client/features/practice/domain/entities/practice.dart'
 import 'package:sat_east_client/features/practice/domain/repositories/practice_repository.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_cubit.dart';
 import 'package:sat_east_client/features/practice/presentation/cubit/practice_state.dart';
+import 'package:sat_east_client/shared/widgets/question_view/rep_outcome.dart';
 
 class _MockRepo extends Mock implements PracticeRepository {}
 
@@ -60,6 +61,7 @@ PracticeInProgress _progress({
   PracticeStep feedback = const Answering(),
   String? firstTry,
   AppError? checkError,
+  List<RepOutcome> outcomes = const [],
 }) => PracticeInProgress(
   set: _set,
   index: index,
@@ -68,6 +70,7 @@ PracticeInProgress _progress({
   feedback: feedback,
   firstTry: firstTry,
   checkError: checkError,
+  outcomes: outcomes,
 );
 
 void main() {
@@ -237,7 +240,11 @@ void main() {
     skip: 3,
     expect: () => [
       _progress(selected: 'A', feedback: const Checking()),
-      _progress(selected: 'A', feedback: const Done(_correct)),
+      _progress(
+        selected: 'A',
+        feedback: const Done(_correct),
+        outcomes: const [RepOutcome.firstTry],
+      ),
     ],
     verify: (_) => checked('A').called(1),
   );
@@ -262,7 +269,12 @@ void main() {
         _progress(selected: 'A', feedback: _missed, firstTry: 'A'),
         _progress(selected: 'B', feedback: _missed, firstTry: 'A'),
         _progress(selected: 'B', feedback: const Checking(), firstTry: 'A'),
-        _progress(selected: 'B', feedback: Done(result), firstTry: 'A'),
+        _progress(
+          selected: 'B',
+          feedback: Done(result),
+          firstTry: 'A',
+          outcomes: const [RepOutcome.missed],
+        ),
       ],
     );
   }
@@ -314,6 +326,7 @@ void main() {
             selected: 'B',
             feedback: const Done(_correctSecond),
             firstTry: firstTry,
+            outcomes: const [RepOutcome.missed],
           ),
         ],
         verify: (_) => checked('B').called(2),
@@ -443,7 +456,127 @@ void main() {
       c.next();
     },
     skip: 8,
-    expect: () => [_progress(index: 1)],
+    expect: () => [
+      _progress(index: 1, outcomes: const [RepOutcome.missed]),
+    ],
+  );
+
+  blocTest<PracticeCubit, PracticeState>(
+    'PRC-03: correct on the first try records firstTry',
+    build: () {
+      checks([const Success(_correct)]);
+      return build();
+    },
+    act: (c) async {
+      await c.start('topic');
+      c.select('B');
+      await c.check();
+    },
+    verify: (c) => expect(
+      (c.state as PracticeInProgress).outcomes,
+      [RepOutcome.firstTry],
+    ),
+  );
+
+  blocTest<PracticeCubit, PracticeState>(
+    'PRC-03: a miss alone records nothing',
+    build: () {
+      checks([const Success(_miss)]);
+      return build();
+    },
+    act: (c) async {
+      await c.start('topic');
+      c.select('A');
+      await c.check();
+    },
+    verify: (c) => expect((c.state as PracticeInProgress).outcomes, isEmpty),
+  );
+
+  blocTest<PracticeCubit, PracticeState>(
+    'PRC-03: a miss then correct records missed',
+    build: () {
+      checks([const Success(_miss), const Success(_correctSecond)]);
+      return build();
+    },
+    act: (c) async {
+      await c.start('topic');
+      c.select('A');
+      await c.check();
+      c.select('B');
+      await c.check();
+    },
+    verify: (c) => expect(
+      (c.state as PracticeInProgress).outcomes,
+      [RepOutcome.missed],
+    ),
+  );
+
+  blocTest<PracticeCubit, PracticeState>(
+    'PRC-03: a revealed answer records missed',
+    build: () {
+      checks([const Success(_miss), const Success(_revealed)]);
+      return build();
+    },
+    act: (c) async {
+      await c.start('topic');
+      c.select('A');
+      await c.check();
+      c.select('B');
+      await c.check();
+    },
+    verify: (c) => expect(
+      (c.state as PracticeInProgress).outcomes,
+      [RepOutcome.missed],
+    ),
+  );
+
+  blocTest<PracticeCubit, PracticeState>(
+    'PRC-03: outcomes survive next and grow per rep',
+    build: () {
+      checks([const Success(_correct), const Success(_miss)]);
+      return build();
+    },
+    act: (c) async {
+      await c.start('topic');
+      c.select('B');
+      await c.check();
+      c
+        ..next()
+        ..sprChanged('3');
+      await c.check();
+    },
+    verify: (c) {
+      final state = c.state as PracticeInProgress;
+      expect(state.index, 1);
+      expect(state.outcomes, [RepOutcome.firstTry]);
+    },
+  );
+
+  blocTest<PracticeCubit, PracticeState>(
+    'PRC-03: a repeated emit on the same rep does not append twice',
+    build: () {
+      checks([const Success(_correct)]);
+      return build();
+    },
+    act: (c) async {
+      await c.start('topic');
+      c.select('B');
+      await c.check();
+      await c.check();
+      c.select('A');
+      await c.check();
+    },
+    verify: (c) => expect(
+      (c.state as PracticeInProgress).outcomes,
+      [RepOutcome.firstTry],
+    ),
+  );
+
+  blocTest<PracticeCubit, PracticeState>(
+    'PRC-03: starting a set begins with no outcomes',
+    build: build,
+    act: (c) => c.start('topic'),
+    verify: (c) => expect((c.state as PracticeInProgress).outcomes, isEmpty),
   );
 
   test('PRC-01: summary counts only server correct try 1', () async {

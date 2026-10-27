@@ -14,6 +14,7 @@ import 'package:sat_east_client/shared/widgets/question_view/question_data.dart'
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
 import 'package:sat_east_client/shared/widgets/question_view/quiz_time_up_dialog.dart';
+import 'package:sat_east_client/shared/widgets/question_view/rep_outcome.dart';
 
 import '../full_viewport_harness.dart';
 
@@ -36,6 +37,14 @@ PracticeMode _practice(PracticeFeedback feedback) => PracticeMode(
   rep: 7,
   repTarget: 10,
   noteAuthor: 'A. Elmenshawy',
+  outcomes: [
+    RepOutcome.firstTry,
+    RepOutcome.firstTry,
+    RepOutcome.missed,
+    RepOutcome.firstTry,
+    RepOutcome.missed,
+    RepOutcome.firstTry,
+  ],
 );
 
 const _answered = {0, 1, 2, 3, 4, 5, 6, 7, 9, 10, 11, 12, 14, 15, 16};

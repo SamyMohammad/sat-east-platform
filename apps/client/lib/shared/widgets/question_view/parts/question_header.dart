@@ -5,6 +5,7 @@ import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/core/theme/app_type.dart';
+import 'package:sat_east_client/shared/widgets/question_view/rep_outcome.dart';
 
 /// Top bar of the question screen: back, title, mode label, segmented
 /// progress and an optional trailing slot. Phone stacks the progress block
@@ -18,6 +19,7 @@ class QuestionHeader extends StatelessWidget {
     required this.total,
     super.key,
     this.current,
+    this.outcomes = const [],
     this.onBack,
     this.trailing,
   });
@@ -28,6 +30,9 @@ class QuestionHeader extends StatelessWidget {
   final int done;
   final int total;
   final int? current;
+
+  /// Practice only: outcome i belongs to segment i.
+  final List<RepOutcome> outcomes;
   final VoidCallback? onBack;
   final Widget? trailing;
 
@@ -156,6 +161,11 @@ class QuestionHeader extends StatelessWidget {
     );
   }
 
+  String _outcomeLabel() {
+    final firstTry = outcomes.where((o) => o == RepOutcome.firstTry).length;
+    return '$firstTry of $total reps correct on the first try';
+  }
+
   Widget _practice(BuildContext context, double width) {
     final compact = AppLayout.forWidth(width) == AppLayout.compact;
     final colors = context.appColors;
@@ -216,15 +226,22 @@ class QuestionHeader extends StatelessWidget {
                           constraints: const BoxConstraints(
                             maxWidth: AppSize.headerProgress,
                           ),
-                          child: _Segments(
-                            done: done,
-                            total: total,
-                            current: current,
+                          child: Semantics(
+                            label: _outcomeLabel(),
+                            child: ExcludeSemantics(
+                              child: _Segments(
+                                done: done,
+                                total: total,
+                                current: current,
+                                outcomes: outcomes,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                       Text(
-                        '$done / $total',
+                        // The rep on screen; segments show completed reps.
+                        '${current == null ? done : current! + 1} / $total',
                         style: AppType.count.copyWith(
                           color: colors.inkSecondary,
                         ),
@@ -316,13 +333,26 @@ class _ProgressBlock extends StatelessWidget {
 }
 
 class _Segments extends StatelessWidget {
-  const _Segments({required this.done, required this.total, this.current});
+  const _Segments({
+    required this.done,
+    required this.total,
+    this.current,
+    this.outcomes = const [],
+  });
   final int done;
   final int total;
   final int? current;
+  final List<RepOutcome> outcomes;
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final colors = context.appColors;
+    Color? outcomeColor(int i) => i >= outcomes.length
+        ? null
+        : switch (outcomes[i]) {
+            RepOutcome.firstTry => colors.correct,
+            RepOutcome.missed => colors.incorrect,
+          };
     return Row(
       children: [
         for (var i = 0; i < total; i++) ...[
@@ -335,12 +365,14 @@ class _Segments extends StatelessWidget {
               height: AppSize.progressThickness,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(AppRadius.pill),
-                color: i < done
-                    ? scheme.primary
-                    : i == current
-                    ? scheme.primaryContainer
-                    : scheme.outlineVariant,
-                border: i >= done && i == current
+                color:
+                    outcomeColor(i) ??
+                    (i < done
+                        ? scheme.primary
+                        : i == current
+                        ? scheme.primaryContainer
+                        : scheme.outlineVariant),
+                border: i >= done && i >= outcomes.length && i == current
                     ? Border.all(
                         color: scheme.primary,
                         // Explicit: keeps the 1 px border.

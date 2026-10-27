@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart' show VoidCallback;
 
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
+import 'package:sat_east_client/shared/widgets/question_view/rep_outcome.dart';
 
 enum SaveStatus { saving, saved, offline, failed }
 
@@ -14,11 +15,16 @@ final class PracticeMode extends QuestionViewMode {
     required this.rep,
     required this.repTarget,
     this.noteAuthor,
+    this.outcomes = const [],
   });
 
   final PracticeFeedback feedback;
   final int rep;
   final int repTarget;
+
+  /// Outcome i belongs to rep i. Shorter than the reps done when a set was
+  /// resumed: those earlier reps are drawn as plain progress.
+  final List<RepOutcome> outcomes;
   final String? noteAuthor;
 }
 
