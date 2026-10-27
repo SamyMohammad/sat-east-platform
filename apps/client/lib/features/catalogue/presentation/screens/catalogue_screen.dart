@@ -7,7 +7,6 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
-import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/catalogue/domain/entities/catalogue_course.dart';
 import 'package:sat_east_client/features/catalogue/presentation/catalogue_copy.dart';
@@ -18,10 +17,9 @@ import 'package:sat_east_client/features/catalogue/presentation/widgets/catalogu
 import 'package:sat_east_client/features/catalogue/presentation/widgets/catalogue_greeting.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/course_card.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
-import 'package:sat_east_client/shared/widgets/icon_tile.dart';
-import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 class CatalogueScreen extends StatelessWidget {
   const CatalogueScreen({
@@ -53,6 +51,7 @@ class CatalogueView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => CatalogueFrame(
     fallbackLocation: AppRoutes.home,
+    showTitle: false,
     child: BlocBuilder<CatalogueCubit, CatalogueState>(
       builder: (context, state) => switch (state) {
         CatalogueLoading() => const Padding(
@@ -102,63 +101,18 @@ class _CourseCard extends StatelessWidget {
   final bool enablePurchase;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          SizedBox(
-            height: AppSpace.s2,
-            child: ColoredBox(
-              key: ValueKey('course-hue-$index'),
-              color: SubjectHue.forIndex(index).color(theme.brightness),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(AppSpace.s6),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: AppSpace.s4,
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: IconTile(
-                    AppIcons.courses,
-                    hue: SubjectHue.forIndex(index),
-                  ),
-                ),
-                Text(
-                  course.title,
-                  style: theme.textTheme.headlineSmall,
-                  textDirection: TextDirection.ltr,
-                ),
-                if (course.description case final description?)
-                  Text(
-                    description,
-                    textDirection: TextDirection.ltr,
-                  ),
-                Text(
-                  CatalogueCopy.topics(course.topicCount),
-                  style: theme.textTheme.bodySmall,
-                ),
-                if (course.price case final price? when enablePurchase)
-                  Text(
-                    formatPrice(price),
-                    style: theme.textTheme.titleLarge,
-                  ),
-                LoadingButton(
-                  label: CatalogueCopy.syllabus,
-                  onPressed: () => unawaited(
-                    context.push<void>(AppRoutes.coursePage(course.slug)),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => CourseCard(
+    hue: SubjectHue.forIndex(index),
+    coverKey: ValueKey('course-hue-$index'),
+    title: course.title,
+    body: course.description,
+    meta: CatalogueCopy.topics(course.topicCount),
+    price: course.price != null && enablePurchase
+        ? formatPrice(course.price!)
+        : null,
+    actionLabel: CatalogueCopy.syllabus,
+    onAction: () => unawaited(
+      context.push<void>(AppRoutes.coursePage(course.slug)),
+    ),
+  );
 }

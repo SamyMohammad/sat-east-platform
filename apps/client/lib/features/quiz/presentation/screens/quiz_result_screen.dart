@@ -26,9 +26,11 @@ class QuizResultScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final next = report.nextTopic;
     final retakeAt = report.retakeAt;
+    final compact =
+        AppLayout.forWidth(MediaQuery.sizeOf(context).width) ==
+        AppLayout.compact;
     return SafeArea(
       child: QuizStatusContent(
         maxWidth: 560,
@@ -42,16 +44,7 @@ class QuizResultScreen extends StatelessWidget {
                   ? AppIllustrationName.quizPassed
                   : AppIllustrationName.quizRetry,
             ),
-            Text(
-              report.passed ? QuizCopy.passed : QuizCopy.notPassed,
-              style: theme.textTheme.headlineSmall,
-              textAlign: TextAlign.center,
-            ),
             QuizResultScore(report: report),
-            Text(
-              QuizCopy.passMark(report.passMark),
-              textAlign: TextAlign.center,
-            ),
             if (!report.passed)
               Text(
                 textAlign: TextAlign.center,
@@ -59,19 +52,21 @@ class QuizResultScreen extends StatelessWidget {
                     ? QuizCopy.retakeUnavailable
                     : QuizCopy.retake(_localTime(context, retakeAt)),
               ),
-            LoadingButton(
-              expanded: true,
-              label: report.passed
-                  ? next == null
-                        ? QuizCopy.backToCourse
-                        : QuizCopy.nextTopic
-                  : LearningCopy.backToTopic,
-              onPressed: () => context.go(
-                report.passed
+            Center(
+              child: LoadingButton(
+                expanded: compact,
+                label: report.passed
                     ? next == null
-                          ? AppRoutes.courses
-                          : AppRoutes.topic(next.id)
-                    : AppRoutes.topic(topicId),
+                          ? QuizCopy.backToCourse
+                          : QuizCopy.nextTopic
+                    : LearningCopy.backToTopic,
+                onPressed: () => context.go(
+                  report.passed
+                      ? next == null
+                            ? AppRoutes.courses
+                            : AppRoutes.topic(next.id)
+                      : AppRoutes.topic(topicId),
+                ),
               ),
             ),
           ],

@@ -11,9 +11,13 @@ void _resultTests() {
         report: _passed,
         width: width,
       );
+      await tester.pumpAndSettle();
       expect(find.text('Quiz passed'), findsOneWidget);
-      expect(find.text('9 of 12 correct · 75%'), findsOneWidget);
-      expect(find.text('Pass mark 70%'), findsOneWidget);
+      expect(find.text('75%'), findsOneWidget);
+      expect(
+        find.text('9 of 12 correct · Pass mark 70%'),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
       await tester.tap(find.text('Next topic'));
       await tester.pumpAndSettle();
@@ -51,7 +55,7 @@ void _resultTests() {
           alwaysUse24HourFormat: MediaQuery.alwaysUse24HourFormatOf(context),
         );
         expect(find.text('Quiz not passed'), findsOneWidget);
-        expect(find.text('8 of 12 correct · 66.67%'), findsOneWidget);
+        expect(find.text('8 of 12 correct · Pass mark 70%'), findsOneWidget);
         expect(
           find.text('You can retake it after $date $time.'),
           findsOneWidget,

@@ -37,6 +37,8 @@ class TopicDetail extends Equatable {
   bool get notesLockedByVideo => videos.isNotEmpty && !videoDone;
   bool get practiceLockedByVideo => notesLockedByVideo;
 
+  bool get practiceComplete => practiceCount >= practiceMin;
+
   bool get practiceLockedByNotes => notes.isNotEmpty && !notesDone;
 
   @override

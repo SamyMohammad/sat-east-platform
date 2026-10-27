@@ -55,7 +55,6 @@ class TopicContent extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: AppSpace.s4,
       children: [
-        Text(topic.sortLabel, style: theme.textTheme.labelLarge),
         Text(
           heading,
           style: theme.textTheme.headlineSmall,
@@ -90,20 +89,11 @@ class TopicContent extends StatelessWidget {
           icon: AppIcons.workedExample,
           hue: SubjectHue.violet,
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: AppSpace.s2,
-              children: [
-                const Icon(AppIcons.workedExample, size: AppSize.iconSmall),
-                Expanded(
-                  child: Text(
-                    TopicCopy.practiceProgress(
-                      topic.practiceCount,
-                      topic.practiceMin,
-                    ),
-                  ),
-                ),
-              ],
+            Text(
+              TopicCopy.practiceProgress(
+                topic.practiceCount,
+                topic.practiceMin,
+              ),
             ),
             if (topic.practiceLockedByVideo)
               const Text(TopicCopy.watchVideoFirst)
@@ -111,6 +101,9 @@ class TopicContent extends StatelessWidget {
               const Text(TopicCopy.openNotesFirst),
             LoadingButton(
               label: TopicCopy.practice,
+              variant: topic.practiceComplete
+                  ? AppButtonVariant.secondary
+                  : AppButtonVariant.primary,
               onPressed:
                   topic.practiceLockedByVideo || topic.practiceLockedByNotes
                   ? null

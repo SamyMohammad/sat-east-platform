@@ -18,7 +18,6 @@ class ContinueCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final unitTitle = topic.unitTitle;
     return Container(
       padding: const EdgeInsets.all(AppSpace.s4),
       decoration: BoxDecoration(
@@ -29,22 +28,13 @@ class ContinueCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            CourseMapCopy.continueEyebrow,
-            style: theme.textTheme.labelSmall?.copyWith(color: scheme.primary),
-          ),
+          Text(CourseMapCopy.continueTitle, style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpace.s1),
           Text(
-            topic.title,
-            style: theme.textTheme.titleMedium,
+            CourseMapCopy.continueBody(topic.title, topic.unitTitle),
+            style: theme.textTheme.bodyMedium,
             textDirection: TextDirection.ltr,
           ),
-          if (unitTitle != null)
-            Text(
-              unitTitle,
-              style: theme.textTheme.bodySmall,
-              textDirection: TextDirection.ltr,
-            ),
           const SizedBox(height: AppSpace.s3),
           LoadingButton(
             label: CourseMapCopy.continueButton,

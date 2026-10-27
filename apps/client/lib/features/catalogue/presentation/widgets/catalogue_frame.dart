@@ -11,15 +11,19 @@ class CatalogueFrame extends StatelessWidget {
     required this.fallbackLocation,
     required this.child,
     super.key,
+    this.showTitle = true,
   });
 
   final String fallbackLocation;
   final Widget child;
 
+  /// The catalogue list has its own H1, so its bar stays untitled.
+  final bool showTitle;
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
-      title: const Text(CatalogueCopy.title),
+      title: showTitle ? const Text(CatalogueCopy.title) : null,
       leading: context.canPop()
           ? const BackButton()
           : IconButton(

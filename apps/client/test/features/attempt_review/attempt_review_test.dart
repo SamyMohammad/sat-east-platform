@@ -58,7 +58,7 @@ void main() {
     expect(review.passMark, isNull);
     expect(review.passed, isNull);
     expect(review.questions.single.key, 'B');
-    expect(review.questions.single.explanationMd, r'Because $x=1$.');
+    expect(review.questions.single.explanationMd, r'Because \(x=1\).');
   });
   test('PRC-03: hidden keys are discarded even in an unexpected payload', () {
     final review = attemptReviewFromJson(reviewPayload(visible: false));
@@ -150,7 +150,7 @@ void main() {
         for (final (label, value) in [
           ('My answer', 'A'),
           if (visible) ('Correct answer', 'B'),
-          if (visible) ('Explanation', r'Because $x=1$.'),
+          if (visible) ('Explanation', r'Because \(x=1\).'),
         ]) {
           final labelFinder = find.text(label);
           final text = tester.widget<Text>(labelFinder);
@@ -161,10 +161,13 @@ void main() {
               color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
           );
-          final row = find.ancestor(
-            of: labelFinder,
-            matching: find.byType(Row),
-          );
+          // Label and value share a row from 600 px; they stack below it.
+          final row = find
+              .ancestor(
+                of: labelFinder,
+                matching: find.byType(width >= 600 ? Row : Column),
+              )
+              .first;
           expect(
             find.descendant(
               of: row,

@@ -150,7 +150,7 @@ void main() {
       tester.widget<AppIllustration>(find.byType(AppIllustration)).name,
       AppIllustrationName.quizRetry,
     );
-    expect(find.byIcon(AppIcons.retry), findsOneWidget);
+    expect(find.byIcon(AppIcons.incorrect), findsOneWidget);
     expect(find.text('66.67%'), findsOneWidget);
   });
   for (final report in [passedReport, failedReport]) {

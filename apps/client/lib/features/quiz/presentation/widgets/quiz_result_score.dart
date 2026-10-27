@@ -98,7 +98,11 @@ class _QuizResultScoreState extends State<QuizResultScore>
           },
         ),
         Text(
-          QuizCopy.score(report.scoreRaw, report.scoreTotal, report.scorePct),
+          QuizCopy.resultDetail(
+            report.scoreRaw,
+            report.scoreTotal,
+            report.passMark,
+          ),
           textAlign: TextAlign.center,
         ),
         FadeTransition(
@@ -110,41 +114,25 @@ class _QuizResultScoreState extends State<QuizResultScore>
               liveRegion: true,
               label: label,
               child: ExcludeSemantics(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpace.s4,
-                    vertical: AppSpace.s2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: report.passed ? colors.correctWash : colors.surface,
-                    borderRadius: BorderRadius.circular(AppRadius.pill),
-                    border: Border.all(
-                      color: report.passed ? colors.correctLine : colors.line,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      report.passed ? AppIcons.correct : AppIcons.incorrect,
+                      size: AppSize.iconSmall,
+                      color: foreground,
                     ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        report.passed ? AppIcons.correct : AppIcons.retry,
-                        size: AppSize.iconSmall,
-                        color: foreground,
+                    const SizedBox(width: AppSpace.s2),
+                    Flexible(
+                      child: Text(
+                        label,
+                        textAlign: TextAlign.center,
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(color: foreground),
                       ),
-                      const SizedBox(width: AppSpace.s2),
-                      Flexible(
-                        child: RichText(
-                          textAlign: TextAlign.center,
-                          textScaler: MediaQuery.textScalerOf(context),
-                          text: TextSpan(
-                            text: label,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.labelLarge?.copyWith(color: foreground),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),

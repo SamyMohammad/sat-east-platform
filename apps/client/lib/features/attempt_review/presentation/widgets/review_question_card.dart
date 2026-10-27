@@ -88,6 +88,8 @@ class ReviewQuestionCard extends StatelessWidget {
 class _ReviewDetailRow extends StatelessWidget {
   const _ReviewDetailRow({required this.label, required this.value});
 
+  static const double _labelWidth = AppSpace.s16 * 2;
+
   final String label;
   final String value;
 
@@ -99,7 +101,11 @@ class _ReviewDetailRow extends StatelessWidget {
         color: context.appColors.inkSecondary,
       ),
     );
-    if (MediaQuery.textScalerOf(context).scale(16) > 16) {
+    final stacked =
+        AppLayout.forWidth(MediaQuery.sizeOf(context).width) ==
+            AppLayout.compact ||
+        MediaQuery.textScalerOf(context).scale(16) > 16;
+    if (stacked) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: AppSpace.s1,
@@ -107,10 +113,11 @@ class _ReviewDetailRow extends StatelessWidget {
       );
     }
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.baseline,
+      textBaseline: TextBaseline.alphabetic,
       spacing: AppSpace.s3,
       children: [
-        labelWidget,
+        SizedBox(width: _labelWidth, child: labelWidget),
         Expanded(child: MathText(value)),
       ],
     );

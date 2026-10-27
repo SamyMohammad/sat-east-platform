@@ -20,6 +20,7 @@ import 'package:sat_east_client/features/course_map/presentation/widgets/continu
 import 'package:sat_east_client/features/course_map/presentation/widgets/topic_row.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/course_card.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
@@ -69,10 +70,7 @@ class _Padded extends StatelessWidget {
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: AppSize.readingColumn),
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpace.s4),
-        child: child,
-      ),
+      child: Padding(padding: const EdgeInsets.all(AppSpace.s4), child: child),
     ),
   );
 }
@@ -101,10 +99,15 @@ class _Loaded extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppSpace.s4),
           children: [
-            Text(
-              map.title,
-              style: theme.textTheme.headlineSmall,
-              textDirection: TextDirection.ltr,
+            CourseCard(
+              title: map.title,
+              meta: CourseMapCopy.progress(
+                map.units
+                    .expand((unit) => unit.topics)
+                    .where((topic) => topic.status == TopicStatus.completed)
+                    .length,
+                map.units.fold(0, (sum, unit) => sum + unit.topics.length),
+              ),
             ),
             const SizedBox(height: AppSpace.s4),
             if (continueTopic != null) ...[
@@ -142,6 +145,11 @@ class _Loaded extends StatelessWidget {
                   topic: topic,
                   hue: SubjectHue.forIndex(unitIndex),
                   justUnlocked: justUnlocked.contains(topic.id),
+                  hasPrevious: topicIndex > 0,
+                  hasNext: topicIndex < unit.topics.length - 1,
+                  nextLocked:
+                      topicIndex < unit.topics.length - 1 &&
+                      unit.topics[topicIndex + 1].status == TopicStatus.locked,
                   connectFromPrevious: topicIndex > 0
                       ? unit.topics[topicIndex - 1].status ==
                             TopicStatus.completed
