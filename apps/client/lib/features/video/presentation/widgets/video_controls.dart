@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 import 'package:sat_east_client/features/video/domain/services/video_engine.dart';
 import 'package:sat_east_client/features/video/presentation/video_copy.dart';
 
@@ -47,9 +50,9 @@ class VideoControls extends StatelessWidget {
       child: Focus(
         autofocus: true,
         child: Material(
-          color: Theme.of(context).colorScheme.surfaceContainer,
+          color: context.appColors.examBar,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: BookletSpace.s2),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpace.s2),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -58,21 +61,30 @@ class VideoControls extends StatelessWidget {
                   child: Slider(
                     value: positionS.clamp(0.0, max),
                     max: max,
+                    activeColor: context.appColors.examBarPrimary,
+                    inactiveColor: context.appColors.examBarRule,
                     onChanged: seekable ? onSeek : null,
                   ),
                 ),
-                Row(
+                Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: AppSpace.s2,
                   children: [
                     IconButton(
+                      color: context.appColors.onExamBar,
+                      constraints: const BoxConstraints(
+                        minWidth: AppSize.touchTarget,
+                        minHeight: AppSize.touchTarget,
+                      ),
                       tooltip: playing ? VideoCopy.pause : VideoCopy.play,
                       onPressed: onTogglePlay,
                       icon: Icon(playing ? AppIcons.pause : AppIcons.play),
                     ),
-                    Expanded(
-                      child: Text(
-                        '${VideoCopy.time(positionS)} / '
-                        '${VideoCopy.time(duration ?? 0)}',
-                        maxLines: 1,
+                    Text(
+                      '${VideoCopy.time(positionS)} / '
+                      '${VideoCopy.time(duration ?? 0)}',
+                      style: AppType.count.copyWith(
+                        color: context.appColors.onExamBar,
                       ),
                     ),
                     PopupMenuButton<double>(
@@ -88,13 +100,26 @@ class VideoControls extends StatelessWidget {
                       ],
                       child: ConstrainedBox(
                         constraints: const BoxConstraints(
-                          minWidth: BookletSize.touchTarget,
-                          minHeight: BookletSize.touchTarget,
+                          minWidth: AppSize.touchTarget,
+                          minHeight: AppSize.touchTarget,
                         ),
-                        child: Center(child: Text(VideoCopy.speedLabel(rate))),
+                        child: Center(
+                          widthFactor: 1,
+                          child: Text(
+                            VideoCopy.speedLabel(rate),
+                            style: AppType.count.copyWith(
+                              color: context.appColors.onExamBar,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                     IconButton(
+                      color: context.appColors.onExamBar,
+                      constraints: const BoxConstraints(
+                        minWidth: AppSize.touchTarget,
+                        minHeight: AppSize.touchTarget,
+                      ),
                       onPressed: onToggleFullscreen,
                       tooltip: fullscreen
                           ? VideoCopy.exitFullscreen

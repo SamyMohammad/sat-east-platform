@@ -2,16 +2,21 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/notes/presentation/cubit/notes_viewer_cubit.dart';
 import 'package:sat_east_client/features/notes/presentation/cubit/notes_viewer_state.dart';
 import 'package:sat_east_client/features/notes/presentation/notes_copy.dart';
 import 'package:sat_east_client/features/notes/presentation/widgets/notes_document.dart';
 import 'package:sat_east_client/features/notes/presentation/widgets/notes_page_watermark.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class NotesViewerScreen extends StatefulWidget {
   const NotesViewerScreen({
@@ -64,23 +69,17 @@ class _NotesViewerScreenState extends State<NotesViewerScreen> {
       body: BlocBuilder<NotesViewerCubit, NotesViewerState>(
         buildWhen: (previous, next) => previous.runtimeType != next.runtimeType,
         builder: (context, state) => switch (state) {
-          NotesViewerLoading() => const Center(
-            child: CircularProgressIndicator(),
+          NotesViewerLoading() => const Padding(
+            padding: EdgeInsets.all(AppSpace.s4),
+            child: AppSkeleton(),
           ),
-          NotesViewerFailed(:final error) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(BookletSpace.s4),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(notesErrorCopy(error.code)),
-                  TextButton(
-                    onPressed: () =>
-                        unawaited(_cubit.load(widget.topicId, widget.assetId)),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
+          NotesViewerFailed(:final error) => SingleChildScrollView(
+            padding: const EdgeInsets.all(AppSpace.s4),
+            child: ErrorRetry(
+              title: notesErrorCopy(error.code),
+              message: '',
+              onRetry: () =>
+                  unawaited(_cubit.load(widget.topicId, widget.assetId)),
             ),
           ),
           NotesViewerReady() => _ReadyNotes(
@@ -110,10 +109,12 @@ class _ReadyNotes extends StatelessWidget {
             state is NotesViewerReady && state.markError != null,
         builder: (context, failed) => failed
             ? const Padding(
-                padding: EdgeInsets.all(BookletSpace.s3),
-                child: Text(
-                  "Your reading progress couldn't be saved. "
-                  'Reopen the notes to try again.',
+                padding: EdgeInsets.all(AppSpace.s3),
+                child: AppBanner(
+                  kind: AppBannerKind.error,
+                  message:
+                      "Your reading progress couldn't be saved. "
+                      'Reopen the notes to try again.',
                 ),
               )
             : const SizedBox.shrink(),

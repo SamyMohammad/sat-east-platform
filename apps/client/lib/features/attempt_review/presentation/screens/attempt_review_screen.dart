@@ -1,17 +1,20 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/attempt_review_copy.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/cubit/attempt_review_cubit.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/cubit/attempt_review_state.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/widgets/review_question_card.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
-import 'package:sat_east_client/shared/widgets/empty_state.dart';
+import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class AttemptReviewScreen extends StatelessWidget {
   const AttemptReviewScreen({required this.attemptId, super.key});
@@ -36,19 +39,22 @@ class AttemptReviewView extends StatelessWidget {
     child: Align(
       alignment: Alignment.topCenter,
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: BookletSize.readingColumn),
+        constraints: const BoxConstraints(maxWidth: AppSize.readingColumn),
         child: BlocBuilder<AttemptReviewCubit, AttemptReviewState>(
           builder: (context, state) => switch (state) {
             AttemptReviewLoading() => const AppSkeleton(),
-            AttemptReviewFailed(:final error) => EmptyState(
-              title: AttemptReviewCopy.title,
-              message: AttemptReviewCopy.errorBody(error.code),
-              actionLabel: AttemptReviewCopy.retry,
-              onAction: () =>
-                  unawaited(context.read<AttemptReviewCubit>().load(attemptId)),
+            AttemptReviewFailed(:final error) => SingleChildScrollView(
+              padding: const EdgeInsets.all(AppSpace.s4),
+              child: ErrorRetry(
+                title: AttemptReviewCopy.title,
+                message: AttemptReviewCopy.errorBody(error.code),
+                onRetry: () => unawaited(
+                  context.read<AttemptReviewCubit>().load(attemptId),
+                ),
+              ),
             ),
             AttemptReviewLoaded(:final review) => ListView(
-              padding: const EdgeInsets.all(BookletSpace.s4),
+              padding: const EdgeInsets.all(AppSpace.s4),
               children: [
                 Align(
                   alignment: AlignmentDirectional.centerStart,
@@ -67,18 +73,20 @@ class AttemptReviewView extends StatelessWidget {
                   AttemptReviewCopy.title,
                   style: Theme.of(context).textTheme.headlineSmall,
                 ),
-                const SizedBox(height: BookletSpace.s4),
+                const SizedBox(height: AppSpace.s4),
                 Text(
                   AttemptReviewCopy.score(
                     review.scoreRaw,
                     review.scoreTotal,
                     review.scorePct,
                   ),
-                  style: Theme.of(context).textTheme.titleLarge,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontFeatures: AppType.count.fontFeatures,
+                  ),
                 ),
                 if (!review.keysVisible)
                   const Padding(
-                    padding: EdgeInsets.symmetric(vertical: BookletSpace.s3),
+                    padding: EdgeInsets.symmetric(vertical: AppSpace.s3),
                     child: Text(AttemptReviewCopy.hidden),
                   ),
                 if (review.questions.isEmpty)

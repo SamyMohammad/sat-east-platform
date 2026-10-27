@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/homework_navigator.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/question_navigator.dart';
@@ -92,8 +92,7 @@ const _submitBody = 'After you submit, your answers are locked and marked.';
 const _submitLabel = 'Submit quiz';
 
 bool _isPhone(BuildContext context) =>
-    BookletLayout.forWidth(MediaQuery.sizeOf(context).width) ==
-    BookletLayout.compact;
+    AppLayout.forWidth(MediaQuery.sizeOf(context).width) == AppLayout.compact;
 
 Widget _practice({
   required PracticeFeedback feedback,

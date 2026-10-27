@@ -3,13 +3,16 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:pdfrx/pdfrx.dart';
+import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/notes/presentation/widgets/notes_document.dart';
 
 void main() {
   testWidgets('SEC-02: memory viewer isolates assets and disables selection', (
     tester,
   ) async {
-    await tester.pumpWidget(const MaterialApp(home: SizedBox()));
+    await tester.pumpWidget(
+      MaterialApp(theme: AppTheme.light(), home: const SizedBox()),
+    );
     final context = tester.element(find.byType(SizedBox));
     final viewer =
         buildNotesDocument(

@@ -1,8 +1,15 @@
+// Keep the SDK / third-party / project import groups required by AGENTS.md.
+// ignore_for_file: directives_ordering
+
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/attempt_review/data/datasources/attempt_review_remote_data_source.dart';
 import 'package:sat_east_client/features/attempt_review/data/models/attempt_review_model.dart';
@@ -12,13 +19,32 @@ import 'package:sat_east_client/features/attempt_review/presentation/cubit/attem
 import 'package:sat_east_client/features/attempt_review/presentation/cubit/attempt_review_state.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/screens/attempt_review_screen.dart';
 import 'package:sat_east_client/features/homework/presentation/homework_copy.dart';
-import 'package:sat_east_client/shared/widgets/app_chip.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../core/fakes/fake_rpc.dart';
 import 'review_fixture.dart';
 
 void main() {
+  testWidgets('review_card_shows_icon_and_word', (tester) async {
+    final rpc = FakeRpc()..response = reviewPayload();
+    final cubit = AttemptReviewCubit(
+      AttemptReviewRepositoryImpl(AttemptReviewRemoteDataSource(rpc.call)),
+    );
+    addTearDown(cubit.close);
+    await cubit.load('hw1');
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: Scaffold(
+          body: BlocProvider.value(
+            value: cubit,
+            child: const AttemptReviewView(attemptId: 'hw1'),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Incorrect'), findsOneWidget);
+    expect(find.byIcon(AppIcons.incorrect), findsOneWidget);
+  });
   for (final (pct, expected) in [(8.33, '8%'), (8.5, '9%'), (70.0, '70%')]) {
     test('PRC-02: scores round $pct to a whole percent', () {
       expect(AttemptReviewCopy.score(1, 12, pct), '1 / 12 \u00b7 $expected');
@@ -118,7 +144,7 @@ void main() {
           visible ? findsOneWidget : findsNothing,
         );
         expect(
-          find.widgetWithText(AppChip, 'Incorrect'),
+          find.text('Incorrect'),
           findsOneWidget,
         );
         for (final (label, value) in [
