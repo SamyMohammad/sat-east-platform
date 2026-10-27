@@ -2,15 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/entities/setting_spec.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_state.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/teacher_settings_copy.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/widgets/settings_group_card.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/widgets/settings_save_bar.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/empty_state.dart';
+import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class TeacherSettingsScreen extends StatelessWidget {
   const TeacherSettingsScreen({super.key});
@@ -49,26 +55,18 @@ class TeacherSettingsView extends StatelessWidget {
                 listEquals(previous.specs, next.specs)),
         builder: (context, state) => switch (state) {
           TeacherSettingsLoading() => const Center(
-            child: CircularProgressIndicator(),
+            child: AppSkeleton(),
           ),
-          TeacherSettingsFailed(:final error) => Center(
-            child: Padding(
-              padding: const EdgeInsets.all(BookletSpace.s4),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(teacherSettingsError(error.code)),
-                  TextButton(
-                    onPressed: () =>
-                        unawaited(context.read<TeacherSettingsCubit>().load()),
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
+          TeacherSettingsFailed(:final error) => ErrorRetry(
+            title: teacherSettingsError(error.code),
+            message: '',
+            onRetry: () =>
+                unawaited(context.read<TeacherSettingsCubit>().load()),
           ),
-          TeacherSettingsLoaded(specs: []) => const Center(
-            child: Text('No settings available.'),
+          TeacherSettingsLoaded(specs: []) => const EmptyState(
+            title: 'No settings available.',
+            message: '',
+            illustration: AppIllustrationName.emptyCourses,
           ),
           TeacherSettingsLoaded(:final specs) => _SettingsBody(specs: specs),
         },
@@ -83,7 +81,7 @@ class _SettingsBody extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Padding(
-        padding: const EdgeInsets.all(BookletSpace.s6),
+        padding: const EdgeInsets.all(AppSpace.s6),
         child: Text(
           'Settings',
           style: Theme.of(context).textTheme.headlineMedium,
@@ -91,16 +89,16 @@ class _SettingsBody extends StatelessWidget {
       ),
       Expanded(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(BookletSpace.s4),
+          padding: const EdgeInsets.all(AppSpace.s4),
           child: Align(
             alignment: AlignmentDirectional.topStart,
             child: ConstrainedBox(
               constraints: const BoxConstraints(
-                maxWidth: BookletSize.readingColumn,
+                maxWidth: AppSize.readingColumn,
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
-                spacing: BookletSpace.s4,
+                spacing: AppSpace.s4,
                 children: [
                   for (final group in specs.map((s) => s.group).toSet())
                     SettingsGroupCard(

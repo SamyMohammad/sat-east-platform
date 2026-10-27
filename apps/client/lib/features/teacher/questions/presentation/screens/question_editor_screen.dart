@@ -1,15 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_preview.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_reports.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/editor_save_bar.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class QuestionEditorScreen extends StatefulWidget {
   const QuestionEditorScreen({this.questionId, super.key});
@@ -46,8 +52,8 @@ class QuestionEditorScreenState extends State<QuestionEditorScreen> {
     if (_cubit.state.saving) return false;
     final discard = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Discard changes?'),
+      builder: (context) => AppDialog(
+        title: 'Discard changes?',
         content: const Text("Your changes haven't been saved."),
         actions: [
           TextButton(
@@ -82,7 +88,7 @@ class QuestionEditorScreenState extends State<QuestionEditorScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.all(BookletSpace.s4),
+            padding: const EdgeInsets.all(AppSpace.s4),
             child: Wrap(
               alignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.center,
@@ -106,26 +112,21 @@ class QuestionEditorScreenState extends State<QuestionEditorScreen> {
                   (p.draft == null) != (n.draft == null),
               builder: (context, state) {
                 if (state.loading) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Padding(
+                    padding: EdgeInsets.all(AppSpace.s4),
+                    child: AppSkeleton(),
+                  );
                 }
                 if (state.draft == null) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text("Couldn't load the question."),
-                        TextButton(
-                          onPressed: () =>
-                              unawaited(_cubit.load(widget.questionId)),
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
+                  return ErrorRetry(
+                    title: "Couldn't load the question.",
+                    message: '',
+                    onRetry: () => unawaited(_cubit.load(widget.questionId)),
                   );
                 }
                 return Padding(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: BookletSpace.s4,
+                    horizontal: AppSpace.s4,
                   ),
                   child: MediaQuery.sizeOf(context).width >= 1024
                       ? const Row(
@@ -136,7 +137,7 @@ class QuestionEditorScreenState extends State<QuestionEditorScreen> {
                                 child: EditorWithReports(),
                               ),
                             ),
-                            SizedBox(width: BookletSpace.s4),
+                            SizedBox(width: AppSpace.s4),
                             Expanded(child: EditorPreview()),
                           ],
                         )
@@ -168,25 +169,15 @@ class _ConflictBanner extends StatelessWidget {
         selector: (s) => s.conflict,
         builder: (context, conflict) {
           if (!conflict) return const SizedBox.shrink();
-          return Padding(
-            padding: const EdgeInsets.all(BookletSpace.s4),
-            child: Wrap(
-              spacing: BookletSpace.s3,
-              runSpacing: BookletSpace.s2,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                const Text(
-                  'This question changed elsewhere. Reload to see the latest.',
-                ),
-                TextButton(
-                  onPressed: () => unawaited(
-                    context.read<QuestionEditorCubit>().load(
-                      context.read<QuestionEditorCubit>().state.draft?.id,
-                    ),
-                  ),
-                  child: const Text('Reload'),
-                ),
-              ],
+          return AppBanner(
+            message:
+                'This question changed elsewhere. Reload to see the latest.',
+            kind: AppBannerKind.warning,
+            actionLabel: 'Reload',
+            onAction: () => unawaited(
+              context.read<QuestionEditorCubit>().load(
+                context.read<QuestionEditorCubit>().state.draft?.id,
+              ),
             ),
           );
         },

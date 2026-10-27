@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+
 Future<({String? note})?> showReviewResolveDialog(
   BuildContext context,
   String outcome,
@@ -32,8 +34,8 @@ class _ResolveDialogState extends State<_ResolveDialog> {
   @override
   Widget build(BuildContext context) {
     final action = widget.outcome == 'fixed' ? 'Mark fixed' : 'Not a problem';
-    return AlertDialog(
-      title: Text(action),
+    return AppDialog(
+      title: action,
       content: SingleChildScrollView(
         child: SizedBox(
           width: 400,

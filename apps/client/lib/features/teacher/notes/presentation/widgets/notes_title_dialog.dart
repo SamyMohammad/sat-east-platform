@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+
 class NotesTitleDialog extends StatefulWidget {
   const NotesTitleDialog({required this.title, super.key});
   final String title;
@@ -29,8 +31,8 @@ class _NotesTitleDialogState extends State<NotesTitleDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text('Rename'),
+  Widget build(BuildContext context) => AppDialog(
+    title: 'Rename',
     content: Form(
       key: _form,
       child: TextFormField(

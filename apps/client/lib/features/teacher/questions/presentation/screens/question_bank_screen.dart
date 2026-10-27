@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/bank_filter_bar.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/bank_results.dart';
@@ -27,18 +29,18 @@ class QuestionBankView extends StatelessWidget {
   @override
   Widget build(BuildContext context) => SizedBox.expand(
     child: SingleChildScrollView(
-      padding: const EdgeInsets.all(BookletSpace.s4),
+      padding: const EdgeInsets.all(AppSpace.s4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: BookletSpace.s4,
+        spacing: AppSpace.s4,
         children: [
           Text(
             'Question bank',
             style: Theme.of(context).textTheme.headlineMedium,
           ),
           Wrap(
-            spacing: BookletSpace.s3,
-            runSpacing: BookletSpace.s3,
+            spacing: AppSpace.s3,
+            runSpacing: AppSpace.s3,
             children: [
               FilledButton(
                 onPressed: () => context.go('/teacher/questions/new'),

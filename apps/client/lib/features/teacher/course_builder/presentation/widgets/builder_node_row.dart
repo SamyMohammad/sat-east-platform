@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 
 class BuilderNodeRow extends StatefulWidget {
   const BuilderNodeRow({
@@ -109,9 +112,9 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
               children: [
                 Text(
                   widget.code,
-                  style: Theme.of(context).textTheme.labelLarge,
+                  style: AppType.count,
                 ),
-                const SizedBox(width: BookletSpace.s2),
+                const SizedBox(width: AppSpace.s2),
                 Expanded(
                   child: Text(
                     widget.title,
@@ -126,7 +129,7 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
             if (widget.addLabel case final label?)
               TextButton.icon(
                 onPressed: widget.busy ? null : widget.onAdd,
-                icon: const Icon(AppIcons.add, size: BookletSize.iconSmall),
+                icon: const Icon(AppIcons.add, size: AppSize.iconSmall),
                 label: Text(label),
               ),
           ],
@@ -205,7 +208,7 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
         child: IconButton(
           key: ValueKey('move-up-${widget.id}'),
           onPressed: widget.busy ? null : widget.onMoveUp,
-          icon: const Icon(AppIcons.moveUp, size: BookletSize.iconSmall),
+          icon: const Icon(AppIcons.moveUp, size: AppSize.iconSmall),
         ),
       ),
       Semantics(
@@ -214,7 +217,7 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
         child: IconButton(
           key: ValueKey('move-down-${widget.id}'),
           onPressed: widget.busy ? null : widget.onMoveDown,
-          icon: const Icon(AppIcons.moveDown, size: BookletSize.iconSmall),
+          icon: const Icon(AppIcons.moveDown, size: AppSize.iconSmall),
         ),
       ),
     ],
@@ -230,20 +233,12 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
   Widget _status() => Semantics(
     button: true,
     label: '${widget.isPublished! ? 'Unpublish' : 'Publish'} ${widget.code}',
-    child: TextButton.icon(
+    child: TextButton(
       key: ValueKey('publish-${widget.id}'),
       onPressed: widget.busy ? null : widget.onPublish,
-      icon: Icon(
-        widget.isPublished! ? AppIcons.correct : AppIcons.edit,
-        size: BookletSize.iconStatus,
-      ),
-      label: FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Text(
-          widget.isPublished! ? 'Published' : 'Draft',
-          maxLines: 1,
-          softWrap: false,
-        ),
+      child: AppChip(
+        icon: widget.isPublished! ? AppIcons.correct : AppIcons.edit,
+        label: widget.isPublished! ? 'Published' : 'Draft',
       ),
     ),
   );
@@ -260,7 +255,7 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: BookletSpace.s2),
+          padding: const EdgeInsets.symmetric(vertical: AppSpace.s2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -274,7 +269,7 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
                       child: widget.isPublished == null ? null : _preview(),
                     ),
                     SizedBox(
-                      width: 120,
+                      width: 216,
                       child: widget.isPublished == null ? null : _status(),
                     ),
                     _moves(),

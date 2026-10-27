@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_state.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/import_copy.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 
 const editorProblemFieldLabels = <String, String>{
   'stem_md': 'Stem',
@@ -57,14 +60,15 @@ class EditorErrorSummary extends StatelessWidget {
             key: const ValueKey('editor-error-summary'),
             color: Theme.of(context).colorScheme.errorContainer,
             child: Padding(
-              padding: const EdgeInsets.all(BookletSpace.s3),
+              padding: const EdgeInsets.all(AppSpace.s3),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text(
-                    '$count ${count == 1 ? 'problem' : 'problems'} '
-                    'to fix before saving.',
-                    style: Theme.of(context).textTheme.titleSmall,
+                  AppBanner(
+                    kind: AppBannerKind.error,
+                    message:
+                        '$count ${count == 1 ? 'problem' : 'problems'} '
+                        'to fix before saving.',
                   ),
                   for (final entry in errors.entries)
                     for (final problem in entry.value)

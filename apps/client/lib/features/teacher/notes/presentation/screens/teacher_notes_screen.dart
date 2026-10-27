@@ -1,15 +1,19 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_cubit.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_state.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/teacher_notes_copy.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/widgets/teacher_notes_content.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class TeacherNotesScreen extends StatelessWidget {
   const TeacherNotesScreen({
@@ -31,7 +35,7 @@ class TeacherNotesScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.all(BookletSpace.s4),
+          padding: const EdgeInsets.all(AppSpace.s4),
           child: Row(
             children: [
               BackButton(
@@ -48,7 +52,7 @@ class TeacherNotesScreen extends StatelessWidget {
             ],
           ),
         ),
-        const Divider(height: BookletStroke.thin),
+        const Divider(height: AppStroke.thin),
         Expanded(
           child: BlocConsumer<TeacherNotesCubit, TeacherNotesState>(
             listener: (context, state) {
@@ -62,24 +66,13 @@ class TeacherNotesScreen extends StatelessWidget {
             },
             builder: (context, state) => switch (state) {
               TeacherNotesLoading() => const Center(
-                child: CircularProgressIndicator(),
+                child: AppSkeleton(),
               ),
-              TeacherNotesFailed(:final error) => Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(BookletSpace.s4),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(teacherNotesError(error.code)),
-                      TextButton(
-                        onPressed: () => unawaited(
-                          context.read<TeacherNotesCubit>().load(topicId),
-                        ),
-                        child: const Text('Retry'),
-                      ),
-                    ],
-                  ),
-                ),
+              TeacherNotesFailed(:final error) => ErrorRetry(
+                title: teacherNotesError(error.code),
+                message: '',
+                onRetry: () =>
+                    unawaited(context.read<TeacherNotesCubit>().load(topicId)),
               ),
               TeacherNotesReady() => TeacherNotesContent(state: state),
             },

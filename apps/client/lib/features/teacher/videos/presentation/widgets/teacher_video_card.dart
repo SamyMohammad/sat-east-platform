@@ -1,14 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_cubit.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/widgets/video_title_dialog.dart';
 import 'package:sat_east_client/shared/widgets/app_chip.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 class TeacherVideoCard extends StatelessWidget {
   const TeacherVideoCard({
@@ -38,8 +42,8 @@ class TeacherVideoCard extends StatelessWidget {
     final cubit = context.read<TeacherVideosCubit>();
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text(TeacherVideosCopy.delete),
+      builder: (context) => AppDialog(
+        title: TeacherVideosCopy.delete,
         content: const Text(TeacherVideosCopy.deleteWarning),
         actions: [
           TextButton(
@@ -60,11 +64,18 @@ class TeacherVideoCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cubit = context.read<TeacherVideosCubit>();
     return Card(
+      margin: EdgeInsets.zero,
+      elevation: 0,
+      color: context.appColors.background,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppRadius.card),
+        side: BorderSide(color: context.appColors.line),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(BookletSpace.s4),
+        padding: const EdgeInsets.all(AppSpace.s4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: BookletSpace.s3,
+          spacing: AppSpace.s3,
           children: [
             Text(
               video.title,
@@ -74,18 +85,25 @@ class TeacherVideoCard extends StatelessWidget {
             if (video.subtopicTitle case final title?)
               Text(title, textDirection: TextDirection.ltr),
             Wrap(
-              spacing: BookletSpace.s3,
-              runSpacing: BookletSpace.s2,
+              spacing: AppSpace.s3,
+              runSpacing: AppSpace.s2,
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(TeacherVideosCopy.duration(video.durationS)),
                 Text(TeacherVideosCopy.size(video.sizeMb, video.provider)),
-                AppChip(label: TeacherVideosCopy.provider(video.provider)),
+                AppChip(
+                  icon: AppIcons.video,
+                  label: TeacherVideosCopy.provider(video.provider),
+                ),
               ],
             ),
-            if (!video.ready) const Text(TeacherVideosCopy.pending),
+            if (!video.ready)
+              const AppChip(
+                icon: AppIcons.time,
+                label: TeacherVideosCopy.pending,
+              ),
             Wrap(
-              spacing: BookletSpace.s2,
+              spacing: AppSpace.s2,
               children: [
                 if (video.ready) ...[
                   TextButton(

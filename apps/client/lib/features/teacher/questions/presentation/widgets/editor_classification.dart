@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/topic_option.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/bank_copy.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
@@ -73,7 +75,7 @@ class EditorClassification extends StatelessWidget {
             },
           ),
           Wrap(
-            spacing: BookletSpace.s2,
+            spacing: AppSpace.s2,
             children: [
               for (final course in s.topics)
                 if (course.courseCode != primary)

@@ -1,15 +1,21 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/course_builder_copy.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_state.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/widgets/builder_tree.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
+import 'package:sat_east_client/shared/widgets/empty_state.dart';
+import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class CourseBuilderScreen extends StatelessWidget {
   const CourseBuilderScreen({this.courseId, super.key});
@@ -49,27 +55,18 @@ class CourseBuilderView extends StatelessWidget {
     },
     builder: (context, state) => switch (state) {
       CourseBuilderLoading() => const Center(
-        child: CircularProgressIndicator(),
+        child: AppSkeleton(),
       ),
-      CourseBuilderFailed(:final error) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(BookletSpace.s6),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(courseBuilderError(error.code)),
-              TextButton(
-                onPressed: () => unawaited(
-                  context.read<CourseBuilderCubit>().load(courseId),
-                ),
-                child: const Text('Retry'),
-              ),
-            ],
-          ),
-        ),
+      CourseBuilderFailed(:final error) => ErrorRetry(
+        title: courseBuilderError(error.code),
+        message: '',
+        onRetry: () =>
+            unawaited(context.read<CourseBuilderCubit>().load(courseId)),
       ),
-      CourseBuilderLoaded(tree: null) => const Center(
-        child: Text('No courses yet.'),
+      CourseBuilderLoaded(tree: null) => const EmptyState(
+        title: 'No courses yet.',
+        message: '',
+        illustration: AppIllustrationName.builderEmpty,
       ),
       CourseBuilderLoaded() => _BuilderBody(loaded: state, courseId: courseId),
     },
@@ -85,21 +82,21 @@ class _BuilderBody extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Padding(
-        padding: const EdgeInsets.all(BookletSpace.s6),
+        padding: const EdgeInsets.all(AppSpace.s6),
         child: Text(
           'Course builder',
           style: Theme.of(context).textTheme.headlineMedium,
         ),
       ),
-      const Divider(height: BookletStroke.thin),
+      const Divider(height: AppStroke.thin),
       if (loaded.busyId != null)
-        const LinearProgressIndicator(minHeight: BookletSize.progressThickness),
+        const LinearProgressIndicator(minHeight: AppSize.progressThickness),
       Expanded(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.all(BookletSpace.s4),
+          padding: const EdgeInsets.all(AppSpace.s4),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: BookletSpace.s4,
+            spacing: AppSpace.s4,
             children: [
               DropdownButtonFormField<String>(
                 key: ValueKey(courseId ?? loaded.tree!.courseId),

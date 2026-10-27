@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
@@ -133,9 +134,19 @@ void main() {
       expect(find.text('Draft'), findsWidgets);
       expect(find.text('Published'), findsWidgets);
       for (final label in ['Draft', 'Published']) {
-        final text = tester.widget<Text>(find.text(label).first);
-        expect(text.maxLines, 1);
-        expect(text.softWrap, isFalse);
+        // AppChip owns label layout (it wraps only under large text scale),
+        // so assert the label lays out on a single line at 1x.
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.text(label).first,
+        );
+        expect(
+          paragraph
+              .getBoxesForSelection(
+                TextSelection(baseOffset: 0, extentOffset: label.length),
+              )
+              .length,
+          1,
+        );
       }
       expect(tester.takeException(), isNull);
     });

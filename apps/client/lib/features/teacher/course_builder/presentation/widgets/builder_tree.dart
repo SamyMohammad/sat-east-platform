@@ -1,11 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/entities/course_tree.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/entities/node_kind.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
@@ -13,6 +15,7 @@ import 'package:sat_east_client/features/teacher/course_builder/presentation/cub
 import 'package:sat_east_client/features/teacher/course_builder/presentation/widgets/builder_node_row.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/widgets/builder_siblings.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/widgets/builder_title_dialog.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 class BuilderTree extends StatelessWidget {
   const BuilderTree({required this.loaded, super.key});
@@ -41,8 +44,8 @@ class BuilderTree extends StatelessWidget {
     if (!topic.isPublished) {
       final confirmed = await showDialog<bool>(
         context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Publish'),
+        builder: (context) => AppDialog(
+          title: 'Publish',
           content: Text(
             'Publish $code ${topic.title}? '
             'Students on the path will see it.',
@@ -77,8 +80,8 @@ class BuilderTree extends StatelessWidget {
     final cubit = context.read<CourseBuilderCubit>();
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete'),
+      builder: (context) => AppDialog(
+        title: 'Delete',
         content: Text(
           "Delete $code $title? This can't be undone.",
           textDirection: TextDirection.ltr,
@@ -140,7 +143,7 @@ class BuilderTree extends StatelessWidget {
             ),
           ),
           Padding(
-            padding: const EdgeInsetsDirectional.only(start: BookletSpace.s2),
+            padding: const EdgeInsetsDirectional.only(start: AppSpace.s2),
             child: _topics(context, unit, index + 1),
           ),
         ],
@@ -202,7 +205,7 @@ class BuilderTree extends StatelessWidget {
                   unawaited(cubit.setFlags(topic.id, isFreePreview: value)),
             ),
             Padding(
-              padding: const EdgeInsetsDirectional.only(start: BookletSpace.s2),
+              padding: const EdgeInsetsDirectional.only(start: AppSpace.s2),
               child: _subtopics(context, topic, code),
             ),
           ],
@@ -253,7 +256,7 @@ class BuilderTree extends StatelessWidget {
                 children: [
                   Expanded(child: Text('Name')),
                   SizedBox(width: 120, child: Text('Free preview')),
-                  SizedBox(width: 120, child: Text('Status')),
+                  SizedBox(width: 160, child: Text('Status')),
                   SizedBox(width: 144),
                 ],
               ),

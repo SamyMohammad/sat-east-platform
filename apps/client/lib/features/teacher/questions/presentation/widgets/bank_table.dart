@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/math_render/math_text.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/bank_page.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/bank_copy.dart';
+import 'package:sat_east_client/shared/widgets/app_chip.dart';
 
 class BankTable extends StatelessWidget {
   const BankTable({required this.page, super.key});
@@ -65,15 +71,15 @@ class BankTable extends StatelessWidget {
             ),
             DataCell(
               SizedBox(
-                width: 110,
-                child: Chip(
-                  label: Text(
-                    bankValueLabel(row.status),
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  visualDensity: VisualDensity.compact,
+                width: 180,
+                child: AppChip(
+                  label: bankValueLabel(row.status),
+                  icon: switch (row.status) {
+                    'approved' || 'published' => AppIcons.correct,
+                    'needs_review' => AppIcons.reviewQueue,
+                    'retired' => AppIcons.locked,
+                    _ => AppIcons.edit,
+                  },
                 ),
               ),
             ),
@@ -114,9 +120,29 @@ class BankDataTable extends StatelessWidget {
   Widget build(BuildContext context) => SingleChildScrollView(
     scrollDirection: Axis.horizontal,
     child: DataTable(
+      dividerThickness: AppStroke.thin,
+      headingRowColor: WidgetStatePropertyAll(context.appColors.surface),
+      dataRowMinHeight: AppSize.touchTarget,
+      dataRowMaxHeight:
+          AppSize.touchTarget *
+          (MediaQuery.textScalerOf(context).scale(13) / 13),
+      headingRowHeight:
+          AppSize.touchTarget *
+          (MediaQuery.textScalerOf(context).scale(13) / 13),
+      dataTextStyle: Theme.of(context).textTheme.bodySmall?.copyWith(
+        color: context.appColors.ink,
+        fontFeatures: AppType.count.fontFeatures,
+      ),
+      dataRowColor: WidgetStateProperty.resolveWith(
+        (states) =>
+            states.contains(WidgetState.hovered) ||
+                states.contains(WidgetState.focused)
+            ? context.appColors.brandWash
+            : context.appColors.background,
+      ),
       showCheckboxColumn: false,
-      columnSpacing: BookletSpace.s4,
-      horizontalMargin: BookletSpace.s3,
+      columnSpacing: AppSpace.s4,
+      horizontalMargin: AppSpace.s3,
       columns: columns,
       rows: rows,
     ),

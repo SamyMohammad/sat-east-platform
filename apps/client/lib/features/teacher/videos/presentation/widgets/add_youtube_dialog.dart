@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/video_duration.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/youtube_id.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
 
 typedef YoutubeVideoDraft = ({String title, String input, int durationS});
 
@@ -36,16 +38,16 @@ class _AddYoutubeDialogState extends State<AddYoutubeDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: const Text(TeacherVideosCopy.addYoutube),
+  Widget build(BuildContext context) => AppDialog(
+    title: TeacherVideosCopy.addYoutube,
     content: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: BookletSize.dialogWidth),
+      constraints: const BoxConstraints(maxWidth: AppSize.dialogWidth),
       child: SingleChildScrollView(
         child: Form(
           key: _form,
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            spacing: BookletSpace.s3,
+            spacing: AppSpace.s3,
             children: [
               TextFormField(
                 key: const ValueKey('youtube-title'),

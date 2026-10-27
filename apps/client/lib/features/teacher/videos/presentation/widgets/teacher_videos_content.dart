@@ -1,14 +1,19 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
+
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/features/teacher/shell/teacher_animated_rows.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_cubit.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_state.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/widgets/add_youtube_dialog.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/widgets/teacher_video_card.dart';
+import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/empty_state.dart';
 
 class TeacherVideosContent extends StatelessWidget {
   const TeacherVideosContent({
@@ -39,10 +44,10 @@ class TeacherVideosContent extends StatelessWidget {
     crossAxisAlignment: CrossAxisAlignment.stretch,
     children: [
       Padding(
-        padding: const EdgeInsets.all(BookletSpace.s4),
+        padding: const EdgeInsets.all(AppSpace.s4),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: BookletSpace.s3,
+          spacing: AppSpace.s3,
           children: [
             Row(
               children: [
@@ -69,25 +74,28 @@ class TeacherVideosContent extends StatelessWidget {
       ),
       if (state.busy) const LinearProgressIndicator(),
       Expanded(
-        child: state.data.videos.isEmpty
-            ? const Align(
-                alignment: Alignment.topCenter,
-                child: Padding(
-                  padding: EdgeInsets.all(BookletSpace.s4),
-                  child: Text(TeacherVideosCopy.empty),
-                ),
-              )
-            : ListView.builder(
-                padding: const EdgeInsets.all(BookletSpace.s4),
-                itemCount: state.data.videos.length,
-                itemBuilder: (context, index) => TeacherVideoCard(
-                  key: ValueKey('video-${state.data.videos[index].assetId}'),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(AppSpace.s4),
+          child: TeacherAnimatedRows(
+            emptyState: const EmptyState(
+              title: TeacherVideosCopy.empty,
+              message: '',
+              illustration: AppIllustrationName.emptyCourses,
+            ),
+            children: [
+              for (var index = 0; index < state.data.videos.length; index++)
+                TeacherVideoCard(
+                  key: ValueKey(
+                    'video-${state.data.videos[index].assetId}',
+                  ),
                   video: state.data.videos[index],
                   busy: state.busy,
                   first: index == 0,
                   last: index == state.data.videos.length - 1,
                 ),
-              ),
+            ],
+          ),
+        ),
       ),
     ],
   );

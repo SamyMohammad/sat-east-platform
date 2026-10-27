@@ -1,13 +1,18 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/review/presentation/cubit/review_counts_cubit.dart';
+import 'package:sat_east_client/features/teacher/shell/teacher_bottom_navigation.dart';
+import 'package:sat_east_client/shared/widgets/app_shell/shell_header.dart';
 
 class TeacherShell extends StatefulWidget {
   const TeacherShell({super.key, this.child});
@@ -52,9 +57,17 @@ class _TeacherShellState extends State<TeacherShell> {
   Widget _shell(BuildContext context) => LayoutBuilder(
     builder: (context, constraints) {
       final expanded =
-          BookletLayout.forWidth(constraints.maxWidth) ==
-          BookletLayout.expanded;
+          AppLayout.forWidth(constraints.maxWidth) == AppLayout.expanded;
       return Scaffold(
+        bottomNavigationBar: expanded
+            ? null
+            : TeacherBottomNavigation(
+                path: GoRouter.maybeOf(context) == null
+                    ? ''
+                    : GoRouterState.of(context).uri.path,
+                reviewBadge: const _ReviewBadge(),
+                onSelected: (path) => context.go(path),
+              ),
         appBar: expanded ? null : AppBar(title: const Text('Teacher area')),
         drawer: expanded
             ? null
@@ -64,10 +77,10 @@ class _TeacherShellState extends State<TeacherShell> {
             children: [
               if (expanded) ...[
                 const SizedBox(
-                  width: BookletSize.shellSidebar,
+                  width: AppSize.shellSidebar,
                   child: _TeacherNavigation(),
                 ),
-                const VerticalDivider(width: BookletStroke.thin),
+                const VerticalDivider(width: AppStroke.thin),
               ],
               Expanded(child: widget.child ?? const _BuilderPlaceholder()),
             ],
@@ -98,59 +111,80 @@ class _TeacherNavigation extends StatelessWidget {
     final questionsSelected =
         GoRouter.maybeOf(context) != null &&
         GoRouterState.of(context).uri.path.startsWith('/teacher/questions');
-    return ListView(
-      padding: const EdgeInsets.all(BookletSpace.s3),
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(BookletSpace.s3),
-          child: Text('Teacher area', style: theme.textTheme.titleLarge),
-        ),
-        const SizedBox(height: BookletSpace.s6),
-        ListTile(
-          selected: !settingsSelected && !questionsSelected && !reviewSelected,
-          selectedTileColor: theme.colorScheme.primaryContainer,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
+    return Material(
+      color: context.appColors.surface,
+      child: ListTileTheme(
+        data: ListTileThemeData(
+          selectedTileColor: context.appColors.raised,
+          selectedColor: context.appColors.brand,
+          minTileHeight: AppSize.touchTarget,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.control),
           ),
-          leading: const Icon(AppIcons.courseBuilder),
-          title: const Text('Course builder'),
-          onTap: () => _go(context, '/teacher'),
         ),
-        ListTile(
-          selected: settingsSelected,
-          selectedTileColor: theme.colorScheme.primaryContainer,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
-          ),
-          leading: const Icon(AppIcons.settings),
-          title: const Text('Settings'),
-          onTap: () => _go(context, '/teacher/settings'),
+        child: ListView(
+          padding: const EdgeInsets.all(AppSpace.s3),
+          children: [
+            const ShellWordmark(),
+            Padding(
+              padding: const EdgeInsets.all(AppSpace.s3),
+              child: Text('Teacher area', style: theme.textTheme.titleLarge),
+            ),
+            const SizedBox(height: AppSpace.s6),
+            ListTile(
+              selected:
+                  !settingsSelected && !questionsSelected && !reviewSelected,
+              selectedTileColor: context.appColors.raised,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppRadius.control),
+                ),
+              ),
+              leading: const Icon(AppIcons.courseBuilder),
+              title: const Text('Course builder'),
+              onTap: () => _go(context, '/teacher'),
+            ),
+            ListTile(
+              selected: settingsSelected,
+              selectedTileColor: context.appColors.raised,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppRadius.control),
+                ),
+              ),
+              leading: const Icon(AppIcons.settings),
+              title: const Text('Settings'),
+              onTap: () => _go(context, '/teacher/settings'),
+            ),
+            ListTile(
+              selected: questionsSelected,
+              selectedTileColor: context.appColors.raised,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(
+                  Radius.circular(AppRadius.control),
+                ),
+              ),
+              leading: const Icon(AppIcons.quiz),
+              title: const Text('Questions'),
+              onTap: () => _go(context, '/teacher/questions'),
+            ),
+            ListTile(
+              selected: reviewSelected,
+              selectedTileColor: context.appColors.raised,
+              leading: const Icon(AppIcons.reviewQueue),
+              title: const Text('Review'),
+              trailing: const _ReviewBadge(),
+              onTap: () => _go(context, '/teacher/review'),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(AppIcons.back),
+              title: const Text('Back to app'),
+              onTap: () => _go(context, '/'),
+            ),
+          ],
         ),
-        ListTile(
-          selected: questionsSelected,
-          selectedTileColor: theme.colorScheme.primaryContainer,
-          shape: const RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(BookletRadius.sm)),
-          ),
-          leading: const Icon(AppIcons.quiz),
-          title: const Text('Questions'),
-          onTap: () => _go(context, '/teacher/questions'),
-        ),
-        ListTile(
-          selected: reviewSelected,
-          selectedTileColor: theme.colorScheme.primaryContainer,
-          leading: const Icon(AppIcons.reviewQueue),
-          title: const Text('Review'),
-          trailing: const _ReviewBadge(),
-          onTap: () => _go(context, '/teacher/review'),
-        ),
-        const Divider(),
-        ListTile(
-          leading: const Icon(AppIcons.back),
-          title: const Text('Back to app'),
-          onTap: () => _go(context, '/'),
-        ),
-      ],
+      ),
     );
   }
 }
@@ -160,10 +194,10 @@ class _BuilderPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SingleChildScrollView(
-    padding: const EdgeInsets.all(BookletSpace.s6),
+    padding: const EdgeInsets.all(AppSpace.s6),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: BookletSpace.s4,
+      spacing: AppSpace.s4,
       children: [
         Text(
           'Course builder',

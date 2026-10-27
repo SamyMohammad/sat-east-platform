@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/theme/booklet_tokens.dart';
+
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/entities/setting_spec.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_state.dart';
@@ -16,11 +19,18 @@ class SettingsGroupCard extends StatelessWidget {
   final List<SettingSpec> specs;
   @override
   Widget build(BuildContext context) => Card(
+    margin: EdgeInsets.zero,
+    elevation: 0,
+    color: context.appColors.background,
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(AppRadius.card),
+      side: BorderSide(color: context.appColors.line),
+    ),
     child: Padding(
-      padding: const EdgeInsets.all(BookletSpace.s4),
+      padding: const EdgeInsets.all(AppSpace.s4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        spacing: BookletSpace.s4,
+        spacing: AppSpace.s4,
         children: [
           Text(group, style: Theme.of(context).textTheme.titleMedium),
           for (final spec in specs)

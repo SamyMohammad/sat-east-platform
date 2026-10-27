@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'package:sat_east_client/shared/widgets/app_dialog.dart';
+
 class BuilderTitleDialog extends StatefulWidget {
   const BuilderTitleDialog({required this.label, super.key});
   final String label;
@@ -23,8 +25,8 @@ class _BuilderTitleDialogState extends State<BuilderTitleDialog> {
   }
 
   @override
-  Widget build(BuildContext context) => AlertDialog(
-    title: Text(widget.label),
+  Widget build(BuildContext context) => AppDialog(
+    title: widget.label,
     content: Form(
       key: _form,
       child: TextFormField(
