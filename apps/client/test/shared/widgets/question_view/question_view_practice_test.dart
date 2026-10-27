@@ -484,7 +484,7 @@ void main() {
         expect(nexts, 1);
       });
 
-      testWidgets('F-4: Correct without noteMd shows a header-only note', (
+      testWidgets('F-4: Correct without noteMd shows the verdict, no note', (
         t,
       ) async {
         await _pump(
@@ -494,8 +494,9 @@ void main() {
           answer: const AnswerState(selected: 'C'),
           onNext: () {},
         );
-        expect(_note(t).tone, MarginNoteTone.correct);
-        expect(_note(t).bodyMd, isEmpty);
+        // The dock title carries the verdict; an empty teacher line is noise.
+        expect(find.text('Correct'), findsWidgets);
+        expect(find.byType(MarginNote), findsNothing);
         expect(find.byType(WorkedExample), findsNothing);
       });
 

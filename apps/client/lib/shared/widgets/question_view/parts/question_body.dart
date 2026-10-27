@@ -84,9 +84,7 @@ class QuestionBody extends StatelessWidget {
           );
         case Correct(:final noteMd, :final explanationMd):
           return (
-            note: noteMd == null || noteMd.isEmpty
-                ? null
-                : noteOf(MarginNoteTone.correct, noteMd, noteAuthor),
+            note: noteOf(MarginNoteTone.correct, noteMd ?? '', noteAuthor),
             hint: null,
             explanation: explanationMd,
           );
