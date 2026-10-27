@@ -65,10 +65,15 @@ class CatalogueView extends StatelessWidget {
         ),
         CatalogueLoaded(data: final courses) =>
           courses.isEmpty
-              ? const EmptyState(
-                  illustration: AppIllustrationName.emptyCourses,
-                  title: CatalogueCopy.emptyTitle,
-                  message: CatalogueCopy.emptyBody,
+              ? ListView(
+                  padding: const EdgeInsets.all(AppSpace.s6),
+                  children: const [
+                    EmptyState(
+                      illustration: AppIllustrationName.emptyCourses,
+                      title: CatalogueCopy.emptyTitle,
+                      message: CatalogueCopy.emptyBody,
+                    ),
+                  ],
                 )
               : ListView(
                   padding: const EdgeInsets.all(AppSpace.s6),

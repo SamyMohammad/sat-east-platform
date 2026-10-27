@@ -59,6 +59,12 @@ class AttemptReviewView extends StatelessWidget {
                 Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: TextButton(
+                    // Flush with the title below.
+                    style: TextButton.styleFrom(
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size.square(AppSize.touchTarget),
+                      alignment: AlignmentDirectional.centerStart,
+                    ),
                     onPressed: () {
                       if (context.canPop()) {
                         context.pop();
@@ -84,6 +90,7 @@ class AttemptReviewView extends StatelessWidget {
                     fontFeatures: AppType.count.fontFeatures,
                   ),
                 ),
+                const SizedBox(height: AppSpace.s4),
                 if (!review.keysVisible)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: AppSpace.s3),
