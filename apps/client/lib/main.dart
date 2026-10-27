@@ -41,7 +41,7 @@ Future<void> _start(ErrorReporter errorReporter) async {
 
   await Hive.initFlutter();
   final deviceBox = await Hive.openBox<String>('device');
-  final settingsBox = await Hive.openBox<String>('settings');
+  final settingsBox = await _openSettingsBox();
   await Supabase.initialize(
     url: Env.supabaseUrl,
     publishableKey: Env.supabasePublishableKey,
@@ -60,4 +60,15 @@ Future<void> _start(ErrorReporter errorReporter) async {
   unawaited(getIt<AuthCubit>().start());
 
   runApp(App(auth: getIt<AuthCubit>(), themeMode: getIt<ThemeModeCubit>()));
+}
+
+/// Only the theme preference lives here, so a corrupt box is reset (the theme
+/// falls back to System) rather than blocking startup.
+Future<Box<String>> _openSettingsBox() async {
+  try {
+    return await Hive.openBox<String>('settings');
+  } on Object {
+    await Hive.deleteBoxFromDisk('settings');
+    return Hive.openBox<String>('settings');
+  }
 }

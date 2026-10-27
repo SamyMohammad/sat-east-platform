@@ -110,7 +110,7 @@ class _FeedbackDockState extends State<FeedbackDock>
     final title = correct ? 'Correct' : 'Not quite';
     final terminal = widget.feedback is Correct || widget.feedback is Revealed;
     final teacher = switch (widget.feedback) {
-      Correct(:final noteMd) => noteMd ?? '',
+      Correct(:final noteMd) => noteMd,
       Revealed(:final noteMd) => noteMd,
       FirstMiss(:final noteMd, :final hintMd) => noteMd ?? hintMd,
       _ => null,
@@ -279,7 +279,7 @@ class _FeedbackDockState extends State<FeedbackDock>
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               spacing: AppSpace.s3,
                               children: [
-                                if (teacher != null)
+                                if (teacher != null && teacher.isNotEmpty)
                                   MarginNote(
                                     tone: correct
                                         ? MarginNoteTone.correct

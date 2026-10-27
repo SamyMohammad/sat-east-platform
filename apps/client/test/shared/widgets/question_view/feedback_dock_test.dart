@@ -6,6 +6,7 @@ import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/feedback_dock.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 
 const _result = Correct(noteMd: 'Clean work. Divide both sides by 3.');
@@ -39,6 +40,26 @@ double _opacity(WidgetTester t, String key) =>
     t.widget<FadeTransition>(find.byKey(ValueKey(key))).opacity.value;
 
 void main() {
+  testWidgets('PRC-03: equal feedback on rebuild does not replay the reveal', (
+    t,
+  ) async {
+    // Fresh, non-const instances: the screen rebuilds them on every tap.
+    final note = ['Not', 'quite.'].join(' ');
+    FirstMiss miss() => FirstMiss(missed: 'A', noteMd: note);
+    await t.pumpWidget(_app(miss()));
+    await t.pumpAndSettle();
+    await t.pumpWidget(_app(miss()));
+    // A replay would restart the verdict fade from 0.
+    expect(_opacity(t, 'dock-verdict'), 1);
+  });
+
+  testWidgets('PRC-03: correct without a teacher note shows no note box', (
+    t,
+  ) async {
+    await t.pumpWidget(_app(const Correct(explanationMd: 'x'), reduced: true));
+    expect(find.byType(MarginNote), findsNothing);
+  });
+
   testWidgets('check_sequence_order', (t) async {
     await t.pumpWidget(_app(const Idle()));
     await t.pumpWidget(_app(_result));
