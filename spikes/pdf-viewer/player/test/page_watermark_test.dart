@@ -16,7 +16,7 @@ void main() {
                 child: const ColoredBox(color: Colors.white),
               ),
             ),
-            const PageWatermark(text: 'سارة أحمد · 53B17C'),
+            const PageWatermark(text: 'Sara Ahmed · 53B17C'),
           ],
         ),
       ),
@@ -27,7 +27,7 @@ void main() {
     tester,
   ) async {
     await tester.pumpWidget(page(400));
-    expect(find.text('سارة أحمد · 53B17C'), findsNWidgets(4));
+    expect(find.text('Sara Ahmed · 53B17C'), findsNWidgets(4));
   });
 
   testWidgets('SEC-02 watermark text scales with the page (zoom)', (

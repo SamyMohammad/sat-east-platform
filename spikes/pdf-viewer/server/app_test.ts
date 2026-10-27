@@ -84,6 +84,6 @@ Deno.test('SEC-02 stamp: every page carries the student id; original untouched',
   assertEquals((await PDFDocument.load(bytes)).getPageCount(), 3);
 });
 
-Deno.test('SEC-02 stamp: non-Latin text (Arabic names) is refused, not silently written as ????', async () => {
-  await assertRejects(() => stampPdf(sample, 'سارة أحمد', 'x'));
+Deno.test('SEC-02 stamp: unsupported math symbols are refused, not silently written as ????', async () => {
+  await assertRejects(() => stampPdf(sample, '𝑥', 'x'));
 });

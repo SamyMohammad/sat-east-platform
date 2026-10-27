@@ -37,7 +37,7 @@ page.on('response', async (r) => {
 
 let result = 'FAIL';
 try {
-  await page.goto(`${APP}/?mode=${mode}&jumpAfter=30&server=${encodeURIComponent(SERVER)}&user=${encodeURIComponent('سارة أحمد')}`);
+  await page.goto(`${APP}/?mode=${mode}&jumpAfter=30&server=${encodeURIComponent(SERVER)}&user=${encodeURIComponent('Sara Ahmed')}`);
   await page.waitForTimeout(8_000);
   await page.screenshot({ path: `${outDir}/pdf-${mode}-first.png` });
   await page.waitForTimeout(30_000); // URL expired (TTL 20 s), then the app jumps to page 40

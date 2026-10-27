@@ -79,7 +79,7 @@ class _NotesScreenState extends State<NotesScreen> {
         widget.server.resolve('/pdf-url'),
         headers: {
           'content-type': 'application/json',
-          // Percent-encoded: HTTP headers cannot carry Arabic names.
+          // Percent-encoded to preserve names safely in HTTP headers.
           'x-spike-user': Uri.encodeComponent(widget.user),
         },
         body: jsonEncode({'assetId': widget.assetId}),

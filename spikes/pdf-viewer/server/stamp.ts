@@ -4,8 +4,7 @@ import { degrees, PDFDocument, rgb, StandardFonts } from 'npm:@cantoo/pdf-lib@2.
 
 /**
  * Stamps `label` diagonally (tiled) on every page plus a small footer line.
- * `label` must be WinAnsi text (Latin): the standard fonts cannot draw Arabic, and pdf-lib does
- * no Arabic shaping. Use the short id / phone tail, not the student's name.
+ * `label` must be printable ASCII. Use the short id / phone tail for the stamp.
  */
 export async function stampPdf(input: Uint8Array, label: string, footer: string): Promise<Uint8Array<ArrayBuffer>> {
   // The fork silently writes unsupported characters as "?" (a stamp reading "????" traces no one),
