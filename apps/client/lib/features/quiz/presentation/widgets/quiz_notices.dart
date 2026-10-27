@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
+import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_copy.dart';
@@ -42,7 +45,15 @@ class QuizNotices extends StatelessWidget {
               ),
             if (flags.$3) ...[
               const AppBanner(message: QuizCopy.submitting),
-              const LinearProgressIndicator(),
+              TickerMode(
+                enabled: !AppMotion.reduced(context),
+                child: LinearProgressIndicator(
+                  value: AppMotion.reduced(context) ? 1 : null,
+                  minHeight: AppSize.progressThickness,
+                  color: context.appColors.brand,
+                  backgroundColor: context.appColors.line,
+                ),
+              ),
             ],
           ],
         ),
