@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
@@ -40,7 +39,7 @@ class TopicNotesStep extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           title: Text(
             note.title,
-            textDirection: detectTextDirection(note.title),
+            textDirection: TextDirection.ltr,
           ),
           subtitle: note.subtopicTitle == null && note.pageCount == null
               ? null

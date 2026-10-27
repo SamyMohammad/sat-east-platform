@@ -79,19 +79,17 @@ flutter:
   # For details regarding adding assets from package dependencies, see
   # https://flutter.dev/to/asset-from-package
 
-  # Bundled fonts (F-4). SIL OFL 1.1, see assets/fonts/OFL.txt.
+  # Bundled Lexend fonts, SIL OFL 1.1: assets/fonts/OFL-Lexend.txt.
   fonts:
-    - family: NotoSans
+    - family: Lexend
       fonts:
-        - asset: assets/fonts/NotoSans-Regular.ttf
-        - asset: assets/fonts/NotoSans-Medium.ttf
+        - asset: assets/fonts/Lexend-Light.ttf
+          weight: 300
+        - asset: assets/fonts/Lexend-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Lexend-Medium.ttf
           weight: 500
-        - asset: assets/fonts/NotoSans-SemiBold.ttf
+        - asset: assets/fonts/Lexend-SemiBold.ttf
           weight: 600
-        - asset: assets/fonts/NotoSans-Bold.ttf
+        - asset: assets/fonts/Lexend-Bold.ttf
           weight: 700
-    - family: NotoSansArabic
-      fonts:
-        - asset: assets/fonts/NotoSansArabic-Regular.ttf
-        - asset: assets/fonts/NotoSansArabic-SemiBold.ttf
-          weight: 600

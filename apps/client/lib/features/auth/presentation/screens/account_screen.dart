@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/core/theme/theme_mode_cubit.dart';
@@ -106,7 +105,7 @@ class AccountView extends StatelessWidget {
             Text('Profile', style: Theme.of(context).textTheme.titleLarge),
             Text(
               state.profile.fullName,
-              textDirection: detectTextDirection(state.profile.fullName),
+              textDirection: TextDirection.ltr,
             ),
             Text(state.profile.email),
             const Text('Contact your teacher to change your name.'),

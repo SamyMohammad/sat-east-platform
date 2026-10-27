@@ -17,9 +17,9 @@ The client "works but looks basic". The owner chose the category standard (Khan 
 ## Global Constraints
 
 - Work in worktree `C:\Users\Lenovo\sat-east-redesign`, branch `redesign/visual-world`. Codex never commits.
-- No behaviour/logic/data/route/copy changes except the theme switch (Task 3.2) and the presentation-only unlock signal (Task 4.2).
+- English-only UI/content and Lexend per owner decision (2026-10-27). Otherwise no behaviour/logic/data/route/copy changes except the theme switch (Task 3.2) and the presentation-only unlock signal (Task 4.2).
 - Colours, radii, type, spacing, motion: exactly the values in the spec's "The system" and "Motion" sections.
-- Fonts stay `NotoSans` / `NotoSansArabic`; LaTeX via `flutter_math_fork`.
+- Font: bundled `Lexend` (weights 300–700); LaTeX via `flutter_math_fork`.
 - Every animation collapses to its end state when `MediaQuery.disableAnimationsOf(context)` is true.
 - Status is never colour alone (icon + word). Verdicts announced with `Semantics(liveRegion: true)`.
 - CLAUDE.md B-rules: Cubit, no codegen, `const`, controllers in `initState`/`dispose`, DI only in `injection.dart`, go_router only.
@@ -28,11 +28,10 @@ The client "works but looks basic". The owner chose the category standard (Khan 
 
 ## Review Focus
 
-1. **Mixed RTL/LTR content in dark mode** (Arabic explanation + LaTeX in the teacher line): must render, wrap and keep contrast. Test: Task 2.2 golden `feedback_dock_dark_360_arabic`.
-2. **Text scale 2.0 at 360 px** on the Check dock and choice rows: no overflow. Test: Task 2.2 goldens `_text2x` variants + `tester.takeException()` null.
-3. **Reduced motion**: Check sequence, unlock, count-up and route transitions land on the final frame immediately. Tests in Tasks 1.1, 2.2, 3.3, 4.2, 5.1.
-4. **Rapid input during animation** (double-tap Check, pressing Next mid-transition, key spam A–D): no duplicate submits, no stale verdict. Test: Task 2.2 `check_double_tap_submits_once`.
-5. **Theme switch persistence across restart and when the Hive box is empty/corrupt**: falls back to System, never crashes. Test: Task 3.2.
+1. **Text scale 2.0 at 360 px** on the Check dock and choice rows: no overflow. Test: Task 2.2 goldens `_text2x` variants + `tester.takeException()` null.
+2. **Reduced motion**: Check sequence, unlock, count-up and route transitions land on the final frame immediately. Tests in Tasks 1.1, 2.2, 3.3, 4.2, 5.1.
+3. **Rapid input during animation** (double-tap Check, pressing Next mid-transition, key spam A–D): no duplicate submits, no stale verdict. Test: Task 2.2 `check_double_tap_submits_once`.
+4. **Theme switch persistence across restart and when the Hive box is empty/corrupt**: falls back to System, never crashes. Test: Task 3.2.
 
 ---
 
@@ -81,7 +80,7 @@ Later phases use them where they touch the screen: 2.1 empty/error states (offli
 **Files:** `lib/shared/widgets/choice_tile.dart`, `question_view/question_view.dart`, `parts/{choice_list,question_header,question_body,question_footer,exercise_header,hint_panel,framed_panel,margin_note,worked_example,question_navigator,homework_navigator,exam_bar,quiz_question_header,submit_dialog,save_status_label,spr_answer_area}.dart`, `quiz_time_up_dialog.dart`, `practice_feedback.dart` rendering. Create `parts/feedback_dock.dart` (bottom dock: idle = Check button; verdict = tinted correct/incorrect, icon + title + teacher line + worked step + actions; `Semantics(liveRegion: true)`).
 **Motion (spec §Motion 1, 3, 6):** dock tint + verdict rise 320 ms emphasized; correct: check stroke draw + 1.0→1.02→1.0 pulse; wrong: damped shake 2 cycles 6 px on picked choice, then correct choice outline draws; teacher line +120 ms; question change = shared-axis horizontal slide + fade 320 ms (`AnimatedSwitcher` keyed by question id); hint panel size+fade; exam clock single pulse at warning threshold.
 **Interfaces:** `FeedbackDock({required PracticeFeedback? feedback, required VoidCallback? onCheck, required List<Widget> actions})`; no change to `QuestionView`'s public constructor or modes.
-**Tests (names):** `check_sequence_order` (fake clock: tint → verdict → teacher line), `check_reduced_motion_shows_final_state`, `check_double_tap_submits_once`, `verdict_announced_live_region`, `wrong_answer_shows_icon_and_word_not_colour_only`; goldens per existing `qv_*` entry in light **and** dark at 360/1280 + `feedback_dock_{light,dark}_360[_text2x|_arabic]`.
+**Tests (names):** `check_sequence_order` (fake clock: tint → verdict → teacher line), `check_reduced_motion_shows_final_state`, `check_double_tap_submits_once`, `verdict_announced_live_region`, `wrong_answer_shows_icon_and_word_not_colour_only`; goldens per existing `qv_*` entry in light **and** dark at 360/1280 + `feedback_dock_{light,dark}_360[_text2x]`.
 - [ ] Failing tests → implement → gates + goldens → gallery screenshots → owner checkpoint → commit `feat(redesign): QuestionView and Check moment`.
 
 ## Phase 3: Shell, navigation, auth, theme switch

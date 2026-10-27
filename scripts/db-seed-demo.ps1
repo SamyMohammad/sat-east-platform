@@ -17,7 +17,7 @@ if ($Check) { $files = @($files) + (Get-Item 'supabase/seeds/demo/check.sql') }
 
 foreach ($f in $files) {
   Write-Host "Running $($f.Name)"
-  # cmd redirection streams the raw bytes, so UTF-8 (Arabic) content survives.
+  # cmd redirection streams the raw bytes, so UTF-8 content survives.
   cmd /c "docker exec -i $container psql -U postgres -d postgres -v ON_ERROR_STOP=1 --single-transaction -q -f - < `"$($f.FullName)`""
   if ($LASTEXITCODE -ne 0) {
     Write-Error "Demo seed failed on $($f.Name)"

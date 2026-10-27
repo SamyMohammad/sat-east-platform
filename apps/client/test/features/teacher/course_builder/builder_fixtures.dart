@@ -42,7 +42,7 @@ const treeJson = <String, Object?>{
             {'id': 's1', 'title': 'Basics', 'sort': 1, 'in_use': false},
             {
               'id': 's2',
-              'title': '\u062c\u0628\u0631',
+              'title': 'Algebra',
               'sort': 2,
               'in_use': false,
             },

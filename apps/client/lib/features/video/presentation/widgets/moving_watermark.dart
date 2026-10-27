@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_colors.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 
@@ -81,7 +80,7 @@ class _MovingWatermarkState extends State<MovingWatermark> {
                       widget.text,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      textDirection: detectTextDirection(widget.text),
+                      textDirection: TextDirection.ltr,
                       textAlign: TextAlign.center,
                       style: Theme.of(context).textTheme.labelLarge!.copyWith(
                         color: BookletSchemes.light.surface.withValues(

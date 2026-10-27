@@ -59,8 +59,8 @@ EST coverage is a bonus, not the core claim.
   sometimes with figures or tables. SPR follows the official entry rules (max 5 chars, 6 if negative;
   no mixed numbers).
 - Grading, unlocking and scoring are server-side; answer keys never reach the client before submit.
-- UI copy is **English only**. Content (notes, explanations, AI replies) may mix Arabic, English and
-  math; text must support mixed direction.
+- **English only** for international schools: UI, notes, explanations, hints, AI replies and seed data.
+  All content renders LTR; math uses LaTeX.
 - Prices are shown in the student's market currency (EGP in Egypt, USD elsewhere); not EGP-only.
 - Purchase UI exists only in the web build.
 - Content protection: watermarked video and PDF, device limit, screenshot blocking on mobile.
@@ -99,5 +99,5 @@ original (not College Board or publisher items).
 ## Accessibility & Inclusion
 
 WCAG AA contrast; LaTeX scales with the user's text size; full keyboard path through the exam on
-web; status never shown by colour alone; mixed RTL/LTR content in explanations and AI replies. Many
+web; status never shown by colour alone; English-only explanations and AI replies. Many
 students use mid-range phones on 4G: first paint < 4 s on web.

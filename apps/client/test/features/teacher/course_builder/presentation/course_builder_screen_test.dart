@@ -161,12 +161,8 @@ void main() {
       });
     });
   }
-  testWidgets('C-1: Arabic content titles use their own direction', (
-    tester,
-  ) async {
+  testWidgets('C-1: a unit shows its subtopic count', (tester) async {
     await pumpBuilder(tester);
-    final title = tester.widget<Text>(find.text('\u062c\u0628\u0631'));
-    expect(title.textDirection, TextDirection.rtl);
     expect(find.text('2 subtopics'), findsOneWidget);
   });
   for (final (kind, id, code, title) in [

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
 
@@ -40,7 +39,7 @@ class _VideoTitleDialogState extends State<VideoTitleDialog> {
         controller: _title,
         autofocus: true,
         maxLength: 120,
-        textDirection: detectTextDirection(_title.text),
+        textDirection: TextDirection.ltr,
         onChanged: (_) => setState(() {}),
         decoration: const InputDecoration(
           labelText: TeacherVideosCopy.titleLabel,

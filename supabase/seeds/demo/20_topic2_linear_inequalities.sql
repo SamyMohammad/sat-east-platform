@@ -58,7 +58,7 @@ perform private.demo_upsert_question(
 
 Check: \(x = 0\) gives \(0 \le 12\), true; \(x = -5\) gives \(15 \le 12\), false.
 
-الخطوة الأساسية: عند قسمة طرفي المتباينة على عدد سالب مثل \(-3\) يجب عكس إشارة المتباينة، فتصبح \(x \ge -4\).$q$,
+Key step: dividing both sides of an inequality by a negative number such as \(-3\) reverses the inequality sign, giving \(x \ge -4\).$q$,
   jsonb_build_object(
     'A', $q$You divided by \(-3\) without reversing the inequality sign.$q$,
     'D', $q$Dividing 12 by \(-3\) gives \(-4\), not 4, and the sign must also reverse.$q$),
@@ -503,7 +503,7 @@ Written from smallest to largest: \(-5 < x \le -1\).
 
 Check: \(x = -1\) gives \(2 - (-1) = 3\), and \(3 \le 3 < 7\) is true; \(x = -5\) gives 7, and \(7 < 7\) is false.
 
-الخطوة الأساسية: عند الضرب في \(-1\) تنعكس إشارتا المتباينة معًا، ويبقى كل طرف محتفظًا بنوعه (شامل أو غير شامل)، فنحصل على \(-5 < x \le -1\).$q$,
+Key step: multiplying by \(-1\) reverses both inequality signs while each endpoint stays inclusive or exclusive as before, giving \(-5 < x \le -1\).$q$,
   jsonb_build_object(
     'A', $q$You did not multiply by \(-1\). The middle part is \(-x\), so the signs of the values and the inequalities must reverse.$q$,
     'C', $q$You moved the strictness to the wrong end. \(x = -5\) gives 7, and \(7 < 7\) is false, so \(-5\) is excluded.$q$),

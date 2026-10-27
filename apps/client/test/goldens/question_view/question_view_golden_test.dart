@@ -72,7 +72,7 @@ final _practiceCases = <String, (PracticeFeedback, AnswerState)>{
       explanationMd:
           r'Add 7 to both sides: \(3x = 36\), so \(x = 12\).'
           '\n\n'
-          'نضيف ٧ إلى الطرفين ثم نقسم على ٣.',
+          'Add 7 to both sides, then divide by 3.',
     ),
     const AnswerState(selected: 'C'),
   ),
@@ -340,10 +340,8 @@ void main() {
     'light_360',
     'dark_360',
     'light_360_text2x',
-    'dark_360_arabic',
   ]) {
     testWidgets('feedback_dock_$variant', (tester) async {
-      final arabic = variant.endsWith('arabic');
       await expectViewportGolden(
         tester,
         name: 'feedback_dock_$variant',
@@ -357,12 +355,10 @@ void main() {
           body: Align(
             alignment: Alignment.bottomCenter,
             child: FeedbackDock(
-              feedback: Revealed(
-                key: const McqAnswerKey('B'),
+              feedback: const Revealed(
+                key: McqAnswerKey('B'),
                 firstTry: 'A',
-                noteMd: arabic
-                    ? r'اقسم الطرفين على ثلاثة، ثم تحقق: \(3(12)-7=29\).'
-                    : 'Divide both sides by 3, then check your answer.',
+                noteMd: 'Divide both sides by 3, then check your answer.',
                 explanationMd: r'\(3x=36 \Rightarrow x=12\)',
               ),
               onCheck: null,

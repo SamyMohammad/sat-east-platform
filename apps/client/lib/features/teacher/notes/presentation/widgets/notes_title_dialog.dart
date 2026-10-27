@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 
 class NotesTitleDialog extends StatefulWidget {
   const NotesTitleDialog({required this.title, super.key});
@@ -38,7 +37,7 @@ class _NotesTitleDialogState extends State<NotesTitleDialog> {
         controller: _title,
         autofocus: true,
         maxLength: 120,
-        textDirection: detectTextDirection(_title.text),
+        textDirection: TextDirection.ltr,
         onChanged: (_) => setState(() {}),
         decoration: const InputDecoration(labelText: 'Title'),
         validator: (value) =>

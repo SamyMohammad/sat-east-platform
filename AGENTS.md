@@ -19,7 +19,7 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 5. Tunable values (pass mark, cooldowns, pool split, device limit, blueprints, scale tables) come from the `settings` table — no magic numbers.
 6. One shared `QuestionView` widget for practice, homework, quiz and mock.
 7. Purchase UI only in the web build (`ENABLE_PURCHASE` flag) — see ADR-006.
-8. UI copy is English. Content (notes, AI replies) may contain Arabic → support mixed-direction text.
+8. The product targets international schools. UI and all content (notes, explanations, hints, AI replies and seed data) are English only; content renders LTR.
 9. New functions are not executable by default — every RPC gets an explicit `grant execute ... to authenticated`.
 10. Every new SQL file starts from `supabase/templates/` and passes the review checklist in `docs/16` §2.
 

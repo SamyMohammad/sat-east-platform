@@ -292,7 +292,7 @@ final List<GalleryEntry> galleryEntries = [
         explanationMd:
             r'Add 7 to both sides: \(3x = 36\), so \(x = 12\).'
             '\n\n'
-            'نضيف ٧ إلى الطرفين ثم نقسم على ٣.',
+            'Add 7 to both sides, then divide by 3.',
       ),
       answer: const AnswerState(selected: 'C'),
     ),

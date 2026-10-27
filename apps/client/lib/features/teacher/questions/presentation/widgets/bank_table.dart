@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/bank_page.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/bank_copy.dart';
@@ -34,7 +33,7 @@ class BankTable extends StatelessWidget {
                   row.externalRef ?? 'No ref',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  textDirection: detectTextDirection(row.externalRef ?? ''),
+                  textDirection: TextDirection.ltr,
                 ),
               ),
             ),
@@ -49,7 +48,7 @@ class BankTable extends StatelessWidget {
                   row.topicTitle,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  textDirection: detectTextDirection(row.topicTitle),
+                  textDirection: TextDirection.ltr,
                 ),
               ),
             ),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
@@ -38,13 +37,13 @@ class ContinueCard extends StatelessWidget {
           Text(
             topic.title,
             style: theme.textTheme.titleMedium,
-            textDirection: detectTextDirection(topic.title),
+            textDirection: TextDirection.ltr,
           ),
           if (unitTitle != null)
             Text(
               unitTitle,
               style: theme.textTheme.bodySmall,
-              textDirection: detectTextDirection(unitTitle),
+              textDirection: TextDirection.ltr,
             ),
           const SizedBox(height: AppSpace.s3),
           LoadingButton(

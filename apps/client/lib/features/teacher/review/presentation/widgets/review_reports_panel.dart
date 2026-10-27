@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/di/injection.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/review/domain/entities/review.dart';
 import 'package:sat_east_client/features/teacher/review/presentation/cubit/review_counts_cubit.dart';
@@ -126,7 +125,7 @@ class _ReportEntry extends StatelessWidget {
       ),
       Text(
         report.fullName,
-        textDirection: detectTextDirection(report.fullName),
+        textDirection: TextDirection.ltr,
       ),
       Text(
         MaterialLocalizations.of(
@@ -134,7 +133,7 @@ class _ReportEntry extends StatelessWidget {
         ).formatMediumDate(report.createdAt.toLocal()),
       ),
       if (report.note case final note?)
-        Text(note, textDirection: detectTextDirection(note)),
+        Text(note, textDirection: TextDirection.ltr),
     ],
   );
 }

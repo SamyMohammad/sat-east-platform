@@ -19,7 +19,7 @@ const _rows = <(ChoiceTileState, String)>[
     ChoiceTileState.idle,
     r'The line rises 3 units for each unit to the right, so its slope is \(3\).',
   ),
-  (ChoiceTileState.idle, r'ميل المستقيم يساوي \(3\).'),
+  (ChoiceTileState.idle, r'The slope of the line is \(3\).'),
   (ChoiceTileState.correct, r'\(\frac{3}{4}\)'),
   (ChoiceTileState.incorrect, r'\(x = -3\)'),
   (ChoiceTileState.yourAnswerWrong, r'\(x = 15\)'),

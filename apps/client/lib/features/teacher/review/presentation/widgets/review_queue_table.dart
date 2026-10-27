@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/widgets/bank_table.dart';
 import 'package:sat_east_client/features/teacher/review/domain/entities/review.dart';
@@ -33,7 +32,7 @@ class ReviewQueueTable extends StatelessWidget {
                   row.externalRef ?? 'No ref',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  textDirection: detectTextDirection(row.externalRef ?? ''),
+                  textDirection: TextDirection.ltr,
                 ),
               ),
             ),
@@ -66,7 +65,7 @@ class ReviewQueueTable extends StatelessWidget {
                   row.latestNote ?? '',
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  textDirection: detectTextDirection(row.latestNote ?? ''),
+                  textDirection: TextDirection.ltr,
                 ),
               ),
             ),

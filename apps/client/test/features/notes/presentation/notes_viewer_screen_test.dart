@@ -83,7 +83,7 @@ void main() {
       when(auth.getMyProfile).thenAnswer(
         (_) async => const Success(
           MyProfile(
-            fullName: '\u0633\u0627\u0631\u0629',
+            fullName: 'Sara',
             email: 'sara@example.com',
           ),
         ),
@@ -132,9 +132,9 @@ void main() {
         final text = tester.widget<Text>(texts.first);
         expect(
           text.data,
-          '\u0633\u0627\u0631\u0629 \u00b7 sara \u00b7 2026-10-27',
+          'Sara \u00b7 sara \u00b7 2026-10-27',
         );
-        expect(text.textDirection, TextDirection.rtl);
+        expect(text.textDirection, TextDirection.ltr);
         expect(text.style?.color?.a, closeTo(0.25, 0.005));
       }
       expect(find.byTooltip('Download'), findsNothing);

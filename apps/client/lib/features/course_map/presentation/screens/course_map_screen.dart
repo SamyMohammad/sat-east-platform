@@ -10,7 +10,6 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
@@ -105,7 +104,7 @@ class _Loaded extends StatelessWidget {
             Text(
               map.title,
               style: theme.textTheme.headlineSmall,
-              textDirection: detectTextDirection(map.title),
+              textDirection: TextDirection.ltr,
             ),
             const SizedBox(height: AppSpace.s4),
             if (continueTopic != null) ...[
@@ -132,7 +131,7 @@ class _Loaded extends StatelessWidget {
                       child: Text(
                         unitTitle,
                         style: theme.textTheme.titleMedium,
-                        textDirection: detectTextDirection(unitTitle),
+                        textDirection: TextDirection.ltr,
                       ),
                     ),
                   ),

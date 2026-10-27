@@ -9,7 +9,6 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
@@ -100,13 +99,13 @@ class _CourseContent extends StatelessWidget {
           Text(
             page.title,
             style: theme.textTheme.headlineLarge,
-            textDirection: detectTextDirection(page.title),
+            textDirection: TextDirection.ltr,
           ),
           if (page.description case final description?)
             Text(
               description,
               style: theme.textTheme.bodyLarge,
-              textDirection: detectTextDirection(description),
+              textDirection: TextDirection.ltr,
             ),
           const Divider(),
           Text(CatalogueCopy.contents, style: theme.textTheme.headlineSmall),

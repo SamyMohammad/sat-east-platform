@@ -2,7 +2,6 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -77,7 +76,7 @@ class AppChip extends StatelessWidget {
           child: DefaultTextStyle(
             // RawChip's inherited style otherwise forces one clipped line.
             style: labelStyle,
-            child: Text(label, textDirection: detectTextDirection(label)),
+            child: Text(label, textDirection: TextDirection.ltr),
           ),
         );
         return ConstrainedBox(

@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/entities/course_tree.dart';
@@ -47,7 +46,7 @@ class BuilderTree extends StatelessWidget {
           content: Text(
             'Publish $code ${topic.title}? '
             'Students on the path will see it.',
-            textDirection: detectTextDirection('Publish $code ${topic.title}'),
+            textDirection: TextDirection.ltr,
           ),
           actions: [
             TextButton(
@@ -82,7 +81,7 @@ class BuilderTree extends StatelessWidget {
         title: const Text('Delete'),
         content: Text(
           "Delete $code $title? This can't be undone.",
-          textDirection: detectTextDirection('Delete $code $title'),
+          textDirection: TextDirection.ltr,
         ),
         actions: [
           TextButton(

@@ -61,15 +61,18 @@ void main() {
     expect(withOverlay, _overlayIds);
   });
 
-  testWidgets('F-4: practice-revealed explanation contains Arabic text', (
-    tester,
-  ) async {
-    _viewport(tester, 1280);
-    await _pump(tester, galleryEntryById('practice-revealed'));
-    final view = tester.widget<QuestionView>(find.byType(QuestionView));
-    final feedback = (view.mode as PracticeMode).feedback as Revealed;
-    expect(RegExp('[؀-ۿ]').hasMatch(feedback.explanationMd ?? ''), isTrue);
-  });
+  testWidgets(
+    'F-4: practice-revealed explanation contains the worked solution',
+    (
+      tester,
+    ) async {
+      _viewport(tester, 1280);
+      await _pump(tester, galleryEntryById('practice-revealed'));
+      final view = tester.widget<QuestionView>(find.byType(QuestionView));
+      final feedback = (view.mode as PracticeMode).feedback as Revealed;
+      expect(feedback.explanationMd, contains('Add 7 to both sides'));
+    },
+  );
 
   for (final width in [360.0, 1280.0]) {
     for (final id in _expectedIds) {

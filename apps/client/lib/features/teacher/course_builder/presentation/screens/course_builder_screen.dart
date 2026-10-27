@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/course_builder_copy.dart';
@@ -113,7 +112,7 @@ class _BuilderBody extends StatelessWidget {
                       value: course.id,
                       child: Text(
                         course.title,
-                        textDirection: detectTextDirection(course.title),
+                        textDirection: TextDirection.ltr,
                       ),
                     ),
                 ],

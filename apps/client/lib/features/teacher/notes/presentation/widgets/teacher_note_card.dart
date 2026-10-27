@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/notes/domain/entities/teacher_note.dart';
@@ -41,7 +40,7 @@ class TeacherNoteCard extends StatelessWidget {
         title: const Text('Delete'),
         content: Text(
           "Delete ${note.title}? This can't be undone.",
-          textDirection: detectTextDirection(note.title),
+          textDirection: TextDirection.ltr,
         ),
         actions: [
           TextButton(
@@ -70,7 +69,7 @@ class TeacherNoteCard extends StatelessWidget {
           children: [
             Text(
               note.title,
-              textDirection: detectTextDirection(note.title),
+              textDirection: TextDirection.ltr,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             Text('${note.pageCount} pages${note.ready ? '' : ' \u00b7 Draft'}'),
@@ -90,7 +89,7 @@ class TeacherNoteCard extends StatelessWidget {
                           subtopic.title,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          textDirection: detectTextDirection(subtopic.title),
+                          textDirection: TextDirection.ltr,
                         ),
                       ),
                   ],

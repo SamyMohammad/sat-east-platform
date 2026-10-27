@@ -38,9 +38,9 @@ before/after Check). Direction contract: `.impeccable/surfaces/presentation-scre
 ## Constraints
 
 - Repo rules in `CLAUDE.md` (layers, no codegen, `const`, controllers in `initState`, go_router only,
-  DI in `injection.dart`, mixed-direction content).
+  DI in `injection.dart`, English-only LTR content for international schools).
 - No new packages beyond `lucide_icons_flutter` and `flutter_svg` (see Icons, illustration and
-  vitality); SDK animation APIs are enough for all motion. Keep `Noto Sans` + `Noto Sans Arabic` (already bundled) and `flutter_math_fork` for LaTeX.
+  vitality); SDK animation APIs are enough for all motion. Use bundled `Lexend` (weights 300–700) and `flutter_math_fork` for LaTeX.
 - WCAG AA contrast in both themes; full keyboard path on web; 360 px and 1280 px checked.
 
 ## The system (decided)
@@ -56,7 +56,7 @@ lines `#2A303C` / `#3A4250`; ink `#E7EAF0`, secondary `#A6ADBB`, tertiary `#7A82
 `#2E2416`, ink `#F2C580`. Every text/ground pair verified ≥ 4.5:1 by the builder.
 
 **Shape:** choices/cards 12 px, buttons/inputs 10 px, chips pill, focus ring 3 px brand-line.
-**Type:** Noto Sans; stem 22/19 px (desktop/phone) weight 500; body 15–16; labels 12–13 semibold;
+**Type:** Lexend; stem 22/19 px (desktop/phone) weight 500; body 15–16; labels 12–13 semibold;
 tabular numerals for counts, timers, scores.
 **Spacing:** 4 px base scale (4, 8, 12, 16, 20, 24, 32, 48). Content column max 680–720 px.
 **Elevation:** flat surfaces with 1 px lines; soft offset shadows only on the primary button, sheets,

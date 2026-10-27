@@ -20,7 +20,6 @@ abstract final class AppTheme {
   ) {
     final text = AppType.textTheme().apply(
       fontFamily: AppFonts.sans,
-      fontFamilyFallback: const [AppFonts.arabic],
       bodyColor: colors.ink,
       displayColor: colors.ink,
     );
@@ -57,7 +56,6 @@ abstract final class AppTheme {
     return ThemeData(
       colorScheme: scheme,
       fontFamily: AppFonts.sans,
-      fontFamilyFallback: const [AppFonts.arabic],
       textTheme: text,
       scaffoldBackgroundColor: colors.background,
       canvasColor: colors.background,

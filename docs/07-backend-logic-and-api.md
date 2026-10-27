@@ -187,7 +187,7 @@ EF ai-tutor:
   3. Load: stem, choices, key, explanation_md, student's answer, subtopic notes excerpt
   4. System prompt: "You are the teacher's assistant. Explain ONLY using the provided solution.
      If the student's question goes beyond it or you are unsure, say so and offer to escalate.
-     Never invent a different final answer. Answer in the student's language (English/Arabic)."
+     Never invent a different final answer. Answer in English only; the product targets international schools."
   5. Call LLM, store message + token usage
   6. Return reply; client shows "Still confused? Ask the teacher" → creates escalation
 ```

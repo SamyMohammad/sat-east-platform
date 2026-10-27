@@ -671,14 +671,14 @@ void main() {
     });
 
     testWidgets(
-      'F-4: long Arabic stem, note and hint at 360 / 2x text do not '
+      'F-4: long English stem, note and hint at 360 / 2x text do not '
       'overflow and the footer stays visible',
       (t) async {
         t.platformDispatcher.textScaleFactorTestValue = 2;
         addTearDown(t.platformDispatcher.clearTextScaleFactorTestValue);
-        final arabic = List.filled(
+        final longContent = List.filled(
           40,
-          'احسب قيمة س في المعادلة الخطية التالية بعناية',
+          'Carefully calculate the value of x in the following linear equation',
         ).join(' ');
         await _pump(
           t,
@@ -686,10 +686,14 @@ void main() {
           question: QuestionData(
             id: 'q1',
             label: '4.2 · Ex 7',
-            stemMd: arabic,
+            stemMd: longContent,
             kind: const McqKind(_choices),
           ),
-          feedback: FirstMiss(missed: 'A', noteMd: arabic, hintMd: arabic),
+          feedback: FirstMiss(
+            missed: 'A',
+            noteMd: longContent,
+            hintMd: longContent,
+          ),
           answer: const AnswerState(selected: 'B'),
           onCheck: () {},
           onPrev: () {},

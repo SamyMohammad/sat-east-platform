@@ -86,10 +86,18 @@ begin
     end loop;
   end loop;
 
-  -- 6. At least 6 explanations contain Arabic
-  select count(*) into n from private.question_keys k join public.questions q on q.id = k.question_id
-    where q.source = 'demo' and k.explanation_md ~ '[؀-ۿ]';
-  if n < 6 then raise exception 'check 6: only % explanations contain Arabic, expected at least 6', n; end if;
+  -- 6. English-only demo content: no characters in Arabic Unicode blocks.
+  select count(*) into n from public.questions q
+    join private.question_keys k on k.question_id = q.id
+    where q.source = 'demo' and (
+      concat_ws(' ', q.stem_md, q.hint_md, k.explanation_md) ~ U&'[\0600-\06FF\0750-\077F\08A0-\08FF\FB50-\FDFF\FE70-\FEFF]'
+      or exists (
+        select 1 from public.question_choices ch
+        where ch.question_id = q.id
+          and ch.body_md ~ U&'[\0600-\06FF\0750-\077F\08A0-\08FF\FB50-\FDFF\FE70-\FEFF]'
+      )
+    );
+  if n <> 0 then raise exception 'check 6: % demo questions contain non-English content', n; end if;
 
   -- 8. Every existing student has a demo enrolment (before check 7 adds its own user)
   select count(*) into n from public.profiles p
@@ -115,15 +123,6 @@ begin
     if (r.e, r.m, r.h) <> (4, 5, 3) then
       raise exception 'check 9: topic % pool % difficulty mix is E%/M%/H%, expected 4/5/3', r.slug, r.pool, r.e, r.m, r.h;
     end if;
-  end loop;
-  for r in
-    select t.slug, count(*) filter (where k.explanation_md ~ '[؀-ۿ]') as ar
-    from public.topics t
-    left join public.questions q on q.topic_id = t.id and q.source = 'demo'
-    left join private.question_keys k on k.question_id = q.id
-    where t.course_id = c group by t.slug
-  loop
-    if r.ar < 2 then raise exception 'check 9: topic % has % Arabic explanations, expected at least 2', r.slug, r.ar; end if;
   end loop;
   select count(*) into n from public.questions q
     where q.source = 'demo' and not exists (select 1 from public.question_skills qs where qs.question_id = q.id);

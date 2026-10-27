@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -60,7 +59,7 @@ class TopicContent extends StatelessWidget {
         Text(
           heading,
           style: theme.textTheme.headlineSmall,
-          textDirection: detectTextDirection(heading),
+          textDirection: TextDirection.ltr,
         ),
         if (topic.videos.isNotEmpty)
           TopicStepRow(

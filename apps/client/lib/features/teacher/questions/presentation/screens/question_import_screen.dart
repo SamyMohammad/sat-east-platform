@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/di/injection.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_state.dart';
@@ -62,7 +61,7 @@ class QuestionImportView extends StatelessWidget {
                         children: [
                           Text(
                             file.name,
-                            textDirection: detectTextDirection(file.name),
+                            textDirection: TextDirection.ltr,
                           ),
                           Text('${report.rows} rows'),
                         ],

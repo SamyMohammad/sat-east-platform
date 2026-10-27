@@ -111,7 +111,6 @@ class _TopicUnlockState extends State<TopicUnlock>
             ? _Connector(
                 progress,
                 widget.hue.color(Theme.of(context).brightness),
-                Directionality.of(context),
               )
             : null,
         child: Padding(
@@ -158,17 +157,15 @@ class _TopicUnlockState extends State<TopicUnlock>
 }
 
 class _Connector extends CustomPainter {
-  const _Connector(this.progress, this.color, this.direction);
+  const _Connector(this.progress, this.color);
   final double progress;
   final Color color;
-  final TextDirection direction;
 
   @override
   void paint(Canvas canvas, Size size) {
-    const start = AppSpace.s3 + AppSize.iconTile / 2;
-    final x = direction == TextDirection.ltr ? start : size.width - start;
+    const x = AppSpace.s3 + AppSize.iconTile / 2;
     canvas.drawLine(
-      Offset(x, 0),
+      const Offset(x, 0),
       Offset(x, AppSpace.s6 * progress),
       Paint()
         ..color = color
@@ -179,9 +176,7 @@ class _Connector extends CustomPainter {
 
   @override
   bool shouldRepaint(_Connector oldDelegate) =>
-      progress != oldDelegate.progress ||
-      color != oldDelegate.color ||
-      direction != oldDelegate.direction;
+      progress != oldDelegate.progress || color != oldDelegate.color;
 }
 
 class _OpeningLock extends CustomPainter {

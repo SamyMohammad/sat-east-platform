@@ -38,7 +38,7 @@ Divide both sides by 3: \(x = 5\).
 
 Check: \(3(5) + 7 = 22\).
 
-الفكرة الأساسية: نطرح 7 من الطرفين أولًا فنحصل على \(3x = 15\)، ثم نقسم الطرفين على 3 فيكون \(x = 5\).$q$,
+Key idea: subtract 7 from both sides first to get \(3x = 15\), then divide both sides by 3 to get \(x = 5\).$q$,
   jsonb_build_object(
     'B', $q$You divided 22 by 3 before subtracting 7. Subtract 7 from both sides first.$q$,
     'C', $q$You added 7 to 22 instead of subtracting it.$q$),
@@ -149,7 +149,7 @@ Combine like terms: \(3x = 30\), so \(x = 10\).
 
 Check: \(\frac{10}{3} + \frac{10}{6} = \frac{20}{6} + \frac{10}{6} = \frac{30}{6} = 5\).
 
-الخطوة الأساسية: نضرب كل حدود المعادلة في 6 (المقام المشترك) فنحصل على \(2x + x = 30\)، أي \(3x = 30\)، ومنها \(x = 10\).$q$,
+Key step: multiply every term in the equation by 6 (the common denominator) to get \(2x + x = 30\), or \(3x = 30\), so \(x = 10\).$q$,
   jsonb_build_object(
     'A', $q$You multiplied the left side by 6 but not the right side.$q$,
     'D', $q$You added the denominators. Fractions are added over a common denominator: \(\frac{x}{3} + \frac{x}{6} = \frac{x}{2}\).$q$),
@@ -404,7 +404,7 @@ Add 12: \(3x = 21\), so \(x = 7\).
 
 Check: \(4(14 - 3) = 44\) and \(5(7) + 9 = 44\).
 
-الخطوة الأساسية: نوزّع العدد 4 على الحدّين داخل القوسين، فيصبح الطرف الأيسر \(8x - 12\)، ثم نجمع الحدود المتشابهة لنحصل على \(3x = 21\)، أي \(x = 7\).$q$,
+Key step: distribute 4 to both terms inside the parentheses, giving \(8x - 12\) on the left, then combine like terms to get \(3x = 21\), so \(x = 7\).$q$,
   jsonb_build_object(
     'C', $q$You multiplied only \(2x\) by 4. The 4 multiplies the \(-3\) as well, giving \(-12\).$q$,
     'A', $q$You subtracted 12 instead of adding it when moving it to the right side.$q$),

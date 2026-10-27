@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
@@ -39,7 +38,7 @@ class TopicVideoStep extends StatelessWidget {
           contentPadding: EdgeInsets.zero,
           title: Text(
             video.title,
-            textDirection: detectTextDirection(video.title),
+            textDirection: TextDirection.ltr,
           ),
           subtitle: Text(
             TopicCopy.videoProgress(

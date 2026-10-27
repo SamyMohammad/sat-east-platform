@@ -141,7 +141,7 @@ Claude's quota goes to thinking: brainstorm, plan, review. Codex does the typing
 5. Tunables from `settings`, never hard-coded.
 6. One `QuestionView` for practice/homework/quiz/mock.
 7. Purchase UI only in the web build (`ENABLE_PURCHASE`).
-8. English UI; mixed RTL/LTR content supported.
+8. The product targets international schools. UI and all content (notes, explanations, hints, AI replies and seed data) are English only; content renders LTR.
 
 Architecture choices for the client: see **ADR-007** (Cubit/Bloc, get_it, `supabase_flutter`,
 `apps/client` layout).

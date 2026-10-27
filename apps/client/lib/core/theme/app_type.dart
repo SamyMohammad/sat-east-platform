@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppFonts {
-  static const String sans = 'NotoSans';
-  static const String arabic = 'NotoSansArabic';
+  static const String sans = 'Lexend';
 }
 
 abstract final class AppType {
@@ -35,13 +34,6 @@ abstract final class AppType {
     height: 24 / 20,
     fontWeight: FontWeight.w600,
     fontFeatures: [FontFeature.tabularFigures()],
-  );
-  static const TextStyle arabic = TextStyle(
-    fontFamily: AppFonts.arabic,
-    fontFamilyFallback: [AppFonts.sans],
-    fontSize: 16,
-    height: 28 / 16,
-    fontWeight: FontWeight.w400,
   );
 
   static TextTheme textTheme() => const TextTheme(

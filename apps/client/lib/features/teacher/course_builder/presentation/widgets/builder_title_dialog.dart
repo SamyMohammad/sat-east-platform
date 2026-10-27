@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 
 class BuilderTitleDialog extends StatefulWidget {
   const BuilderTitleDialog({required this.label, super.key});
@@ -33,7 +32,7 @@ class _BuilderTitleDialogState extends State<BuilderTitleDialog> {
         autofocus: true,
         maxLength: 120,
         decoration: const InputDecoration(labelText: 'Title'),
-        textDirection: detectTextDirection(_controller.text),
+        textDirection: TextDirection.ltr,
         onChanged: (_) => setState(() {}),
         validator: (value) =>
             value == null || value.trim().isEmpty ? 'Enter a title.' : null,

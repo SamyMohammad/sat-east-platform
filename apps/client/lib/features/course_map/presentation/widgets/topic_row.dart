@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
@@ -94,7 +93,7 @@ class TopicRow extends StatelessWidget {
                 Text(
                   topic.title,
                   style: theme.textTheme.bodyLarge?.copyWith(color: titleColor),
-                  textDirection: detectTextDirection(topic.title),
+                  textDirection: TextDirection.ltr,
                 ),
                 Wrap(
                   spacing: AppSpace.s2,

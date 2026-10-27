@@ -45,16 +45,13 @@ CustomTransitionPage<void> _page(
       child: FadeTransition(opacity: ReverseAnimation(outgoing), child: child),
     );
     if (sharedAxis) {
-      final direction = Directionality.of(context) == TextDirection.rtl
-          ? -1.0
-          : 1.0;
       result = SlideTransition(
         position: incoming.drive(
-          Tween(begin: Offset(0.08 * direction, 0), end: Offset.zero),
+          Tween(begin: const Offset(0.08, 0), end: Offset.zero),
         ),
         child: SlideTransition(
           position: outgoing.drive(
-            Tween(begin: Offset.zero, end: Offset(-0.08 * direction, 0)),
+            Tween(begin: Offset.zero, end: const Offset(-0.08, 0)),
           ),
           child: result,
         ),

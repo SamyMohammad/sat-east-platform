@@ -58,7 +58,6 @@ class _StrikeThroughState extends State<StrikeThrough>
       foregroundPainter: StrikeThroughPainter(
         progress: _curve,
         color: widget.color,
-        textDirection: Directionality.of(context),
       ),
       child: widget.child,
     );
@@ -69,12 +68,10 @@ class StrikeThroughPainter extends CustomPainter {
   StrikeThroughPainter({
     required this.progress,
     required this.color,
-    required this.textDirection,
   }) : super(repaint: progress);
 
   final Animation<double> progress;
   final Color color;
-  final TextDirection textDirection;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -85,18 +82,11 @@ class StrikeThroughPainter extends CustomPainter {
     final paint = Paint()
       ..color = color
       ..strokeWidth = BookletStroke.strike;
-    if (textDirection == TextDirection.ltr) {
-      const start = -BookletSpace.s1;
-      canvas.drawLine(Offset(start, y), Offset(start + length, y), paint);
-    } else {
-      final start = size.width + BookletSpace.s1;
-      canvas.drawLine(Offset(start, y), Offset(start - length, y), paint);
-    }
+    const start = -BookletSpace.s1;
+    canvas.drawLine(Offset(start, y), Offset(start + length, y), paint);
   }
 
   @override
   bool shouldRepaint(StrikeThroughPainter oldDelegate) =>
-      oldDelegate.color != color ||
-      oldDelegate.textDirection != textDirection ||
-      oldDelegate.progress != progress;
+      oldDelegate.color != color || oldDelegate.progress != progress;
 }

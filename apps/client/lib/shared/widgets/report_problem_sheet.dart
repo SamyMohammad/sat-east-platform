@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_overlays.dart';
 
@@ -100,7 +99,7 @@ class _ReportProblemSheetState extends State<ReportProblemSheet> {
                 required isFocused,
                 maxLength,
               }) => Text('${_note.text.trim().runes.length}/500'),
-          textDirection: detectTextDirection(_note.text),
+          textDirection: TextDirection.ltr,
           decoration: const InputDecoration(labelText: 'Note (optional)'),
           onChanged: (_) => setState(() {}),
           validator: (value) => (value?.trim().runes.length ?? 0) > 500

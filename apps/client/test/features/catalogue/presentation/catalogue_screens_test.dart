@@ -201,10 +201,10 @@ void main() {
       expect(find.textContaining('EGP'), findsNothing);
       expect(find.textContaining('USD'), findsNothing);
     });
-    testWidgets('PAY-01: $page Arabic content uses direction helper', (
+    testWidgets('PAY-01: $page English content renders LTR', (
       tester,
     ) async {
-      const title = 'الجبر';
+      const title = 'Algebra';
       final repo = _repository()
         ..catalogue = Success([
           catalogueCourseFromJson({
@@ -222,7 +222,7 @@ void main() {
         );
       await _pump(tester, repo, page: page);
       for (final text in tester.widgetList<Text>(find.text(title))) {
-        expect(text.textDirection, TextDirection.rtl);
+        expect(text.textDirection, TextDirection.ltr);
       }
     });
   }

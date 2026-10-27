@@ -12,6 +12,8 @@ Without a platform, the teacher's reach is capped by his own hours.
 
 ## 2. Vision
 
+The product targets international schools. UI and all content (notes, explanations, hints, AI replies and seed data) are English only; content renders LTR.
+
 > The most structured way to prepare for SAT and EST Math: every topic learned, practised,
 > tested and diagnosed — then rehearsed under real exam conditions.
 
@@ -70,7 +72,7 @@ These are hypotheses for a new product with no baseline; revisit after the first
 | Built-in live streaming | Use Zoom/Google Meet links; we only schedule and host recordings |
 | Subscription billing | Decided: one-time price per course |
 | Reproducing College Board / third-party publisher questions | Copyright risk; original or teacher-owned content only |
-| Arabic UI | Decided: English-only UI |
+| Other languages | Decided: English-only UI and content for international schools |
 
 ## 7. Business model
 

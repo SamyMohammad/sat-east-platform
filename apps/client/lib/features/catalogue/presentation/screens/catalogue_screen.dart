@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -133,12 +132,12 @@ class _CourseCard extends StatelessWidget {
                 Text(
                   course.title,
                   style: theme.textTheme.headlineSmall,
-                  textDirection: detectTextDirection(course.title),
+                  textDirection: TextDirection.ltr,
                 ),
                 if (course.description case final description?)
                   Text(
                     description,
-                    textDirection: detectTextDirection(description),
+                    textDirection: TextDirection.ltr,
                   ),
                 Text(
                   CatalogueCopy.topics(course.topicCount),

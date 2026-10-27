@@ -18,12 +18,14 @@ void main() {
     });
   }
 
-  test('redesign: body style is 16/24 regular Noto Sans', () {
+  test('redesign: body style is 16/24 regular Lexend', () {
     final stem = AppTheme.light().textTheme.bodyLarge!;
     expect(stem.fontSize, 16);
     expect(stem.height, closeTo(24 / 16, 1e-9));
     expect(stem.fontWeight, FontWeight.w400);
-    expect(stem.fontFamily, BookletFonts.sans);
+    expect(AppFonts.sans, 'Lexend');
+    expect(BookletFonts.sans, AppFonts.sans);
+    expect(stem.fontFamily, 'Lexend');
   });
 
   test('F-4: buttons meet the 48 px touch target', () {

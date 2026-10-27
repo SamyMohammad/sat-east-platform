@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/auth/domain/entities/my_enrollment.dart';
 
@@ -19,7 +18,7 @@ class AccountCourses extends StatelessWidget {
         Text(
           enrollment.courseTitle,
           style: Theme.of(context).textTheme.titleMedium,
-          textDirection: detectTextDirection(enrollment.courseTitle),
+          textDirection: TextDirection.ltr,
         ),
         if (enrollment.targetTestDate case final date?)
           _DateRow(label: 'Test date', date: date),

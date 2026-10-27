@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_cubit.dart';
@@ -24,7 +23,7 @@ class TeacherNotesContent extends StatelessWidget {
           children: [
             Text(
               state.data.topicTitle,
-              textDirection: detectTextDirection(state.data.topicTitle),
+              textDirection: TextDirection.ltr,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             FilledButton.icon(

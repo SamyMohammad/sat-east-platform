@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/entities/import_report.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/import_copy.dart';
@@ -40,9 +39,7 @@ class ImportReportCard extends StatelessWidget {
                               width: 120,
                               child: Text(
                                 e.externalRef ?? '',
-                                textDirection: detectTextDirection(
-                                  e.externalRef ?? '',
-                                ),
+                                textDirection: TextDirection.ltr,
                                 maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
@@ -69,11 +68,11 @@ class TeacherVideoCard extends StatelessWidget {
           children: [
             Text(
               video.title,
-              textDirection: detectTextDirection(video.title),
+              textDirection: TextDirection.ltr,
               style: Theme.of(context).textTheme.titleMedium,
             ),
             if (video.subtopicTitle case final title?)
-              Text(title, textDirection: detectTextDirection(title)),
+              Text(title, textDirection: TextDirection.ltr),
             Wrap(
               spacing: BookletSpace.s3,
               runSpacing: BookletSpace.s2,

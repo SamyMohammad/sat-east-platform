@@ -140,7 +140,7 @@ Each requirement has an ID used in the backlog (03) and tests (12).
 | AI-03 | Never available during an active quiz or mock attempt. | P0 (when AI ships) |
 | AI-04 | "Still confused" → escalation to teacher inbox; teacher replies or marks for next live session. | P1 |
 | AI-05 | Daily message cap per student; cost dashboard for teacher. | P1 |
-| AI-06 | Replies in English or Arabic matching the student. | P1 |
+| AI-06 | Replies in English only for students at international schools. | P1 |
 
 ## Module SEC — Content Protection
 

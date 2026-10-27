@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/booklet_tokens.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
@@ -87,7 +86,7 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
             autofocus: true,
             enabled: !widget.busy,
             maxLength: 120,
-            textDirection: detectTextDirection(_title.text),
+            textDirection: TextDirection.ltr,
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               labelText: 'Rename',
@@ -116,7 +115,7 @@ class _BuilderNodeRowState extends State<BuilderNodeRow> {
                 Expanded(
                   child: Text(
                     widget.title,
-                    textDirection: detectTextDirection(widget.title),
+                    textDirection: TextDirection.ltr,
                     style: Theme.of(context).textTheme.titleSmall,
                   ),
                 ),

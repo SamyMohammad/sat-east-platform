@@ -13,7 +13,7 @@ and passing the quiz unlocks the next topic. Every answer feeds a skill-level an
 shows the student their weak points and shows the teacher who is behind. The final stage is a
 **Bluebook-style adaptive mock exam** phase with an embedded **Desmos** calculator. An **AI tutor**
 answers student questions grounded in the teacher's own worked solutions. Runs on mobile, tablet
-and laptop; UI is English-only.
+and laptop; UI and all content are English-only for international schools.
 
 ## Reading order
 
@@ -60,9 +60,9 @@ There is also a [`CLAUDE.md`](../CLAUDE.md) at the repo root with conventions fo
 | Access duration | Until the student's chosen test date + 14 days, min 60 days; discounted renewal with fresh mocks | Proposed |
 | Free sample | Topic 1 of each course free (video, notes, quiz) | Proposed |
 | Pacing | Self-paced, sequential unlock via quiz pass | Decided (self-paced implied by global audience) |
-| Audience | Any student, Egypt and abroad | Decided |
+| Audience | Students at international schools, Egypt and abroad | Decided |
 | Devices | Mobile, tablet, laptop | Decided |
-| UI language | English only | Decided |
+| UI and content language | English only, for international schools | Decided |
 | Client | Flutter (web + Android + iOS), one codebase | Decided |
 | Backend | Supabase (Postgres, Auth, Storage, Edge Functions) | Decided |
 | Video hosting | MVP: encrypted HLS on Cloudflare R2 + watermark overlay; upgrade: VdoCipher DRM | Proposed — ADR-002 |

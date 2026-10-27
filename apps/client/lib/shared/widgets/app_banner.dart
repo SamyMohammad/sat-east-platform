@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -65,7 +64,7 @@ class AppBanner extends StatelessWidget {
       liveRegion: true,
       child: Text(
         message,
-        textDirection: detectTextDirection(message),
+        textDirection: TextDirection.ltr,
         style: theme.textTheme.labelLarge?.copyWith(
           fontWeight: FontWeight.w400,
           color: scheme.ink,

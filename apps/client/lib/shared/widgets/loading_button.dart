@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
@@ -162,7 +161,7 @@ class LoadingButton extends StatelessWidget {
         child: Text(
           label,
           textAlign: TextAlign.center,
-          textDirection: detectTextDirection(label),
+          textDirection: TextDirection.ltr,
         ),
       ),
     ],
@@ -183,7 +182,7 @@ class LoadingButton extends StatelessWidget {
         Flexible(
           child: Text(
             error,
-            textDirection: detectTextDirection(error),
+            textDirection: TextDirection.ltr,
             style: Theme.of(context).textTheme.labelLarge?.copyWith(
               color: context.appColors.ink,
             ),

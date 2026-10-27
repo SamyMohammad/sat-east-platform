@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'package:sat_east_client/core/text/text_direction.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -32,7 +31,7 @@ class SyllabusUnit extends StatelessWidget {
             child: Text(
               unit.title,
               style: theme.textTheme.titleLarge,
-              textDirection: detectTextDirection(unit.title),
+              textDirection: TextDirection.ltr,
             ),
           ),
         ),
@@ -52,7 +51,7 @@ class SyllabusUnit extends StatelessWidget {
                     children: [
                       Text(
                         topic.title,
-                        textDirection: detectTextDirection(topic.title),
+                        textDirection: TextDirection.ltr,
                       ),
                       Wrap(
                         spacing: AppSpace.s3,
