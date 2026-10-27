@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_hues.dart';
-import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/catalogue/domain/entities/course_unit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/catalogue_copy.dart';
-import 'package:sat_east_client/shared/widgets/icon_tile.dart';
+import 'package:sat_east_client/shared/widgets/topic_number_tile.dart';
 
 class SyllabusUnit extends StatelessWidget {
   const SyllabusUnit({required this.unit, required this.number, super.key});
@@ -42,8 +41,10 @@ class SyllabusUnit extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               spacing: AppSpace.s3,
               children: [
-                IconTile(AppIcons.topic, hue: SubjectHue.forIndex(number - 1)),
-                Text('$number.${index + 1}', style: theme.textTheme.labelLarge),
+                TopicNumberTile(
+                  '$number.${index + 1}',
+                  hue: SubjectHue.forIndex(number - 1),
+                ),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

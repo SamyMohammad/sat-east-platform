@@ -120,6 +120,8 @@ void main() {
     expect(tester.widget<IconTile>(find.byType(IconTile)).hue, SubjectHue.blue);
     expect(find.byKey(const ValueKey('course-hue-0')), findsOneWidget);
     expect(find.text('Your courses'), findsOneWidget);
+    // The H1 is the only title; the app bar stays untitled.
+    expect(find.text('Courses'), findsNothing);
   });
   testWidgets('empty_catalogue_shows_illustration', (tester) async {
     await _pump(tester, FakeCatalogueRepository());

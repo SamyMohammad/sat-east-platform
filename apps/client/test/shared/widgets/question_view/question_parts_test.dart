@@ -247,10 +247,10 @@ void main() {
   });
 
   group('F-4: ExerciseHeader', () {
-    testWidgets('F-4: label is uppercase', (tester) async {
+    testWidgets('F-4: label keeps its sentence case', (tester) async {
       await pump(tester, const ExerciseHeader(label: '4.2 · Ex 7'));
 
-      expect(find.text('4.2 · EX 7'), findsOneWidget);
+      expect(find.text('4.2 · Ex 7'), findsOneWidget);
     });
 
     for (final (difficulty, copy) in [

@@ -51,18 +51,19 @@ void main() {
             lessThanOrEqualTo(280),
           );
         }
-        final brand = find.descendant(
-          of: find.byType(Card),
-          matching: find.byType(ShellWordmark),
+        // The card never repeats the brand: the welcome pane carries it on
+        // wide layouts, and on compact it sits above the card.
+        expect(
+          find.descendant(
+            of: find.byType(Card),
+            matching: find.byType(ShellWordmark),
+          ),
+          findsNothing,
         );
-        if (wide) {
-          // The welcome pane carries the wordmark; the card does not repeat it.
-          expect(brand, findsNothing);
-        } else {
+        if (!wide) {
           expect(
-            tester.getTopLeft(find.text('Form title')).dy -
-                tester.getBottomLeft(brand).dy,
-            24,
+            tester.getBottomLeft(find.byType(ShellWordmark)).dy,
+            lessThan(tester.getTopLeft(find.byType(Card)).dy),
           );
         }
         expect(tester.takeException(), isNull);

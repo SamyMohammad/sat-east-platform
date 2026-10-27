@@ -53,7 +53,21 @@ class AppAuthCard extends StatelessWidget {
                         ],
                       ),
                     )
-                  : form,
+                  : ConstrainedBox(
+                      constraints: const BoxConstraints(
+                        maxWidth: AppSize.authCard,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // The welcome pane carries it on wide layouts.
+                          const ShellWordmark(padding: EdgeInsets.zero),
+                          const SizedBox(height: AppSpace.s4),
+                          Flexible(child: form),
+                        ],
+                      ),
+                    ),
             ),
           );
         },
@@ -78,12 +92,6 @@ class AppAuthCard extends StatelessWidget {
                     const AppIllustration(
                       AppIllustrationName.welcome,
                       height: 120,
-                    ),
-                  // The welcome pane carries the wordmark on wide layouts.
-                  if (!wide)
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: AppSpace.s3),
-                      child: ShellWordmark(padding: EdgeInsets.zero),
                     ),
                   if (illustration case final name?) AppIllustration(name),
                   ...children,

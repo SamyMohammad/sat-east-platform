@@ -7,9 +7,10 @@ import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/features/course_map/presentation/course_map_copy.dart';
+import 'package:sat_east_client/features/course_map/presentation/widgets/topic_path.dart';
 import 'package:sat_east_client/features/course_map/presentation/widgets/topic_unlock.dart';
 import 'package:sat_east_client/shared/widgets/app_chip.dart';
-import 'package:sat_east_client/shared/widgets/icon_tile.dart';
+import 'package:sat_east_client/shared/widgets/topic_number_tile.dart';
 
 class TopicRow extends StatelessWidget {
   const TopicRow({
@@ -18,6 +19,9 @@ class TopicRow extends StatelessWidget {
     this.hue = SubjectHue.blue,
     this.justUnlocked = false,
     this.connectFromPrevious = false,
+    this.hasPrevious = false,
+    this.hasNext = false,
+    this.nextLocked = false,
     this.onUnlockComplete,
   });
 
@@ -25,6 +29,12 @@ class TopicRow extends StatelessWidget {
   final SubjectHue hue;
   final bool justUnlocked;
   final bool connectFromPrevious;
+
+  /// A topic sits above / below this one in the same unit; the row draws its
+  /// half of the path to it.
+  final bool hasPrevious;
+  final bool hasNext;
+  final bool nextLocked;
   final VoidCallback? onUnlockComplete;
 
   void _open(BuildContext context) =>
@@ -55,41 +65,35 @@ class TopicRow extends StatelessWidget {
       TopicStatus.locked => AppIcons.locked,
     };
 
-    final content = Container(
+    final lineColor = hue.color(theme.brightness);
+    final dashColor = colors.inkTertiary;
+    TopicPathSegment segment({required bool solid}) =>
+        TopicPathSegment(solid: solid, color: solid ? lineColor : dashColor);
+    final solidIn = connectFromPrevious && !locked;
+    final body = Container(
       constraints: const BoxConstraints(minHeight: AppSize.touchTarget),
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpace.s3,
-        vertical: AppSpace.s2,
+        vertical: AppSpace.s3,
       ),
       decoration: BoxDecoration(
-        color: open ? hue.wash(theme.brightness) : colors.surface,
-        border: Border(
-          bottom: BorderSide(color: scheme.outlineVariant),
-          left: open
-              ? BorderSide(
-                  color: hue.color(theme.brightness),
-                  width: AppStroke.current,
-                )
-              : BorderSide.none,
-        ),
+        color: open ? colors.brandWash : null,
+        borderRadius: open ? BorderRadius.circular(AppRadius.card) : null,
+        border: open
+            ? Border.all(color: colors.brand)
+            : Border(bottom: BorderSide(color: colors.line)),
       ),
       child: Row(
         children: [
           Opacity(
             opacity: locked ? AppOpacity.eliminated : 1,
-            child: IconTile(AppIcons.topic, hue: hue),
+            child: TopicNumberTile(topic.sortLabel, hue: hue),
           ),
           const SizedBox(width: AppSpace.s3),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  topic.sortLabel,
-                  style: theme.textTheme.labelLarge?.copyWith(
-                    color: titleColor,
-                  ),
-                ),
                 Text(
                   topic.title,
                   style: theme.textTheme.bodyLarge?.copyWith(color: titleColor),
@@ -135,6 +139,18 @@ class TopicRow extends StatelessWidget {
       ),
     );
 
+    final content = CustomPaint(
+      foregroundPainter: TopicPathPainter(
+        upper: hasPrevious && !solidIn ? segment(solid: false) : null,
+        lower: hasNext
+            ? segment(
+                solid: status == TopicStatus.completed && !nextLocked,
+              )
+            : null,
+      ),
+      child: body,
+    );
+
     // The row hides its children from semantics, so the label must carry
     // everything a sighted user sees: status, the lock reason and the chip.
     final label = [
@@ -146,7 +162,7 @@ class TopicRow extends StatelessWidget {
 
     return TopicUnlock(
       active: justUnlocked,
-      connectFromPrevious: connectFromPrevious,
+      connectFromPrevious: solidIn,
       hue: hue,
       onComplete: onUnlockComplete,
       child: Semantics(

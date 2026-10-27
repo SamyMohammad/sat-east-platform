@@ -101,11 +101,10 @@ void main() {
             );
           } else if (entry) {
             expect(tester.getSize(welcome).height, 120);
+            // Compact: the brand sits above the card, outside the form.
             expect(
-              tester.getBottomLeft(welcome).dy,
-              lessThan(
-                tester.getTopLeft(find.text('Abdelrahman Elmenshawy')).dy,
-              ),
+              tester.getBottomLeft(find.text('Abdelrahman Elmenshawy')).dy,
+              lessThan(tester.getTopLeft(find.byType(Card)).dy),
             );
           }
           expect(tester.takeException(), isNull);

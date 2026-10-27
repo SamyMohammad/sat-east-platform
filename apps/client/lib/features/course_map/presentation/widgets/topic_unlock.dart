@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
+import 'package:sat_east_client/features/course_map/presentation/widgets/topic_path.dart';
 
 /// Only decorates the server-provided open state; never gates interaction.
 class TopicUnlock extends StatefulWidget {
@@ -107,32 +108,30 @@ class _TopicUnlockState extends State<TopicUnlock>
     builder: (context, child) {
       final progress = AppMotion.emphasized.transform(_controller.value);
       return CustomPaint(
-        painter: widget.connectFromPrevious
+        foregroundPainter: widget.connectFromPrevious
             ? _Connector(
                 progress,
                 widget.hue.color(Theme.of(context).brightness),
               )
             : null,
-        child: Padding(
-          padding: EdgeInsets.only(
-            top: widget.connectFromPrevious ? AppSpace.s6 : 0,
-          ),
-          child: Stack(
-            children: [
-              Opacity(
-                opacity:
-                    AppOpacity.eliminated +
-                    (1 - AppOpacity.eliminated) * progress,
-                child: child,
-              ),
-              if (widget.active && progress < 1)
-                PositionedDirectional(
-                  start: AppSpace.s3,
-                  top: AppSpace.s2,
-                  child: IgnorePointer(
-                    child: ExcludeSemantics(
-                      child: Opacity(
-                        opacity: 1 - progress,
+        child: Stack(
+          children: [
+            Opacity(
+              opacity:
+                  AppOpacity.eliminated +
+                  (1 - AppOpacity.eliminated) * progress,
+              child: child,
+            ),
+            if (widget.active && progress < 1)
+              PositionedDirectional(
+                start: AppSpace.s3,
+                top: 0,
+                bottom: 0,
+                child: IgnorePointer(
+                  child: ExcludeSemantics(
+                    child: Opacity(
+                      opacity: 1 - progress,
+                      child: Center(
                         child: SizedBox.square(
                           dimension: AppSize.iconTile,
                           child: CustomPaint(
@@ -147,8 +146,8 @@ class _TopicUnlockState extends State<TopicUnlock>
                     ),
                   ),
                 ),
-            ],
-          ),
+              ),
+          ],
         ),
       );
     },
@@ -156,6 +155,7 @@ class _TopicUnlockState extends State<TopicUnlock>
   );
 }
 
+/// The solid half of the path above the tile; it draws in on unlock.
 class _Connector extends CustomPainter {
   const _Connector(this.progress, this.color);
   final double progress;
@@ -163,10 +163,11 @@ class _Connector extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    const x = AppSpace.s3 + AppSize.iconTile / 2;
+    final end = size.height / 2 - AppSize.iconTile / 2;
+    if (end <= 0) return;
     canvas.drawLine(
-      const Offset(x, 0),
-      Offset(x, AppSpace.s6 * progress),
+      const Offset(topicPathX, 0),
+      Offset(topicPathX, end * progress),
       Paint()
         ..color = color
         ..strokeWidth = AppStroke.strong

@@ -33,7 +33,7 @@ class ExerciseHeader extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text(
-          skill ?? label.toUpperCase(),
+          skill ?? label,
           style: theme.textTheme.labelMedium?.copyWith(
             color: context.appColors.inkSecondary,
           ),
