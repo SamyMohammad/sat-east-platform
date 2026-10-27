@@ -182,6 +182,15 @@ reset role;
 insert into public.topic_progress (user_id, topic_id, practice_count)
   select tests.get_supabase_uid(u), t.id, 10 from unnest(array['quiz_student', 'quiz_fail', 'quiz_expiry']) u
   cross join public.topics t where t.course_id = '00000000-0000-0000-0000-0000000017c1';
+-- Homework is a prerequisite; leave quiz assertions exercising their original gates.
+select tests.authenticate_as('quiz_student');
+select public.submit_attempt((public.start_homework('00000000-0000-0000-0000-0000000017d1')->>'attempt_id')::uuid);
+select tests.authenticate_as('quiz_fail');
+select public.submit_attempt((public.start_homework('00000000-0000-0000-0000-0000000017d1')->>'attempt_id')::uuid);
+select tests.authenticate_as('quiz_expiry');
+select public.submit_attempt((public.start_homework('00000000-0000-0000-0000-0000000017d1')->>'attempt_id')::uuid);
+select tests.clear_authentication();
+reset role;
 update public.topic_progress set quiz_last_failed_at = now()
   where user_id = tests.get_supabase_uid('quiz_student') and topic_id = '00000000-0000-0000-0000-0000000017d1';
 select pg_temp.complete_review('quiz_student', '00000000-0000-0000-0000-0000000017d1');
@@ -198,6 +207,11 @@ update public.settings set value = '3' where key = 'quiz_size';
 select tests.authenticate_as('quiz_student');
 select is(public.get_topic('00000000-0000-0000-0000-0000000017d1'),
   jsonb_build_object('id', '00000000-0000-0000-0000-0000000017d1', 'title', 'T1', 'slug', 'quiz-t1', 'sort_label', '1.1', 'status', 'open',
+    'videos', '[]'::jsonb, 'video_done', true, 'notes', '[]'::jsonb, 'notes_done', true,
+    'homework', jsonb_build_object('state', 'submitted',
+      'attempt_id', (select homework_attempt_id from public.topic_progress
+        where user_id = auth.uid() and topic_id = '00000000-0000-0000-0000-0000000017d1'),
+      'score_pct', 0, 'total', 2, 'answered', 0),
     'practice', jsonb_build_object('count', 10, 'min', 10), 'quiz', jsonb_build_object('state', 'available', 'practice_count', 10, 'practice_min', 10, 'best_score_pct', null, 'passed', false,
       'review', jsonb_build_object('required', false, 'attempt_id', null, 'answered', 0, 'total', 0))),
   'PRC-03: topic shape and available state at practice_min after cooldown');

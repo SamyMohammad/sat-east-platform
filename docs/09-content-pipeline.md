@@ -23,7 +23,7 @@ Draft items  status=draft
   │ 6. Teacher review in a spreadsheet / review UI
   ▼
 approved  → 7. Pool assignment (practice / quiz / mock_reserve)
-  │ 8. Import (import-questions EF) → status=published
+  │ 8. Import (teacher_import_questions RPC) → status=published
 ```
 
 ## 2. Tooling (lives in `tools/content-pipeline/`, Python)
@@ -34,7 +34,7 @@ approved  → 7. Pool assignment (practice / quiz / mock_reserve)
 | Structure / tag / solve | LLM with vision (page image + text) via API; batch processing; JSON-schema-constrained output |
 | Validate | Python validator: JSON schema, KaTeX/LaTeX render check, duplicate detection (normalised stem hash + embedding similarity) |
 | Review | Export to `.xlsx` (one row per question) **and** the in-app review queue (T-08) |
-| Import | Upload JSON to T-07 → `import-questions` EF |
+| Import | Upload JSON to T-07 → `teacher_import_questions(p_items, p_commit)` RPC (dry run, then atomic commit) |
 
 Cost/throughput: estimate LLM cost on a 400-question pilot before running all topics.
 
@@ -49,16 +49,18 @@ Cost/throughput: estimate LLM cost on a 400-question pilot before running all to
   "skill_codes": ["ALG.LIN.PARALLEL_PERP"],
   "type": "mcq",
   "difficulty": "M",
-  "stem_md": "Line $\\ell$ has equation $y = 3x - 2$. Which line is perpendicular to $\\ell$?",
+  "pool": "practice",
+  "status": "published",
+  "stem_md": "Line \\(\\ell\\) has equation \\(y = 3x - 2\\). Which line is perpendicular to \\(\\ell\\)?",
   "images": ["SAT-T05-0123-fig1.png"],
   "choices": [
-    {"label": "A", "body_md": "$y = 3x + 1$"},
-    {"label": "B", "body_md": "$y = -3x + 1$"},
-    {"label": "C", "body_md": "$y = -\\tfrac{1}{3}x + 4$"},
-    {"label": "D", "body_md": "$y = \\tfrac{1}{3}x - 2$"}
+    {"label": "A", "body_md": "\\(y = 3x + 1\\)"},
+    {"label": "B", "body_md": "\\(y = -3x + 1\\)"},
+    {"label": "C", "body_md": "\\(y = -\\tfrac{1}{3}x + 4\\)"},
+    {"label": "D", "body_md": "\\(y = \\tfrac{1}{3}x - 2\\)"}
   ],
   "key": {"choice": "C"},
-  "explanation_md": "Perpendicular slopes multiply to $-1$, so the slope is $-\\tfrac13$ …",
+  "explanation_md": "Perpendicular slopes multiply to \\(-1\\), so the slope is \\(-\\tfrac13\\) …",
   "misconceptions": {"A": "used parallel slope", "B": "negated but did not take reciprocal", "D": "took reciprocal but not negative"},
   "hint_md": "What is the product of the slopes of perpendicular lines?",
   "desmos_friendly": false,
@@ -67,6 +69,12 @@ Cost/throughput: estimate LLM cost on a 400-question pilot before running all to
   "solved_by": "ai_double_agree"
 }
 ```
+Math must use \( \) / \[ \]. $ is plain text (prices); a $…$ pair containing LaTeX is rejected.
+
+Required fields: `external_ref`, `course_codes`, `topic_slug`, `subtopic_slug`, `type`, `difficulty`, `stem_md`, `key`, `pool`, `status`.
+
+`pool`: `practice`, `quiz`, `mock_reserve`. `status`: `draft`, `solved`, `needs_review`, `approved`, `published`.
+
 SPR key: `"key": {"accepted": ["7/2", "3.5"], "tolerance": 0}`.
 
 (Example question above is illustrative — written for this spec, not from any source.)
@@ -101,3 +109,11 @@ Do **not** wait for all 400/topic. For launch:
 - Disagreement rate of double-solve is unknown — measure on the pilot topic.
 - Plan for: 100% review of `needs_review`, plus a ~10% random sample of `solved` per topic; if the
   sample error rate > 2%, review that topic fully.
+
+## 9. Publishing a video
+
+Use the local [video publishing CLI](../tools/video-pipeline/README.md) to package a single
+540p encrypted HLS rendition, reserve storage quota, upload using server-issued presigned PUT
+URLs and confirm the asset. The CLI needs only the Supabase URL and publishable key;
+storage credentials stay in the Edge Function.
+The README covers ffmpeg installation, teacher sign-in, offline dry-runs and failure cleanup.

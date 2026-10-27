@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -32,6 +31,7 @@ class QuestionView extends StatelessWidget {
     required this.answer,
     super.key,
     this.onBack,
+    this.onReport,
     this.onSelect,
     this.onEliminate,
     this.onRestore,
@@ -45,13 +45,16 @@ class QuestionView extends StatelessWidget {
     this.onRetrySave,
     this.onToggleTimer,
     this.figureBuilder,
+    this.showNavigation = true,
   });
 
+  final bool showNavigation;
   final String title;
   final QuestionData question;
   final QuestionViewMode mode;
   final AnswerState answer;
   final VoidCallback? onBack;
+  final VoidCallback? onReport;
   final ValueChanged<String>? onSelect;
   final ValueChanged<String>? onEliminate;
   final ValueChanged<String>? onRestore;
@@ -86,8 +89,8 @@ class QuestionView extends StatelessWidget {
           onNext: mode.forwardAction(onNext),
           child: Column(
             children: [
-              _header(context, layout),
-              if (mode is PracticeMode)
+              if (showNavigation) _header(context, layout),
+              if (mode is PracticeMode && showNavigation)
                 Expanded(
                   child: PracticeQuestionLayout(
                     body: _animatedBody(context, layout),
@@ -96,7 +99,7 @@ class QuestionView extends StatelessWidget {
                 )
               else ...[
                 Expanded(child: _animatedBody(context, layout)),
-                _footer(context, layout),
+                if (showNavigation) _footer(context, layout),
               ],
             ],
           ),
@@ -129,17 +132,21 @@ class QuestionView extends StatelessWidget {
   );
 
   Widget _bodyWithPanel(AppLayout layout) {
-    final body = QuestionBody(
-      question: question,
-      mode: mode,
-      answer: answer,
-      layout: layout,
-      onSelect: onSelect,
-      onEliminate: onEliminate,
-      onRestore: onRestore,
-      onSprChanged: onSprChanged,
-      onMark: onMark,
-      figureBuilder: figureBuilder,
+    final body = _withReport(
+      QuestionBody(
+        question: question,
+        mode: mode,
+        answer: answer,
+        layout: layout,
+        onSelect: onSelect,
+        onEliminate: onEliminate,
+        onRestore: onRestore,
+        onSprChanged: onSprChanged,
+        onMark: onMark,
+        figureBuilder: figureBuilder,
+        showInlineFeedback: !showNavigation,
+      ),
+      layout,
     );
     if (mode case HomeworkMode(
       :final title,
@@ -165,6 +172,41 @@ class QuestionView extends StatelessWidget {
       );
     }
     return body;
+  }
+
+  Widget _withReport(Widget body, AppLayout layout) {
+    final report = onReport;
+    if (report == null) return body;
+    return Builder(
+      builder: (context) => Column(
+        children: [
+          Expanded(child: body),
+          Padding(
+            padding: EdgeInsets.fromLTRB(
+              layout == AppLayout.compact ? AppSpace.s4 : AppSpace.s8,
+              0,
+              layout == AppLayout.compact ? AppSpace.s4 : AppSpace.s8,
+              PracticeQuestionLayout.bottomInsetOf(context),
+            ),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: AppSize.questionColumn,
+                ),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: TextButton(
+                    onPressed: report,
+                    child: const Text('Report a problem'),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _header(BuildContext context, AppLayout layout) => switch (mode) {

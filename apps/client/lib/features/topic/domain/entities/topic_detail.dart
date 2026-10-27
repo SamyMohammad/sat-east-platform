@@ -1,4 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_homework.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 
 enum TopicStatus { open, completed }
 
@@ -11,6 +14,11 @@ class TopicDetail extends Equatable {
     required this.practiceCount,
     required this.practiceMin,
     required this.quiz,
+    this.homework = const TopicHomework(state: HomeworkState.skipped),
+    this.notes = const [],
+    this.notesDone = true,
+    this.videos = const [],
+    this.videoDone = true,
   });
 
   final String id;
@@ -20,6 +28,16 @@ class TopicDetail extends Equatable {
   final int practiceCount;
   final int practiceMin;
   final QuizStatus quiz;
+  final TopicHomework homework;
+  final List<TopicNote> notes;
+  final bool notesDone;
+  final List<TopicVideo> videos;
+  final bool videoDone;
+
+  bool get notesLockedByVideo => videos.isNotEmpty && !videoDone;
+  bool get practiceLockedByVideo => notesLockedByVideo;
+
+  bool get practiceLockedByNotes => notes.isNotEmpty && !notesDone;
 
   @override
   List<Object?> get props => [
@@ -30,6 +48,11 @@ class TopicDetail extends Equatable {
     practiceCount,
     practiceMin,
     quiz,
+    homework,
+    notes,
+    notesDone,
+    videos,
+    videoDone,
   ];
 }
 
@@ -88,4 +111,8 @@ final class QuizCooldown extends QuizStatus {
 
   @override
   List<Object?> get props => [...super.props, availableAt];
+}
+
+final class QuizHomeworkNeeded extends QuizStatus {
+  const QuizHomeworkNeeded({super.bestScorePct, super.passed});
 }

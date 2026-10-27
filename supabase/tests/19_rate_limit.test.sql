@@ -56,6 +56,14 @@ insert into public.attempt_questions (attempt_id, question_id, position) values
   ('00000000-0000-0000-0000-000000001902', '00000000-0000-0000-0000-0000000019e1', 1),
   ('00000000-0000-0000-0000-000000001903', '00000000-0000-0000-0000-0000000019e3', 1);
 
+-- Complete homework before testing the independent quiz-start rate bucket.
+select tests.authenticate_as('rate_a');
+select public.submit_attempt((public.start_homework('00000000-0000-0000-0000-0000000019d1')->>'attempt_id')::uuid);
+select tests.authenticate_as('rate_b');
+select public.submit_attempt((public.start_homework('00000000-0000-0000-0000-0000000019d1')->>'attempt_id')::uuid);
+select tests.clear_authentication();
+reset role;
+
 select is(private.setting_int('rate_answer_per_min'), 30, 'SEC: rate_answer_per_min defaults to 30');
 select is(private.setting_int('rate_start_per_min'), 10, 'SEC: rate_start_per_min defaults to 10');
 select is(private.setting_int('rate_save_per_min'), 120, 'SEC: rate_save_per_min defaults to 120');

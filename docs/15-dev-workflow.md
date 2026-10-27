@@ -19,6 +19,7 @@ The real critical path is not code. These block milestones and take weeks, so st
 | 6 | Pick a **pilot topic** + say which PDFs are teacher-owned vs third-party | Content pipeline | Q-10, 09 §7 |
 | 7 | Video segmentation: one video per subtopic? | Sprint S2 | Q-12 |
 | 8 | Brand name + domain | Launch | Q-01 |
+| 9 | Notes: one PDF per topic or per subtopic (teacher's call; both supported) | L-3 / C-3 | Q-16 |
 
 **Do not** start the Desmos trial yet — it lasts 90 days; start it near Phase 3 (ADR-004).
 

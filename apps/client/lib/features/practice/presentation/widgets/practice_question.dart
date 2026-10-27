@@ -1,10 +1,9 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/features/practice/domain/entities/practice.dart'
     as domain;
@@ -18,6 +17,7 @@ import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.d
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
+import 'package:sat_east_client/shared/widgets/report_problem_sheet.dart';
 
 class PracticeQuestionView extends StatelessWidget {
   const PracticeQuestionView({
@@ -28,6 +28,24 @@ class PracticeQuestionView extends StatelessWidget {
 
   final String title;
   final practice.PracticeInProgress progress;
+
+  Future<void> _report(BuildContext context, String questionId) async {
+    final cubit = context.read<PracticeCubit>();
+    final problem = await showReportProblemSheet(
+      context,
+      reasons: PracticeCopy.reportReasons,
+    );
+    if (!context.mounted || problem == null) return;
+    final result = await cubit.report(questionId, problem.reason, problem.note);
+    if (!context.mounted) return;
+    final message = switch (result) {
+      Success() => PracticeCopy.reportThanks,
+      Failure(:final error) => PracticeCopy.reportError(error.code),
+    };
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(message)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +93,7 @@ class PracticeQuestionView extends StatelessWidget {
             onSprChanged: cubit.sprChanged,
             onCheck: () => unawaited(cubit.check()),
             onNext: cubit.next,
+            onReport: () => unawaited(_report(context, question.id)),
           ),
         ),
       ],

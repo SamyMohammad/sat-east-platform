@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -23,9 +22,17 @@ Future<void> showQuizTimeUpDialog(
     context,
     rootNavigator: true,
   ).popUntil((route) => route is! PopupRoute);
-  final body = answered == 1
-      ? 'Your 1 answer was saved and submitted automatically.'
-      : 'Your $answered answers were saved and submitted automatically.';
+  final body = switch (answered) {
+    0 =>
+      "Time's up. You didn't answer any questions, "
+          'so the quiz was submitted with no answers.',
+    1 =>
+      'Your 1 answer was saved and submitted automatically. '
+          'Unanswered questions count as incorrect.',
+    _ =>
+      'Your $answered answers were saved and submitted automatically. '
+          'Unanswered questions count as incorrect.',
+  };
   return showAppDialog<void>(
     context: context,
     barrierDismissible: false,
@@ -44,7 +51,7 @@ Future<void> showQuizTimeUpDialog(
               size: AppSize.statusIcon,
               color: dialogContext.appColors.warning,
             ),
-            Text('$body Unanswered questions count as incorrect.'),
+            Text(body),
           ],
         ),
         actions: [

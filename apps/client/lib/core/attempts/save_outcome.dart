@@ -1,0 +1,1 @@
+enum SaveOutcome { saved, stale }

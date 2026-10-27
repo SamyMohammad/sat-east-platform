@@ -104,6 +104,80 @@ void main() {
     when(() => repo.start(any())).thenAnswer((_) async => const Success(_set));
   });
 
+  for (final step in <PracticeStep>[
+    const Answering(),
+    _missed,
+    const Done(_correct),
+    const Checking(),
+  ]) {
+    for (final fails in [false, true]) {
+      final initial = _progress(
+        selected: 'B',
+        sprText: 'Kept',
+        feedback: step,
+        firstTry: 'A',
+      );
+      blocTest<PracticeCubit, PracticeState>(
+        'QB-04: report ${fails ? 'failure' : 'success'} preserves $step',
+        build: build,
+        seed: () => initial,
+        setUp: () => when(() => repo.report('q1', 'typo', 'A note')).thenAnswer(
+          (_) async =>
+              fails ? const Failure(AppError('network')) : const Success(null),
+        ),
+        act: (c) async {
+          final result = await c.report('q1', 'typo', 'A note');
+          expect(result, fails ? isA<Failure<void>>() : isA<Success<void>>());
+          expect(identical(c.state, initial), isTrue);
+        },
+        expect: () => <PracticeState>[],
+        verify: (_) =>
+            verify(() => repo.report('q1', 'typo', 'A note')).called(1),
+      );
+    }
+  }
+  test('QB-04: report rate limit preserves selected answer', () async {
+    when(
+      () => repo.report('q1', 'other', null),
+    ).thenAnswer((_) async => const Failure(AppError('rate_limited')));
+    final c = build();
+    addTearDown(c.close);
+    await c.start('t1');
+    c.select('B');
+    final before = c.state;
+    final result = await c.report('q1', 'other', null);
+    expect((result as Failure<void>).error.code, 'rate_limited');
+    expect(identical(c.state, before), isTrue);
+  });
+  test('QB-04: pending report cannot overwrite an answer check', () async {
+    final reply = Completer<Result<void>>();
+    when(
+      () => repo.report('q1', 'other', null),
+    ).thenAnswer((_) => reply.future);
+    checks([const Success(_correct)]);
+    final c = build();
+    addTearDown(c.close);
+    await c.start('t1');
+    c.select('B');
+    final reporting = c.report('q1', 'other', null);
+    await c.check();
+    final checked = c.state;
+    reply.complete(const Success(null));
+    await reporting;
+    expect(identical(c.state, checked), isTrue);
+  });
+  blocTest<PracticeCubit, PracticeState>(
+    'L-3: notes gate during answer exits question mode',
+    build: build,
+    setUp: () => checks([const Failure(AppError(ErrorCodes.notesNeeded))]),
+    act: (c) async {
+      await c.start('t1');
+      c.select('B');
+      await c.check();
+    },
+    verify: (c) =>
+        expect(c.state, const PracticeFailed(AppError(ErrorCodes.notesNeeded))),
+  );
   blocTest<PracticeCubit, PracticeState>(
     'PRC-01: start emits Loading then the first unanswered question',
     build: build,
@@ -664,5 +738,34 @@ void main() {
     reply.complete(const Success(_correct));
     await pending;
     expect(c.state, _progress());
+  });
+  test('QB-04: report requires an active displayed question', () async {
+    final c = build();
+    addTearDown(c.close);
+    expect(
+      (await c.report('q1', 'other', null) as Failure<void>).error.code,
+      'invalid_input',
+    );
+    await c.start('t1');
+    expect(
+      (await c.report('q2', 'other', null) as Failure<void>).error.code,
+      'invalid_input',
+    );
+    verifyNever(() => repo.report(any(), any(), any()));
+  });
+  test('QB-04: report completion after close does not emit', () async {
+    final reply = Completer<Result<void>>();
+    when(
+      () => repo.report('q1', 'other', null),
+    ).thenAnswer((_) => reply.future);
+    final c = build();
+    await c.start('t1');
+    c.select('B');
+    final initial = c.state;
+    final reporting = c.report('q1', 'other', null);
+    await c.close();
+    reply.complete(const Failure(AppError('network')));
+    await reporting;
+    expect(c.state, same(initial));
   });
 }

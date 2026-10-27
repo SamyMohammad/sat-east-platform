@@ -90,6 +90,7 @@ class PracticeCubit extends Cubit<PracticeState> {
       case Failure(:final error):
         emit(
           switch (error.code) {
+            ErrorCodes.notesNeeded ||
             ErrorCodes.topicLocked ||
             ErrorCodes.accessExpired ||
             ErrorCodes.notEnrolled => PracticeFailed(error),
@@ -140,6 +141,16 @@ class PracticeCubit extends Cubit<PracticeState> {
     }
     _shownAt = _now();
     emit(PracticeInProgress(set: current.set, index: index));
+  }
+
+  Future<Result<void>> report(String questionId, String reason, String? note) {
+    final current = state;
+    if (isClosed ||
+        current is! PracticeInProgress ||
+        current.set.questions[current.index].id != questionId) {
+      return Future.value(const Failure(AppError(ErrorCodes.invalidInput)));
+    }
+    return _repository.report(questionId, reason, note);
   }
 
   Future<void> practiceMore() {

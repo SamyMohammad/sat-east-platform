@@ -1,47 +1,13 @@
 import 'package:equatable/equatable.dart';
+import 'package:sat_east_client/core/attempts/attempt_question.dart';
 
-enum QuizKind { mcq, spr }
+export 'package:sat_east_client/core/attempts/attempt_question.dart'
+    show SavedAnswer;
+export 'package:sat_east_client/core/attempts/save_outcome.dart';
 
-enum SaveOutcome { saved, stale }
-
-class QuizChoice extends Equatable {
-  const QuizChoice(this.label, this.bodyMd);
-
-  final String label;
-  final String bodyMd;
-
-  @override
-  List<Object?> get props => [label, bodyMd];
-}
-
-class QuizQuestion extends Equatable {
-  const QuizQuestion({
-    required this.id,
-    required this.kind,
-    required this.difficulty,
-    required this.stemMd,
-    required this.choices,
-  });
-
-  final String id;
-  final QuizKind kind;
-  final String difficulty;
-  final String stemMd;
-  final List<QuizChoice> choices;
-
-  @override
-  List<Object?> get props => [id, kind, difficulty, stemMd, choices];
-}
-
-class SavedAnswer extends Equatable {
-  const SavedAnswer({required this.marked, this.answer});
-
-  final String? answer;
-  final bool marked;
-
-  @override
-  List<Object?> get props => [answer, marked];
-}
+typedef QuizKind = AttemptKind;
+typedef QuizChoice = AttemptChoice;
+typedef QuizQuestion = AttemptQuestion;
 
 class QuizSession extends Equatable {
   const QuizSession({

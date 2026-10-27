@@ -11,7 +11,7 @@ Daily workflow (per-story loop, Phase 0 order, which skill to use when): `docs/1
 - Migrations in `supabase/migrations/`; never edit prod schema by hand.
 
 ## Non-negotiable rules
-1. **Answer keys never reach the client before submission.** Keys/explanations live in `private.question_keys` (non-exposed schema). Only `check_practice_answer`, `submit_attempt`, `get_attempt_review` return them.
+1. **Answer keys never reach the client before submission.** Keys/explanations live in `private.question_keys` (non-exposed schema). Only `check_practice_answer`, `submit_attempt`, `get_attempt_review` return them; teacher-only `teacher_*` RPCs may read/write keys.
 2. Grading, unlocking, scoring, payments, enrollment, device registration → server-side (RPC / Edge Function). Never trust client-sent scores, amounts, or timers.
 3. Every new table ships with RLS enabled and policies + a test in `supabase/tests/`.
 4. Secrets (service role, Paymob, R2/VdoCipher, LLM, Desmos) only in Edge Function secrets.

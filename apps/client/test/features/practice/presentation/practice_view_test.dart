@@ -4,7 +4,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
-
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
@@ -111,6 +110,69 @@ feedback.PracticeFeedback _feedback(WidgetTester tester) =>
     (_question(tester).mode as PracticeMode).feedback;
 
 void main() {
+  for (final width in [360.0, 1280.0]) {
+    for (final code in <String?>[
+      null,
+      'rate_limited',
+      'network',
+      'invalid_input',
+    ]) {
+      testWidgets('QB-04: report side action $code at $width', (tester) async {
+        final before = _progress(
+          step: const Done(
+            CheckCorrect(
+              tryNo: 1,
+              key: ChoiceReveal('B'),
+              explanationMd: 'Keep this explanation',
+            ),
+          ),
+        );
+        final cubit = _cubit(before);
+        when(() => cubit.report('q1', 'typo', 'User note')).thenAnswer(
+          (_) async => code == null
+              ? const Success(null)
+              : Failure(AppError(code, 'SECRET backend detail')),
+        );
+        await _pump(tester, cubit, size: Size(width, 900));
+        await tester.tap(find.text('Report a problem'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Typo or unclear wording'));
+        await tester.enterText(find.byType(TextFormField), 'User note');
+        await tester.tap(find.text('Submit'));
+        await tester.pumpAndSettle();
+        final expected = switch (code) {
+          null => 'Thanks \u2014 your teacher will review it.',
+          'rate_limited' => 'Too many reports. Try again in a minute.',
+          'network' => 'Check your connection and try again.',
+          _ => "Couldn't send this report. Reload and try again.",
+        };
+        expect(find.text(expected), findsOneWidget);
+        expect(find.text('SECRET backend detail'), findsNothing);
+        expect(_feedback(tester), isA<feedback.Correct>());
+        expect(cubit.state, same(before));
+        verify(() => cubit.report('q1', 'typo', 'User note')).called(1);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+  testWidgets('QB-04: cancelling the sheet sends nothing', (tester) async {
+    final cubit = _cubit(_progress());
+    await _pump(tester, cubit);
+    await tester.tap(find.text('Report a problem'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    verifyNever(() => cubit.report(any(), any(), any()));
+    expect(find.text('Report a problem'), findsOneWidget);
+  });
+  testWidgets('L-3: notes-needed practice copy', (tester) async {
+    await _pump(
+      tester,
+      _cubit(const PracticeFailed(AppError(ErrorCodes.notesNeeded))),
+    );
+    expect(find.text('Open the notes first.'), findsOneWidget);
+  });
+
   testWidgets('PRC-01: loading shows a skeleton', (tester) async {
     await _pump(tester, _cubit(const PracticeLoading()));
     expect(find.byType(AppSkeleton), findsOneWidget);

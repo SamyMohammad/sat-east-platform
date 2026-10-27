@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/core/theme/app_type.dart';
@@ -7,9 +6,11 @@ import 'package:sat_east_client/shared/widgets/question_view/answer_state.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/choice_list.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/exercise_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/hint_panel.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/practice_question_layout.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/quiz_question_header.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/spr_answer_area.dart';
+import 'package:sat_east_client/shared/widgets/question_view/parts/worked_example.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_data.dart';
 import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.dart';
@@ -30,8 +31,10 @@ class QuestionBody extends StatelessWidget {
     this.onSprChanged,
     this.onMark,
     this.figureBuilder,
+    this.showInlineFeedback = false,
   });
 
+  final bool showInlineFeedback;
   final QuestionData question;
   final QuestionViewMode mode;
   final AnswerState answer;
@@ -62,8 +65,47 @@ class QuestionBody extends StatelessWidget {
     _ => null,
   };
 
+  /// Note, hint and explanation for the current feedback (rulings R1, R3).
+  ({MarginNote? note, String? hint, String? explanation}) _feedbackParts({
+    required bool inline,
+  }) {
+    MarginNote noteOf(MarginNoteTone tone, String body, String? author) =>
+        MarginNote(tone: tone, author: author, bodyMd: body, inline: inline);
+    if (mode case PracticeMode(:final feedback, :final noteAuthor)) {
+      switch (feedback) {
+        case FirstMiss(:final noteMd, :final hintMd):
+          final body = noteMd ?? hintMd;
+          return (
+            note: body == null
+                ? null
+                : noteOf(MarginNoteTone.miss, body, noteAuthor),
+            hint: noteMd == null ? null : hintMd,
+            explanation: null,
+          );
+        case Correct(:final noteMd, :final explanationMd):
+          return (
+            note: noteOf(MarginNoteTone.correct, noteMd ?? '', noteAuthor),
+            hint: null,
+            explanation: explanationMd,
+          );
+        case Revealed(:final noteMd, :final explanationMd):
+          return (
+            note: noteMd == null
+                ? null
+                : noteOf(MarginNoteTone.miss, noteMd, noteAuthor),
+            hint: null,
+            explanation: explanationMd,
+          );
+        case Idle() || Checking():
+          break;
+      }
+    }
+    return (note: null, hint: null, explanation: null);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final parts = _feedbackParts(inline: true);
     final column = Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: _gap,
@@ -89,7 +131,12 @@ class QuestionBody extends StatelessWidget {
         if (figureBuilder case final build?)
           for (final path in question.imagePaths) build(context, path),
         _answerArea(),
-        if (mode case PracticeMode(
+        if (showInlineFeedback) ...[
+          ?parts.note,
+          if (parts.hint case final hint?) HintPanel(md: hint),
+          if (parts.explanation case final explanation?)
+            WorkedExample(label: question.label, md: explanation),
+        ] else if (mode case PracticeMode(
           feedback: FirstMiss(noteMd: String(), hintMd: final hint?),
         ))
           HintPanel(md: hint),

@@ -67,6 +67,15 @@ void main() {
       expect(await repository.signOut(), isA<Success<void>>());
     });
 
+    test(
+      'ADM-01: session restore preserves the resolved teacher role',
+      () async {
+        const teacher = AppUser(id: 'u1', email: 'email', isTeacher: true);
+        when(remote.getCurrentUser).thenAnswer((_) async => teacher);
+        expect(await repository.getCurrentUser(), teacher);
+      },
+    );
+
     test('P1-2: currentUser reads from the data source', () {
       when(() => remote.currentUser).thenReturn(user);
 

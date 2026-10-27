@@ -9,8 +9,10 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/core/video/video_provider.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
+import 'package:sat_east_client/features/topic/domain/entities/topic_video.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
@@ -54,6 +56,10 @@ Future<(_Cubit, GoRouter)> _pump(
             child: const TopicView(topicId: 't1'),
           ),
         ),
+      ),
+      GoRoute(
+        path: '/courses/topics/t1/video/v1',
+        builder: (_, _) => const Scaffold(body: Text('Video destination')),
       ),
       GoRoute(
         path: '/courses/topics/t1/practice',
@@ -109,6 +115,42 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
+  testWidgets('LRN-02: video return reloads the retained topic once', (
+    tester,
+  ) async {
+    final (cubit, router) = await _pump(
+      tester,
+      const TopicLoaded(
+        TopicDetail(
+          id: 't1',
+          title: 'Topic',
+          sortLabel: '1',
+          status: TopicStatus.open,
+          practiceCount: 0,
+          practiceMin: 10,
+          quiz: QuizAvailable(),
+          videoDone: false,
+          videos: [
+            TopicVideo(
+              assetId: 'v1',
+              title: 'Lesson',
+              durationS: 600,
+              provider: VideoProvider.r2Hls,
+              pct: 40,
+              lastPositionS: 120,
+            ),
+          ],
+        ),
+      ),
+    );
+    await tester.tap(find.text('Lesson'));
+    await tester.pumpAndSettle();
+    expect(find.text('Video destination'), findsOneWidget);
+    verifyNever(() => cubit.load('t1'));
+    router.pop();
+    await tester.pumpAndSettle();
+    verify(() => cubit.load('t1')).called(1);
+  });
   testWidgets('PRC-03: screen starts one cubit and closes it on removal', (
     tester,
   ) async {
@@ -137,10 +179,7 @@ void main() {
     );
     addTearDown(router.dispose);
     await tester.pumpWidget(
-      MaterialApp.router(
-        theme: AppTheme.light(),
-        routerConfig: router,
-      ),
+      MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
     );
     await tester.pump();
     expect(created, 1);
@@ -237,7 +276,7 @@ void main() {
       tester,
       _loaded(const QuizAvailable(bestScorePct: 83.33, passed: true)),
     );
-    expect(find.text('Best score 83.33%'), findsOneWidget);
+    expect(find.text('Best score 83%'), findsOneWidget);
     expect(find.text('Passed'), findsOneWidget);
     expect(
       tester.widget<ButtonStyleButton>(_button('Start quiz')).onPressed,

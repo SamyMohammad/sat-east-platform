@@ -48,4 +48,23 @@ abstract final class AppIcons {
   static const IconData hideKeyboard = LucideIcons.keyboardOff;
   static const IconData more = LucideIcons.ellipsisVertical;
   static const IconData editNote = LucideIcons.notebookPen;
+  static const IconData teacher = LucideIcons.graduationCap;
+  static const IconData add = LucideIcons.plus;
+  static const IconData moveDown = LucideIcons.arrowDown;
+  static const IconData moveUp = LucideIcons.arrowUp;
+  static const IconData edit = LucideIcons.pencil;
+  static const IconData drag = LucideIcons.gripVertical;
+  static const IconData delete = LucideIcons.trash2;
+  static const IconData upload = LucideIcons.fileUp;
+  static const IconData search = LucideIcons.search;
+  static const IconData courseBuilder = LucideIcons.network;
+  static const IconData reviewQueue = LucideIcons.listChecks;
+  static const IconData settings = LucideIcons.settings;
+  static const IconData fullscreen = LucideIcons.maximize;
+  static const IconData exitFullscreen = LucideIcons.minimize;
+  static const IconData pause = LucideIcons.pause;
+  static const IconData play = LucideIcons.play;
+  static const IconData video = LucideIcons.video;
+  static const IconData notes = LucideIcons.notebook;
+  static const IconData homework = LucideIcons.clipboardList;
 }

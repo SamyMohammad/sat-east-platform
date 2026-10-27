@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/env/env.dart';
@@ -7,6 +7,7 @@ import 'package:sat_east_client/core/router/auth_refresh.dart';
 import 'package:sat_east_client/core/router/placeholder_screen.dart';
 import 'package:sat_east_client/core/router/transitions.dart';
 import 'package:sat_east_client/features/activation/presentation/screens/activate_screen.dart';
+import 'package:sat_east_client/features/attempt_review/presentation/screens/attempt_review_screen.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/screens/account_screen.dart';
@@ -20,12 +21,27 @@ import 'package:sat_east_client/features/catalogue/presentation/screens/catalogu
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/homework/presentation/screens/homework_screen.dart';
+import 'package:sat_east_client/features/notes/presentation/screens/notes_viewer_screen.dart'
+    deferred as notes_viewer;
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
+import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/notes/presentation/screens/teacher_notes_screen.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_editor_screen.dart';
+import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_import_screen.dart';
+import 'package:sat_east_client/features/teacher/review/presentation/screens/review_queue_screen.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
+import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/screens/teacher_videos_screen.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
+import 'package:sat_east_client/features/video/presentation/screens/video_player_screen.dart'
+    deferred as video_player;
+import 'package:sat_east_client/features/video/presentation/video_copy.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_branch_stack.dart';
@@ -39,7 +55,13 @@ abstract final class AppRoutes {
   static const activate = '/activate';
   static const courses = '/courses';
   static String topic(String id) => '/courses/topics/$id';
+  static String video(String topicId, String assetId) =>
+      '/courses/topics/$topicId/video/$assetId';
+  static String notes(String topicId, String assetId) =>
+      '/courses/topics/$topicId/notes/$assetId';
   static String practice(String id) => '/courses/topics/$id/practice';
+  static String homework(String id) => '/courses/topics/$id/homework';
+  static String attemptReview(String id) => '/courses/attempts/$id/review';
   static String quiz(String id) => '/courses/topics/$id/quiz';
   static String quizResult(String id) => '/courses/topics/$id/quiz/result';
   static const skills = '/skills';
@@ -51,6 +73,15 @@ abstract final class AppRoutes {
   static const checkInbox = '/check-inbox';
   static const devices = '/devices';
   static const forgotPassword = '/forgot-password';
+  static const teacher = '/teacher';
+  static const teacherQuestions = '/teacher/questions';
+  static const teacherQuestionImport = '/teacher/questions/import';
+  static String teacherVideos(String courseId, String topicId) =>
+      '/teacher/courses/$courseId/topics/$topicId/videos';
+  static String teacherNotes(String courseId, String topicId) =>
+      '/teacher/courses/$courseId/topics/$topicId/notes';
+  static const teacherSettings = '/teacher/settings';
+  static const teacherReview = '/teacher/review';
   static const resetPassword = '/reset-password';
 }
 
@@ -67,6 +98,19 @@ GoRouter createRouter({
 }) {
   assert(refresh == null || auth != null, 'refresh requires auth');
   final galleryEnabled = !Env.isProd && (includeGallery ?? true);
+  final videoKey = GlobalKey<_DeferredVideoPlayerState>();
+  final newEditorKey = GlobalKey<QuestionEditorScreenState>();
+  final editorKey = GlobalKey<QuestionEditorScreenState>();
+  Future<bool> confirmEditorExit(
+    GlobalKey<QuestionEditorScreenState> key,
+  ) async {
+    if (auth != null) {
+      final session = auth.state;
+      if (session is! AuthSignedIn || !session.user.isTeacher) return true;
+    }
+    return await key.currentState?.confirmLeave() ?? true;
+  }
+
   return GoRouter(
     initialLocation: initialLocation,
     refreshListenable:
@@ -89,8 +133,107 @@ GoRouter createRouter({
         pageBuilder: (context, state) => sharedAxisPage(
           context,
           key: state.pageKey,
-          child: CoursePageScreen(
-            slug: state.pathParameters['slug']!,
+          child: CoursePageScreen(slug: state.pathParameters['slug']!),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacher,
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: CourseBuilderScreen()),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacher}/courses/:courseId',
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: CourseBuilderScreen(
+              courseId: state.pathParameters['courseId'],
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherReview,
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: ReviewQueueScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherSettings,
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: TeacherSettingsScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherQuestionImport,
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: QuestionImportScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherQuestions,
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: QuestionBankScreen()),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacherQuestions}/new',
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(child: QuestionEditorScreen(key: newEditorKey)),
+        ),
+        onExit: (context, state) => confirmEditorExit(newEditorKey),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacherQuestions}/:id',
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: QuestionEditorScreen(
+              key: editorKey,
+              questionId: state.pathParameters['id'],
+            ),
+          ),
+        ),
+        onExit: (context, state) => confirmEditorExit(editorKey),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/notes',
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: TeacherNotesScreen(
+              courseId: state.pathParameters['courseId']!,
+              topicId: state.pathParameters['topicId']!,
+            ),
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacher}/courses/:courseId/topics/:topicId/videos',
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: TeacherVideosScreen(
+              courseId: state.pathParameters['courseId']!,
+              topicId: state.pathParameters['topicId']!,
+            ),
           ),
         ),
       ),
@@ -155,6 +298,31 @@ GoRouter createRouter({
                         ),
                       ),
                       GoRoute(
+                        path: 'topics/:topicId/video/:assetId',
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: _DeferredVideoPlayer(
+                            key: videoKey,
+                            topicId: state.pathParameters['topicId']!,
+                            assetId: state.pathParameters['assetId']!,
+                          ),
+                        ),
+                        onExit: (_, _) =>
+                            videoKey.currentState?.confirmExit() ?? true,
+                      ),
+                      GoRoute(
+                        path: 'topics/:topicId/notes/:assetId',
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: _DeferredNotesViewer(
+                            topicId: state.pathParameters['topicId']!,
+                            assetId: state.pathParameters['assetId']!,
+                          ),
+                        ),
+                      ),
+                      GoRoute(
                         path: 'topics/:topicId/practice',
                         pageBuilder: (context, state) => sharedAxisPage(
                           context,
@@ -165,6 +333,26 @@ GoRouter createRouter({
                               final String t => t,
                               _ => null,
                             },
+                          ),
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'topics/:topicId/homework',
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: HomeworkScreen(
+                            topicId: state.pathParameters['topicId']!,
+                          ),
+                        ),
+                      ),
+                      GoRoute(
+                        path: 'attempts/:attemptId/review',
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: AttemptReviewScreen(
+                            attemptId: state.pathParameters['attemptId']!,
                           ),
                         ),
                       ),
@@ -289,6 +477,11 @@ String? _authRedirect(AuthState state, String path, bool galleryEnabled) {
   if (state is AuthSignedOut && state.error?.code == ErrorCodes.linkExpired) {
     return path == AppRoutes.forgotPassword ? null : AppRoutes.forgotPassword;
   }
+  if (state is AuthSignedIn &&
+      !state.user.isTeacher &&
+      (path == AppRoutes.teacher || path.startsWith('${AppRoutes.teacher}/'))) {
+    return AppRoutes.home;
+  }
   if (galleryEnabled && path == AppRoutes.gallery) return null;
   if ((state is AuthSignedOut || state is AuthSignedIn) && _isPublic(path)) {
     return null;
@@ -322,3 +515,108 @@ String _pathFor(AppShellDestination destination) => switch (destination) {
 
 bool _isPublic(String path) =>
     path == AppRoutes.catalogue || path.startsWith('${AppRoutes.catalogue}/');
+
+class _DeferredNotesViewer extends StatefulWidget {
+  const _DeferredNotesViewer({required this.topicId, required this.assetId});
+  final String topicId;
+  final String assetId;
+  @override
+  State<_DeferredNotesViewer> createState() => _DeferredNotesViewerState();
+}
+
+class _DeferredNotesViewerState extends State<_DeferredNotesViewer> {
+  late Future<void> _loaded;
+  @override
+  void initState() {
+    super.initState();
+    _loaded = notes_viewer.loadLibrary();
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<void>(
+    future: _loaded,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Text("Couldn't load the notes viewer."),
+              TextButton(
+                onPressed: () => setState(() {
+                  _loaded = notes_viewer.loadLibrary();
+                }),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
+        );
+      }
+      if (snapshot.connectionState != ConnectionState.done) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return notes_viewer.NotesViewerScreen(
+        topicId: widget.topicId,
+        assetId: widget.assetId,
+      );
+    },
+  );
+}
+
+class _DeferredVideoPlayer extends StatefulWidget {
+  const _DeferredVideoPlayer({
+    required this.topicId,
+    required this.assetId,
+    super.key,
+  });
+  final String topicId;
+  final String assetId;
+  @override
+  State<_DeferredVideoPlayer> createState() => _DeferredVideoPlayerState();
+}
+
+class _DeferredVideoPlayerState extends State<_DeferredVideoPlayer> {
+  late Future<void> _loaded;
+  Future<void> Function()? _prepareExit;
+  @override
+  void initState() {
+    super.initState();
+    _loaded = video_player.loadLibrary();
+  }
+
+  Future<bool> confirmExit() async {
+    await _prepareExit?.call();
+    return true;
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<void>(
+    future: _loaded,
+    builder: (context, snapshot) {
+      if (snapshot.hasError) {
+        return Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(VideoCopy.error(ErrorCodes.internal)),
+              TextButton(
+                onPressed: () => setState(() {
+                  _loaded = video_player.loadLibrary();
+                }),
+                child: const Text(VideoCopy.retry),
+              ),
+            ],
+          ),
+        );
+      }
+      if (snapshot.connectionState != ConnectionState.done) {
+        return const Center(child: CircularProgressIndicator());
+      }
+      return video_player.VideoPlayerScreen(
+        onPrepareExit: (prepareExit) => _prepareExit = prepareExit,
+        topicId: widget.topicId,
+        assetId: widget.assetId,
+      );
+    },
+  );
+}
