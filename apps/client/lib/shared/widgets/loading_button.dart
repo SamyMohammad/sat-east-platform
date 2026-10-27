@@ -19,6 +19,7 @@ class LoadingButton extends StatelessWidget {
     this.errorText,
     this.variant = AppButtonVariant.primary,
     this.expanded = false,
+    this.minWidth,
   });
 
   final String label;
@@ -30,6 +31,9 @@ class LoadingButton extends StatelessWidget {
 
   /// Fills the available width instead of hugging the label.
   final bool expanded;
+
+  /// Minimum width; defaults to the touch target.
+  final double? minWidth;
 
   bool get _filled =>
       variant == AppButtonVariant.primary ||
@@ -84,7 +88,7 @@ class LoadingButton extends StatelessWidget {
     final scheme = context.appColors;
     return switch (variant) {
       AppButtonVariant.primary => scheme.onBrand,
-      AppButtonVariant.destructive => scheme.surface,
+      AppButtonVariant.destructive => scheme.onDanger,
       AppButtonVariant.secondary || AppButtonVariant.tertiary => scheme.brand,
     };
   }
@@ -92,10 +96,10 @@ class LoadingButton extends StatelessWidget {
   ButtonStyle _style(BuildContext context) {
     final scheme = context.appColors;
     final destructive = variant == AppButtonVariant.destructive;
-    final background = destructive ? scheme.ink : scheme.brand;
+    final background = destructive ? scheme.danger : scheme.brand;
     return ButtonStyle(
-      minimumSize: const WidgetStatePropertyAll(
-        Size(AppSize.touchTarget, AppSize.touchTarget),
+      minimumSize: WidgetStatePropertyAll(
+        Size(minWidth ?? AppSize.touchTarget, AppSize.touchTarget),
       ),
       padding: WidgetStatePropertyAll(
         EdgeInsets.symmetric(
@@ -120,8 +124,8 @@ class LoadingButton extends StatelessWidget {
         if (states.contains(WidgetState.disabled) && !isLoading) {
           return scheme.line;
         }
-        if (states.contains(WidgetState.hovered) && !destructive) {
-          return context.appColors.brand;
+        if (states.contains(WidgetState.hovered)) {
+          return destructive ? scheme.dangerHover : scheme.brand;
         }
         return background;
       }),

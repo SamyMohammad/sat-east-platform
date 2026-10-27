@@ -37,6 +37,9 @@ class AppColors extends ThemeExtension<AppColors> {
     required this.examBarRule,
     required this.examBarPrimary,
     required this.examBarWarning,
+    required this.danger,
+    required this.onDanger,
+    required this.dangerHover,
   });
 
   static const light = AppColors(
@@ -71,6 +74,9 @@ class AppColors extends ThemeExtension<AppColors> {
     examBarRule: AppLightPalette.examBarRule,
     examBarPrimary: AppLightPalette.examBarPrimary,
     examBarWarning: AppLightPalette.examBarWarning,
+    danger: AppLightPalette.danger,
+    onDanger: AppLightPalette.onDanger,
+    dangerHover: AppLightPalette.dangerHover,
   );
 
   static const dark = AppColors(
@@ -105,6 +111,9 @@ class AppColors extends ThemeExtension<AppColors> {
     examBarRule: AppDarkPalette.examBarRule,
     examBarPrimary: AppDarkPalette.examBarPrimary,
     examBarWarning: AppDarkPalette.examBarWarning,
+    danger: AppDarkPalette.danger,
+    onDanger: AppDarkPalette.onDanger,
+    dangerHover: AppDarkPalette.dangerHover,
   );
 
   final Color background;
@@ -138,6 +147,9 @@ class AppColors extends ThemeExtension<AppColors> {
   final Color examBarRule;
   final Color examBarPrimary;
   final Color examBarWarning;
+  final Color danger;
+  final Color onDanger;
+  final Color dangerHover;
 
   @override
   AppColors copyWith({
@@ -172,6 +184,9 @@ class AppColors extends ThemeExtension<AppColors> {
     Color? examBarRule,
     Color? examBarPrimary,
     Color? examBarWarning,
+    Color? danger,
+    Color? onDanger,
+    Color? dangerHover,
   }) => AppColors(
     background: background ?? this.background,
     surface: surface ?? this.surface,
@@ -204,6 +219,9 @@ class AppColors extends ThemeExtension<AppColors> {
     examBarRule: examBarRule ?? this.examBarRule,
     examBarPrimary: examBarPrimary ?? this.examBarPrimary,
     examBarWarning: examBarWarning ?? this.examBarWarning,
+    danger: danger ?? this.danger,
+    onDanger: onDanger ?? this.onDanger,
+    dangerHover: dangerHover ?? this.dangerHover,
   );
 
   @override
@@ -245,6 +263,9 @@ class AppColors extends ThemeExtension<AppColors> {
       examBarRule: Color.lerp(examBarRule, other.examBarRule, t)!,
       examBarPrimary: Color.lerp(examBarPrimary, other.examBarPrimary, t)!,
       examBarWarning: Color.lerp(examBarWarning, other.examBarWarning, t)!,
+      danger: Color.lerp(danger, other.danger, t)!,
+      onDanger: Color.lerp(onDanger, other.onDanger, t)!,
+      dangerHover: Color.lerp(dangerHover, other.dangerHover, t)!,
     );
   }
 }

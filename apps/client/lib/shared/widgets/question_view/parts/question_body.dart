@@ -134,12 +134,14 @@ class QuestionBody extends StatelessWidget {
         if (showInlineFeedback) ...[
           ?parts.note,
           if (parts.hint case final hint?) HintPanel(md: hint),
-          if (parts.explanation case final explanation?)
-            WorkedExample(label: question.label, md: explanation),
         ] else if (mode case PracticeMode(
           feedback: FirstMiss(noteMd: String(), hintMd: final hint?),
         ))
           HintPanel(md: hint),
+        // The pinned dock holds only the verdict, the teacher line and the
+        // actions, so the worked example lives below the choices.
+        if (parts.explanation case final explanation?)
+          WorkedExample(label: question.label, md: explanation),
       ],
     );
 

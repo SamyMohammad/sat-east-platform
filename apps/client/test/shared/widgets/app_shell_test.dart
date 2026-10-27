@@ -80,6 +80,41 @@ void main() {
     expect(shape.side.width, 1);
   });
 
+  testWidgets('desktop sidebar is a straight panel with one right border', (
+    tester,
+  ) async {
+    _viewport(tester, const Size(1280, 800));
+    await _pumpShell(tester);
+    final context = tester.element(find.byType(NavigationDrawer));
+    final material = tester.widget<Material>(
+      find
+          .descendant(
+            of: find.byType(NavigationDrawer),
+            matching: find.byType(Material),
+          )
+          .first,
+    );
+    final shape = material.shape;
+    expect(shape, isA<Border>());
+    final border = shape! as Border;
+    expect(border.right.color, context.appColors.line);
+    expect(border.right.width, 1);
+    expect(border.left, BorderSide.none);
+    // The shell adds no second divider next to the sidebar.
+    expect(
+      find.ancestor(
+        of: find.byType(NavigationDrawer),
+        matching: find.byWidgetPredicate(
+          (w) =>
+              w is DecoratedBox &&
+              (w.decoration is BoxDecoration) &&
+              (w.decoration as BoxDecoration).border != null,
+        ),
+      ),
+      findsNothing,
+    );
+  });
+
   for (final width in [360.0, 600.0, 601.0, 768.0, 1023.0, 1024.0, 1280.0]) {
     testWidgets('F-4: shell uses native navigation at width $width', (
       tester,

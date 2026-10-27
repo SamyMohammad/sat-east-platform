@@ -470,35 +470,50 @@ void main() {
     });
   });
 
-  testWidgets('F-4: HintPanel heading rule reaches the content right edge', (
-    tester,
-  ) async {
-    await pump(tester, const HintPanel(md: 'Use it'), width: 720);
-    final panel = find.byType(FramedPanel);
-    final rule = find.descendant(
-      of: panel,
-      matching: find.byWidgetPredicate(
-        (w) => w is SizedBox && w.height == AppStroke.thin,
-      ),
-    );
-    expect(rule, findsOneWidget);
-    final contentRight =
-        tester.getRect(panel).right - tester.widget<FramedPanel>(panel).padding;
-    expect(tester.getRect(rule).right, closeTo(contentRight, 1));
-  });
+  for (final (name, panel) in [
+    ('HintPanel', const HintPanel(md: 'Use it')),
+    ('WorkedExample', const WorkedExample(label: '4.2', md: 'Use it')),
+  ]) {
+    testWidgets('F-4: $name title sits next to its icon with no rule', (
+      tester,
+    ) async {
+      await pump(tester, panel, width: 720);
+      final frame = find.byType(FramedPanel);
+      expect(
+        find.descendant(
+          of: frame,
+          matching: find.byWidgetPredicate(
+            (w) => w is SizedBox && w.height == AppStroke.thin,
+          ),
+        ),
+        findsNothing,
+      );
+      final icon = tester.getRect(
+        find.descendant(of: frame, matching: find.byType(Icon)),
+      );
+      final title = tester.getRect(
+        find.descendant(of: frame, matching: find.byType(Text)).first,
+      );
+      expect(title.left, greaterThan(icon.right));
+      expect((title.center.dy - icon.center.dy).abs(), lessThan(4));
+    });
+  }
 
   group('F-4: HintPanel and WorkedExample', () {
-    testWidgets('F-4: hint shows "HINT" and body via MathText', (tester) async {
+    testWidgets('F-4: hint shows a sentence-case "Hint" and MathText body', (
+      tester,
+    ) async {
       await pump(tester, const HintPanel(md: r'Use \(a^2\)'));
 
-      expect(find.text('HINT'), findsOneWidget);
+      expect(find.text('Hint'), findsOneWidget);
+      expect(find.text('HINT'), findsNothing);
       expect(
         tester.widget<MathText>(find.byType(MathText)).source,
         r'Use \(a^2\)',
       );
     });
 
-    testWidgets('F-4: worked example shows uppercase title and MathText body', (
+    testWidgets('F-4: worked example shows a sentence-case title and body', (
       tester,
     ) async {
       await pump(
@@ -506,7 +521,7 @@ void main() {
         const WorkedExample(label: '4.2 · Ex 7', md: r'\(2x\)'),
       );
 
-      expect(find.text('WORKED EXAMPLE · 4.2 · EX 7'), findsOneWidget);
+      expect(find.text('Worked example · 4.2 · Ex 7'), findsOneWidget);
       expect(tester.widget<MathText>(find.byType(MathText)).source, r'\(2x\)');
     });
   });

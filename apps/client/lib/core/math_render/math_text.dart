@@ -146,8 +146,11 @@ class MathText extends StatelessWidget {
   }
 }
 
+/// The KaTeX math faces only exist at regular weight; a heavier body weight
+/// (the stem is w500) makes the engine fall back to an upright face.
 TextStyle _mathStyle(TextStyle style) => style.copyWith(
   fontSize: (style.fontSize ?? 16) * AppType.mathScale,
+  fontWeight: FontWeight.w400,
 );
 
 Widget _tex(String tex, TextStyle style, MathStyle mathStyle) => Math.tex(

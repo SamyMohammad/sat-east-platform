@@ -18,6 +18,8 @@ void main() {
         'inkTertiary/raised': (colors.inkTertiary, colors.raised),
         'onBrand/brand': (colors.onBrand, colors.brand),
         'brand/brandWash': (colors.brand, colors.brandWash),
+        'onDanger/danger': (colors.onDanger, colors.danger),
+        'onDanger/dangerHover': (colors.onDanger, colors.dangerHover),
         'correct/correctWash': (colors.correct, colors.correctWash),
         'incorrect/incorrectWash': (colors.incorrect, colors.incorrectWash),
         'warmInk/warm': (colors.warmInk, colors.warm),
@@ -52,6 +54,13 @@ void main() {
     final c = AppColors.light.copyWith(brand: red);
     expect(c.brand, red);
     expect(c.warning, AppColors.light.warning);
+  });
+
+  test('danger roles match the destructive spec', () {
+    expect(AppColors.light.danger, const Color(0xFFB3342B));
+    expect(AppColors.light.onDanger, const Color(0xFFFFFFFF));
+    expect(AppColors.dark.danger, const Color(0xFFFF7A70));
+    expect(AppColors.dark.onDanger, const Color(0xFF0F1218));
   });
 
   test('lerp_is_total', () {
@@ -99,4 +108,7 @@ List<Color> _roles(AppColors c) => [
   c.examBarRule,
   c.examBarPrimary,
   c.examBarWarning,
+  c.danger,
+  c.onDanger,
+  c.dangerHover,
 ];

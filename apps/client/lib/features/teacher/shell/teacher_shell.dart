@@ -113,77 +113,108 @@ class _TeacherNavigation extends StatelessWidget {
         GoRouterState.of(context).uri.path.startsWith('/teacher/questions');
     return Material(
       color: context.appColors.surface,
-      child: ListTileTheme(
-        data: ListTileThemeData(
-          selectedTileColor: context.appColors.raised,
-          selectedColor: context.appColors.brand,
-          minTileHeight: AppSize.touchTarget,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.control),
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const ShellWordmark(),
+          const Divider(),
+          const SizedBox(height: AppSpace.s3),
+          Padding(
+            padding: const EdgeInsets.only(
+              left: AppSpace.s6,
+              bottom: AppSpace.s2,
+            ),
+            child: Text(
+              'Teacher area',
+              style: theme.textTheme.labelSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
+          _NavTile(
+            selected:
+                !settingsSelected && !questionsSelected && !reviewSelected,
+            icon: AppIcons.courseBuilder,
+            title: 'Course builder',
+            onTap: () => _go(context, '/teacher'),
+          ),
+          _NavTile(
+            selected: settingsSelected,
+            icon: AppIcons.settings,
+            title: 'Settings',
+            onTap: () => _go(context, '/teacher/settings'),
+          ),
+          _NavTile(
+            selected: questionsSelected,
+            icon: AppIcons.quiz,
+            title: 'Questions',
+            onTap: () => _go(context, '/teacher/questions'),
+          ),
+          _NavTile(
+            selected: reviewSelected,
+            icon: AppIcons.reviewQueue,
+            title: 'Review',
+            trailing: const _ReviewBadge(),
+            onTap: () => _go(context, '/teacher/review'),
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(vertical: AppSpace.s2),
+            child: Divider(),
+          ),
+          _NavTile(
+            selected: false,
+            icon: AppIcons.back,
+            title: 'Back to app',
+            onTap: () => _go(context, '/'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A sidebar row styled like the student shell's destination pill.
+class _NavTile extends StatelessWidget {
+  const _NavTile({
+    required this.selected,
+    required this.icon,
+    required this.title,
+    required this.onTap,
+    this.trailing,
+  });
+
+  final bool selected;
+  final IconData icon;
+  final String title;
+  final VoidCallback onTap;
+  final Widget? trailing;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colors = context.appColors;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpace.s3),
+      child: ListTile(
+        selected: selected,
+        selectedTileColor: colors.raised,
+        selectedColor: colors.brand,
+        iconColor: theme.colorScheme.onSurfaceVariant,
+        textColor: theme.colorScheme.onSurface,
+        minTileHeight: AppSize.touchTarget,
+        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpace.s4),
+        horizontalTitleGap: AppSpace.s3,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.control),
+          side: selected ? BorderSide(color: colors.line) : BorderSide.none,
         ),
-        child: ListView(
-          padding: const EdgeInsets.all(AppSpace.s3),
-          children: [
-            const ShellWordmark(),
-            Padding(
-              padding: const EdgeInsets.all(AppSpace.s3),
-              child: Text('Teacher area', style: theme.textTheme.titleLarge),
-            ),
-            const SizedBox(height: AppSpace.s6),
-            ListTile(
-              selected:
-                  !settingsSelected && !questionsSelected && !reviewSelected,
-              selectedTileColor: context.appColors.raised,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(AppRadius.control),
-                ),
-              ),
-              leading: const Icon(AppIcons.courseBuilder),
-              title: const Text('Course builder'),
-              onTap: () => _go(context, '/teacher'),
-            ),
-            ListTile(
-              selected: settingsSelected,
-              selectedTileColor: context.appColors.raised,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(AppRadius.control),
-                ),
-              ),
-              leading: const Icon(AppIcons.settings),
-              title: const Text('Settings'),
-              onTap: () => _go(context, '/teacher/settings'),
-            ),
-            ListTile(
-              selected: questionsSelected,
-              selectedTileColor: context.appColors.raised,
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(AppRadius.control),
-                ),
-              ),
-              leading: const Icon(AppIcons.quiz),
-              title: const Text('Questions'),
-              onTap: () => _go(context, '/teacher/questions'),
-            ),
-            ListTile(
-              selected: reviewSelected,
-              selectedTileColor: context.appColors.raised,
-              leading: const Icon(AppIcons.reviewQueue),
-              title: const Text('Review'),
-              trailing: const _ReviewBadge(),
-              onTap: () => _go(context, '/teacher/review'),
-            ),
-            const Divider(),
-            ListTile(
-              leading: const Icon(AppIcons.back),
-              title: const Text('Back to app'),
-              onTap: () => _go(context, '/'),
-            ),
-          ],
+        titleTextStyle: theme.textTheme.labelLarge?.copyWith(
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
         ),
+        leading: Icon(icon),
+        title: Text(title),
+        trailing: trailing,
+        onTap: onTap,
       ),
     );
   }

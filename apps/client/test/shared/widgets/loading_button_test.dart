@@ -1,7 +1,9 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -70,4 +72,52 @@ void main() {
     expect(scale(), 1);
     expect(calls, 1);
   });
+  for (final (name, theme, colors) in [
+    ('light', AppTheme.light(), AppColors.light),
+    ('dark', AppTheme.dark(), AppColors.dark),
+  ]) {
+    testWidgets('destructive uses danger roles and hover shade ($name)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: Center(
+              child: LoadingButton(
+                label: 'Delete',
+                variant: AppButtonVariant.destructive,
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ),
+      );
+      Color? fill() => tester
+          .widget<Material>(
+            find
+                .descendant(
+                  of: find.byType(FilledButton),
+                  matching: find.byType(Material),
+                )
+                .first,
+          )
+          .color;
+      expect(fill(), colors.danger);
+      expect(
+        tester.widget<Text>(find.text('Delete')).style?.color ??
+            DefaultTextStyle.of(
+              tester.element(find.text('Delete')),
+            ).style.color,
+        colors.onDanger,
+      );
+
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      addTearDown(mouse.removePointer);
+      await mouse.addPointer(location: Offset.zero);
+      await mouse.moveTo(tester.getCenter(find.text('Delete')));
+      await tester.pumpAndSettle();
+      expect(fill(), colors.dangerHover);
+    });
+  }
 }

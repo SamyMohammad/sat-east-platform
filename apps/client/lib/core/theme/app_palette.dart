@@ -33,6 +33,9 @@ abstract final class AppLightPalette {
   static const Color examBarRule = Color(0xFF3A4250);
   static const Color examBarPrimary = Color(0xFF7C9BFF);
   static const Color examBarWarning = Color(0xFFF5A04D);
+  static const Color danger = Color(0xFFB3342B);
+  static const Color onDanger = Color(0xFFFFFFFF);
+  static const Color dangerHover = Color(0xFF962A22);
 }
 
 /// Constant palette values shared by the semantic and Material themes.
@@ -68,4 +71,7 @@ abstract final class AppDarkPalette {
   static const Color examBarRule = Color(0xFF3A4250);
   static const Color examBarPrimary = Color(0xFF7C9BFF);
   static const Color examBarWarning = Color(0xFFF5A04D);
+  static const Color danger = Color(0xFFFF7A70);
+  static const Color onDanger = Color(0xFF0F1218);
+  static const Color dangerHover = Color(0xFFFF9189);
 }

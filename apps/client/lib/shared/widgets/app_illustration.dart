@@ -60,9 +60,16 @@ class _IllustrationColors extends ColorMapper {
     if (brightness == Brightness.light) return color;
     // Only known unDraw neutrals change; skin tones and secondary accents stay.
     return switch (color.toARGB32()) {
+      // unDraw dark ink would vanish on the dark surface.
       0xFF2F2E41 || 0xFF3F3D56 => colors.inkSecondary,
+      0xFF090814 || 0xFF000000 => colors.inkTertiary,
       0xFFCCCCCC || 0xFFCBCBCB || 0xFFD1D3D4 => colors.lineStrong,
-      0xFFE6E6E6 || 0xFFE4E4E4 => colors.line,
+      0xFFE6E6E6 ||
+      0xFFE4E4E4 ||
+      0xFFD6D6E3 ||
+      0xFFE5E5E5 ||
+      0xFFE4E6ED ||
+      0xFFE1E7EF => colors.line,
       0xFFF2F2F2 || 0xFFF0F0F0 => colors.raised,
       0xFFFFFFFF => colors.surface,
       _ => color,

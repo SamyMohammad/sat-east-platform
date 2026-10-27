@@ -25,7 +25,8 @@ class HintPanel extends StatelessWidget {
     ),
     child: FramedPanel(
       icon: AppIcons.hint,
-      title: 'HINT',
+      warm: true,
+      title: 'Hint',
       md: md,
       padding: AppSpace.s4,
       titleColor: context.appColors.warmInk,

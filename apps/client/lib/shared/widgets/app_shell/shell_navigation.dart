@@ -102,50 +102,57 @@ class ShellNavigation extends StatelessWidget {
     );
     return SizedBox(
       width: AppSize.shellSidebar,
-      child: NavigationDrawerTheme(
-        data: NavigationDrawerThemeData(
-          tileHeight: height,
-          indicatorSize: Size(
-            AppSize.shellSidebar - AppSpace.s6,
-            height,
-          ),
-          labelTextStyle: WidgetStateProperty.resolveWith(
-            (states) => label.copyWith(
-              fontWeight: states.contains(WidgetState.selected)
-                  ? FontWeight.w700
-                  : FontWeight.w500,
+      // Permanent sidebar: a straight panel with a hairline right edge, not
+      // the M3 modal drawer's rounded end corners.
+      child: DrawerTheme(
+        data: DrawerThemeData(
+          shape: Border(right: BorderSide(color: context.appColors.line)),
+        ),
+        child: NavigationDrawerTheme(
+          data: NavigationDrawerThemeData(
+            tileHeight: height,
+            indicatorSize: Size(
+              AppSize.shellSidebar - AppSpace.s6,
+              height,
+            ),
+            labelTextStyle: WidgetStateProperty.resolveWith(
+              (states) => label.copyWith(
+                fontWeight: states.contains(WidgetState.selected)
+                    ? FontWeight.w700
+                    : FontWeight.w500,
+              ),
             ),
           ),
-        ),
-        child: NavigationDrawer(
-          selectedIndex: selectedIndex,
-          onDestinationSelected: onDestinationSelected,
-          backgroundColor: context.appColors.surface,
-          elevation: 0,
-          indicatorColor: context.appColors.raised,
-          indicatorShape: _indicator.copyWith(
-            side: BorderSide(color: context.appColors.line),
+          child: NavigationDrawer(
+            selectedIndex: selectedIndex,
+            onDestinationSelected: onDestinationSelected,
+            backgroundColor: context.appColors.surface,
+            elevation: 0,
+            indicatorColor: context.appColors.raised,
+            indicatorShape: _indicator.copyWith(
+              side: BorderSide(color: context.appColors.line),
+            ),
+            children: [
+              const ShellWordmark(),
+              const Divider(),
+              const SizedBox(height: AppSpace.s3),
+              for (final destination in AppShellDestination.values)
+                NavigationDrawerDestination(
+                  icon: Icon(
+                    destination.icon,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                  selectedIcon: Icon(
+                    destination.selectedIcon,
+                    color: theme.colorScheme.primary,
+                  ),
+                  label: SizedBox(
+                    width: labelWidth,
+                    child: Text(destination.label),
+                  ),
+                ),
+            ],
           ),
-          children: [
-            const ShellWordmark(),
-            const Divider(),
-            const SizedBox(height: AppSpace.s3),
-            for (final destination in AppShellDestination.values)
-              NavigationDrawerDestination(
-                icon: Icon(
-                  destination.icon,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                selectedIcon: Icon(
-                  destination.selectedIcon,
-                  color: theme.colorScheme.primary,
-                ),
-                label: SizedBox(
-                  width: labelWidth,
-                  child: Text(destination.label),
-                ),
-              ),
-          ],
         ),
       ),
     );

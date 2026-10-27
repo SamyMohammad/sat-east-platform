@@ -154,6 +154,94 @@ void main() {
     );
   }
 
+  for (final feedback in <PracticeFeedback>[
+    const Correct(
+      noteMd: 'Nice work. Keep the sign when you move the 3.',
+      explanationMd: 'Subtract 3 from both sides, then divide by 2.',
+    ),
+    const Revealed(
+      key: McqAnswerKey('C'),
+      firstTry: 'A',
+      noteMd: 'Watch the sign.',
+      explanationMd: 'Subtract 3 from both sides, then divide by 2.',
+    ),
+  ]) {
+    testWidgets(
+      'F-4: verdict dock at 360 keeps the selected choice visible and '
+      'holds no worked example (${feedback.runtimeType})',
+      (t) async {
+        await _pump(
+          t,
+          size: _phone,
+          feedback: feedback,
+          answer: const AnswerState(selected: 'B'),
+          onNext: () {},
+        );
+        await t.pumpAndSettle();
+        final dock = t.getRect(find.byType(FeedbackDock));
+        final selected = t.getRect(find.byKey(const ValueKey('choice-B')));
+        expect(selected.bottom, lessThanOrEqualTo(dock.top));
+        expect(dock.height, lessThan(_phone.height * 0.4));
+        expect(
+          find.descendant(
+            of: find.byType(FeedbackDock),
+            matching: find.byType(WorkedExample),
+          ),
+          findsNothing,
+        );
+        // The worked example lives in the scroll body, below the choices.
+        final example = find.byType(WorkedExample);
+        expect(example, findsOneWidget);
+        expect(
+          t.getRect(example).top,
+          greaterThan(t.getRect(find.byKey(const ValueKey('choice-D'))).bottom),
+        );
+        expect(t.takeException(), isNull);
+      },
+    );
+  }
+
+  for (final size in [_phone, _wide]) {
+    testWidgets(
+      'F-4: practice progress line shares the content column at '
+      '${size.width.toInt()}',
+      (t) async {
+        await _pump(t, size: size, feedback: const Idle());
+        expect(
+          t.getTopLeft(find.textContaining('Quiz unlocks at 10')).dx,
+          t.getTopLeft(find.byType(ExerciseHeader)).dx,
+        );
+      },
+    );
+  }
+
+  testWidgets('F-4: dock primary buttons are at least 180 wide on desktop', (
+    t,
+  ) async {
+    await _pump(
+      t,
+      size: _wide,
+      feedback: const Idle(),
+      answer: const AnswerState(selected: 'A'),
+      onCheck: () {},
+    );
+    expect(
+      t.getSize(find.widgetWithText(FilledButton, 'Check')).width,
+      greaterThanOrEqualTo(180),
+    );
+    await _pump(
+      t,
+      size: _wide,
+      feedback: const Correct(),
+      answer: const AnswerState(selected: 'C'),
+      onNext: () {},
+    );
+    expect(
+      t.getSize(find.widgetWithText(FilledButton, 'Next')).width,
+      greaterThanOrEqualTo(180),
+    );
+  });
+
   for (final size in [_phone, _wide]) {
     final w = size.width.toInt();
 

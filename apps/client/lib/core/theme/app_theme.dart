@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_field_border.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/core/theme/app_type.dart';
 
 /// The shared visual system.
 abstract final class AppTheme {
+  static const double _floatingLabelScale = 0.75;
+
   static ThemeData light() => _build(AppSchemes.light, AppColors.light);
 
   static ThemeData dark() => _build(AppSchemes.dark, AppColors.dark);
@@ -23,9 +26,8 @@ abstract final class AppTheme {
     const minButton = Size(64, AppSize.touchTarget);
     const buttonPadding = EdgeInsets.symmetric(horizontal: AppSpace.s6);
     const overlayElevation = 2.0;
-    OutlineInputBorder border(Color color, [double width = AppStroke.thin]) =>
-        OutlineInputBorder(
-          borderRadius: controlRadius,
+    AppFieldBorder border(Color color, [double width = AppStroke.thin]) =>
+        AppFieldBorder(
           borderSide: BorderSide(color: color, width: width),
         );
     final focusSide = WidgetStateBorderSide.resolveWith((states) {
@@ -142,7 +144,16 @@ abstract final class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: colors.background,
+        // The label always sits above the value (never a notched outline).
+        floatingLabelBehavior: FloatingLabelBehavior.always,
         labelStyle: text.bodyMedium?.copyWith(color: colors.inkSecondary),
+        floatingLabelStyle: text.labelLarge?.copyWith(
+          // InputDecorator draws the floating label at 75%, so ask for
+          // 13 px / 0.75 to land on the 13 px semibold label.
+          fontSize: AppType.fieldLabelSize / _floatingLabelScale,
+          fontWeight: FontWeight.w600,
+          color: colors.inkSecondary,
+        ),
         hintStyle: text.bodyMedium?.copyWith(color: colors.inkTertiary),
         border: border(colors.lineStrong),
         enabledBorder: border(colors.lineStrong),

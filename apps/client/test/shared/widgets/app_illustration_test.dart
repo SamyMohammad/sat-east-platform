@@ -70,6 +70,19 @@ void main() {
             ? const Color(0xFFF2F2F2)
             : colors.raised,
       );
+      for (final ink in const [0xFF2F2E41, 0xFF3F3D56, 0xFF090814]) {
+        final mapped = mapper.substitute(null, 'path', 'fill', Color(ink));
+        if (brightness == Brightness.light) {
+          expect(mapped, Color(ink));
+        } else {
+          expect(
+            mapped,
+            anyOf(colors.inkSecondary, colors.inkTertiary),
+            reason: 'unDraw dark ink 0x${ink.toRadixString(16)}',
+          );
+          expect(mapped.computeLuminance(), greaterThan(0.2));
+        }
+      }
       expect(picture.height, 200);
       expect(loader.assetName, 'assets/illustrations/welcome.svg');
     });

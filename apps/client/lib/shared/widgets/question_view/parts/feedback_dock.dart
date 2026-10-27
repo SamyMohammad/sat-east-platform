@@ -8,7 +8,6 @@ import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 import 'package:sat_east_client/shared/widgets/question_view/parts/margin_note.dart';
-import 'package:sat_east_client/shared/widgets/question_view/parts/worked_example.dart';
 import 'package:sat_east_client/shared/widgets/question_view/practice_feedback.dart';
 
 /// Pinned practice action and server feedback. Submission is latched locally
@@ -20,14 +19,12 @@ class FeedbackDock extends StatefulWidget {
     required this.actions,
     super.key,
     this.author,
-    this.questionLabel = '',
   });
 
   final PracticeFeedback? feedback;
   final VoidCallback? onCheck;
   final List<Widget> actions;
   final String? author;
-  final String questionLabel;
 
   @override
   State<FeedbackDock> createState() => _FeedbackDockState();
@@ -118,11 +115,6 @@ class _FeedbackDockState extends State<FeedbackDock>
       FirstMiss(:final noteMd, :final hintMd) => noteMd ?? hintMd,
       _ => null,
     };
-    final explanation = switch (widget.feedback) {
-      Correct(:final explanationMd) ||
-      Revealed(:final explanationMd) => explanationMd,
-      _ => null,
-    };
     final verdictAnimation = _phase(AppMotion.stagger);
     final teacherAnimation = _phase(AppMotion.press);
 
@@ -189,6 +181,9 @@ class _FeedbackDockState extends State<FeedbackDock>
                           LoadingButton(
                             label: 'Check',
                             expanded: compact,
+                            minWidth: compact
+                                ? null
+                                : AppSize.dockPrimaryMinWidth,
                             isLoading: widget.feedback is Checking,
                             onPressed: !_submitted
                                 ? widget.onCheck == null
@@ -292,11 +287,6 @@ class _FeedbackDockState extends State<FeedbackDock>
                                     author: widget.author,
                                     bodyMd: teacher,
                                     teacherLine: true,
-                                  ),
-                                if (explanation != null)
-                                  WorkedExample(
-                                    label: widget.questionLabel,
-                                    md: explanation,
                                   ),
                               ],
                             ),

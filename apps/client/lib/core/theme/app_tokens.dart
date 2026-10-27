@@ -43,6 +43,9 @@ abstract final class AppOpacity {
 abstract final class AppSize {
   static const double touchTarget = 48;
 
+  /// Min width of the practice dock's primary button on desktop.
+  static const double dockPrimaryMinWidth = 180;
+
   /// Choice tile min height, SPR field height, keypad key height.
   static const double largeControl = 56;
   static const double choiceBadge = 30;

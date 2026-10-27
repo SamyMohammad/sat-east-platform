@@ -74,18 +74,21 @@ class _AppShellState extends State<AppShell> {
                         if (!compact)
                           _ordered(
                             1,
-                            DecoratedBox(
-                              decoration: BoxDecoration(
-                                border: BorderDirectional(
-                                  end: BorderSide(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.outlineVariant,
+                            // The expanded sidebar draws its own right border.
+                            layout == AppLayout.expanded
+                                ? _navigation(layout)
+                                : DecoratedBox(
+                                    decoration: BoxDecoration(
+                                      border: BorderDirectional(
+                                        end: BorderSide(
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.outlineVariant,
+                                        ),
+                                      ),
+                                    ),
+                                    child: _navigation(layout),
                                   ),
-                                ),
-                              ),
-                              child: _navigation(layout),
-                            ),
                           ),
                         Expanded(
                           key: const ValueKey('shell-content'),

@@ -7,6 +7,9 @@ abstract final class AppFonts {
 abstract final class AppType {
   static const double mathScale = 1.21;
 
+  /// Form field label above the value.
+  static const double fieldLabelSize = 13;
+
   static const TextStyle stem = TextStyle(
     fontFamily: AppFonts.sans,
     fontSize: 22,

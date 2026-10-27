@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_field_border.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/core/theme/app_type.dart';
@@ -60,7 +61,7 @@ void main() {
         BorderSide(color: colors.brandLine, width: AppStroke.focusRing),
       );
       expect(
-        (theme.inputDecorationTheme.border! as OutlineInputBorder).borderRadius,
+        (theme.inputDecorationTheme.border! as AppFieldBorder).borderRadius,
         BorderRadius.circular(AppRadius.control),
       );
       expect(
@@ -130,5 +131,38 @@ void main() {
       ),
     );
     expect(appColors, AppColors.light);
+  });
+
+  testWidgets('redesign: field label sits above the value, no notch', (
+    tester,
+  ) async {
+    final theme = AppTheme.light();
+    final decoration = theme.inputDecorationTheme;
+    expect(decoration.floatingLabelBehavior, FloatingLabelBehavior.always);
+    expect(decoration.border, isA<AppFieldBorder>());
+    expect(decoration.border!.isOutline, isFalse);
+    expect(
+      (decoration.border! as AppFieldBorder).borderRadius,
+      BorderRadius.circular(AppRadius.control),
+    );
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: theme,
+        home: Scaffold(
+          body: TextField(
+            controller: TextEditingController(text: 'Algebra'),
+            decoration: const InputDecoration(labelText: 'Course title'),
+          ),
+        ),
+      ),
+    );
+    final label = tester.getRect(find.text('Course title'));
+    final value = tester.getRect(find.text('Algebra'));
+    expect(label.bottom, lessThanOrEqualTo(value.top));
+    // 13 px semibold on screen: the decorator draws the floating label at 75%.
+    final style = decoration.floatingLabelStyle!;
+    expect(style.fontSize! * 0.75, closeTo(13, 0.001));
+    expect(style.fontWeight, FontWeight.w600);
   });
 }

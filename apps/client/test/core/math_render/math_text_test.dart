@@ -3,6 +3,7 @@ import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
+import 'package:sat_east_client/core/theme/app_type.dart';
 
 Future<void> pumpMath(
   WidgetTester tester,
@@ -141,5 +142,27 @@ void main() {
     );
     expect(tester.takeException(), isNull);
     expect(find.byType(SingleChildScrollView), findsWidgets);
+  });
+  testWidgets('F-4: stem and choice math use the same glyph style', (
+    tester,
+  ) async {
+    Future<TextStyle> mathGlyphStyle(TextStyle? style) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.light(),
+          home: Scaffold(body: MathText(r'\(x\)', style: style)),
+        ),
+      );
+      final math = tester.widget<Math>(find.byType(Math));
+      return math.textStyle!;
+    }
+
+    final stem = await mathGlyphStyle(AppType.stem);
+    final choice = await mathGlyphStyle(null);
+
+    // A heavier body weight must not change the math face (upright x).
+    expect(stem.fontWeight, choice.fontWeight);
+    expect(stem.fontWeight, FontWeight.w400);
+    expect(stem.fontStyle, choice.fontStyle);
   });
 }

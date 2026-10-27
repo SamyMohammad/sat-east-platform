@@ -34,7 +34,8 @@ class QuizQuestionHeader extends StatelessWidget {
           children: [
             DecoratedBox(
               decoration: BoxDecoration(
-                color: scheme.onSurface,
+                color: colors.raised,
+                border: Border.all(color: colors.lineStrong),
                 borderRadius: BorderRadius.circular(AppRadius.card),
               ),
               child: SizedBox.square(
@@ -43,7 +44,7 @@ class QuizQuestionHeader extends StatelessWidget {
                   child: Text(
                     '$number',
                     style: theme.textTheme.labelLarge?.copyWith(
-                      color: scheme.surface,
+                      color: colors.ink,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

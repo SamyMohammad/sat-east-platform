@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
@@ -292,7 +293,6 @@ class QuestionView extends StatelessWidget {
           key: ValueKey('dock-${question.id}'),
           feedback: feedback,
           author: noteAuthor,
-          questionLabel: question.label,
           onCheck: checkEnabled ? onCheck : null,
           actions: [
             ?leading,
@@ -306,6 +306,9 @@ class QuestionView extends StatelessWidget {
               LoadingButton(
                 label: 'Next',
                 expanded: layout == AppLayout.compact,
+                minWidth: layout == AppLayout.compact
+                    ? null
+                    : AppSize.dockPrimaryMinWidth,
                 onPressed: mode.forwardAction(onNext),
               ),
           ],
@@ -357,7 +360,6 @@ class QuestionView extends StatelessWidget {
     final index = quiz.index;
     final total = quiz.total;
     final compact = layout == AppLayout.compact;
-    final scheme = Theme.of(context).colorScheme;
     final label = 'Question ${index + 1} of $total';
     final back = LoadingButton(
       label: 'Back',
@@ -379,13 +381,13 @@ class QuestionView extends StatelessWidget {
         leading: back,
         middle: compact
             ? _NavigatorFooterButton(label: label, onPressed: open)
-            : _inkNavigatorButton(scheme, label, open),
+            : _inkNavigatorButton(context, label, open),
         primary: primary,
       );
     }
     return QuestionFooter(
       leading: null,
-      middle: _inkNavigatorButton(scheme, label, open),
+      middle: _inkNavigatorButton(context, label, open),
       primary: Row(
         mainAxisSize: MainAxisSize.min,
         spacing: AppSpace.s3,
@@ -395,15 +397,17 @@ class QuestionView extends StatelessWidget {
   }
 
   Widget _inkNavigatorButton(
-    ColorScheme scheme,
+    BuildContext context,
     String label,
     VoidCallback onPressed,
   ) {
+    final colors = context.appColors;
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: scheme.onSurface,
-        foregroundColor: scheme.surface,
+        backgroundColor: colors.raised,
+        foregroundColor: colors.ink,
+        side: BorderSide(color: colors.lineStrong),
         minimumSize: const Size(0, AppSize.touchTarget),
       ),
       child: Row(

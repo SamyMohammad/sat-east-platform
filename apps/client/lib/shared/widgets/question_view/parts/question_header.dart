@@ -234,18 +234,30 @@ class QuestionHeader extends StatelessWidget {
                   ),
                 ),
               ),
+              // Same column and gutters as the question body below, so the
+              // line starts where the stem and choices start.
               Padding(
                 padding: EdgeInsets.fromLTRB(
-                  compact ? AppSpace.s4 : AppSpace.s6,
+                  compact ? AppSpace.s5 : AppSpace.s6,
                   0,
-                  compact ? AppSpace.s4 : AppSpace.s6,
+                  compact ? AppSpace.s5 : AppSpace.s6,
                   AppSpace.s2,
                 ),
-                child: ExcludeSemantics(
-                  child: Text(
-                    progressLabel,
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                      color: colors.inkSecondary,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(
+                      maxWidth: AppSize.questionColumn,
+                    ),
+                    child: ExcludeSemantics(
+                      child: Align(
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Text(
+                          progressLabel,
+                          style: Theme.of(context).textTheme.labelSmall
+                              ?.copyWith(color: colors.inkSecondary),
+                        ),
+                      ),
                     ),
                   ),
                 ),
