@@ -14,49 +14,62 @@ import '../skills_fixtures.dart';
 void main() {
   late FakeRpc rpc;
   late SkillsRepositoryImpl repository;
-  late Object? minimum;
-  Exception? settingsError;
 
   setUp(() {
     rpc = FakeRpc()..response = skillsPayload;
-    minimum = {'value': 10};
-    settingsError = null;
     repository = SkillsRepositoryImpl(
-      SkillsRemoteDataSource(
-        rpc.call,
-        readTrendMinimum: () async {
-          if (settingsError != null) throw settingsError!;
-          return minimum;
-        },
-      ),
+      SkillsRemoteDataSource(rpc.call),
     );
   });
 
   group('ANL-01: SkillsRepositoryImpl', () {
-    test('ANL-01: trend_minimum_comes_from_settings', () async {
-      minimum = {'value': 17};
+    test('ANL-01: trend_min_answers_from_payload', () async {
+      rpc.response = skillsPayloadWith({
+        'summary': {
+          'solved': 12,
+          'total': 40,
+          'graded_answers': 31,
+          'trend_min_answers': 17,
+        },
+      });
       final result = await repository.load('c1');
       expect(
         (result as Success<SkillsOverview>).value.summary.trendMinAnswers,
         17,
       );
+      expect(rpc.calls, hasLength(1));
     });
 
-    test('ANL-01: malformed_trend_setting_returns_failure', () async {
-      minimum = {'value': 'ten'};
+    test('ANL-01: missing_trend_min_answers_returns_internal', () async {
+      rpc.response = skillsPayloadWith({
+        'summary': {'solved': 12, 'total': 40, 'graded_answers': 31},
+      });
       expect(
         (await repository.load('c1') as Failure).error.code,
         ErrorCodes.internal,
       );
     });
 
-    test('ANL-01: trend_setting_errors_propagate', () async {
-      settingsError = const SocketException('down');
-      expect(
-        (await repository.load('c1') as Failure).error.code,
-        ErrorCodes.network,
+    for (final value in <Object?>[null, 'ten', 0, -1, 1.5]) {
+      test(
+        'ANL-01: invalid_trend_min_answers $value returns internal',
+        () async {
+          rpc.response = skillsPayloadWith({
+            'summary': {
+              'solved': 12,
+              'total': 40,
+              'graded_answers': 31,
+              'trend_min_answers': value,
+            },
+          });
+          expect(
+            (await repository.load('c1') as Failure).error.code,
+            ErrorCodes.internal,
+          );
+        },
       );
-    });
+    }
+
     test('ANL-01: calls get_my_skills with the course id', () async {
       final result = await repository.load('c1');
 

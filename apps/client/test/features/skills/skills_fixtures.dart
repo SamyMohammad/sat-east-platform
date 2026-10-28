@@ -1,7 +1,12 @@
 import 'package:sat_east_client/features/skills/domain/entities/skills_overview.dart';
 
 const Map<String, Object?> skillsPayload = {
-  'summary': {'solved': 12, 'total': 40, 'graded_answers': 31},
+  'summary': {
+    'solved': 12,
+    'total': 40,
+    'graded_answers': 31,
+    'trend_min_answers': 10,
+  },
   'skills': [
     {
       'code': 'ALG.LIN',
@@ -68,7 +73,12 @@ Map<String, Object?> skillsPayloadWith(Map<String, Object?> overrides) => {
 
 /// Domain fixture matching [skillsPayload].
 final skillsOverviewFixture = SkillsOverview(
-  summary: const SkillsSummary(solved: 12, total: 40, gradedAnswers: 31),
+  summary: const SkillsSummary(
+    solved: 12,
+    total: 40,
+    gradedAnswers: 31,
+    trendMinAnswers: 10,
+  ),
   skills: const [
     SkillMastery(
       code: 'ALG.LIN',

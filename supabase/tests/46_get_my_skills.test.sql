@@ -1,7 +1,7 @@
 -- ANL-01: get_my_skills RPC. From templates/test.sql.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(23);
+select plan(24);
 
 select tests.create_supabase_user(u) from unnest(array[
   'get_a', 'get_exp', 'get_exp2', 'get_none', 'get_weak', 'get_trend']) u;
@@ -190,7 +190,7 @@ select is(public.get_my_skills(pg_temp.id(1)) -> 'trend', '[]'::jsonb,
 
 select is((select v from ctx where k = 'a'),
   jsonb_build_object(
-    'summary', jsonb_build_object('solved',2,'total',7,'graded_answers',5),
+    'summary', jsonb_build_object('solved',2,'total',7,'graded_answers',5,'trend_min_answers',10),
     'skills', '[{"code":"T46-1","name":"Linear solve","domain":"Algebra","mastery":49,"attempts":6,"band":"weak"},
       {"code":"T46-2","name":"Systems","domain":"Algebra","mastery":50,"attempts":6,"band":"building"},
       {"code":"T46-3","name":"Angles","domain":"Geometry","mastery":75,"attempts":5,"band":"strong"},
@@ -203,8 +203,12 @@ select is((select v from ctx where k = 'a'),
       jsonb_build_object('topic_id',pg_temp.id(6),'title','Geometry','unit_title','Unit One','solved',1,'total',3,'level','strong'))),
   'ANL-01: shape_keys_exact (full fixture payload, nested keys and ordering)');
 
+select is((select (v #>> '{summary,trend_min_answers}')::int from ctx where k = 'a'),
+  (select (value #>> '{}')::int from public.settings where key = 'mastery_trend_min_answers'),
+  'ANL-01: trend_min_answers_from_payload equals mastery_trend_min_answers setting');
+
 select is((select v -> 'summary' from ctx where k = 'a'),
-  '{"solved":2,"total":7,"graded_answers":5}'::jsonb,
+  '{"solved":2,"total":7,"graded_answers":5,"trend_min_answers":10}'::jsonb,
   'ANL-01: solved_counts_distinct_correct (distinct correct questions of this course, drafts and course B excluded)');
 
 select is((select array_agg(s ->> 'code' order by s ->> 'code') from ctx, jsonb_array_elements(v -> 'skills') s where k = 'a'),
@@ -246,7 +250,7 @@ reset role;
 select is((select jsonb_build_object('summary', v -> 'summary', 'skills', v -> 'skills', 'weak', v -> 'weak', 'trend', v -> 'trend',
     'levels', (select jsonb_agg(t ->> 'level') from jsonb_array_elements(v -> 'topics') t))
   from ctx where k = 'untagged'),
-  '{"summary":{"solved":2,"total":7,"graded_answers":5},"skills":[],"weak":[],"trend":[],"levels":["thin","thin"]}'::jsonb,
+  '{"summary":{"solved":2,"total":7,"graded_answers":5,"trend_min_answers":10},"skills":[],"weak":[],"trend":[],"levels":["thin","thin"]}'::jsonb,
   'ANL-01: no_tags_summary_only (summary and topics still work, skills empty, topic levels thin)');
 
 select is(has_function_privilege('anon', 'public.get_my_skills(uuid)', 'execute'), false,

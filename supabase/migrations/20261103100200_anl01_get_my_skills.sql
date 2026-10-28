@@ -200,7 +200,7 @@ begin
 
   return jsonb_build_object(
     'summary', jsonb_build_object('solved', coalesce(v_solved, 0), 'total', v_total,
-                                  'graded_answers', coalesce(v_graded, 0)),
+                                  'graded_answers', coalesce(v_graded, 0), 'trend_min_answers', v_trend_min),
     'skills', v_skills,
     'weak', v_weak,
     'trend', v_trend,

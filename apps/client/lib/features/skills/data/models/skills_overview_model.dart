@@ -4,20 +4,15 @@ import 'package:sat_east_client/features/skills/domain/entities/skills_overview.
 /// Parses the `get_my_skills` payload; throws [FormatException] when a field
 /// is missing or mistyped. An unknown band falls back to thin.
 SkillsOverview skillsOverviewFromJson(
-  Map<String, Object?> json, {
-  int? trendMinAnswers,
-}) {
+  Map<String, Object?> json,
+) {
   final summary = attemptJsonMap(json['summary'], 'summary');
   return SkillsOverview(
     summary: SkillsSummary(
       solved: attemptJsonInt(summary, 'solved'),
       total: attemptJsonInt(summary, 'total'),
       gradedAnswers: attemptJsonInt(summary, 'graded_answers'),
-      trendMinAnswers:
-          trendMinAnswers ??
-          (summary['trend_min_answers'] == null
-              ? null
-              : attemptJsonInt(summary, 'trend_min_answers')),
+      trendMinAnswers: attemptJsonInt(summary, 'trend_min_answers', min: 1),
     ),
     skills: [
       for (final s in attemptJsonList(json, 'skills'))

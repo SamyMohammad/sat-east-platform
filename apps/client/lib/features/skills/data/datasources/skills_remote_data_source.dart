@@ -10,25 +10,15 @@ const _malformed = AppError(ErrorCodes.internal, 'malformed rpc payload');
 
 /// `get_my_skills` RPC.
 class SkillsRemoteDataSource {
-  SkillsRemoteDataSource(this._rpc, {required this.readTrendMinimum});
+  SkillsRemoteDataSource(this._rpc);
 
   final RpcCaller _rpc;
-  final Future<Object?> Function() readTrendMinimum;
 
   Future<Result<SkillsOverview>> getMySkills(String courseId) async {
     try {
       final raw = await _rpc('get_my_skills', {'p_course_id': courseId});
       if (raw is! Map) return const Failure(_malformed);
-      final setting = await readTrendMinimum();
-      if (setting is! Map<String, Object?>) return const Failure(_malformed);
-      final minimum = setting['value'];
-      if (minimum is! int || minimum < 1) return const Failure(_malformed);
-      return Success(
-        skillsOverviewFromJson(
-          raw.cast<String, Object?>(),
-          trendMinAnswers: minimum,
-        ),
-      );
+      return Success(skillsOverviewFromJson(raw.cast<String, Object?>()));
     } on PostgrestException catch (e) {
       return Failure(mapPostgrestException(e));
     } on FormatException {

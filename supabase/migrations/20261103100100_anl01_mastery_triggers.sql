@@ -66,7 +66,12 @@ create trigger attempts_mastery
 -- Rebuilds skill_mastery and skill_mastery_daily from history, in time order. Deterministic:
 -- skill_mastery is derived data, so it is cleared first and a second run gives the same rows.
 -- Practice/review: first try only (one try stored = its own result; two tries = first was wrong,
--- no regrading). Quiz/homework: every question of a submitted attempt, unanswered = incorrect.
+-- no regrading). For two-try practice/review rows, check_practice_answer overwrites time_ms
+-- (with the accumulated duration) and answered_at on the second try. Those stored values
+-- describe the second-try row, so historical two-try answers are dated by the second try
+-- in skill_mastery_daily. There is no earlier live mastery value to match: mastery did not
+-- exist before this migration.
+-- Quiz/homework: every question of a submitted attempt, unanswered = incorrect.
 create or replace function private.backfill_mastery()
 returns void
 language plpgsql

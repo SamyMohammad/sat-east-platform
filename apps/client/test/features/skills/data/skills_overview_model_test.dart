@@ -43,7 +43,12 @@ void main() {
     test('ANL-01: empty_lists_ok', () {
       final overview = skillsOverviewFromJson(
         skillsPayloadWith({
-          'summary': {'solved': 0, 'total': 0, 'graded_answers': 0},
+          'summary': {
+            'solved': 0,
+            'total': 0,
+            'graded_answers': 0,
+            'trend_min_answers': 10,
+          },
           'skills': <Object?>[],
           'weak': <Object?>[],
           'trend': <Object?>[],
@@ -58,22 +63,29 @@ void main() {
       expect(overview.summary.gradedAnswers, 0);
     });
 
-    test('ANL-01: parses_optional_trend_min_answers', () {
+    test('ANL-01: trend_min_answers_from_payload', () {
       final overview = skillsOverviewFromJson(
         skillsPayloadWith({
           'summary': {
             'solved': 1,
             'total': 2,
             'graded_answers': 3,
-            'trend_min_answers': 10,
+            'trend_min_answers': 17,
           },
         }),
       );
 
-      expect(overview.summary.trendMinAnswers, 10);
+      expect(overview.summary.trendMinAnswers, 17);
+    });
+
+    test('ANL-01: missing_trend_min_answers_is_a_format_error', () {
       expect(
-        skillsOverviewFromJson(skillsPayload).summary.trendMinAnswers,
-        isNull,
+        () => skillsOverviewFromJson(
+          skillsPayloadWith({
+            'summary': {'solved': 1, 'total': 2, 'graded_answers': 3},
+          }),
+        ),
+        throwsFormatException,
       );
     });
 

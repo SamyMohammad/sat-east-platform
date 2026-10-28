@@ -195,11 +195,6 @@ void configureDependencies({
     ..registerLazySingleton<SkillsRemoteDataSource>(
       () => SkillsRemoteDataSource(
         (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
-        readTrendMinimum: () => getIt<SupabaseClient>()
-            .from('settings')
-            .select('value')
-            .eq('key', 'mastery_trend_min_answers')
-            .single(),
       ),
     )
     ..registerLazySingleton<SkillsRepository>(
