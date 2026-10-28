@@ -3,6 +3,12 @@ import 'package:sat_east_client/core/presentation/learning_copy.dart';
 
 abstract final class QuizCopy {
   static const title = 'Quiz';
+  static const bySkill = 'By skill';
+
+  static String skillCount(int correct, int total) => '$correct of $total';
+
+  static String skillResult(String name, int correct, int total) =>
+      '$name, ${skillCount(correct, total)} correct';
   static const passed = 'Quiz passed';
   static const notPassed = 'Quiz not passed';
   static const nextTopic = 'Next topic';

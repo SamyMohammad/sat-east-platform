@@ -52,6 +52,10 @@ import 'package:sat_east_client/features/quiz/data/datasources/quiz_remote_data_
 import 'package:sat_east_client/features/quiz/data/repositories/quiz_repository_impl.dart';
 import 'package:sat_east_client/features/quiz/domain/repositories/quiz_repository.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart';
+import 'package:sat_east_client/features/skills/data/datasources/skills_remote_data_source.dart';
+import 'package:sat_east_client/features/skills/data/repositories/skills_repository_impl.dart';
+import 'package:sat_east_client/features/skills/domain/repositories/skills_repository.dart';
+import 'package:sat_east_client/features/skills/presentation/cubit/skills_cubit.dart';
 import 'package:sat_east_client/features/teacher/course_builder/data/datasources/course_builder_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/course_builder/data/repositories/course_builder_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/repositories/course_builder_repository.dart';
@@ -187,6 +191,23 @@ void configureDependencies({
     )
     ..registerFactory<CourseMapCubit>(
       () => CourseMapCubit(getIt<CourseMapRepository>()),
+    )
+    ..registerLazySingleton<SkillsRemoteDataSource>(
+      () => SkillsRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+        readTrendMinimum: () => getIt<SupabaseClient>()
+            .from('settings')
+            .select('value')
+            .eq('key', 'mastery_trend_min_answers')
+            .single(),
+      ),
+    )
+    ..registerLazySingleton<SkillsRepository>(
+      () => SkillsRepositoryImpl(getIt<SkillsRemoteDataSource>()),
+    )
+    ..registerFactory<SkillsCubit>(
+      () =>
+          SkillsCubit(getIt<SkillsRepository>(), getIt<CourseMapRepository>()),
     )
     ..registerLazySingleton<QuizRemoteDataSource>(
       () => QuizRemoteDataSource(

@@ -5,6 +5,57 @@ import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'quiz_fixture.dart';
 
 void main() {
+  test('ANL-02: report_parses_skills', () {
+    final payload = quizReportPayload()
+      ..['skills'] = [
+        {'code': 'ALG', 'name': 'Linear equations', 'correct': 2, 'total': 3},
+      ];
+    final report = quizReportFromJson(payload);
+    expect(report.skills, const [
+      QuizSkillResult(
+        code: 'ALG',
+        name: 'Linear equations',
+        correct: 2,
+        total: 3,
+      ),
+    ]);
+    expect(report, quizReportFromJson(payload));
+    expect(report, isNot(quizReportFromJson(quizReportPayload())));
+  });
+
+  test('ANL-02: old_report_without_skills_parses_empty', () {
+    expect(quizReportFromJson(quizReportPayload()).skills, isEmpty);
+  });
+
+  for (final invalid in <Object?>[
+    null,
+    {},
+    [null],
+    [
+      {'code': '', 'name': 'Linear equations', 'correct': 1, 'total': 2},
+    ],
+    [
+      {'code': 'ALG', 'name': 1, 'correct': 1, 'total': 2},
+    ],
+    [
+      {'code': 'ALG', 'name': 'Linear equations', 'correct': -1, 'total': 2},
+    ],
+    [
+      {'code': 'ALG', 'name': 'Linear equations', 'correct': 1.5, 'total': 2},
+    ],
+    [
+      {'code': 'ALG', 'name': 'Linear equations', 'correct': 3, 'total': 2},
+    ],
+    [
+      {'code': 'ALG', 'name': 'Linear equations', 'correct': 0, 'total': 0},
+    ],
+  ]) {
+    test('ANL-02: rejects malformed skills $invalid', () {
+      final payload = quizReportPayload()..['skills'] = invalid;
+      expect(() => quizReportFromJson(payload), throwsFormatException);
+    });
+  }
+
   test(
     'PRC-03: parses a new quiz with server timing and ordered questions',
     () {
