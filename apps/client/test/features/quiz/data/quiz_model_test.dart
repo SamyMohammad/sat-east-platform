@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/attempts/skill_result.dart';
 import 'package:sat_east_client/features/quiz/data/models/quiz_model.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 
@@ -12,7 +13,7 @@ void main() {
       ];
     final report = quizReportFromJson(payload);
     expect(report.skills, const [
-      QuizSkillResult(
+      SkillResult(
         code: 'ALG',
         name: 'Linear equations',
         correct: 2,

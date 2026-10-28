@@ -6,6 +6,10 @@ Map<String, Object?> reviewPayload({bool visible = true}) => {
     'pass_mark': null,
     'passed': null,
     'keys_visible': visible,
+    'skills': [
+      {'code': 'ALG', 'name': 'Linear equations', 'correct': 2, 'total': 3},
+      {'code': 'QUAD', 'name': 'Quadratics', 'correct': 1, 'total': 2},
+    ],
   },
   'questions': [
     {

@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/attempts/skill_result.dart';
 import 'package:sat_east_client/features/practice/presentation/widgets/practice_summary.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
@@ -20,13 +21,13 @@ QuizReport _withSkills(QuizReport report) => QuizReport(
   nextTopic: report.nextTopic,
   retakeAt: report.retakeAt,
   skills: const [
-    QuizSkillResult(
+    SkillResult(
       code: 'ALG.LIN',
       name: 'Linear equations',
       correct: 4,
       total: 5,
     ),
-    QuizSkillResult(
+    SkillResult(
       code: 'ALG.SYS',
       name: 'Systems of equations',
       correct: 2,

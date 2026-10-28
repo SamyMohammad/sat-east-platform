@@ -1,5 +1,6 @@
 import 'package:sat_east_client/core/attempts/attempt_json.dart';
 import 'package:sat_east_client/core/attempts/attempt_question.dart';
+import 'package:sat_east_client/core/attempts/skill_result.dart';
 import 'package:sat_east_client/features/attempt_review/domain/entities/attempt_review.dart';
 
 AttemptReview attemptReviewFromJson(Map<String, Object?> json) {
@@ -29,6 +30,11 @@ AttemptReview attemptReviewFromJson(Map<String, Object?> json) {
         ? null
         : attemptJsonBool(summary, 'passed'),
     questions: List.unmodifiable(questions),
+    skills: summary.containsKey('skills')
+        ? List.unmodifiable(
+            attemptJsonList(summary, 'skills').map(skillResultFromJson),
+          )
+        : const [],
   );
 }
 

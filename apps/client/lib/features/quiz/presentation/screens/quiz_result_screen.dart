@@ -8,11 +8,11 @@ import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
+import 'package:sat_east_client/shared/widgets/skill_breakdown.dart';
 
 import '../../domain/entities/quiz.dart';
 import '../quiz_copy.dart';
 import '../widgets/quiz_result_score.dart';
-import '../widgets/quiz_result_skills.dart';
 import '../widgets/quiz_status_content.dart';
 
 class QuizResultScreen extends StatelessWidget {
@@ -46,8 +46,7 @@ class QuizResultScreen extends StatelessWidget {
                   : AppIllustrationName.quizRetry,
             ),
             QuizResultScore(report: report),
-            if (report.skills.isNotEmpty)
-              QuizResultSkills(skills: report.skills),
+            if (report.skills.isNotEmpty) SkillBreakdown(skills: report.skills),
             if (!report.passed)
               Text(
                 textAlign: TextAlign.center,
