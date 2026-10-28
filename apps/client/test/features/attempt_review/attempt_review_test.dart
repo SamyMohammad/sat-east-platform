@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:sat_east_client/core/attempts/skill_result.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/math_render/math_text.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
@@ -24,6 +25,86 @@ import '../../core/fakes/fake_rpc.dart';
 import 'review_fixture.dart';
 
 void main() {
+  test('ANL-02: attempt_review_parses_summary_skills', () {
+    final review = attemptReviewFromJson(reviewPayload());
+    expect(review.skills, const [
+      SkillResult(code: 'ALG', name: 'Linear equations', correct: 2, total: 3),
+      SkillResult(code: 'QUAD', name: 'Quadratics', correct: 1, total: 2),
+    ]);
+    final payload = reviewPayload();
+    (payload['summary']! as Map<String, Object?>).remove('skills');
+    expect(review, isNot(attemptReviewFromJson(payload)));
+  });
+  test('ANL-02: attempt_review_missing_skills_is_empty', () {
+    final payload = reviewPayload();
+    (payload['summary']! as Map<String, Object?>).remove('skills');
+    expect(attemptReviewFromJson(payload).skills, isEmpty);
+  });
+  for (final invalid in <Object?>[
+    null,
+    {},
+    [null],
+    [
+      {'code': 'ALG', 'name': 'Algebra', 'correct': 3, 'total': 2},
+    ],
+  ]) {
+    test('ANL-02: attempt_review_rejects_invalid_skills $invalid', () {
+      final payload = reviewPayload();
+      (payload['summary']! as Map<String, Object?>)['skills'] = invalid;
+      expect(() => attemptReviewFromJson(payload), throwsFormatException);
+    });
+  }
+  for (final hasSkills in [true, false]) {
+    testWidgets(
+      hasSkills
+          ? 'ANL-02: review_screen_shows_by_skill'
+          : 'ANL-02: review_screen_hides_by_skill_when_empty',
+      (tester) async {
+        final semantics = tester.ensureSemantics();
+        final payload = reviewPayload();
+        if (!hasSkills) {
+          (payload['summary']! as Map<String, Object?>)['skills'] = <Object?>[];
+        }
+        final rpc = FakeRpc()..response = payload;
+        final cubit = AttemptReviewCubit(
+          AttemptReviewRepositoryImpl(AttemptReviewRemoteDataSource(rpc.call)),
+        );
+        addTearDown(cubit.close);
+        await cubit.load('hw1');
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: AppTheme.light(),
+            home: Scaffold(
+              body: BlocProvider.value(
+                value: cubit,
+                child: const AttemptReviewView(attemptId: 'hw1'),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          find.text('By skill'),
+          hasSkills ? findsOneWidget : findsNothing,
+        );
+        if (hasSkills) {
+          expect(find.text('Linear equations'), findsOneWidget);
+          expect(find.text('2 of 3'), findsOneWidget);
+          expect(
+            tester.getSemantics(find.text('2 of 3')).label,
+            'Linear equations, 2 of 3 correct',
+          );
+          expect(
+            tester.getTopLeft(find.text('By skill')).dy,
+            lessThan(tester.getTopLeft(find.text('Question 1')).dy),
+          );
+        }
+        semantics.dispose();
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
+
   testWidgets('review_card_shows_icon_and_word', (tester) async {
     final rpc = FakeRpc()..response = reviewPayload();
     final cubit = AttemptReviewCubit(

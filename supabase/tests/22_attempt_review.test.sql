@@ -1,7 +1,7 @@
 -- PRC-03: submitted quiz review and topic-pass key visibility. From templates/test.sql.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(39);
+select plan(40);
 
 select tests.create_supabase_user('attempt_owner');
 select tests.create_supabase_user('attempt_other');
@@ -148,7 +148,7 @@ select is((pg_temp.question('failed', '00000000-0000-0000-0000-0000000022e1') ->
   'PRC-03: recorded answer time is returned');
 select tests.clear_authentication();
 reset role;
-select is((select v -> 'summary' from attempt_review_ctx where k = 'failed'),
+select is((select (v -> 'summary') - 'skills' from attempt_review_ctx where k = 'failed'),
   (select (meta -> 'report') - 'next_topic' - 'retake_at' - 'skills' || jsonb_build_object('keys_visible', false)
    from public.attempts where id = '00000000-0000-0000-0000-000000002201'), 'PRC-03: summary matches the stored report');
 select tests.authenticate_as('attempt_teacher');
@@ -185,6 +185,25 @@ select is((select count(*)::int from attempt_review_ctx, jsonb_array_elements(v 
   where k = 'old_failed' and q ?& array['key','explanation_md']), 3, 'PRC-03: all old failed questions expose keys after the topic pass');
 select is(pg_temp.question('old_failed', '00000000-0000-0000-0000-0000000022e1') -> 'key', '{"choice":"B"}'::jsonb,
   'PRC-03: old wrong answer now shows its key');
+select tests.clear_authentication();
+reset role;
+
+-- Reconstruct skills live for an older report, including a missing answer row.
+update public.attempts set meta = jsonb_set(meta, '{report}', (meta -> 'report') - 'skills')
+where id = '00000000-0000-0000-0000-000000002201';
+delete from public.attempt_answers where attempt_id = '00000000-0000-0000-0000-000000002201'
+  and question_id = '00000000-0000-0000-0000-0000000022e3';
+insert into public.skills (id, code, name, domain) values
+  ('00000000-0000-0000-0000-0000000022a3', 'AR-Z', 'Algebra', 'Algebra');
+insert into public.question_skills (question_id, skill_id) values
+  ('00000000-0000-0000-0000-0000000022e3', '00000000-0000-0000-0000-0000000022a1'),
+  ('00000000-0000-0000-0000-0000000022e3', '00000000-0000-0000-0000-0000000022a3');
+select tests.authenticate_as('attempt_owner');
+select is(public.get_attempt_review('00000000-0000-0000-0000-000000002201') #> '{summary,skills}',
+  '[{"code":"AR-A","name":"Algebra","correct":1,"total":3},
+    {"code":"AR-Z","name":"Algebra","correct":0,"total":1},
+    {"code":"AR-F","name":"Fractions","correct":1,"total":1}]'::jsonb,
+  'ANL-02: review_summary_has_skills_quiz');
 select tests.clear_authentication();
 reset role;
 

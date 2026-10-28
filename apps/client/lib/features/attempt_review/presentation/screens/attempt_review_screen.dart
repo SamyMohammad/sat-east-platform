@@ -15,6 +15,7 @@ import 'package:sat_east_client/features/attempt_review/presentation/cubit/attem
 import 'package:sat_east_client/features/attempt_review/presentation/widgets/review_question_card.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
+import 'package:sat_east_client/shared/widgets/skill_breakdown.dart';
 
 class AttemptReviewScreen extends StatelessWidget {
   const AttemptReviewScreen({required this.attemptId, super.key});
@@ -91,6 +92,10 @@ class AttemptReviewView extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpace.s4),
+                if (review.skills.isNotEmpty) ...[
+                  SkillBreakdown(skills: review.skills),
+                  const SizedBox(height: AppSpace.s4),
+                ],
                 if (!review.keysVisible)
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: AppSpace.s3),

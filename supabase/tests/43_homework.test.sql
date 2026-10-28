@@ -151,5 +151,26 @@ select tests.authenticate_as('hw_passed');
 select is(public.get_topic(pg_temp.h(11))#>>'{homework,state}','skipped','PRC-02: prior quiz pass skips homework');
 select is(public.get_topic(pg_temp.h(11))#>>'{quiz,state}','available','LRN-01: prior quiz pass has no homework gate');
 select lives_ok('select public.start_quiz(pg_temp.h(11))','LRN-01: prior passer can start quiz without homework');
+select tests.clear_authentication();
+reset role;
+insert into public.skills (id, code, name, domain) values
+  (pg_temp.h(70), 'HW-Z', 'Algebra', 'Algebra'),
+  (pg_temp.h(71), 'HW-A', 'Algebra', 'Algebra'),
+  (pg_temp.h(72), 'HW-F', 'Fractions', 'Algebra');
+insert into public.question_skills (question_id, skill_id) values
+  (pg_temp.h(31),pg_temp.h(71)), (pg_temp.h(32),pg_temp.h(71)), (pg_temp.h(33),pg_temp.h(71)),
+  (pg_temp.h(33),pg_temp.h(70)), (pg_temp.h(31),pg_temp.h(72));
+select tests.authenticate_as('hw_other');
+select public.save_answer(pg_temp.hatt('full'),pg_temp.h(31),'B',0,false,null,1);
+select public.save_answer(pg_temp.hatt('full'),pg_temp.h(32),'A',0,false,null,2);
+select public.submit_attempt(pg_temp.hatt('full'));
+select is(public.get_attempt_review(pg_temp.hatt('full')) #> '{summary,skills}',
+  '[{"code":"HW-A","name":"Algebra","correct":1,"total":3},
+    {"code":"HW-Z","name":"Algebra","correct":0,"total":1},
+    {"code":"HW-F","name":"Fractions","correct":1,"total":1}]'::jsonb,
+  'ANL-02: review_summary_has_skills_homework');
+select tests.authenticate_as('hw_owner');
+select is(public.get_attempt_review(pg_temp.hatt('small')) #> '{summary,skills}', '[]'::jsonb,
+  'ANL-02: review_summary_skills_empty_when_untagged');
 select * from finish();
 rollback;

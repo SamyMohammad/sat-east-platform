@@ -56,6 +56,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| P2 | Skills screen + server skill mastery (ANL-01), quiz per-skill report (ANL-02) | #64 |
 | P1 | Staging-check polish: no lost video seconds, whole percents, MB quota, report rows | #60 |
 | P1 | Trim EF video secrets (staging R2 key had a stray character) | #59 |
 | P1 | Prod deploy (manual) + nightly encrypted backups to R2 + prod runbook | #58 |

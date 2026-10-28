@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/attempts/skill_result.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
@@ -36,13 +37,13 @@ const skillBreakdownReport = QuizReport(
   nextTopic: null,
   retakeAt: null,
   skills: [
-    QuizSkillResult(
+    SkillResult(
       code: 'ALG',
       name: 'Linear equations',
       correct: 2,
       total: 3,
     ),
-    QuizSkillResult(code: 'QUAD', name: 'Quadratics', correct: 1, total: 2),
+    SkillResult(code: 'QUAD', name: 'Quadratics', correct: 1, total: 2),
   ],
 );
 

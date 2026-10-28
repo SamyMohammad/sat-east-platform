@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:sat_east_client/core/attempts/attempt_question.dart';
+import 'package:sat_east_client/core/attempts/skill_result.dart';
 
 class AttemptReview extends Equatable {
   const AttemptReview({
@@ -8,6 +9,7 @@ class AttemptReview extends Equatable {
     required this.scorePct,
     required this.keysVisible,
     required this.questions,
+    this.skills = const [],
     this.passMark,
     this.passed,
   });
@@ -18,6 +20,7 @@ class AttemptReview extends Equatable {
   final int? passMark;
   final bool? passed;
   final List<ReviewQuestion> questions;
+  final List<SkillResult> skills;
   @override
   List<Object?> get props => [
     scoreRaw,
@@ -27,6 +30,7 @@ class AttemptReview extends Equatable {
     passMark,
     passed,
     questions,
+    skills,
   ];
 }
 
