@@ -52,6 +52,7 @@ import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
 import 'fake_notes_viewer_cubit.dart';
 import 'fake_practice_cubit.dart';
+import 'fake_skills_cubit.dart';
 import 'fake_topic_cubit.dart';
 
 part 'fake_quiz_cubit.dart';
@@ -395,6 +396,8 @@ void main() {
   tearDown(unregisterFakePracticeCubit);
   setUp(registerFakeQuizCubit);
   tearDown(unregisterFakeQuizCubit);
+  setUp(registerFakeSkillsCubit);
+  tearDown(unregisterFakeSkillsCubit);
 
   const passedReport = QuizReport(
     scoreRaw: 9,

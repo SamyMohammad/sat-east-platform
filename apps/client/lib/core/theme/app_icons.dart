@@ -67,4 +67,8 @@ abstract final class AppIcons {
   static const IconData video = LucideIcons.video;
   static const IconData notes = LucideIcons.notebook;
   static const IconData homework = LucideIcons.clipboardList;
+  static const IconData masteryWeak = LucideIcons.triangleAlert;
+  static const IconData masteryBuilding = LucideIcons.trendingUp;
+  static const IconData masteryStrong = LucideIcons.circleCheck;
+  static const IconData masteryThin = LucideIcons.circleDashed;
 }
