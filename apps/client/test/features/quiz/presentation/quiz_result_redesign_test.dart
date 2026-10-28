@@ -6,6 +6,7 @@ import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
+import 'package:sat_east_client/shared/widgets/growing_bar.dart';
 
 const passedReport = QuizReport(
   scoreRaw: 9,
@@ -24,6 +25,25 @@ const failedReport = QuizReport(
   passed: false,
   nextTopic: null,
   retakeAt: null,
+);
+
+const skillBreakdownReport = QuizReport(
+  scoreRaw: 9,
+  scoreTotal: 12,
+  scorePct: 75,
+  passMark: 70,
+  passed: true,
+  nextTopic: null,
+  retakeAt: null,
+  skills: [
+    QuizSkillResult(
+      code: 'ALG',
+      name: 'Linear equations',
+      correct: 2,
+      total: 3,
+    ),
+    QuizSkillResult(code: 'QUAD', name: 'Quadratics', correct: 1, total: 2),
+  ],
 );
 
 Future<void> pumpResult(
@@ -54,6 +74,58 @@ Future<void> pumpResult(
 }
 
 void main() {
+  testWidgets('ANL-02: result_shows_by_skill_rows', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await pumpResult(tester, report: skillBreakdownReport, reduced: true);
+    expect(find.text('By skill'), findsOneWidget);
+    expect(find.text('Linear equations'), findsOneWidget);
+    expect(find.text('2 of 3'), findsOneWidget);
+    expect(find.text('Quadratics'), findsOneWidget);
+    expect(find.text('1 of 2'), findsOneWidget);
+    expect(
+      find.bySemanticsLabel('Linear equations, 2 of 3 correct'),
+      findsOneWidget,
+    );
+    expect(
+      tester.getTopLeft(find.text('By skill')).dy,
+      greaterThan(
+        tester.getTopLeft(find.text('9 of 12 correct · Pass mark 70%')).dy,
+      ),
+    );
+    semantics.dispose();
+  });
+
+  testWidgets('ANL-02: result_hides_by_skill_when_empty', (tester) async {
+    await pumpResult(tester, reduced: true);
+    expect(find.text('By skill'), findsNothing);
+    expect(find.byType(GrowingBar), findsNothing);
+  });
+
+  testWidgets('ANL-02: skill_bars_stagger_reduced_motion_static', (
+    tester,
+  ) async {
+    await pumpResult(tester, report: skillBreakdownReport);
+    final bars = tester
+        .widgetList<GrowingBar>(find.byType(GrowingBar))
+        .toList();
+    expect(bars.map((bar) => bar.index), [0, 1]);
+    List<double?> fills() => tester
+        .widgetList<FractionallySizedBox>(
+          find.byKey(const ValueKey('growing-bar-fill')),
+        )
+        .map((bar) => bar.widthFactor)
+        .toList();
+    expect(fills(), [0, 0]);
+    await tester.pump(AppMotion.stagger ~/ 2);
+    expect(fills().first, greaterThan(0));
+    expect(fills().last, 0);
+    await tester.pumpWidget(const SizedBox.shrink());
+    await pumpResult(tester, report: skillBreakdownReport, reduced: true);
+    expect(fills(), [2 / 3, 1 / 2]);
+    await tester.pump(AppMotion.enter);
+    expect(fills(), [2 / 3, 1 / 2]);
+  });
+
   testWidgets('quiz_result_count_up_reaches_final_score', (tester) async {
     await pumpResult(tester);
     expect(find.text('0%'), findsOneWidget);

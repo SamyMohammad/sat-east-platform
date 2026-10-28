@@ -194,6 +194,9 @@ question_exposure(user_id fk, question_id fk, first_seen_at,
 skill_mastery(user_id fk, skill_id fk, mastery numeric,  -- 0..100, EWMA
   attempts int, correct int, avg_time_ms int, updated_at,
   primary key(user_id, skill_id))
+skill_mastery_daily(user_id fk, skill_id fk, day date,     -- trend history; written only by private.apply_mastery
+  mastery numeric, primary key(user_id, skill_id, day))
+  -- quiz attempts.meta.report.skills = [{code,name,correct,total}] (ANL-02)
 
 mistake_notebook(user_id fk, question_id fk, added_at, correct_streak int,
   cleared_at timestamptz null, primary key(user_id, question_id))
@@ -253,7 +256,7 @@ dashboard or an Edge Function. Agreed in row 3 (docs/15 §1, 2026-10-07).
 | orders | — | select own, every column except `raw_payload` |
 | attempts | — | select own |
 | attempt_answers | — | select own, only when the attempt is no longer `in_progress` (rule 1) |
-| topic_progress, video_progress, skill_mastery, mistake_notebook, mock_results | — | select own |
+| topic_progress, video_progress, skill_mastery, skill_mastery_daily, mistake_notebook, mock_results | — | select own |
 | official_scores, question_reports | — | select + insert own |
 | ai_threads, ai_messages, escalations | — | select own (writes: `ai-tutor` EF, so cost caps hold) |
 | live_sessions, announcements | — | select if `has_access(course_id)` |

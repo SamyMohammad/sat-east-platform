@@ -14,7 +14,7 @@ select tables_are('public', array[
   'units','topics','subtopics','topic_assets','video_chapters','skills','subtopic_skills',
   'questions','question_courses','question_choices','question_skills','question_reports',
   'topic_progress','video_progress','attempts','attempt_questions','attempt_answers',
-  'question_exposure','skill_mastery','mistake_notebook',
+  'question_exposure','skill_mastery','skill_mastery_daily','mistake_notebook',
   'mock_templates','mock_forms','mock_results','official_scores',
   'ai_threads','ai_messages','escalations','live_sessions','announcements','notifications',
   'push_tokens','settings','audit_log'

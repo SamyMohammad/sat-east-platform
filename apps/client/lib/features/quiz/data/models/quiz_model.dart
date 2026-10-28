@@ -42,5 +42,23 @@ QuizReport quizReportFromJson(Map<String, Object?> json) {
             title: attemptJsonString(nextTopic, 'title'),
           ),
     retakeAt: retake == null ? null : attemptJsonInstant(json, 'retake_at'),
+    skills: json.containsKey('skills')
+        ? List.unmodifiable(
+            attemptJsonList(json, 'skills').map(_quizSkillResultFromJson),
+          )
+        : const [],
+  );
+}
+
+QuizSkillResult _quizSkillResultFromJson(Object? value) {
+  final json = attemptJsonMap(value, 'skills');
+  final correct = attemptJsonInt(json, 'correct');
+  final total = attemptJsonInt(json, 'total', min: 1);
+  if (correct > total) throw const FormatException('correct');
+  return QuizSkillResult(
+    code: attemptJsonId(json, 'code'),
+    name: attemptJsonId(json, 'name'),
+    correct: correct,
+    total: total,
   );
 }

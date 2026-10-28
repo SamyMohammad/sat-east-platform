@@ -8,10 +8,15 @@ import 'package:sat_east_client/core/observability/error_reporter.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/theme_mode_cubit.dart';
 import 'package:sat_east_client/core/theme/theme_mode_store.dart';
+import 'package:sat_east_client/features/skills/presentation/screens/skills_screen.dart';
+
+import '../router/fake_skills_cubit.dart';
 
 class _Box extends Mock implements Box<String> {}
 
 void main() {
+  setUp(registerFakeSkillsCubit);
+  tearDown(unregisterFakeSkillsCubit);
   testWidgets('theme_switch_reduced_motion_shows_final_state_and_keeps_route', (
     tester,
   ) async {
@@ -38,7 +43,7 @@ void main() {
     await tester.pump();
     expect(router.routeInformationProvider.value.uri.path, AppRoutes.skills);
     final context = tester.element(
-      find.text('This page will be available soon.'),
+      find.byType(SkillsView),
     );
     expect(Theme.of(context).brightness, Brightness.dark);
     final app = tester.widget<MaterialApp>(find.byType(MaterialApp));

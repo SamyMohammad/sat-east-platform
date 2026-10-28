@@ -29,6 +29,7 @@ import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
+import 'package:sat_east_client/features/skills/presentation/screens/skills_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/screens/teacher_notes_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
@@ -277,6 +278,7 @@ GoRouter createRouter({
                     child: switch (destination) {
                       AppShellDestination.courses => const CourseMapScreen(),
                       AppShellDestination.home => const PlaceholderScreen(),
+                      AppShellDestination.skills => const SkillsScreen(),
                       AppShellDestination.profile => const AccountScreen(),
                       _ => PlaceholderScreen(title: destination.label),
                     },
