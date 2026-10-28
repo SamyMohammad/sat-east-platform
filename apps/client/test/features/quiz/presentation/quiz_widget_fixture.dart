@@ -3,6 +3,7 @@ part of 'quiz_view_test.dart';
 class _MockCubit extends MockCubit<QuizState> implements QuizCubit {}
 
 const _passed = QuizReport(
+  attemptId: 'a1',
   scoreRaw: 9,
   scoreTotal: 12,
   scorePct: 75,

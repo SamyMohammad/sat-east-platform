@@ -11,7 +11,7 @@ void main() {
       ..['skills'] = [
         {'code': 'ALG', 'name': 'Linear equations', 'correct': 2, 'total': 3},
       ];
-    final report = quizReportFromJson(payload);
+    final report = quizReportFromJson(payload, 'a1');
     expect(report.skills, const [
       SkillResult(
         code: 'ALG',
@@ -20,12 +20,12 @@ void main() {
         total: 3,
       ),
     ]);
-    expect(report, quizReportFromJson(payload));
-    expect(report, isNot(quizReportFromJson(quizReportPayload())));
+    expect(report, quizReportFromJson(payload, 'a1'));
+    expect(report, isNot(quizReportFromJson(quizReportPayload(), 'a1')));
   });
 
   test('ANL-02: old_report_without_skills_parses_empty', () {
-    expect(quizReportFromJson(quizReportPayload()).skills, isEmpty);
+    expect(quizReportFromJson(quizReportPayload(), 'a1').skills, isEmpty);
   });
 
   for (final invalid in <Object?>[
@@ -53,7 +53,7 @@ void main() {
   ]) {
     test('ANL-02: rejects malformed skills $invalid', () {
       final payload = quizReportPayload()..['skills'] = invalid;
-      expect(() => quizReportFromJson(payload), throwsFormatException);
+      expect(() => quizReportFromJson(payload, 'a1'), throwsFormatException);
     });
   }
 
@@ -102,8 +102,12 @@ void main() {
     expect(quiz.clientSeq, 7);
   });
 
+  test('PRC-03: report carries the attempt id it was parsed for', () {
+    expect(quizReportFromJson(quizReportPayload(), 'a9').attemptId, 'a9');
+  });
+
   test('PRC-03: parses passed report and next topic', () {
-    final report = quizReportFromJson(quizReportPayload());
+    final report = quizReportFromJson(quizReportPayload(), 'a1');
 
     expect(report.scoreRaw, 9);
     expect(report.scoreTotal, 12);
@@ -122,7 +126,7 @@ void main() {
       ..['next_topic'] = null
       ..['retake_at'] = '2026-10-18T15:00:00+03:00';
 
-    final report = quizReportFromJson(payload);
+    final report = quizReportFromJson(payload, 'a1');
 
     expect(report.scorePct, 66.67);
     expect(report.passed, isFalse);
@@ -136,7 +140,7 @@ void main() {
     () {
       final payload = quizReportPayload()..['passed'] = false;
 
-      final report = quizReportFromJson(payload);
+      final report = quizReportFromJson(payload, 'a1');
 
       expect(report.passed, isFalse);
       expect(report.nextTopic, (id: 't2', title: 'Quadratics'));
@@ -287,14 +291,14 @@ void main() {
   ]) {
     test('PRC-03: rejects invalid report $field=$invalid', () {
       final payload = quizReportPayload()..[field] = invalid;
-      expect(() => quizReportFromJson(payload), throwsFormatException);
+      expect(() => quizReportFromJson(payload, 'a1'), throwsFormatException);
     });
   }
 
   for (final field in quizReportPayload().keys) {
     test('PRC-03: rejects missing report $field including nullable fields', () {
       final payload = quizReportPayload()..remove(field);
-      expect(() => quizReportFromJson(payload), throwsFormatException);
+      expect(() => quizReportFromJson(payload, 'a1'), throwsFormatException);
     });
   }
 
@@ -304,8 +308,8 @@ void main() {
     expect(first, second);
     expect(first.hashCode, second.hashCode);
     expect(
-      quizReportFromJson(quizReportPayload()),
-      quizReportFromJson(quizReportPayload()),
+      quizReportFromJson(quizReportPayload(), 'a1'),
+      quizReportFromJson(quizReportPayload(), 'a1'),
     );
   });
 }

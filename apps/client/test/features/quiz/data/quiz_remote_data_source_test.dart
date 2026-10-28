@@ -78,6 +78,7 @@ void main() {
     expect(rpc.calls.single.$1, 'submit_attempt');
     expect(rpc.calls.single.$2, {'p_attempt_id': 'a1'});
     expect((result as Success<QuizReport>).value.scoreRaw, 9);
+    expect(result.value.attemptId, 'a1');
   });
 
   for (final operation in ['start', 'save', 'submit']) {

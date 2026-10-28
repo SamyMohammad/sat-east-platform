@@ -217,6 +217,7 @@ class _Save {
 
 const _network = AppError(ErrorCodes.network);
 const _report = QuizReport(
+  attemptId: 'a1',
   scoreRaw: 9,
   scoreTotal: 12,
   scorePct: 75,

@@ -32,12 +32,11 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Item | Notes |
 |------|-------|
-| Restyle | Move to a well-known design system — deferred until after the MVP ships to production |
 | Demo course code | Demo course uses code `SAT`. Before real SAT content lands on staging, retire the demo by deleting the CI step "Seed staging demo data" and `supabase/seeds/demo` (or change the demo code) — never edit staging data; re-seeding undoes it and a real `SAT` course breaks every deploy |
 | Demo seed in prod | Prod workflow has no seed step, guards demo seed paths and asserts prod/staging refs differ (`.github/workflows/deploy-prod.yml`) |
 | Prod backups | Nightly encrypted R2 backups and backup-before-migrate; owner setup + restore drill: [prod runbook](setup/prod.md) |
 | Local `db reset` | Fails with exit 139 at "Initialising schema"; workaround `supabase migration up --local` + restart auth container (`supabase/seeds/demo/README.md`) |
-| Quiz follow-ups | Spiral + difficulty blueprint; review-set UI (S-23); link the quiz result to the shared attempt report (#57 built it for homework; the quiz result screen has no attempt id yet); quiz repeats on the 12-question demo pools (accepted for the slice) |
+| Quiz follow-ups | Spiral + difficulty blueprint; review-set UI (S-23); quiz repeats on the 12-question demo pools (accepted for the slice) |
 | Rate-limit rollback | `private.hit_rate_limit` counts only calls that don't raise (a raise rolls back the increment). Fine for practice/quiz RPCs; guess-style RPCs must return errors instead of raising (lane 1b `redeem_activation_code` does) |
 | Auth Site URL | Staging done (2026-10-24). Prod: set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, part of the [prod runbook](setup/prod.md) |
 | Password reset redirect | Staging done (2026-10-24). Prod: add `<site>/?flow=recovery` (`docs/setup/auth.md` §0) — user |
