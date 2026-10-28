@@ -23,6 +23,15 @@ Deno.test('SEC-01: non-2xx and thrown PUT failures never expose URLs or response
   const storage = new PresignedUpload(() => Promise.resolve(new Uint8Array()), () => Promise.reject(new Error(URLS['master.m3u8'])));
   assertEquals((await assertRejects(() => storage.upload(FILES, URLS), Error)).message.includes('SECRET'), false);
 });
+Deno.test('C-2: a failed PUT reports its HTTP status and S3 error code only', async () => {
+  const body = '<Error><Code>SignatureDoesNotMatch</Code><Message>SECRET_REMOTE_ERROR</Message></Error>';
+  const storage = new PresignedUpload(() => Promise.resolve(new Uint8Array()), () => Promise.resolve(new Response(body, { status: 403 })));
+  const error = await assertRejects(() => storage.upload(FILES, URLS), Error);
+  assertEquals(error.message.includes('(HTTP 403 SignatureDoesNotMatch)'), true);
+  assertEquals(error.message.includes('SECRET'), false);
+  const bare = new PresignedUpload(() => Promise.resolve(new Uint8Array()), () => Promise.resolve(new Response('SECRET_REMOTE_ERROR', { status: 500 })));
+  assertEquals((await assertRejects(() => bare.upload(FILES, URLS), Error)).message.includes('(HTTP 500)'), true);
+});
 Deno.test('C-2: uploads run at most four in parallel and finish every file', async () => {
   const files = Array.from({ length: 9 }, (_, i) => ({ name: `segment_${i}.ts`, path: String(i), bytes: 1 }));
   const urls = Object.fromEntries(files.map((f) => [f.name, `https://storage.test/${f.name}`]));

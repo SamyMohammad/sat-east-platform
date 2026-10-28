@@ -84,6 +84,7 @@ for (const fail of ['upload', 'confirm', 'delete'] as const) {
     const error = await assertRejects(() => publish(REQUEST, s.deps), ToolError);
     assertEquals(error.assetId, ID);
     assertEquals(error.message.includes('SECRET'), false);
+    assertEquals(error.message.includes('(unexpected error)'), true);
     assertEquals(s.events.includes(`delete:${ID}`), true);
     assertEquals(s.events.at(-1), 'remove:temp-0');
     assertEquals(Array.from(s.key), Array(16).fill(0));
