@@ -77,13 +77,17 @@ export async function publish(request: PublishRequest, deps: PublishDeps): Promi
       await deps.storage.upload(files, urls);
       const hex = Array.from(key, (byte) => byte.toString(16).padStart(2, '0')).join('');
       await api.confirm(id, hex);
-    } catch {
+    } catch (error) {
+      // ToolError codes and messages never carry URLs, keys or tokens, so they are safe to show.
+      const cause = error instanceof ToolError ? `${error.code}: ${error.message}` : 'unexpected error';
       try {
         await api.delete(id);
-      } catch {
-        throw new ToolError('rollback_failed', 'Publishing failed and cleanup could not finish. Run delete with this asset ID to retry.', id);
+      } catch (cleanup) {
+        const cleanupCause = cleanup instanceof ToolError ? `${cleanup.code}: ${cleanup.message}` : 'unexpected error';
+        throw new ToolError('rollback_failed',
+          `Publishing failed (${cause}) and cleanup could not finish (${cleanupCause}). Run delete with this asset ID to retry.`, id);
       }
-      throw new ToolError('publish_failed', 'Publishing failed; the reservation and uploaded files were removed.', id);
+      throw new ToolError('publish_failed', `Publishing failed (${cause}); the reservation and uploaded files were removed.`, id);
     }
     // Reporting failure must not delete an already confirmed, playable asset.
     try {
