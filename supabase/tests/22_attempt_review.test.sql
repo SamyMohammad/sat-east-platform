@@ -149,7 +149,7 @@ select is((pg_temp.question('failed', '00000000-0000-0000-0000-0000000022e1') ->
 select tests.clear_authentication();
 reset role;
 select is((select v -> 'summary' from attempt_review_ctx where k = 'failed'),
-  (select (meta -> 'report') - 'next_topic' - 'retake_at' || jsonb_build_object('keys_visible', false)
+  (select (meta -> 'report') - 'next_topic' - 'retake_at' - 'skills' || jsonb_build_object('keys_visible', false)
    from public.attempts where id = '00000000-0000-0000-0000-000000002201'), 'PRC-03: summary matches the stored report');
 select tests.authenticate_as('attempt_teacher');
 select public.teacher_unlock_topic(tests.get_supabase_uid('attempt_owner'), '00000000-0000-0000-0000-0000000022d1');

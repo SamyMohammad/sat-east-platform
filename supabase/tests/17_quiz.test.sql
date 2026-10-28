@@ -1,7 +1,7 @@
 -- PRC-03: shared grader, quiz settings and practice hardening.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(91);
+select plan(94);
 
 select tests.create_supabase_user('quiz_student');
 
@@ -282,7 +282,7 @@ select is((select count(*)::int from ctx, jsonb_array_elements(v -> 'questions')
   and (q ->> 'id')::uuid not in (select pg_temp.q(i) from generate_series(1,15) i)), 0, 'PRC-03: draw excludes practice and draft questions');
 select pg_temp.fill('pass', 9);
 insert into ctx values ('pass_report', public.submit_attempt(pg_temp.att('pass')));
-select is((select v from ctx where k = 'pass_report'), jsonb_build_object('score_raw',9,'score_total',12,'score_pct',75,'pass_mark',75,'passed',true,
+select is((select v - 'skills' from ctx where k = 'pass_report'), jsonb_build_object('score_raw',9,'score_total',12,'score_pct',75,'pass_mark',75,'passed',true,
   'next_topic',jsonb_build_object('id','00000000-0000-0000-0000-0000000017d2','title','T2'),'retake_at',null), 'LRN-03: exactly 9 of 12 passes at pass_mark and returns next topic');
 select is(public.submit_attempt(pg_temp.att('pass')), (select v from ctx where k = 'pass_report'), 'PRC-03: submit is idempotent');
 select is(public.get_course_map('quiz-course') #>> '{units,0,topics,1,status}', 'open', 'LRN-03: pass opens next topic in course map');
@@ -295,7 +295,7 @@ select tests.authenticate_as('quiz_fail');
 insert into ctx values ('fail', public.start_quiz('00000000-0000-0000-0000-0000000017d1'));
 select pg_temp.fill('fail', 8);
 insert into ctx values ('fail_report', public.submit_attempt(pg_temp.att('fail')));
-select is((select v - 'retake_at' from ctx where k = 'fail_report'), '{"score_raw":8,"score_total":12,"score_pct":66.67,"pass_mark":75,"passed":false,"next_topic":null}'::jsonb, 'PRC-03: 8 of 12 fails');
+select is((select v - 'retake_at' - 'skills' from ctx where k = 'fail_report'), '{"score_raw":8,"score_total":12,"score_pct":66.67,"pass_mark":75,"passed":false,"next_topic":null}'::jsonb, 'PRC-03: 8 of 12 fails');
 select is((select (v ->> 'retake_at')::timestamptz from ctx where k = 'fail_report'), now() + interval '12 hours', 'PRC-03: failure reports cooldown timestamp');
 select is(public.get_course_map('quiz-course') #>> '{units,0,topics,1,status}', 'locked', 'LRN-03: failure leaves next topic locked');
 select tests.clear_authentication();
@@ -406,6 +406,39 @@ select is(public.submit_attempt(pg_temp.att('pass')), (select v from ctx where k
   'PRC-03: submitted attempt returns its original report after enrollment expires');
 select tests.clear_authentication();
 reset role;
+
+-- ANL-02: frozen quiz questions can have several skill tags; unanswered counts in total.
+insert into public.skills (id, code, name, domain) values
+  (md5('report-z')::uuid, 'T17-Z', 'Zebra skill', 'Algebra'),
+  (md5('report-a')::uuid, 'T17-A', 'Alpha skill', 'Algebra');
+insert into public.question_skills (question_id, skill_id) values
+  (pg_temp.q(1), md5('report-z')::uuid), (pg_temp.q(9), md5('report-z')::uuid),
+  (pg_temp.q(1), md5('report-a')::uuid), (pg_temp.q(2), md5('report-a')::uuid);
+insert into public.attempts (id, user_id, course_id, topic_id, kind, status, time_limit_s)
+values (md5('report-attempt')::uuid, tests.get_supabase_uid('quiz_fail'),
+  '00000000-0000-0000-0000-0000000017c1', '00000000-0000-0000-0000-0000000017d1',
+  'quiz', 'in_progress', 600);
+insert into public.attempt_questions (attempt_id, question_id, position) values
+  (md5('report-attempt')::uuid, pg_temp.q(1), 1),
+  (md5('report-attempt')::uuid, pg_temp.q(2), 2),
+  (md5('report-attempt')::uuid, pg_temp.q(9), 3);
+insert into public.attempt_answers (attempt_id, question_id, answer) values
+  (md5('report-attempt')::uuid, pg_temp.q(1), '{"value":"B"}'),
+  (md5('report-attempt')::uuid, pg_temp.q(2), '{"value":"A"}');
+insert into ctx values ('skills_report', private.finish_quiz(md5('report-attempt')::uuid, now()));
+select is((select meta #> '{report,skills}' from public.attempts where id = md5('report-attempt')::uuid),
+  '[{"code":"T17-A","name":"Alpha skill","correct":1,"total":2},
+    {"code":"T17-Z","name":"Zebra skill","correct":1,"total":2}]'::jsonb,
+  'ANL-02: report_has_skills_breakdown (sorted names, multiple tags, wrong and unanswered)');
+select is((select v -> 'skills' from ctx where k = 'pass_report'), '[]'::jsonb,
+  'ANL-02: report_skills_empty_when_untagged');
+select is((select jsonb_agg(v - 'skills' order by k) from ctx where k in ('skills_report', 'pass_report')),
+  jsonb_build_array(
+    jsonb_build_object('score_raw',9,'score_total',12,'score_pct',75,'pass_mark',75,'passed',true,
+      'next_topic',jsonb_build_object('id','00000000-0000-0000-0000-0000000017d2','title','T2'),'retake_at',null),
+    jsonb_build_object('score_raw',1,'score_total',3,'score_pct',33.33,'pass_mark',75,'passed',false,
+      'next_topic',null,'retake_at',now() + interval '12 hours')),
+  'ANL-02: report_other_keys_unchanged (passing and failing reports)');
 
 select * from finish();
 rollback;
