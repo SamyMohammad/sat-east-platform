@@ -11,6 +11,7 @@ abstract final class QuizCopy {
   static const saveStopped = 'Not saved \u2014 return to the topic';
   static const submitting = 'Submitting quiz\u2026';
   static const submitError = "Couldn't submit your quiz. Try again.";
+  static const reviewAnswers = 'Review answers';
   static const retrySubmit = 'Retry submit';
   static const retakeUnavailable =
       'Return to the topic to check when you can retake the quiz.';

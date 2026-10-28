@@ -400,6 +400,7 @@ void main() {
   tearDown(unregisterFakeSkillsCubit);
 
   const passedReport = QuizReport(
+    attemptId: 'a1',
     scoreRaw: 9,
     scoreTotal: 12,
     scorePct: 75,
@@ -610,6 +611,7 @@ void main() {
       tester,
     ) async {
       const report = QuizReport(
+        attemptId: 'a1',
         scoreRaw: 9,
         scoreTotal: 12,
         scorePct: 75,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/attempts/skill_result.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
@@ -10,6 +11,7 @@ import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/growing_bar.dart';
 
 const passedReport = QuizReport(
+  attemptId: 'a1',
   scoreRaw: 9,
   scoreTotal: 12,
   scorePct: 75,
@@ -19,6 +21,7 @@ const passedReport = QuizReport(
   retakeAt: null,
 );
 const failedReport = QuizReport(
+  attemptId: 'a1',
   scoreRaw: 8,
   scoreTotal: 12,
   scorePct: 66.67,
@@ -29,6 +32,7 @@ const failedReport = QuizReport(
 );
 
 const skillBreakdownReport = QuizReport(
+  attemptId: 'a1',
   scoreRaw: 9,
   scoreTotal: 12,
   scorePct: 75,
@@ -239,4 +243,42 @@ void main() {
       expect(action.hitTestable(), findsOneWidget);
     });
   }
+
+  testWidgets('PRC-03: result_review_answers_opens_attempt_review', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 800);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final router = GoRouter(
+      routes: [
+        GoRoute(
+          path: '/',
+          builder: (_, _) => const Scaffold(
+            body: QuizResultScreen(topicId: 't1', report: passedReport),
+          ),
+        ),
+        GoRoute(
+          path: '/courses/attempts/:id/review',
+          builder: (_, state) => Text('review ${state.pathParameters['id']}'),
+        ),
+      ],
+    );
+    addTearDown(router.dispose);
+    await tester.pumpWidget(
+      MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+    );
+    final action = find.text('Review answers');
+    expect(action, findsOneWidget);
+    expect(
+      tester.getTopLeft(action).dy,
+      greaterThan(tester.getTopLeft(find.text('Back to course')).dy),
+    );
+    await tester.tap(action);
+    await tester.pumpAndSettle();
+    expect(find.text('review a1'), findsOneWidget);
+    router.pop();
+    await tester.pumpAndSettle();
+    expect(find.text('Back to course'), findsOneWidget);
+  });
 }

@@ -40,7 +40,7 @@ class QuizRemoteDataSource {
   Future<Result<QuizReport>> submit(String attemptId) => _call(
     'submit_attempt',
     {'p_attempt_id': attemptId},
-    quizReportFromJson,
+    (json) => quizReportFromJson(json, attemptId),
   );
 
   Future<Result<T>> _call<T>(

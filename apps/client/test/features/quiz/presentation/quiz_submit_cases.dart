@@ -287,6 +287,7 @@ void _submitCases() {
       'PRC-03: submit preserves a failed report including retake metadata',
       () async {
         final report = QuizReport(
+          attemptId: 'a1',
           scoreRaw: 8,
           scoreTotal: 12,
           scorePct: 66.67,

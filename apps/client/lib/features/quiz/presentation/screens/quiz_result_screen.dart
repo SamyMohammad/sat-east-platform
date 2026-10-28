@@ -71,6 +71,16 @@ class QuizResultScreen extends StatelessWidget {
                 ),
               ),
             ),
+            Center(
+              child: LoadingButton(
+                expanded: compact,
+                variant: AppButtonVariant.secondary,
+                label: QuizCopy.reviewAnswers,
+                onPressed: () => context.push<void>(
+                  AppRoutes.attemptReview(report.attemptId),
+                ),
+              ),
+            ),
           ],
         ),
       ),

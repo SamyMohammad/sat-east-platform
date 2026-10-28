@@ -13,6 +13,7 @@ import '../../features/quiz/presentation/quiz_result_redesign_test.dart'
 import 'feature_golden_harness.dart';
 
 QuizReport _withSkills(QuizReport report) => QuizReport(
+  attemptId: report.attemptId,
   scoreRaw: report.scoreRaw,
   scoreTotal: report.scoreTotal,
   scorePct: report.scorePct,

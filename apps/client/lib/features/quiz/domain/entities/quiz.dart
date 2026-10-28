@@ -49,6 +49,7 @@ class QuizSession extends Equatable {
 
 class QuizReport extends Equatable {
   const QuizReport({
+    required this.attemptId,
     required this.scoreRaw,
     required this.scoreTotal,
     required this.scorePct,
@@ -59,6 +60,7 @@ class QuizReport extends Equatable {
     this.skills = const [],
   });
 
+  final String attemptId;
   final int scoreRaw;
   final int scoreTotal;
   final double scorePct;
@@ -70,6 +72,7 @@ class QuizReport extends Equatable {
 
   @override
   List<Object?> get props => [
+    attemptId,
     scoreRaw,
     scoreTotal,
     scorePct,

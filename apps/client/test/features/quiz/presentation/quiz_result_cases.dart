@@ -32,6 +32,7 @@ void _resultTests() {
       (tester) async {
         final retake = DateTime.utc(2026, 10, 18, 12, 30);
         final report = QuizReport(
+          attemptId: 'a1',
           scoreRaw: 8,
           scoreTotal: 12,
           scorePct: 66.67,
@@ -73,6 +74,7 @@ void _resultTests() {
 
   testWidgets('PRC-03: final-topic pass returns to course', (tester) async {
     const report = QuizReport(
+      attemptId: 'a1',
       scoreRaw: 9,
       scoreTotal: 12,
       scorePct: 75,
@@ -96,6 +98,7 @@ void _resultTests() {
     tester,
   ) async {
     const report = QuizReport(
+      attemptId: 'a1',
       scoreRaw: 0,
       scoreTotal: 12,
       scorePct: 0,

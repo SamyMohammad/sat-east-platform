@@ -21,7 +21,7 @@ QuizSession quizSessionFromJson(Map<String, Object?> json) {
   );
 }
 
-QuizReport quizReportFromJson(Map<String, Object?> json) {
+QuizReport quizReportFromJson(Map<String, Object?> json, String attemptId) {
   final raw = attemptJsonInt(json, 'score_raw');
   final total = attemptJsonInt(json, 'score_total', min: 1);
   if (raw > total) throw const FormatException('score_raw');
@@ -31,6 +31,7 @@ QuizReport quizReportFromJson(Map<String, Object?> json) {
   final nextTopic = next == null ? null : attemptJsonMap(next, 'next_topic');
   final retake = attemptJsonRequired(json, 'retake_at');
   return QuizReport(
+    attemptId: attemptId,
     scoreRaw: raw,
     scoreTotal: total,
     scorePct: attemptJsonPercentage(json, 'score_pct'),
