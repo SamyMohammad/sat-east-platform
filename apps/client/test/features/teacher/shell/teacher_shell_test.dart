@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/teacher/review/domain/entities/review.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
+import 'package:sat_east_client/shared/widgets/brand_mark.dart';
 
 import '../review/review_fixtures.dart';
 
@@ -188,7 +189,7 @@ void main() {
     expect(area.style?.fontSize, lessThan(label.fontSize! + 1));
     expect(
       tester.getTopLeft(find.text('Teacher area')).dx,
-      tester.getTopLeft(find.text('Abdelrahman Elmenshawy')).dx,
+      tester.getTopLeft(find.byType(BrandMark)).dx,
     );
     expect(find.byType(NavigationBar), findsNothing);
   });

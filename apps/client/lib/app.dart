@@ -64,7 +64,7 @@ class _AppState extends State<App> {
   }
 
   Widget _materialApp(ThemeMode mode) => MaterialApp.router(
-    title: 'SAT East',
+    title: 'Abdelrahman Elmenshawy | SAT & EST Math',
     theme: AppTheme.light(),
     darkTheme: AppTheme.dark(),
     themeMode: mode,

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-27T15:02:30+00:00",
+  "generatedAt": "2026-10-29T12:00:00+00:00",
   "title": "Design System: SAT/EST Math Platform",
   "extensions": {
     "colorMeta": {
@@ -21,17 +21,17 @@
       },
       "surface": {
         "role": "neutral",
-        "displayName": "Cool Off-White",
-        "canonical": "#F6F7F9",
+        "displayName": "Ice White",
+        "canonical": "#F4F9FC",
         "tonalRamp": [
-          "#1F242E",
-          "#353E50",
-          "#4B5871",
-          "#627293",
-          "#828FAB",
-          "#A3ADC2",
-          "#C8CEDA",
-          "#F0F1F5"
+          "#102C3C",
+          "#1C4C68",
+          "#286C94",
+          "#348CC0",
+          "#5BA5D2",
+          "#87BDDE",
+          "#B7D8EB",
+          "#EBF4FA"
         ]
       },
       "raised": {
@@ -52,96 +52,96 @@
       "line": {
         "role": "neutral",
         "displayName": "Hairline",
-        "canonical": "#E3E6EC",
+        "canonical": "#D6E4EE",
         "tonalRamp": [
-          "#1F242E",
-          "#363E4F",
-          "#4C5870",
-          "#637392",
-          "#8290AA",
-          "#A4AEC1",
-          "#C8CEDA",
-          "#F0F1F5"
+          "#162936",
+          "#27475E",
+          "#376585",
+          "#4883AD",
+          "#6B9EC2",
+          "#93B8D2",
+          "#BED4E4",
+          "#EDF3F8"
         ]
       },
       "line-strong": {
         "role": "neutral",
         "displayName": "Firm Line",
-        "canonical": "#CDD2DB",
+        "canonical": "#B7CCDC",
         "tonalRamp": [
-          "#20242C",
-          "#383F4D",
-          "#4F5A6E",
-          "#66758E",
-          "#8592A7",
-          "#A6AFBF",
-          "#CACFD9",
-          "#F0F2F4"
+          "#192833",
+          "#2B4559",
+          "#3E637F",
+          "#5080A5",
+          "#729BBB",
+          "#98B6CD",
+          "#C1D3E1",
+          "#EEF3F7"
         ]
       },
       "ink": {
         "role": "neutral",
         "displayName": "Ink",
-        "canonical": "#14171F",
+        "canonical": "#15202B",
         "tonalRamp": [
-          "#1E222E",
-          "#343C51",
-          "#4A5573",
-          "#606E95",
-          "#808CAD",
-          "#A2ABC3",
-          "#C7CDDB",
-          "#F0F1F5"
+          "#192633",
+          "#2C4259",
+          "#3E5E7F",
+          "#507AA4",
+          "#7396BA",
+          "#98B2CD",
+          "#C1D1E1",
+          "#EEF2F7"
         ]
       },
       "ink-secondary": {
         "role": "neutral",
         "displayName": "Ink Secondary",
-        "canonical": "#555C6B",
+        "canonical": "#44586C",
         "tonalRamp": [
-          "#22252B",
-          "#3B404A",
-          "#545A69",
-          "#6C7588",
-          "#8A92A2",
-          "#AAAFBB",
-          "#CCCFD6",
-          "#F1F2F4"
+          "#1E262F",
+          "#334251",
+          "#495E74",
+          "#5F7A96",
+          "#7F96AE",
+          "#A1B2C4",
+          "#C7D1DC",
+          "#EFF2F5"
         ]
       },
       "ink-tertiary": {
         "role": "neutral",
         "displayName": "Ink Tertiary",
-        "canonical": "#6A7283",
+        "canonical": "#5B6F83",
         "tonalRamp": [
-          "#22252A",
-          "#3B4049",
-          "#545B68",
-          "#6D7687",
-          "#8B92A1",
-          "#AAB0BB",
-          "#CCCFD6",
-          "#F1F2F4"
+          "#1F262D",
+          "#36424E",
+          "#4D5E6F",
+          "#647A90",
+          "#8496A9",
+          "#A5B2C0",
+          "#C9D1D9",
+          "#F0F2F5"
         ]
       },
       "brand": {
         "role": "primary",
-        "displayName": "Confident Blue",
-        "canonical": "#2F5BEA",
+        "displayName": "Navy",
+        "canonical": "#102A43",
         "tonalRamp": [
-          "#071645",
-          "#0C2678",
-          "#1136AB",
-          "#1645DE",
-          "#4169EC",
-          "#7491F1",
-          "#ACBDF7",
-          "#E8EDFD"
+          "#0F273E",
+          "#1A436B",
+          "#245F98",
+          "#2F7CC6",
+          "#5698D7",
+          "#83B3E2",
+          "#B5D2ED",
+          "#EAF2FA"
         ]
       },
       "on-brand": {
         "role": "primary",
-        "displayName": "On Blue",
+        "displayName": "On Navy",
         "canonical": "#FFFFFF",
         "tonalRamp": [
           "#262626",
@@ -156,32 +156,32 @@
       },
       "brand-wash": {
         "role": "primary",
-        "displayName": "Blue Wash",
-        "canonical": "#EEF2FE",
+        "displayName": "Baby Blue Wash",
+        "canonical": "#E6F4FC",
         "tonalRamp": [
-          "#041548",
-          "#07257D",
-          "#0A34B2",
-          "#0E44E7",
-          "#3A68F3",
-          "#6E90F7",
-          "#A8BDFA",
-          "#E7EDFE"
+          "#082E44",
+          "#0E5176",
+          "#1473A8",
+          "#1A95DB",
+          "#44ADE9",
+          "#76C3EF",
+          "#ADDBF5",
+          "#E8F5FC"
         ]
       },
       "brand-line": {
         "role": "primary",
-        "displayName": "Blue Line",
-        "canonical": "#B9C8F8",
+        "displayName": "Focus Blue",
+        "canonical": "#4A90C8",
         "tonalRamp": [
-          "#071646",
-          "#0C2679",
-          "#1136AC",
-          "#1646DF",
-          "#416AEC",
-          "#7492F1",
-          "#ACBDF7",
-          "#E8EDFD"
+          "#092F44",
+          "#0F5176",
+          "#1574A7",
+          "#1C96D9",
+          "#45AEE7",
+          "#77C4EE",
+          "#AEDBF5",
+          "#E8F5FC"
         ]
       },
       "correct": {
@@ -397,108 +397,108 @@
       "scrim": {
         "role": "neutral",
         "displayName": "Scrim",
-        "canonical": "#14171F7A",
+        "canonical": "#102A437A",
         "tonalRamp": [
-          "#1E222E",
-          "#343C51",
-          "#4A5573",
-          "#606E95",
-          "#808CAD",
-          "#A2ABC3",
-          "#C7CDDB",
-          "#F0F1F5"
+          "#0F273E",
+          "#1A436B",
+          "#245F98",
+          "#2F7CC6",
+          "#5698D7",
+          "#83B3E2",
+          "#B5D2ED",
+          "#EAF2FA"
         ],
         "note": "CSS #RRGGBBAA; Flutter source is 0xAARRGGBB."
       },
       "shadow": {
         "role": "neutral",
         "displayName": "Shadow",
-        "canonical": "#14171F1A",
+        "canonical": "#102A431A",
         "tonalRamp": [
-          "#1E222E",
-          "#343C51",
-          "#4A5573",
-          "#606E95",
-          "#808CAD",
-          "#A2ABC3",
-          "#C7CDDB",
-          "#F0F1F5"
+          "#0F273E",
+          "#1A436B",
+          "#245F98",
+          "#2F7CC6",
+          "#5698D7",
+          "#83B3E2",
+          "#B5D2ED",
+          "#EAF2FA"
         ],
         "note": "CSS #RRGGBBAA; Flutter source is 0xAARRGGBB."
       },
       "exam-bar": {
         "role": "tertiary",
-        "displayName": "Exam Bar",
-        "canonical": "#14171F",
+        "displayName": "Deep Navy Bar",
+        "canonical": "#0B1F33",
         "tonalRamp": [
-          "#1E222E",
-          "#343C51",
-          "#4A5573",
-          "#606E95",
-          "#808CAD",
-          "#A2ABC3",
-          "#C7CDDB",
-          "#F0F1F5"
+          "#0E263F",
+          "#18426D",
+          "#215E9B",
+          "#2B7AC9",
+          "#5396DA",
+          "#81B2E4",
+          "#B3D1EF",
+          "#EAF2FA"
         ]
       },
       "on-exam-bar": {
         "role": "tertiary",
         "displayName": "On Exam Bar",
-        "canonical": "#E7EAF0",
+        "canonical": "#EAF3F9",
         "tonalRamp": [
-          "#1D232F",
-          "#333D52",
-          "#495774",
-          "#5E7197",
-          "#7E8EAF",
-          "#A1ADC4",
-          "#C7CEDC",
-          "#EFF1F5"
+          "#112A3C",
+          "#1D4A67",
+          "#2A6993",
+          "#3688BE",
+          "#5CA2D1",
+          "#88BBDD",
+          "#B8D6EB",
+          "#EBF4F9"
         ]
       },
       "on-exam-bar-variant": {
         "role": "tertiary",
         "displayName": "On Exam Bar Variant",
-        "canonical": "#A6ADBB",
+        "canonical": "#A9BFD1",
         "tonalRamp": [
-          "#21252B",
-          "#393F4B",
-          "#525A6B",
-          "#6A758B",
-          "#8892A4",
-          "#A8AFBD",
-          "#CBCFD7",
-          "#F1F2F4"
+          "#1B2732",
+          "#2E4456",
+          "#42617B",
+          "#557E9F",
+          "#779AB6",
+          "#9BB5CA",
+          "#C3D2DF",
+          "#EEF3F6"
         ]
       },
       "exam-bar-rule": {
         "role": "tertiary",
         "displayName": "Exam Bar Rule",
-        "canonical": "#3A4250",
+        "canonical": "#24415E",
         "tonalRamp": [
-          "#20252C",
-          "#383F4D",
-          "#4F5A6D",
-          "#67758E",
-          "#8692A7",
-          "#A6AFBF",
-          "#CACFD8",
-          "#F0F2F4"
+          "#152637",
+          "#254260",
+          "#345E88",
+          "#447AB1",
+          "#6896C5",
+          "#90B2D5",
+          "#BDD1E6",
+          "#EDF2F8"
         ]
       },
       "exam-bar-primary": {
         "role": "tertiary",
-        "displayName": "Exam Bar Blue",
-        "canonical": "#7C9BFF",
+        "displayName": "Exam Bar Baby Blue",
+        "canonical": "#B8E0F6",
         "tonalRamp": [
-          "#00124C",
-          "#001F85",
-          "#002DBD",
-          "#003AF5",
-          "#2E5FFF",
-          "#668AFF",
-          "#A3B9FF",
-          "#E5ECFF"
+          "#092F44",
+          "#0F5176",
+          "#1574A7",
+          "#1C96D9",
+          "#45AEE7",
+          "#77C4EE",
+          "#AEDBF5",
+          "#E8F5FC"
         ]
       },
       "exam-bar-warning": {
@@ -518,23 +518,24 @@
       },
       "hue-blue": {
         "role": "tertiary",
-        "displayName": "Subject Blue",
-        "canonical": "#2F5BEA",
+        "displayName": "Subject Steel",
+        "canonical": "#2F6FAD",
         "tonalRamp": [
-          "#071645",
-          "#0C2678",
-          "#1136AB",
-          "#1645DE",
-          "#4169EC",
-          "#7491F1",
-          "#ACBDF7",
-          "#E8EDFD"
+          "#10273C",
+          "#1C4368",
+          "#285F94",
+          "#347CC1",
+          "#5B97D2",
+          "#87B3DE",
+          "#B7D2EB",
+          "#EBF2FA"
         ],
         "pairs": {
-          "lightWash": "#EEF2FE",
-          "dark": "#7C9BFF",
-          "darkWash": "#1B2547"
-        }
+          "lightWash": "#E6F4FC",
+          "dark": "#B8E0F6",
+          "darkWash": "#15324A"
+        },
+        "note": "The logo Steel integral. Its wash, dark and dark wash equal brand-wash, brand-dark and brand-wash-dark."
       },
       "hue-teal": {
         "role": "tertiary",
@@ -620,181 +621,181 @@
       "background-dark": {
         "role": "neutral",
         "displayName": "Paper White (dark)",
-        "canonical": "#0F1218",
+        "canonical": "#0B1724",
         "tonalRamp": [
-          "#1D232F",
-          "#333D52",
-          "#495774",
-          "#5E7197",
-          "#7E8EAF",
-          "#A1ADC4",
-          "#C7CEDC",
-          "#EFF1F5"
+          "#12253B",
+          "#1F4166",
+          "#2C5C91",
+          "#3978BC",
+          "#5F94CE",
+          "#8AB1DB",
+          "#B9D0EA",
+          "#EBF2F9"
         ]
       },
       "surface-dark": {
         "role": "neutral",
-        "displayName": "Cool Off-White (dark)",
-        "canonical": "#171B23",
+        "displayName": "Ice White (dark)",
+        "canonical": "#102233",
         "tonalRamp": [
-          "#1E242E",
-          "#353E50",
-          "#4B5872",
-          "#617294",
-          "#818FAC",
-          "#A3ADC2",
-          "#C8CEDB",
-          "#F0F1F5"
+          "#12273A",
+          "#204365",
+          "#2D6090",
+          "#3A7CBA",
+          "#6098CD",
+          "#8BB4DA",
+          "#B9D2E9",
+          "#ECF2F9"
         ]
       },
       "raised-dark": {
         "role": "neutral",
         "displayName": "Raised (dark)",
-        "canonical": "#1E232D",
+        "canonical": "#16293C",
         "tonalRamp": [
-          "#1F242E",
-          "#353E50",
-          "#4B5871",
-          "#627293",
-          "#828FAB",
-          "#A3ADC2",
-          "#C8CEDA",
-          "#F0F1F5"
+          "#152638",
+          "#244261",
+          "#335E8A",
+          "#427AB3",
+          "#6696C7",
+          "#8FB2D6",
+          "#BCD1E6",
+          "#ECF2F8"
         ]
       },
       "line-dark": {
         "role": "neutral",
         "displayName": "Hairline (dark)",
-        "canonical": "#2A303C",
+        "canonical": "#22384D",
         "tonalRamp": [
-          "#1F242D",
-          "#373E4E",
-          "#4E596F",
-          "#657390",
-          "#8490A9",
-          "#A5AEC0",
-          "#C9CED9",
-          "#F0F2F4"
+          "#172735",
+          "#29435C",
+          "#3A5F83",
+          "#4B7CAA",
+          "#6E97BF",
+          "#95B3D0",
+          "#BFD2E3",
+          "#EDF2F7"
         ]
       },
       "line-strong-dark": {
         "role": "neutral",
         "displayName": "Firm Line (dark)",
-        "canonical": "#3A4250",
+        "canonical": "#2F4A63",
         "tonalRamp": [
-          "#20252C",
-          "#383F4D",
-          "#4F5A6D",
-          "#67758E",
-          "#8692A7",
-          "#A6AFBF",
-          "#CACFD8",
-          "#F0F2F4"
+          "#192734",
+          "#2B435A",
+          "#3D6080",
+          "#4F7CA6",
+          "#7198BC",
+          "#97B4CE",
+          "#C1D2E1",
+          "#EEF2F7"
         ]
       },
       "ink-dark": {
         "role": "neutral",
         "displayName": "Ink (dark)",
-        "canonical": "#E7EAF0",
+        "canonical": "#EAF3F9",
         "tonalRamp": [
-          "#1D232F",
-          "#333D52",
-          "#495774",
-          "#5E7197",
-          "#7E8EAF",
-          "#A1ADC4",
-          "#C7CEDC",
-          "#EFF1F5"
+          "#112A3C",
+          "#1D4A67",
+          "#2A6993",
+          "#3688BE",
+          "#5CA2D1",
+          "#88BBDD",
+          "#B8D6EB",
+          "#EBF4F9"
         ]
       },
       "ink-secondary-dark": {
         "role": "neutral",
         "displayName": "Ink Secondary (dark)",
-        "canonical": "#A6ADBB",
+        "canonical": "#A9BFD1",
         "tonalRamp": [
-          "#21252B",
-          "#393F4B",
-          "#525A6B",
-          "#6A758B",
-          "#8892A4",
-          "#A8AFBD",
-          "#CBCFD7",
-          "#F1F2F4"
+          "#1B2732",
+          "#2E4456",
+          "#42617B",
+          "#557E9F",
+          "#779AB6",
+          "#9BB5CA",
+          "#C3D2DF",
+          "#EEF3F6"
         ]
       },
       "ink-tertiary-dark": {
         "role": "neutral",
         "displayName": "Ink Tertiary (dark)",
-        "canonical": "#828A9A",
+        "canonical": "#8BA3B8",
         "tonalRamp": [
-          "#22252A",
-          "#3B4049",
-          "#545B68",
-          "#6D7687",
-          "#8B93A2",
-          "#AAB0BB",
-          "#CCCFD6",
-          "#F1F2F4"
+          "#1D272F",
+          "#324352",
+          "#486075",
+          "#5D7C98",
+          "#7D98B0",
+          "#A0B4C5",
+          "#C6D2DC",
+          "#EFF2F5"
         ]
       },
       "brand-dark": {
         "role": "primary",
-        "displayName": "Confident Blue (dark)",
-        "canonical": "#7C9BFF",
+        "displayName": "Baby Blue (dark brand)",
+        "canonical": "#B8E0F6",
         "tonalRamp": [
-          "#00124C",
-          "#001F85",
-          "#002DBD",
-          "#003AF5",
-          "#2E5FFF",
-          "#668AFF",
-          "#A3B9FF",
-          "#E5ECFF"
+          "#092F44",
+          "#0F5176",
+          "#1574A7",
+          "#1C96D9",
+          "#45AEE7",
+          "#77C4EE",
+          "#AEDBF5",
+          "#E8F5FC"
         ]
       },
       "on-brand-dark": {
         "role": "primary",
-        "displayName": "On Blue (dark)",
-        "canonical": "#0F1218",
+        "displayName": "On Baby Blue (dark)",
+        "canonical": "#102A43",
         "tonalRamp": [
-          "#1D232F",
-          "#333D52",
-          "#495774",
-          "#5E7197",
-          "#7E8EAF",
-          "#A1ADC4",
-          "#C7CEDC",
-          "#EFF1F5"
+          "#0F273E",
+          "#1A436B",
+          "#245F98",
+          "#2F7CC6",
+          "#5698D7",
+          "#83B3E2",
+          "#B5D2ED",
+          "#EAF2FA"
         ]
       },
       "brand-wash-dark": {
         "role": "primary",
-        "displayName": "Blue Wash (dark)",
-        "canonical": "#1B2547",
+        "displayName": "Baby Blue Wash (dark)",
+        "canonical": "#15324A",
         "tonalRamp": [
-          "#151D37",
-          "#253260",
-          "#344789",
-          "#435CB1",
-          "#687DC5",
-          "#90A0D5",
-          "#BCC6E6",
-          "#EDEFF8"
+          "#11283C",
+          "#1D4667",
+          "#2A6393",
+          "#3681BF",
+          "#5C9CD1",
+          "#88B7DD",
+          "#B7D4EB",
+          "#EBF3F9"
         ]
       },
       "brand-line-dark": {
         "role": "primary",
-        "displayName": "Blue Line (dark)",
-        "canonical": "#3D5390",
+        "displayName": "Baby Blue Line (dark)",
+        "canonical": "#5C9BD1",
         "tonalRamp": [
-          "#171F36",
-          "#27365D",
-          "#384C85",
-          "#4963AC",
-          "#6C83C1",
-          "#94A4D1",
-          "#BFC8E4",
-          "#EDF0F7"
+          "#152937",
+          "#254660",
+          "#346488",
+          "#4482B1",
+          "#689DC5",
+          "#90B7D5",
+          "#BDD4E6",
+          "#EDF3F8"
         ]
       },
       "correct-dark": {
@@ -990,7 +991,8 @@
           "#A1ADC4",
           "#C7CEDC",
           "#EFF1F5"
-        ]
+        ],
+        "note": "Unchanged by the brand rollout; still the pre-rollout dark background value."
       },
       "danger-hover-dark": {
         "role": "secondary",
@@ -1038,6 +1040,22 @@
           "#F2F2F2"
         ],
         "note": "CSS #RRGGBBAA; Flutter source is 0xAARRGGBB."
+      },
+      "landing-on-navy-secondary": {
+        "role": "neutral",
+        "displayName": "On Navy Secondary (landing)",
+        "canonical": "#C3D6E6",
+        "tonalRamp": [
+          "#162836",
+          "#27455E",
+          "#386285",
+          "#487FAD",
+          "#6B9AC2",
+          "#93B5D2",
+          "#BED3E4",
+          "#EDF3F8"
+        ],
+        "note": "Landing page only: secondary text on navy bands."
       }
     },
     "typographyMeta": {
@@ -1108,17 +1126,33 @@
       "timer": {
         "displayName": "Timer",
         "purpose": "Tabular exam clock (AppType.timer)."
+      },
+      "landing-display": {
+        "displayName": "Landing display",
+        "purpose": "Landing hero title only (Domine 700)."
+      },
+      "landing-headline": {
+        "displayName": "Landing headline",
+        "purpose": "Landing section heads (Domine 700)."
+      },
+      "landing-title": {
+        "displayName": "Landing title",
+        "purpose": "Landing item titles (Domine 600)."
+      },
+      "landing-body": {
+        "displayName": "Landing body",
+        "purpose": "Landing reading text (Lexend 400, 17px)."
       }
     },
     "shadows": [
       {
         "name": "primary-lift",
-        "value": "0 1px 0 #14171F1A, 0 2px 6px rgba(47,91,234,0.25)",
-        "purpose": "Enabled primary LoadingButton only."
+        "value": "0 1px 0 #102A431A, 0 2px 6px rgba(16,42,67,0.25)",
+        "purpose": "Enabled primary LoadingButton only (dark: brand Baby Blue at 25% over #00000033)."
       },
       {
         "name": "sheet-lift",
-        "value": "0 -2px 16px #14171F1A",
+        "value": "0 -2px 16px #102A431A",
         "purpose": "Feedback dock once a verdict shows; teacher save bar (offset -4px)."
       },
       {
@@ -1128,13 +1162,34 @@
       },
       {
         "name": "selected-halo",
-        "value": "0 0 0 3px rgba(185,200,248,0.45)",
+        "value": "0 0 0 3px rgba(184,224,246,0.45)",
         "purpose": "Selected choice tile halo (spread, not a lift)."
+      },
+      {
+        "name": "landing-button-light",
+        "value": "0 8px 20px -10px rgba(4,14,26,.6)",
+        "purpose": "Landing: Baby Blue button on navy."
+      },
+      {
+        "name": "landing-button-dark",
+        "value": "0 6px 18px -10px rgba(16,42,67,.7)",
+        "purpose": "Landing: navy button on white."
+      },
+      {
+        "name": "landing-question-card",
+        "value": "0 24px 60px -40px rgba(16,42,67,.45)",
+        "purpose": "Landing: the sample question card."
+      },
+      {
+        "name": "landing-portrait",
+        "value": "drop-shadow(0 30px 60px rgba(4,14,26,.45))",
+        "purpose": "Landing: grounds the hero portrait cutout on navy."
       }
     ],
     "focus": {
-      "ring": "3px solid brand-line (#B9C8F8 light / #3D5390 dark)",
-      "applies": "buttons, icon buttons, fields, chips, choices, nav"
+      "ring": "3px solid brand-line (#4A90C8 light / #5C9BD1 dark)",
+      "applies": "buttons, icon buttons, fields, chips, choices, nav",
+      "landing": "3px solid Steel #2F6FAD, offset 3px; Baby Blue #B8E0F6 on navy bands"
     },
     "motion": [
       {
@@ -1176,6 +1231,21 @@
         "name": "reduced-motion",
         "value": "AppMotion.resolve returns Duration.zero when MediaQuery.disableAnimationsOf(context)",
         "purpose": "Every animation collapses to its end state."
+      },
+      {
+        "name": "landing-ease",
+        "value": "cubic-bezier(.16, 1, .3, 1)",
+        "purpose": "Landing: every transition (0.2s) and the curve draw."
+      },
+      {
+        "name": "landing-curve-draw",
+        "value": "1.8s after 0.25s",
+        "purpose": "Landing: hero integral curve draws once on load."
+      },
+      {
+        "name": "landing-path-fill",
+        "value": "scroll-linked scaleY",
+        "purpose": "Landing: method rail fills as it scrolls; full under reduced motion."
       }
     ],
     "breakpoints": [
@@ -1190,6 +1260,14 @@
       {
         "name": "expanded",
         "value": ">=1024px"
+      },
+      {
+        "name": "landing-stack",
+        "value": "<=960px"
+      },
+      {
+        "name": "landing-narrow",
+        "value": "<=640px"
       }
     ],
     "strokes": {
@@ -1210,31 +1288,58 @@
       "shellSidebar": "232px",
       "shellRail": "80px",
       "dialog": "400px",
-      "illustration": "200px"
+      "illustration": "200px",
+      "brandMark": "32px tall (app default)"
     },
     "fonts": {
       "sans": "Lexend (bundled 300-700)",
-      "math": "flutter_math_fork via MathText, scale 1.21"
+      "math": "flutter_math_fork via MathText, scale 1.21",
+      "landingDisplay": "Domine 600/700, self-hosted woff2, landing page only"
     },
     "icons": "Lucide via lucide_icons_flutter, only through AppIcons semantic names",
-    "illustration": "unDraw SVG via flutter_svg; #6C63FF maps to brand; dark neutrals remapped; decorative"
+    "illustration": "unDraw SVG via flutter_svg; #6C63FF maps to brand (Navy light, Baby Blue dark); dark neutrals remapped; decorative",
+    "landing": {
+      "wrap": "1200px",
+      "gutter": "clamp(16px, 4vw, 48px)",
+      "sectionPadding": "clamp(72px, 10vw, 136px)",
+      "graphGrid": "48px squares; rgba(184,224,246,.07) on navy, rgba(16,42,67,.035) on Ice White",
+      "cssVarAliases": {
+        "--navy": "brand",
+        "--baby": "brand-dark",
+        "--baby-wash": "brand-wash",
+        "--ground": "surface",
+        "--line": "line",
+        "--ink": "brand",
+        "--ink-2": "ink-secondary",
+        "--navy-deep": "exam-bar",
+        "--navy-line": "exam-bar-rule",
+        "--steel": "hue-blue",
+        "--on-navy-2": "landing-on-navy-secondary"
+      }
+    },
+    "brand": {
+      "mark": "A∫E monogram; apps/landing/assets is the source of truth",
+      "light": "logo-mark.svg (navy A/E, Steel #2F6FAD integral)",
+      "onNavyOrDark": "logo-mark-reverse.svg (white A/E, Baby Blue integral)",
+      "icon": "icon.svg / icon-maskable.svg (navy ground)"
+    }
   },
   "components": [
     {
       "name": "Primary Button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "LoadingButton primary: the one filled blue action per surface (Check, Continue).",
+      "description": "LoadingButton primary: the one filled navy action per surface (Check, Continue).",
       "html": "<button class=\"ds-btn-primary\">Check</button>",
-      "css": ".ds-btn-primary{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;line-height:20px;min-height:48px;padding:8px 20px;border:none;border-radius:10px;background:#2F5BEA;color:#FFFFFF;box-shadow:0 1px 0 #14171F1A,0 2px 6px rgba(47,91,234,.25);transition:transform 120ms cubic-bezier(.2,0,0,1);cursor:pointer}.ds-btn-primary:active{transform:scale(.98)}.ds-btn-primary:focus-visible{outline:3px solid #B9C8F8;outline-offset:0}.ds-btn-primary:disabled{background:#E3E6EC;color:#6A7283;box-shadow:none}@media (prefers-reduced-motion:reduce){.ds-btn-primary{transition:none}}"
+      "css": ".ds-btn-primary{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;line-height:20px;min-height:48px;padding:8px 20px;border:none;border-radius:10px;background:#102A43;color:#FFFFFF;box-shadow:0 1px 0 #102A431A,0 2px 6px rgba(16,42,67,.25);transition:transform 120ms cubic-bezier(.2,0,0,1);cursor:pointer}.ds-btn-primary:active{transform:scale(.98)}.ds-btn-primary:focus-visible{outline:3px solid #B8E0F6;outline-offset:0}.ds-btn-primary:disabled{background:#D6E4EE;color:#5B6F83;box-shadow:none}@media (prefers-reduced-motion:reduce){.ds-btn-primary{transition:none}}"
     },
     {
       "name": "Secondary Button",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "LoadingButton secondary: outlined blue, for the second action.",
+      "description": "LoadingButton secondary: outlined navy, for the second action.",
       "html": "<button class=\"ds-btn-secondary\">Explore course</button>",
-      "css": ".ds-btn-secondary{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;min-height:48px;padding:8px 20px;border:1px solid #2F5BEA;border-radius:10px;background:transparent;color:#2F5BEA;transition:transform 120ms cubic-bezier(.2,0,0,1);cursor:pointer}.ds-btn-secondary:active{transform:scale(.98)}.ds-btn-secondary:focus-visible{outline:3px solid #B9C8F8}"
+      "css": ".ds-btn-secondary{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;min-height:48px;padding:8px 20px;border:1px solid #102A43;border-radius:10px;background:transparent;color:#102A43;transition:transform 120ms cubic-bezier(.2,0,0,1);cursor:pointer}.ds-btn-secondary:active{transform:scale(.98)}.ds-btn-secondary:focus-visible{outline:3px solid #B8E0F6}"
     },
     {
       "name": "Destructive Button",
@@ -1242,7 +1347,7 @@
       "refersTo": "button-destructive",
       "description": "LoadingButton destructive: delete/discard only; never to judge an answer.",
       "html": "<button class=\"ds-btn-danger\">Delete topic</button>",
-      "css": ".ds-btn-danger{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;min-height:48px;padding:8px 20px;border:none;border-radius:10px;background:#B3342B;color:#FFFFFF;cursor:pointer;transition:background 200ms cubic-bezier(.2,0,0,1)}.ds-btn-danger:hover{background:#962A22}.ds-btn-danger:focus-visible{outline:3px solid #B9C8F8}"
+      "css": ".ds-btn-danger{font-family:Lexend,system-ui,sans-serif;font-size:13px;font-weight:600;min-height:48px;padding:8px 20px;border:none;border-radius:10px;background:#B3342B;color:#FFFFFF;cursor:pointer;transition:background 200ms cubic-bezier(.2,0,0,1)}.ds-btn-danger:hover{background:#962A22}.ds-btn-danger:focus-visible{outline:3px solid #B8E0F6}"
     },
     {
       "name": "Choice Tile",
@@ -1250,7 +1355,7 @@
       "refersTo": "choice-tile",
       "description": "Answer choice row: letter badge + math content; selected gets wash, brand border and a 3px halo; verdicts add icon + word.",
       "html": "<div class=\"ds-choices\"><button class=\"ds-choice\"><span class=\"ds-badge\">A</span><span>x = 7</span></button><button class=\"ds-choice ds-choice-sel\"><span class=\"ds-badge\">B</span><span>x = 12</span></button><div class=\"ds-choice ds-choice-ok\"><span class=\"ds-badge\">C</span><span>x = 22/3</span><span class=\"ds-status\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg>Correct</span></div></div>",
-      "css": ".ds-choices{display:flex;flex-direction:column;gap:12px;max-width:720px;font-family:Lexend,system-ui,sans-serif;}.ds-choice{display:flex;align-items:center;gap:12px;min-height:56px;padding:4px 12px;border:1px solid #E3E6EC;border-radius:12px;background:#FFFFFF;color:#14171F;font:inherit;font-size:15px;text-align:left;cursor:pointer;transition:transform 120ms cubic-bezier(.2,0,0,1)}.ds-choice:hover{border-color:#CDD2DB}.ds-choice:active{transform:scale(.98)}.ds-choice:focus-visible{outline:3px solid #B9C8F8}.ds-badge{display:inline-grid;place-items:center;width:30px;height:30px;border:1.5px solid #CDD2DB;border-radius:999px;font-size:12px;font-weight:600;color:#555C6B}.ds-choice-sel{background:#EEF2FE;border:2px solid #2F5BEA;box-shadow:0 0 0 3px rgba(185,200,248,.45)}.ds-choice-sel .ds-badge{background:#2F5BEA;border-color:#2F5BEA;color:#FFFFFF}.ds-choice-ok{background:#E8F6EE;border:2px solid #137F49}.ds-choice-ok .ds-badge{background:#137F49;border-color:#137F49;color:#FFFFFF}.ds-status{margin-left:auto;display:inline-flex;align-items:center;gap:4px;color:#137F49;font-size:12px;font-weight:600}"
+      "css": ".ds-choices{display:flex;flex-direction:column;gap:12px;max-width:720px;font-family:Lexend,system-ui,sans-serif;}.ds-choice{display:flex;align-items:center;gap:12px;min-height:56px;padding:4px 12px;border:1px solid #D6E4EE;border-radius:12px;background:#FFFFFF;color:#15202B;font:inherit;font-size:15px;text-align:left;cursor:pointer;transition:transform 120ms cubic-bezier(.2,0,0,1)}.ds-choice:hover{border-color:#B7CCDC}.ds-choice:active{transform:scale(.98)}.ds-choice:focus-visible{outline:3px solid #B8E0F6}.ds-badge{display:inline-grid;place-items:center;width:30px;height:30px;border:1.5px solid #B7CCDC;border-radius:999px;font-size:12px;font-weight:600;color:#44586C}.ds-choice-sel{background:#E6F4FC;border:2px solid #102A43;box-shadow:0 0 0 3px rgba(184,224,246,.45)}.ds-choice-sel .ds-badge{background:#102A43;border-color:#102A43;color:#FFFFFF}.ds-choice-ok{background:#E8F6EE;border:2px solid #137F49}.ds-choice-ok .ds-badge{background:#137F49;border-color:#137F49;color:#FFFFFF}.ds-status{margin-left:auto;display:inline-flex;align-items:center;gap:4px;color:#137F49;font-size:12px;font-weight:600}"
     },
     {
       "name": "Feedback Dock",
@@ -1258,7 +1363,7 @@
       "refersTo": "feedback-dock-correct",
       "description": "Sticky verdict dock: tints to the verdict wash, icon + word in a live region, teacher line on warm, action re-themed to verdict colour.",
       "html": "<div class=\"ds-dock\"><div class=\"ds-dock-main\"><div class=\"ds-verdict\" role=\"status\" aria-live=\"polite\"><svg width=\"32\" height=\"32\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"m9 12 2 2 4-4\"/></svg>Correct</div><div class=\"ds-teacher\"><strong>A. Elmenshawy</strong><p>Right. Isolate the variable term first, then divide.</p></div></div><button class=\"ds-dock-next\">Next</button></div>",
-      "css": ".ds-dock{font-family:Lexend,system-ui,sans-serif;display:flex;gap:24px;align-items:center;padding:12px 16px;background:#E8F6EE;border-top:1px solid #9ED3B5;box-shadow:0 -2px 16px #14171F1A}.ds-dock-main{flex:1;display:flex;flex-direction:column;gap:12px}.ds-verdict{display:flex;align-items:center;gap:12px;color:#137F49;font-size:16px;font-weight:700}.ds-teacher{background:#FFF7EB;border:1px solid #F1D9B5;border-radius:12px;padding:12px}.ds-teacher strong{color:#8A5A12;font-size:12px}.ds-teacher p{margin:8px 0 0;color:#14171F;font-size:15px}.ds-dock-next{min-width:180px;min-height:48px;border:none;border-radius:10px;background:#137F49;color:#FFFFFF;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.ds-dock-next:focus-visible{outline:3px solid #9ED3B5}"
+      "css": ".ds-dock{font-family:Lexend,system-ui,sans-serif;display:flex;gap:24px;align-items:center;padding:12px 16px;background:#E8F6EE;border-top:1px solid #9ED3B5;box-shadow:0 -2px 16px #102A431A}.ds-dock-main{flex:1;display:flex;flex-direction:column;gap:12px}.ds-verdict{display:flex;align-items:center;gap:12px;color:#137F49;font-size:16px;font-weight:700}.ds-teacher{background:#FFF7EB;border:1px solid #F1D9B5;border-radius:12px;padding:12px}.ds-teacher strong{color:#8A5A12;font-size:12px}.ds-teacher p{margin:8px 0 0;color:#15202B;font-size:15px}.ds-dock-next{min-width:180px;min-height:48px;border:none;border-radius:10px;background:#137F49;color:#FFFFFF;font:inherit;font-size:13px;font-weight:600;cursor:pointer}.ds-dock-next:focus-visible{outline:3px solid #9ED3B5}"
     },
     {
       "name": "Text Field",
@@ -1266,7 +1371,7 @@
       "refersTo": "input-field",
       "description": "AppFieldBorder: full rounded outline, label always floating inside above the value, 3px brand-line focus.",
       "html": "<label class=\"ds-field\"><span>Email</span><input placeholder=\"you@school.org\"></label>",
-      "css": ".ds-field{font-family:Lexend,system-ui,sans-serif;display:flex;flex-direction:column;gap:2px;max-width:360px;padding:8px 12px;border:1px solid #CDD2DB;border-radius:10px;background:#FFFFFF}.ds-field span{font-size:13px;font-weight:600;color:#555C6B}.ds-field input{border:none;outline:none;font:inherit;font-size:15px;color:#14171F;background:transparent}.ds-field input::placeholder{color:#6A7283}.ds-field:focus-within{border:3px solid #B9C8F8;padding:6px 10px}"
+      "css": ".ds-field{font-family:Lexend,system-ui,sans-serif;display:flex;flex-direction:column;gap:2px;max-width:360px;padding:8px 12px;border:1px solid #B7CCDC;border-radius:10px;background:#FFFFFF}.ds-field span{font-size:13px;font-weight:600;color:#44586C}.ds-field input{border:none;outline:none;font:inherit;font-size:15px;color:#15202B;background:transparent}.ds-field input::placeholder{color:#5B6F83}.ds-field:focus-within{border:3px solid #B8E0F6;padding:6px 10px}"
     },
     {
       "name": "Chip",
@@ -1274,7 +1379,7 @@
       "refersTo": "chip",
       "description": "AppChip: pill, surface fill; filter kind turns brand wash/brand when selected.",
       "html": "<span class=\"ds-chip\">E · Easy</span> <button class=\"ds-chip ds-chip-on\">Algebra</button>",
-      "css": ".ds-chip{font-family:Lexend,system-ui,sans-serif;display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border:1px solid #E3E6EC;border-radius:999px;background:#F6F7F9;color:#14171F;font-size:13px;font-weight:600;transition:background 200ms cubic-bezier(.2,0,0,1)}button.ds-chip{cursor:pointer;border-color:#CDD2DB}button.ds-chip:focus-visible{outline:3px solid #B9C8F8}.ds-chip-on{background:#EEF2FE;border-color:#2F5BEA;color:#2F5BEA}"
+      "css": ".ds-chip{font-family:Lexend,system-ui,sans-serif;display:inline-flex;align-items:center;min-height:32px;padding:0 12px;border:1px solid #D6E4EE;border-radius:999px;background:#F4F9FC;color:#15202B;font-size:13px;font-weight:600;transition:background 200ms cubic-bezier(.2,0,0,1)}button.ds-chip{cursor:pointer;border-color:#B7CCDC}button.ds-chip:focus-visible{outline:3px solid #B8E0F6}.ds-chip-on{background:#E6F4FC;border-color:#102A43;color:#102A43}"
     },
     {
       "name": "Course Card",
@@ -1282,7 +1387,7 @@
       "refersTo": "card",
       "description": "CourseCard: flat card with 8px subject-hue band, 40px IconTile, headline title, 24px padding.",
       "html": "<article class=\"ds-card\"><div class=\"ds-band\"></div><div class=\"ds-card-body\"><span class=\"ds-tile\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 7v14\"/><path d=\"M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z\"/></svg></span><h3>SAT Math</h3><p>Explore algebra, problem solving, and geometry.</p></div></article>",
-      "css": ".ds-card{font-family:Lexend,system-ui,sans-serif;max-width:420px;border:1px solid #E3E6EC;border-radius:12px;background:#FFFFFF;overflow:hidden}.ds-band{height:8px;background:#0E9F8E}.ds-card-body{padding:24px;display:flex;flex-direction:column;gap:16px}.ds-tile{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#F4FCFA;color:#0E9F8E}.ds-card h3{margin:0;font-size:24px;font-weight:600;line-height:32px;color:#14171F}.ds-card p{margin:0;font-size:15px;color:#14171F}"
+      "css": ".ds-card{font-family:Lexend,system-ui,sans-serif;max-width:420px;border:1px solid #D6E4EE;border-radius:12px;background:#FFFFFF;overflow:hidden}.ds-band{height:8px;background:#0E9F8E}.ds-card-body{padding:24px;display:flex;flex-direction:column;gap:16px}.ds-tile{display:grid;place-items:center;width:40px;height:40px;border-radius:10px;background:#F4FCFA;color:#0E9F8E}.ds-card h3{margin:0;font-size:24px;font-weight:600;line-height:32px;color:#15202B}.ds-card p{margin:0;font-size:15px;color:#15202B}"
     },
     {
       "name": "Shell Navigation",
@@ -1290,24 +1395,48 @@
       "refersTo": "shell-sidebar",
       "description": "Desktop sidebar: surface ground, current item as a raised pill with a hairline border.",
       "html": "<nav class=\"ds-nav\"><a>Home</a><a class=\"ds-nav-on\" aria-current=\"page\">Courses</a><a>Skills</a></nav>",
-      "css": ".ds-nav{font-family:Lexend,system-ui,sans-serif;display:flex;flex-direction:column;gap:4px;width:232px;padding:16px 12px;background:#F6F7F9;border-right:1px solid #E3E6EC}.ds-nav a{display:flex;align-items:center;min-height:48px;padding:0 12px;border:1px solid transparent;border-radius:10px;color:#555C6B;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}.ds-nav a:hover{color:#14171F}.ds-nav a:focus-visible{outline:3px solid #B9C8F8}.ds-nav a.ds-nav-on{background:#FFFFFF;border-color:#E3E6EC;color:#14171F;font-weight:700}"
+      "css": ".ds-nav{font-family:Lexend,system-ui,sans-serif;display:flex;flex-direction:column;gap:4px;width:232px;padding:16px 12px;background:#F4F9FC;border-right:1px solid #D6E4EE}.ds-nav a{display:flex;align-items:center;min-height:48px;padding:0 12px;border:1px solid transparent;border-radius:10px;color:#44586C;font-size:12px;font-weight:600;text-decoration:none;cursor:pointer}.ds-nav a:hover{color:#15202B}.ds-nav a:focus-visible{outline:3px solid #B8E0F6}.ds-nav a.ds-nav-on{background:#FFFFFF;border-color:#D6E4EE;color:#15202B;font-weight:700}"
+    },
+    {
+      "name": "Shell Wordmark",
+      "kind": "custom",
+      "refersTo": "brand-mark",
+      "description": "ShellWordmark: the 32px A∫E BrandMark, an 8px gap, then the two-line name. Shell header and auth card.",
+      "html": "<div class=\"ds-wordmark\"><svg class=\"ds-mark\" viewBox=\"-4 -4 150 108\" role=\"img\" aria-label=\"A∫E\"><path fill=\"#102A43\" fill-rule=\"evenodd\" d=\"M0 94 29 6h15l29 88H56l-5.5-17h-26L19 94zm29-31h17.5L37.7 35z\"/><path fill=\"none\" stroke=\"#FFFFFF\" stroke-width=\"15\" stroke-linecap=\"round\" d=\"M97 12c-3-6-14-6-15 8l-4 64c-1 14-12 14-15 8\"/><path fill=\"none\" stroke=\"#2F6FAD\" stroke-width=\"7\" stroke-linecap=\"round\" d=\"M97 12c-3-6-14-6-15 8l-4 64c-1 14-12 14-15 8\"/><circle cx=\"97\" cy=\"12\" r=\"5\" fill=\"#2F6FAD\"/><circle cx=\"63\" cy=\"92\" r=\"5\" fill=\"#2F6FAD\"/><path fill=\"#102A43\" d=\"M104 6h38v15h-22v20h19v15h-19v23h22v15h-38z\"/></svg><div><strong>Abdelrahman Elmenshawy</strong><span>SAT &amp; EST Math</span></div></div>",
+      "css": ".ds-wordmark{font-family:Lexend,system-ui,sans-serif;display:flex;align-items:center;gap:8px;color:#15202B}.ds-mark{height:32px;width:auto}.ds-wordmark div{display:flex;flex-direction:column;gap:8px}.ds-wordmark strong{font-size:14px;font-weight:700;line-height:20px}.ds-wordmark span{font-size:12px;font-weight:600;color:#44586C}"
+    },
+    {
+      "name": "Landing Hero Band",
+      "kind": "custom",
+      "refersTo": "landing-band",
+      "description": "Landing only: full-bleed navy band with Baby Blue graph rules, a Domine headline and the light + ghost button pair.",
+      "html": "<section class=\"ds-band\"><h1>Master the SAT. Shape Your Future.</h1><p>Your journey to a higher math score starts here.</p><div class=\"ds-band-actions\"><a class=\"ds-lbtn ds-lbtn-light\" href=\"#\">Explore courses</a><a class=\"ds-lbtn ds-lbtn-ghost\" href=\"#\">Meet your instructor</a></div></section>",
+      "css": ".ds-band{padding:56px 40px;background-color:#102A43;color:#FFFFFF;background-image:linear-gradient(rgba(184,224,246,.07) 1px,transparent 1px),linear-gradient(90deg,rgba(184,224,246,.07) 1px,transparent 1px);background-size:48px 48px;font-family:Lexend,system-ui,sans-serif}.ds-band h1{margin:0;max-width:11ch;font:700 56px/1.02 Domine,Georgia,serif;letter-spacing:-.03em}.ds-band p{margin:20px 0 0;color:#C3D6E6;font-size:18px;line-height:1.65}.ds-band-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}.ds-lbtn{display:inline-flex;align-items:center;min-height:52px;padding:0 26px;border-radius:12px;border:1px solid transparent;font:600 16px/1 Lexend,system-ui,sans-serif;text-decoration:none;transition:background-color .2s cubic-bezier(.16,1,.3,1),border-color .2s cubic-bezier(.16,1,.3,1)}.ds-lbtn:active{transform:translateY(1px)}.ds-lbtn:focus-visible{outline:3px solid #B8E0F6;outline-offset:3px}.ds-lbtn-light{background:#B8E0F6;color:#102A43;box-shadow:0 8px 20px -10px rgba(4,14,26,.6)}.ds-lbtn-light:hover{background:#FFFFFF}.ds-lbtn-ghost{color:#FFFFFF;border-color:rgba(184,224,246,.45)}.ds-lbtn-ghost:hover{border-color:#B8E0F6;background:rgba(184,224,246,.08)}@media (prefers-reduced-motion:reduce){.ds-lbtn{transition:none}}"
+    },
+    {
+      "name": "Landing Hairline Ledger",
+      "kind": "custom",
+      "description": "Landing only: columns divided by 1px hairlines instead of cards, with Domine navy figures.",
+      "html": "<ul class=\"ds-ledger\"><li><b>7+ years</b>teaching mathematics in the American curriculum</li><li><b>4+ years</b>specializing in SAT &amp; EST Math</li><li><b>Grades 10–12</b>high school mathematics</li></ul>",
+      "css": ".ds-ledger{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));margin:0;padding:0;list-style:none;border-bottom:1px solid #D6E4EE;font-family:Lexend,system-ui,sans-serif}.ds-ledger li{padding:28px 24px 30px;border-left:1px solid #D6E4EE;color:#44586C;font-size:15px;line-height:1.5}.ds-ledger li:first-child{border-left:0;padding-left:0}.ds-ledger b{display:block;margin-bottom:6px;font:700 24px/1.2 Domine,Georgia,serif;color:#102A43}"
     }
   ],
   "narrative": {
     "northStar": "The Category Standard, at Full Craft",
-    "overview": "Khan Academy's calm and math legibility, Brilliant's polished feedback, Linear/Notion type and spacing discipline, and Duolingo's decisive Check structure without its playful styling. White ground, one cool off-white surface, near-black ink, one confident blue. The question and its feedback own the screen; chrome stays quiet.\n\nDensity is relaxed and phone-first: 48px touch targets, 56px choice rows, a 680-720px content column on desktop. Depth comes from 1px lines and tonal surfaces, with soft shadows reserved for surfaces that act (primary button, sheets, dialogs, the feedback dock). Motion is short and purposeful, and every animation collapses to its end state under reduced motion. Light and dark themes share the same roles; every screen ships in both.\n\nConfirmed rejections (from the approved spec): cold grey SaaS, gamified chrome (points, mascots, confetti), exam-software imitation (Bluebook), clutter at 360px.",
+    "overview": "Khan Academy's calm and math legibility, Brilliant's polished feedback, Linear/Notion type and spacing discipline, and Duolingo's decisive Check structure without its playful styling, worn in the teacher's own identity. White ground, one ice-blue off-white surface, navy-black ink, and one accent: the teacher's Navy in light, his Baby Blue in dark. The A∫E mark signs the shell. The question and its feedback own the screen; chrome stays quiet.\n\nDensity is relaxed and phone-first: 48px touch targets, 56px choice rows, a 680-720px content column on desktop. Depth comes from 1px lines and tonal surfaces, with soft shadows reserved for surfaces that act (primary button, sheets, dialogs, the feedback dock). Motion is short and purposeful, and every animation collapses to its end state under reduced motion. Light and dark themes share the same roles; every screen ships in both.\n\nThe public landing page (`apps/landing/`) speaks the same palette louder: navy bands, a serif display voice and graph-paper rules. Its additions are scoped to it in **Landing page** below and do not enter the app.\n\nConfirmed rejections (from the approved spec): cold grey SaaS, gamified chrome (points, mascots, confetti), exam-software imitation (Bluebook), clutter at 360px.",
     "keyCharacteristics": [
-      "One brand blue for selection and primary action; green and coral only for verdicts.",
+      "One brand colour (Navy in light, Baby Blue in dark) for selection and primary action; green and coral only for verdicts.",
       "Status is always icon + word, never colour alone.",
-      "Lexend everywhere, tabular numerals for counts, timers and scores; LaTeX via `flutter_math_fork` at 1.21x the surrounding text.",
+      "Lexend everywhere in the app, tabular numerals for counts, timers and scores; LaTeX via `flutter_math_fork` at 1.21x the surrounding text.",
       "Flat surfaces separated by 1px lines; shadows only on acting surfaces.",
+      "The A∫E `BrandMark` is the only logo, beside the name in the shell header and on the auth screens.",
       "Lucide icons through one semantic `AppIcons` map.",
       "unDraw illustrations recoloured to the brand at runtime, never inside the question area."
     ],
     "rules": [
       {
-        "name": "The One Blue Rule",
-        "body": "Blue means \"act here\" or \"you chose this\". Don't use it for decoration, headings or status.",
+        "name": "The One Brand Colour Rule",
+        "body": "In the app, `brand` (Navy, or Baby Blue in dark) means \"act here\" or \"you chose this\". Don't use it for decoration, headings or status.",
         "section": "colors"
       },
       {
@@ -1339,6 +1468,26 @@
         "name": "The Acting Surface Rule",
         "body": "Only surfaces that ask for action get a shadow: the primary button, the verdict dock, the save bar, dialogs and sheets. Cards, tiles, chips and nav stay flat.",
         "section": "elevation"
+      },
+      {
+        "name": "The Navy Band Rule",
+        "body": "Full-bleed navy carries the hero, the method path and the closing band; every other section is white or Ice White. Text on navy is white, with `landing-on-navy-secondary` for supporting copy and Baby Blue for strokes, the slogan and the primary button. On the landing page, Navy is the ground and the heading ink; the app's One Brand Colour Rule does not apply here.",
+        "section": "landing"
+      },
+      {
+        "name": "The Graph-Paper Rule",
+        "body": "Faint graph rules on a 48px square grid lie on the navy bands (Baby Blue at 7%) and on the Ice White tint sections (navy at 3.5%). The hero adds coordinate axes and a Baby Blue integral curve that draws once on load. The grid is ground texture; it never carries content.",
+        "section": "landing"
+      },
+      {
+        "name": "The Hairline Column Rule",
+        "body": "Lists and columns are divided by 1px `line` rules, not boxed in cards: the highlights ledger (vertical rules between four columns), the why and features lists (top rules), the credentials block, and the two courses (a 2px navy top rule and a vertical hairline between them). The sample question is the one bordered card.",
+        "section": "landing"
+      },
+      {
+        "name": "The Mark Rule",
+        "body": "The A∫E mark appears only as supplied: `logo-mark-reverse.svg` on navy (nav, 58px wide) and `logo-mark.svg` on white (footer, 50px wide), each beside the Domine name. The integral alone (`integral.svg`, Steel) serves as the pull-quote mark. `icon.svg` is the favicon, and the app icons are rendered from `icon.svg` and `icon-maskable.svg`.",
+        "section": "landing"
       }
     ],
     "dos": [
@@ -1348,16 +1497,18 @@
       "**Do** render questions only through the shared `QuestionView`, and math only through `MathText` (`flutter_math_fork`).",
       "**Do** use tabular figures for any changing number.",
       "**Do** keep UI copy English and sentence case, and set `TextDirection.ltr` on content text.",
-      "**Do** keep targets at least 48px and give choices, SPR fields and keypad keys 56px."
+      "**Do** keep targets at least 48px and give choices, SPR fields and keypad keys 56px.",
+      "**Do** show the logo only through `BrandMark`, and spell the name \"Abdelrahman Elmenshawy\"."
     ],
     "donts": [
       "**Don't** show status by colour alone, or use subject hues or warm fill for status.",
       "**Don't** add shadows to cards, chips, tiles or nav. Shadows belong to acting surfaces only.",
-      "**Don't** use `brand` blue for decoration or headings, or `danger` to judge an answer.",
+      "**Don't** use `brand` for decoration or headings in the app, or `danger` to judge an answer.",
       "**Don't** add Material `Icons.*`, emoji or text glyphs as icons.",
       "**Don't** add gamified chrome (points, mascots, confetti) or exam-software imitation.",
       "**Don't** add uppercase kickers or eyebrow labels. The skill line above the stem is QuestionView anatomy, not a pattern for other titles.",
-      "**Don't** place illustrations inside the question or answer area."
+      "**Don't** place illustrations inside the question or answer area.",
+      "**Don't** redraw, recolour or add \"Certified\" or \"IGCSE\" to the A∫E mark."
     ]
   }
 }

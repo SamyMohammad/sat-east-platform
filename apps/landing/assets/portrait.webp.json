@@ -1,0 +1,4 @@
+{
+  "prompt": "Origin: supplied teacher portrait (D:/books/New folder/Abdelrhman_Professional_Portrait_Crop.png, cut from an old poster). Background removed with rembg u2net_human_seg (alpha matting), cropped waist-up at y=690 to drop poster text, a third-party school badge and the belt buckle. Not AI-generated. Replace with original high-res photo.\n",
+  "createdAt": "2026-10-29T01:29:35.904Z"
+}

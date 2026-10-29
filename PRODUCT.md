@@ -75,7 +75,11 @@ EST coverage is a bonus, not the core claim.
 - Voice: **warm but demanding.** Believes in the student and holds a high bar. Feedback names the
   next concrete step ("Close. Check the sign in step 2 and try again."), never empty praise and
   never harsh.
-- No logo, colours, photos or video assets exist yet.
+- Slogan: **Prepared Minds Score Higher.** Hero line: "Master the SAT. Shape Your Future."
+- Identity (decided 2026-10-29, from the teacher's brief): the **A∫E** monogram (A, integral sign,
+  E), tagline "SAT & EST MATH"; palette Navy `#102A43`, Baby Blue `#B8E0F6`, White, `#F4F9FC`
+  across the landing page and the whole app. Spelling is always "Abdelrahman". The logo never
+  says "Certified" or "IGCSE". Rollout: `docs/superpowers/specs/2026-10-29-brand-rollout-design.md`.
 - Visual direction (decided 2026-10-26): **the category standard, executed at full craft**, not
   an invented world. The bar is Khan Academy (math legibility, calm practice), Brilliant (polished
   interactive feedback), Linear / Notion (typography and spacing discipline) and Duolingo for
@@ -84,7 +88,14 @@ EST coverage is a bonus, not the core claim.
 
 ## Evidence on Hand
 
-None yet: no teacher photos, no existing visual identity, no real student results or testimonials.
+- Vector logo and app icons: `apps/landing/assets/`.
+- Teacher portrait: a background-removed cutout (`apps/landing/assets/portrait.webp`) from an old
+  poster. It is low resolution; ask for the original high-res photo.
+- Instructor facts (teacher's brief, 2026-10-27): 7+ years teaching the American curriculum, 4+
+  years SAT & EST Math, grades 10–12. College Board SAT Professional Development *Training* (never
+  "certification" or "endorsement"). Cognia eleot® Observer Certification is **pending**.
+- No real student results or testimonials yet.
+
 Future work must not invent results, scores, testimonials or student counts. Sample questions must be
 original (not College Board or publisher items).
 
