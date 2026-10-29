@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/app_shell_destination.dart';
+import 'package:sat_east_client/shared/widgets/brand_mark.dart';
 
 class ShellHeader extends StatelessWidget {
   const ShellHeader({
@@ -125,20 +126,28 @@ class ShellWordmark extends StatelessWidget {
     final theme = Theme.of(context);
     return Padding(
       padding: padding,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            'Abdelrahman Elmenshawy',
-            style: theme.textTheme.titleSmall?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: AppSpace.s2),
-          Text(
-            'SAT & EST Math',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
+          const BrandMark(),
+          const SizedBox(width: AppSpace.s2),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Abdelrahman Elmenshawy',
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: AppSpace.s2),
+                Text(
+                  'SAT & EST Math',
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
           ),
         ],

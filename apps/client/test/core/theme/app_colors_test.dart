@@ -38,15 +38,15 @@ void main() {
       }
     });
   }
-  test('F-4: scheme brand primary is the ballpoint blue', () {
-    expect(AppSchemes.light.primary, const Color(0xFF2F5BEA));
-    expect(AppSchemes.dark.primary, const Color(0xFF7C9BFF));
+  test('F-4: scheme brand primary matches the brand rollout', () {
+    expect(AppSchemes.light.primary, const Color(0xFF102A43));
+    expect(AppSchemes.dark.primary, const Color(0xFFB8E0F6));
   });
 
   test('F-4: scheme error, ink and dark surface match Foundations', () {
     expect(AppSchemes.light.error, const Color(0xFFC9392F));
-    expect(AppSchemes.light.onSurface, const Color(0xFF14171F));
-    expect(AppSchemes.dark.surface, const Color(0xFF0F1218));
+    expect(AppSchemes.light.onSurface, const Color(0xFF15202B));
+    expect(AppSchemes.dark.surface, const Color(0xFF0B1724));
   });
 
   test('F-4: copyWith replaces only the given field', () {

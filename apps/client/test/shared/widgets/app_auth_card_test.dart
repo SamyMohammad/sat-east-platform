@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/shared/widgets/app_auth_card.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_shell/shell_header.dart';
+import 'package:sat_east_client/shared/widgets/brand_mark.dart';
 
 void main() {
   for (final width in [360.0, 959.0, 960.0, 1280.0]) {
@@ -23,6 +23,7 @@ void main() {
             ),
           ),
         );
+        expect(find.byType(BrandMark), findsOneWidget);
         final panes = find.byKey(const ValueKey('auth-panes'));
         final wide = width >= 960;
         expect(panes, wide ? findsOneWidget : findsNothing);

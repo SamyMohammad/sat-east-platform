@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum SubjectHue {
-  blue(0xFF2F5BEA, 0xFFEEF2FE, 0xFF7C9BFF, 0xFF1B2547),
+  blue(0xFF2F6FAD, 0xFFE6F4FC, 0xFF7FB3E0, 0xFF15324A),
   teal(0xFF0E9F8E, 0xFFF4FCFA, 0xFF4DD4BF, 0xFF123832),
   violet(0xFF7C5CE0, 0xFFF4F0FE, 0xFFB49AFF, 0xFF302347),
   // The spec amber is 2.77:1 on white; this shade clears icon contrast.
