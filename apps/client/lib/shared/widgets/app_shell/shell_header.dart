@@ -67,11 +67,12 @@ class ShellHeader extends StatelessWidget {
                       : theme.textTheme.titleLarge,
                 ),
               ),
-              IconButton(
-                tooltip: 'Notifications',
-                onPressed: onNotifications,
-                icon: const Icon(AppIcons.notifications),
-              ),
+              if (onNotifications != null)
+                IconButton(
+                  tooltip: 'Notifications',
+                  onPressed: onNotifications,
+                  icon: const Icon(AppIcons.notifications),
+                ),
             ],
           ),
         ),

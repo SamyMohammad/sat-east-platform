@@ -21,6 +21,7 @@ import 'package:sat_east_client/features/catalogue/presentation/screens/catalogu
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/home/presentation/screens/home_screen.dart';
 import 'package:sat_east_client/features/homework/presentation/screens/homework_screen.dart';
 import 'package:sat_east_client/features/notes/presentation/screens/notes_viewer_screen.dart'
     deferred as notes_viewer;
@@ -288,7 +289,7 @@ GoRouter createRouter({
                       AppShellDestination.courses => CourseMapScreen(
                         slug: state.uri.queryParameters['course'],
                       ),
-                      AppShellDestination.home => const PlaceholderScreen(),
+                      AppShellDestination.home => const HomeScreen(),
                       AppShellDestination.skills => const SkillsScreen(),
                       AppShellDestination.profile => const AccountScreen(),
                       _ => PlaceholderScreen(title: destination.label),

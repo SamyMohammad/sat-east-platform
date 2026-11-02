@@ -41,6 +41,7 @@ import 'package:sat_east_client/features/home/data/datasources/home_settings_rem
 import 'package:sat_east_client/features/home/data/repositories/home_settings_repository_impl.dart';
 import 'package:sat_east_client/features/home/domain/repositories/home_settings_repository.dart';
 import 'package:sat_east_client/features/home/domain/usecases/get_home_summary.dart';
+import 'package:sat_east_client/features/home/presentation/cubit/home_cubit.dart';
 import 'package:sat_east_client/features/homework/data/datasources/homework_remote_data_source.dart';
 import 'package:sat_east_client/features/homework/data/repositories/homework_repository_impl.dart';
 import 'package:sat_east_client/features/homework/domain/repositories/homework_repository.dart';
@@ -271,6 +272,7 @@ void configureDependencies({
         DateTime.now,
       ),
     )
+    ..registerFactory<HomeCubit>(() => HomeCubit(getIt<GetHomeSummary>()))
     ..registerFactory<TopicCubit>(() => TopicCubit(getIt<TopicRepository>()))
     // Ruled exception to "cubits are factories": AuthCubit is app-wide
     // session state that the router also reads, so it must be one instance.
