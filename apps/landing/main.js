@@ -1,6 +1,7 @@
-// App origin for every link into the Flutter app. Change it here when the
-// production domain is decided (docs Q-01); links keep working without JS.
-const APP_ORIGIN = 'https://sat-prod.pages.dev';
+// App origin for every link into the Flutter app. Staging until the prod app
+// is deployed and the domain is decided (docs Q-01); switch it here and in the
+// index.html hrefs, which keep links working without JS.
+const APP_ORIGIN = 'https://sat-staging.pages.dev';
 
 for (const link of document.querySelectorAll('[data-app]')) {
   link.href = APP_ORIGIN + link.dataset.app;
