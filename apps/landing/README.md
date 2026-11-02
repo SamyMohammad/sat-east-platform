@@ -6,15 +6,19 @@ Static marketing page for Abdelrahman Elmenshawy | SAT & EST Math. Plain HTML, C
 
 Open `index.html` in a browser, or run `npx serve apps/landing`.
 
-## Deploy (Cloudflare Pages)
+## Deploy (Cloudflare)
 
-Create a separate Pages project. It is not the Flutter app's project.
+Static assets on Cloudflare Workers (the successor to Pages), project `menshawy-landing`, live at
+https://menshawy-landing.tech11.workers.dev. It is separate from the Flutter app. Deploy by hand from this folder:
 
-- Build command: none
-- Output directory: `apps/landing`
+```
+npx wrangler@4 deploy
+```
+
+`wrangler.jsonc` holds the config; `.assetsignore` keeps this README and the config off the site.
 
 ## Before launch
 
 - The app links point at `https://sat-prod.pages.dev`. When the domain is decided (Q-01), update `APP_ORIGIN` in `main.js` and the `href`s in `index.html`.
-- Make `og:image` in `index.html` absolute (`https://<landing-domain>/assets/og.png`).
+- When a custom domain is added, point `og:image` in `index.html` at it (it uses the workers.dev URL today).
 - Mark Cognia as awarded only after the credential arrives.
