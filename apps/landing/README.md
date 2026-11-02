@@ -19,6 +19,6 @@ npx wrangler@4 deploy
 
 ## Before launch
 
-- The app links point at `https://sat-prod.pages.dev`. When the domain is decided (Q-01), update `APP_ORIGIN` in `main.js` and the `href`s in `index.html`.
+- The app links point at the **staging** app (`https://sat-staging.pages.dev`), so sign-ups land in the staging database. When the prod app is deployed (domain Q-01), update `APP_ORIGIN` in `main.js` and the `href`s in `index.html`, then redeploy.
 - When a custom domain is added, point `og:image` in `index.html` at it (it uses the workers.dev URL today).
 - Mark Cognia as awarded only after the credential arrives.
