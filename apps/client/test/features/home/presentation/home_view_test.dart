@@ -16,6 +16,7 @@ import 'package:sat_east_client/features/home/domain/entities/home_summary.dart'
 import 'package:sat_east_client/features/home/presentation/cubit/home_cubit.dart';
 import 'package:sat_east_client/features/home/presentation/cubit/home_state.dart';
 import 'package:sat_east_client/features/home/presentation/screens/home_screen.dart';
+import 'package:sat_east_client/features/home/presentation/widgets/home_continue_card.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_detail.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_homework.dart';
 import 'package:sat_east_client/features/topic/domain/entities/topic_note.dart';
@@ -129,6 +130,29 @@ Future<({GoRouter router, _HomeCubit cubit})> _pump(
 }
 
 void main() {
+  test('LRN-07: step action explicitly marks topic fallbacks', () {
+    for (final (quiz, opensTopic) in <(QuizStatus, bool)>[
+      (const QuizAvailable(), false),
+      (const QuizInProgress(attemptId: 'a'), false),
+      (QuizCooldown(availableAt: DateTime.utc(2026, 11, 3)), true),
+      (const QuizPracticeNeeded(count: 0, min: 5), true),
+      (const QuizHomeworkNeeded(), true),
+    ]) {
+      final action = homeStepAction(QuizStep(quiz), 'topic-id');
+      expect(action.opensTopic, opensTopic);
+      expect(action.button, opensTopic ? 'Open topic' : 'Continue');
+    }
+    for (final step in <CurrentStep>[
+      _video,
+      const NotesStep(TopicNote(assetId: 'note-id', title: 'Notes')),
+      const PracticeStep(3, 5),
+      _homework,
+    ]) {
+      final action = homeStepAction(step, 'topic-id');
+      expect(action.opensTopic, isFalse);
+      expect(action.button, 'Continue');
+    }
+  });
   testWidgets('LRN-07: loading shows skeleton', (tester) async {
     await _pump(tester, const HomeLoading());
     expect(find.byType(AppSkeleton), findsOneWidget);
@@ -255,6 +279,28 @@ void main() {
       findsOneWidget,
     );
   });
+  testWidgets('LRN-07: locked-by-practice homework shows start line', (
+    tester,
+  ) async {
+    await _pump(
+      tester,
+      HomeLoaded(
+        _ready(
+          step: const HomeworkStep(
+            TopicHomework(state: HomeworkState.lockedByPractice),
+          ),
+        ),
+      ),
+    );
+    expect(find.text('Start your homework'), findsOneWidget);
+    expect(find.text('0 answered'), findsNothing);
+    await tester.tap(find.text('Continue'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('route:/courses/topics/topic-id/homework'),
+      findsOneWidget,
+    );
+  });
   final steps = <(String, CurrentStep, String, String)>[
     ('video', _video, 'Watch the lesson video', 'video/video-id'),
     (
@@ -272,9 +318,9 @@ void main() {
     (
       'available homework',
       const HomeworkStep(
-        TopicHomework(state: HomeworkState.available, total: 20),
+        TopicHomework(state: HomeworkState.available),
       ),
-      '20 questions',
+      'Start your homework',
       'homework',
     ),
     (

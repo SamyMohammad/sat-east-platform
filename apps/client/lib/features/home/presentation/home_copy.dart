@@ -21,6 +21,7 @@ abstract final class HomeCopy {
   static const readNotes = 'Read the notes';
   static const takeQuiz = 'Take the quiz';
   static const finishQuiz = 'Finish your quiz';
+  static const homeworkStart = 'Start your homework';
 
   static String greeting(String name, {bool firstRun = false}) {
     final prefix = firstRun ? 'Welcome' : 'Hi';
@@ -35,10 +36,8 @@ abstract final class HomeCopy {
   static String startTopic(String sortLabel) => 'Start topic $sortLabel';
   static String practiceCount(int count, int min) =>
       '$count of $min practice questions';
-  static String homeworkCount(int total) => '$total questions';
   static String homeworkProgress(int answered, int total) =>
       '$answered answered, ${total - answered} to go';
-  static String homeworkAnswered(int answered) => '$answered answered';
   static String quizCooldown(String time) => 'Quiz opens again at $time';
   static String progress(int passed, int total) =>
       '$passed of $total topics passed';
