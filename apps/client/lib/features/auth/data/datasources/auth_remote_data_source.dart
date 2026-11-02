@@ -140,7 +140,9 @@ class AuthRemoteDataSource {
       }
       final rows = await _client
           .from('enrollments')
-          .select('target_test_date, expires_at, status, courses(title)')
+          .select(
+            'course_id, target_test_date, expires_at, status, courses(title)',
+          )
           .eq('user_id', user.id)
           .order('expires_at', ascending: false);
       final now = _now();
