@@ -2,7 +2,7 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-10-26
+> Last updated: 2026-11-02
 
 ## Now — closed beta prep
 
@@ -55,6 +55,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| P1 | Brand rollout: A∫E mark, navy palette across the app, static landing page (`apps/landing`) | #68 |
 | P2 | Skills screen + server skill mastery (ANL-01), quiz per-skill report (ANL-02) | #64 |
 | P1 | Staging-check polish: no lost video seconds, whole percents, MB quota, report rows | #60 |
 | P1 | Trim EF video secrets (staging R2 key had a stray character) | #59 |
