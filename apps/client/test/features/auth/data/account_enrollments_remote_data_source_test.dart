@@ -15,6 +15,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'fakes.dart';
 
 const _row = <String, Object?>{
+  'course_id': 'sat-id',
   'target_test_date': '2027-03-15',
   'expires_at': '2027-03-30T00:00:00Z',
   'status': 'active',
@@ -71,12 +72,21 @@ void main() {
   Future<List<MyEnrollment>> load() async =>
       (await source.listMyEnrollments() as Success<List<MyEnrollment>>).value;
 
+  test('LRN-07: enrollment select includes course_id', () async {
+    final enrollments = await load();
+    expect(
+      requests.single.url.queryParameters['select'],
+      'course_id,target_test_date,expires_at,status,courses(title)',
+    );
+    expect(enrollments.single.courseId, 'sat-id');
+  });
+
   test('AUTH-02: queries own enrollments newest access end first', () async {
     final enrollments = await load();
 
     expect(requests.single.url.path, '/rest/v1/enrollments');
     expect(requests.single.url.queryParameters, {
-      'select': 'target_test_date,expires_at,status,courses(title)',
+      'select': 'course_id,target_test_date,expires_at,status,courses(title)',
       'user_id': 'eq.student-id',
       'order': 'expires_at.desc.nullslast',
     });

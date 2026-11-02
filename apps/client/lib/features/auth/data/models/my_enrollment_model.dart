@@ -7,6 +7,10 @@ MyEnrollment? myEnrollmentFromJson(Map<String, Object?> json, DateTime now) {
   if (course is! Map<String, Object?>) {
     throw const FormatException('courses');
   }
+  final courseId = json['course_id'];
+  if (courseId is! String || courseId.isEmpty) {
+    throw const FormatException('course_id');
+  }
   final title = course['title'];
   if (title is! String || title.isEmpty) {
     throw const FormatException('courses.title');
@@ -18,6 +22,7 @@ MyEnrollment? myEnrollmentFromJson(Map<String, Object?> json, DateTime now) {
   final expiresAt = _date(json['expires_at'], 'expires_at');
   final targetTestDate = json['target_test_date'];
   return MyEnrollment(
+    courseId: courseId,
     courseTitle: title,
     targetTestDate: targetTestDate == null
         ? null

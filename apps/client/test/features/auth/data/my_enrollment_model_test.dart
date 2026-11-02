@@ -4,11 +4,16 @@ import 'package:sat_east_client/features/auth/data/models/my_enrollment_model.da
 void main() {
   final now = DateTime.utc(2026, 10, 18, 12);
   const row = <String, Object?>{
+    'course_id': 'sat-id',
     'target_test_date': '2027-03-15',
     'expires_at': '2027-03-30T00:00:00Z',
     'status': 'active',
     'courses': {'title': 'SAT Math'},
   };
+
+  test('LRN-07: enrollment mapper reads course_id', () {
+    expect(myEnrollmentFromJson(row, now)!.courseId, 'sat-id');
+  });
 
   test('AUTH-02: enrollment mapper keeps the selected calendar date', () {
     final enrollment = myEnrollmentFromJson(row, now)!;

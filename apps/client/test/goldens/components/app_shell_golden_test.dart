@@ -91,7 +91,6 @@ Future<void> _expectShellGolden(
       : AppShell(
           selectedIndex: 1,
           onDestinationSelected: (_) {},
-          onNotifications: () {},
           child: const _CoursesSample(),
         ),
 );

@@ -170,6 +170,7 @@ void main() {
           2,
           enrollments: [
             MyEnrollment(
+              courseId: 'sat-id',
               courseTitle: 'SAT Math',
               targetTestDate: target,
               expiresAt: expires,
@@ -221,6 +222,7 @@ void main() {
           2,
           enrollments: [
             MyEnrollment(
+              courseId: 'sat-id',
               courseTitle: 'EST Math',
               targetTestDate: null,
               expiresAt: expires,
@@ -261,12 +263,14 @@ void main() {
           2,
           enrollments: [
             MyEnrollment(
+              courseId: 'sat-id',
               courseTitle: 'SAT Math',
               targetTestDate: DateTime(2027, 3, 15),
               expiresAt: DateTime.utc(2027, 3, 30),
               isExpired: false,
             ),
             MyEnrollment(
+              courseId: 'sat-id',
               courseTitle: 'EST Math',
               targetTestDate: null,
               expiresAt: DateTime.utc(2027, 4, 30),
