@@ -17,5 +17,5 @@ Create a separate Pages project. It is not the Flutter app's project.
 
 - The app links point at `https://sat-prod.pages.dev`. When the domain is decided (Q-01), update `APP_ORIGIN` in `main.js` and the `href`s in `index.html`.
 - Make `og:image` in `index.html` absolute (`https://<landing-domain>/assets/og.png`).
-- Replace `assets/portrait.webp` with a cutout of the original high-resolution photo. The current one is 532×690.
+- Replace `assets/portrait.webp` with a cutout of the original high-resolution photo. The current one is 640×838, and the hair above the original crop line is AI-extended (Gemini).
 - Mark Cognia as awarded only after the credential arrives.

@@ -96,7 +96,6 @@ html { scrollbar-color: var(--navy-line) var(--ground); }
 .hero__slogan { margin-top: 36px; font: 600 1rem/1.4 var(--display); color: var(--baby); }
 .hero__portrait { align-self: end; justify-self: center; width: min(100%, 520px); }
 .hero__portrait img { width: 100%; filter: drop-shadow(0 30px 60px rgba(4, 14, 26, .45)); }
-
 /* Ledger */
 .ledger { border-bottom: 1px solid var(--line); background: var(--white); }
 .ledger__list { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
