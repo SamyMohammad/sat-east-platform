@@ -11,6 +11,27 @@ import 'package:sat_east_client/features/catalogue/presentation/cubit/course_pag
 import '../catalogue_fixtures.dart';
 
 void main() {
+  test('CRS-06: course page cubit exposes preview eligibility', () async {
+    final repository = FakeCatalogueRepository()
+      ..page = Success(coursePageFromJson(pagePayload));
+    final cubit = coursePageCubit(repository);
+    addTearDown(cubit.close);
+    await cubit.load('sat-math', signedIn: true);
+    expect((cubit.state as CoursePageLoaded).canPreview, isTrue);
+    await cubit.retry();
+    expect((cubit.state as CoursePageLoaded).canPreview, isTrue);
+  });
+  test('CRS-06: course page cubit propagates preview lookup failure', () async {
+    final repository = FakeCatalogueRepository()
+      ..page = Success(coursePageFromJson(pagePayload));
+    final maps = FakePreviewMapRepository()
+      ..result = const Failure(AppError('network'));
+    final cubit = coursePageCubit(repository, maps: maps);
+    addTearDown(cubit.close);
+    await cubit.load('sat-math', signedIn: true);
+    expect(cubit.state, const CoursePageFailed(AppError('network')));
+  });
+
   late FakeCatalogueRepository repository;
   final data = coursePageFromJson(pagePayload);
   setUp(() {
@@ -18,7 +39,7 @@ void main() {
   });
   blocTest<CoursePageCubit, CoursePageState>(
     'PAY-01: retry recovers from a failed request',
-    build: () => CoursePageCubit(repository),
+    build: () => coursePageCubit(repository),
     act: (cubit) async {
       repository.page = const Failure(AppError('network'));
       await cubit.load('sat-math');
@@ -40,7 +61,7 @@ void main() {
           if (failure) {
             repository.page = const Failure(AppError('network'));
           }
-          return CoursePageCubit(repository);
+          return coursePageCubit(repository);
         },
         act: (cubit) async {
           await cubit.load('sat-math');
@@ -74,7 +95,7 @@ void main() {
     test('PAY-01: closed CoursePage ignores pending $outcome', () async {
       final pending = Completer<Result<CoursePage>>();
       repository.pendingPage = pending.future;
-      final cubit = CoursePageCubit(repository);
+      final cubit = coursePageCubit(repository);
       final request = cubit.load('sat-math');
       await cubit.close();
       pending.complete(outcome);
@@ -85,7 +106,7 @@ void main() {
   test(
     'PAY-01: CoursePage methods after close never call repository',
     () async {
-      final cubit = CoursePageCubit(repository);
+      final cubit = coursePageCubit(repository);
       await cubit.close();
       await cubit.load('sat-math');
       await cubit.retry();

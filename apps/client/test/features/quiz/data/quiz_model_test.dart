@@ -6,6 +6,43 @@ import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
 import 'quiz_fixture.dart';
 
 void main() {
+  test('CRS-06: parses next_needs_access', () {
+    expect(
+      quizReportFromJson(
+        quizReportPayload()..['next_needs_access'] = true,
+        'a1',
+      ).nextNeedsAccess,
+      isTrue,
+    );
+    expect(
+      quizReportFromJson(
+        quizReportPayload()..['next_needs_access'] = false,
+        'a1',
+      ).nextNeedsAccess,
+      isFalse,
+    );
+  });
+  test(
+    'CRS-06: parses next_needs_access with key absent defaults to false',
+    () {
+      expect(
+        quizReportFromJson(quizReportPayload(), 'a1').nextNeedsAccess,
+        isFalse,
+      );
+    },
+  );
+  for (final invalid in [null, 'true', 1]) {
+    test('CRS-06: rejects malformed next_needs_access $invalid', () {
+      expect(
+        () => quizReportFromJson(
+          quizReportPayload()..['next_needs_access'] = invalid,
+          'a1',
+        ),
+        throwsFormatException,
+      );
+    });
+  }
+
   test('ANL-02: report_parses_skills', () {
     final payload = quizReportPayload()
       ..['skills'] = [

@@ -18,6 +18,7 @@ import 'package:sat_east_client/features/course_map/presentation/cubit/course_ma
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_state.dart';
 import 'package:sat_east_client/features/course_map/presentation/widgets/continue_card.dart';
 import 'package:sat_east_client/features/course_map/presentation/widgets/topic_row.dart';
+import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/course_card.dart';
@@ -25,13 +26,16 @@ import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class CourseMapScreen extends StatelessWidget {
-  const CourseMapScreen({super.key});
+  const CourseMapScreen({super.key, this.slug});
+
+  final String? slug;
 
   @override
   Widget build(BuildContext context) => BlocProvider(
+    key: ValueKey(slug),
     create: (_) {
       final cubit = getIt<CourseMapCubit>();
-      unawaited(cubit.load());
+      unawaited(cubit.load(slug: slug));
       return cubit;
     },
     child: const CourseMapView(),
@@ -46,7 +50,7 @@ class CourseMapView extends StatelessWidget {
   Widget build(BuildContext context) => RouteRefreshListener(
     location: AppRoutes.courses,
     refreshOnReselect: true,
-    onRefresh: () => unawaited(context.read<CourseMapCubit>().load()),
+    onRefresh: () => unawaited(context.read<CourseMapCubit>().retry()),
     child: BlocBuilder<CourseMapCubit, CourseMapState>(
       builder: (context, state) => switch (state) {
         CourseMapLoading() => const _Padded(child: AppSkeleton()),
@@ -99,6 +103,14 @@ class _Loaded extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppSpace.s4),
           children: [
+            if (map.access == CourseAccess.preview) ...[
+              AppBanner(
+                message: CourseMapCopy.previewBanner,
+                actionLabel: CourseMapCopy.enterActivationCode,
+                onAction: () => context.go(AppRoutes.activate),
+              ),
+              const SizedBox(height: AppSpace.s4),
+            ],
             CourseCard(
               title: map.title,
               meta: CourseMapCopy.progress(
@@ -184,7 +196,7 @@ class _Failed extends StatelessWidget {
     ErrorCodes.notEnrolled => EmptyState(
       title: CourseMapCopy.notEnrolledTitle,
       message: CourseMapCopy.notEnrolledBody,
-      actionLabel: 'Enter activation code',
+      actionLabel: CourseMapCopy.enterActivationCode,
       onAction: () => context.go(AppRoutes.activate),
       secondaryActionLabel: 'Browse courses',
       onSecondaryAction: () => context.go(AppRoutes.catalogue),

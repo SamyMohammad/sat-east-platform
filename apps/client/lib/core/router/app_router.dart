@@ -112,14 +112,23 @@ GoRouter createRouter({
     return await key.currentState?.confirmLeave() ?? true;
   }
 
-  return GoRouter(
+  late final GoRouter router;
+  // The redirect closure reads the router itself, so it cannot be inlined.
+  // ignore: join_return_with_assignment
+  router = GoRouter(
     initialLocation: initialLocation,
     refreshListenable:
         refresh ?? (auth == null ? null : GoRouterRefreshStream(auth.stream)),
-    redirect: auth == null
-        ? null
-        : (context, state) =>
-              _authRedirect(auth.state, state.uri.path, galleryEnabled),
+    redirect: (context, state) {
+      final authLocation = auth == null
+          ? null
+          : _authRedirect(auth.state, state.uri.path, galleryEnabled);
+      if (authLocation != null) return authLocation;
+      return _preserveCourseQuery(
+        router.routerDelegate.currentConfiguration.uri,
+        state.uri,
+      );
+    },
     routes: [
       GoRoute(
         path: AppRoutes.catalogue,
@@ -276,7 +285,9 @@ GoRouter createRouter({
                     context,
                     key: state.pageKey,
                     child: switch (destination) {
-                      AppShellDestination.courses => const CourseMapScreen(),
+                      AppShellDestination.courses => CourseMapScreen(
+                        slug: state.uri.queryParameters['course'],
+                      ),
                       AppShellDestination.home => const PlaceholderScreen(),
                       AppShellDestination.skills => const SkillsScreen(),
                       AppShellDestination.profile => const AccountScreen(),
@@ -461,6 +472,7 @@ GoRouter createRouter({
         ),
     ],
   );
+  return router;
 }
 
 const _signedOutPaths = <String>{
@@ -621,4 +633,19 @@ class _DeferredVideoPlayerState extends State<_DeferredVideoPlayer> {
       );
     },
   );
+}
+
+String? _preserveCourseQuery(Uri previous, Uri next) {
+  bool isCoursePath(String path) =>
+      path == AppRoutes.courses || path.startsWith('${AppRoutes.courses}/');
+  final course = previous.queryParameters['course'];
+  if (course == null ||
+      next.queryParameters.containsKey('course') ||
+      !isCoursePath(previous.path) ||
+      !isCoursePath(next.path)) {
+    return null;
+  }
+  return next
+      .replace(queryParameters: {...next.queryParameters, 'course': course})
+      .toString();
 }

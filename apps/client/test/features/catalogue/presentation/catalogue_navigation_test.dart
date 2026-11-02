@@ -22,7 +22,7 @@ Future<GoRouter> _pump(WidgetTester tester, String location) async {
     ..catalogue = Success([catalogueCourseFromJson(coursePayload)])
     ..page = Success(coursePageFromJson(pagePayload));
   final catalogue = CatalogueCubit(repository);
-  final course = CoursePageCubit(repository);
+  final course = coursePageCubit(repository);
   addTearDown(catalogue.close);
   addTearDown(course.close);
   await catalogue.load();

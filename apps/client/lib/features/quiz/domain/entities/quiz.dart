@@ -58,6 +58,7 @@ class QuizReport extends Equatable {
     required this.nextTopic,
     required this.retakeAt,
     this.skills = const [],
+    this.nextNeedsAccess = false,
   });
 
   final String attemptId;
@@ -69,6 +70,7 @@ class QuizReport extends Equatable {
   final ({String id, String title})? nextTopic;
   final DateTime? retakeAt;
   final List<SkillResult> skills;
+  final bool nextNeedsAccess;
 
   @override
   List<Object?> get props => [
@@ -81,5 +83,6 @@ class QuizReport extends Equatable {
     nextTopic,
     retakeAt,
     skills,
+    nextNeedsAccess,
   ];
 }

@@ -64,3 +64,46 @@ FakeCourseMapCubit courseMapCubit(CourseMapState state) {
   when(cubit.retry).thenAnswer((_) async {});
   return cubit;
 }
+
+CourseMap previewMapFixture({bool noFreeTopic = false}) => CourseMap(
+  courseId: 'c1',
+  slug: 'sat-math',
+  title: 'SAT Math',
+  access: CourseAccess.preview,
+  continueTopic: null,
+  units: [
+    MapUnit(
+      title: 'Algebra',
+      topics: [
+        if (!noFreeTopic)
+          const MapTopic(
+            id: 'free',
+            slug: 'linear',
+            title: 'Linear equations',
+            sortLabel: '1.1',
+            isFreePreview: true,
+            status: TopicStatus.open,
+            lockReason: null,
+          ),
+        const MapTopic(
+          id: 'paid',
+          slug: 'systems',
+          title: 'Systems',
+          sortLabel: '1.2',
+          isFreePreview: false,
+          status: TopicStatus.locked,
+          lockReason: NeedsAccess(),
+        ),
+        const MapTopic(
+          id: 'paid2',
+          slug: 'quadratics',
+          title: 'Quadratics',
+          sortLabel: '1.3',
+          isFreePreview: false,
+          status: TopicStatus.locked,
+          lockReason: NeedsAccess(),
+        ),
+      ],
+    ),
+  ],
+);

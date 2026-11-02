@@ -9,6 +9,7 @@ import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
+import 'package:sat_east_client/features/course_map/presentation/course_map_copy.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_state.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
@@ -69,6 +70,31 @@ Future<void> _pump(
 }
 
 void main() {
+  testWidgets('CRS-06: preview banner shows copy', (tester) async {
+    await _pump(tester, CourseMapLoaded(previewMapFixture()));
+    expect(
+      find.text(
+        CourseMapCopy.previewBanner,
+      ),
+      findsOneWidget,
+    );
+  });
+  testWidgets('CRS-06: needs_access row links to activate', (tester) async {
+    await _pump(tester, CourseMapLoaded(previewMapFixture()));
+    await tester.tap(find.text('Activation needed').first);
+    await tester.pumpAndSettle();
+    expect(find.text('activation form'), findsOneWidget);
+    expect(find.text('topic:paid'), findsNothing);
+  });
+  testWidgets('CRS-06: preview with no free topic renders all locked', (
+    tester,
+  ) async {
+    await _pump(tester, CourseMapLoaded(previewMapFixture(noFreeTopic: true)));
+    expect(find.text('Activation needed'), findsNWidgets(2));
+    expect(find.text('Open'), findsNothing);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('cancelled_unlock_does_not_acknowledge_new_refresh', (
     tester,
   ) async {

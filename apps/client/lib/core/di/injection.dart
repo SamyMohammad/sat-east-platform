@@ -30,6 +30,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/catalogue/data/datasources/catalogue_remote_data_source.dart';
 import 'package:sat_east_client/features/catalogue/data/repositories/catalogue_repository_impl.dart';
 import 'package:sat_east_client/features/catalogue/domain/repositories/catalogue_repository.dart';
+import 'package:sat_east_client/features/catalogue/domain/usecases/check_course_preview.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/course_map/data/datasources/course_map_remote_data_source.dart';
@@ -280,8 +281,14 @@ void configureDependencies({
     ..registerFactory<CatalogueCubit>(
       () => CatalogueCubit(getIt<CatalogueRepository>()),
     )
+    ..registerLazySingleton(
+      () => CheckCoursePreview(getIt<CourseMapRepository>()),
+    )
     ..registerFactory<CoursePageCubit>(
-      () => CoursePageCubit(getIt<CatalogueRepository>()),
+      () => CoursePageCubit(
+        getIt<CatalogueRepository>(),
+        getIt<CheckCoursePreview>(),
+      ),
     )
     ..registerLazySingleton<CourseBuilderRemoteDataSource>(
       () => CourseBuilderRemoteDataSource(
