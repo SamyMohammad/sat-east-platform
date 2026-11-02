@@ -75,8 +75,8 @@ select throws_ok($$ select public.get_course_map('cm-hidden') $$, 'P0001', 'inva
 select tests.authenticate_as('d');
 select throws_ok($$ select public.get_course_map() $$, 'P0001', 'not_enrolled',
                  'L-1: no enrolment, null slug -> not_enrolled');
-select throws_ok($$ select public.get_course_map('cm-course') $$, 'P0001', 'not_enrolled',
-                 'L-1: no enrolment for the slug -> not_enrolled');
+select is(public.get_course_map('cm-course')->>'access', 'preview',
+          'CRS-06: no enrolment for the slug returns preview');
 
 -- Ended / expired access.
 select tests.authenticate_as('c');

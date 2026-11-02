@@ -274,6 +274,17 @@ run as the caller, 16 §1):
 - `has_access_topic(topic_id)` — the topic and its course are published, and either `has_access`
   of the course or the topic is `is_free_preview`.
 
+`private.topic_states(user_id, course_id)` derives published topic order and status
+from `topic_progress`; it stores no additional state. Its trailing `locked_reason text`
+column is null unless locked: `previous_quiz` for enrolled students, `needs_access`
+when no enrolment row exists in that course. In preview, completed topics remain
+completed, free topics are open and all other unfinished topics are locked, regardless
+of position or teacher unlock. `after_title` is null for preview locks. Access entry
+points reject expired/inactive enrolments rather than treating them as preview.
+Free-topic progress, including `quiz_passed_at`, survives activation unchanged.
+Notes Storage additionally checks that an existing enrolment is active; its free
+preview branch applies only when no enrolment row exists.
+
 Traps closed by row 3 (from the row 2b review), each with a pgTAP test:
 - `profiles.role` cannot be self-updated (column-level `update` grant).
 - `attempt_answers` is unreadable while the attempt is `in_progress`.
