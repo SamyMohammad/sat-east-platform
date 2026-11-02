@@ -30,11 +30,12 @@ if (form) {
   const CORRECT = 'D';
   const feedback = {
     A: 'Close. 6 is <i>x</i>, but the question asks for 6<i>x</i>. Multiply once more.',
-    B: 'Check the first step. 3<i>x</i> = 18, so 18 is 3<i>x</i>, not 6<i>x</i>. Double it.',
-    C: 'Careful: doubling only part of the equation gives 29. Double every term: 6<i>x</i> − 14 = 22, so 6<i>x</i> = 36.',
+    B: 'Right so far: 3<i>x</i> = 18. But the question asks for 6<i>x</i>, so double it.',
+    C: 'Careful: you doubled only part of the equation. Double every term, including the 7, then read off 6<i>x</i>.',
   };
   const button = form.querySelector('button');
   const status = form.querySelector('.q__feedback');
+  const start = form.querySelector('.q__foot [data-app]');
   let checked = false;
 
   form.addEventListener('change', () => {
@@ -54,8 +55,11 @@ if (form) {
     choice.insertAdjacentHTML('beforeend', `<span class="q__verdict"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="${right ? 'M5 12.5l4.5 4.5L19 7.5' : 'M7 7l10 10M17 7L7 17'}" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>${right ? 'Correct' : 'Not quite'}</span>`);
     status.innerHTML = right
       ? '<b>Correct.</b> 3<i>x</i> = 18, and 6<i>x</i> is twice that: 36. Spotting that you never need <i>x</i> itself saves time on test day.'
-      : `<b>Not yet.</b> ${feedback[picked.value]}`;
+      : `<b>Not quite.</b> ${feedback[picked.value]}`;
     button.textContent = 'Try again';
+    start.hidden = !right;
+    button.classList.toggle('btn--dark', !right);
+    button.classList.toggle('btn--quiet', right);
   });
 
   function reset() {
@@ -64,6 +68,9 @@ if (form) {
     for (const el of form.querySelectorAll('.q__verdict')) el.remove();
     status.textContent = '';
     button.textContent = 'Check';
+    start.hidden = true;
+    button.classList.add('btn--dark');
+    button.classList.remove('btn--quiet');
   }
 
   function resetAll() {

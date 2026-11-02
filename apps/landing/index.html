@@ -43,9 +43,9 @@
         <span class="brand__name">Abdelrahman Elmenshawy<small>SAT &amp; EST Math</small></span>
       </a>
       <ul class="nav__links">
-        <li><a href="#about">About</a></li>
-        <li><a href="#courses">Courses</a></li>
-        <li><a href="#method">Method</a></li>
+        <li class="nav__section"><a href="#about">About</a></li>
+        <li class="nav__section"><a href="#courses">Courses</a></li>
+        <li class="nav__section"><a href="#method">Method</a></li>
         <li><a href="https://sat-prod.pages.dev/sign-in" data-app="/sign-in">Sign in</a></li>
       </ul>
       <a class="btn btn--light btn--sm nav__cta" href="https://sat-prod.pages.dev/sign-up" data-app="/sign-up">Start learning</a>
@@ -62,7 +62,7 @@
         <p class="hero__slogan">Prepared Minds Score Higher.</p>
       </div>
       <figure class="hero__portrait">
-        <img src="assets/portrait.webp" alt="Abdelrahman Elmenshawy, smiling, in a brown suit" width="560" height="690" fetchpriority="high">
+        <img src="assets/portrait.webp" alt="Abdelrahman Elmenshawy, smiling, in a brown suit" width="640" height="838" fetchpriority="high">
       </figure>
     </div>
   </header>
@@ -112,12 +112,9 @@
       <div class="wrap why__grid">
         <h2 id="why-title" class="h2 why__title">Why learn with me?</h2>
         <ul class="why__list">
-          <li><h3>Understand, don't memorize</h3><p>Build real understanding of the reasoning behind every idea.</p></li>
-          <li><h3>Smart exam strategies</h3><p>Learn efficient approaches to SAT and EST-style questions.</p></li>
-          <li><h3>Clear, step-by-step instruction</h3><p>Break complex problems into stages you can manage.</p></li>
-          <li><h3>Purposeful exam practice</h3><p>Practice from foundational skills up to challenging exam-style questions.</p></li>
-          <li><h3>Continuous improvement</h3><p>Feedback and targeted assessments show exactly where to grow.</p></li>
-          <li><h3>Confidence through understanding</h3><p>Stay calm and independent when a question looks unfamiliar.</p></li>
+          <li><h3>My method, not a generic one</h3><p>Every lesson, note and worked solution comes from me and the way I teach this exam.</p></li>
+          <li><h3>A path you can't skip</h3><p>Each topic unlocks only after you pass its quiz, so gaps never pile up.</p></li>
+          <li><h3>Know what costs you points</h3><p>Every answer feeds a skill report that shows exactly which skills to fix next.</p></li>
         </ul>
       </div>
     </section>
@@ -130,14 +127,16 @@
           <article class="course">
             <p class="course__code" aria-hidden="true">SAT</p>
             <h3 class="course__name">Digital SAT Math Preparation</h3>
+            <p class="course__meta">About 40 topics</p>
             <p>Structured SAT Math lessons, exam-style practice and efficient solving strategies, topic by topic.</p>
-            <a class="btn btn--dark" href="https://sat-prod.pages.dev/sign-up" data-app="/sign-up">Start SAT Math</a>
+            <a class="btn btn--dark" href="https://sat-prod.pages.dev/sign-up?course=sat" data-app="/sign-up?course=sat">Start SAT Math</a>
           </article>
           <article class="course">
             <p class="course__code" aria-hidden="true">EST</p>
             <h3 class="course__name">EST Math Preparation</h3>
-            <p>Concepts, exam practice and strategies tailored to EST Math.</p>
-            <a class="btn btn--dark" href="https://sat-prod.pages.dev/sign-up" data-app="/sign-up">Start EST Math</a>
+            <p class="course__meta">About 45 topics</p>
+            <p>Concepts, exam practice and strategies for the EST (Egyptian Scholastic Test) Math section.</p>
+            <a class="btn btn--dark" href="https://sat-prod.pages.dev/sign-up?course=est" data-app="/sign-up?course=est">Start EST Math</a>
           </article>
         </div>
       </div>
@@ -151,24 +150,24 @@
         </div>
         <ol class="path" data-path>
           <li class="path__step">
-            <h3>Understand the concept</h3>
-            <p>Watch the video lesson and read the topic notes.</p>
+            <h3>Watch the lesson</h3>
+            <p>A video lesson that explains the idea step by step.</p>
           </li>
           <li class="path__step">
-            <h3>Master efficient techniques</h3>
-            <p>Worked solutions show the fastest reliable route to the answer.</p>
+            <h3>Read the notes</h3>
+            <p>Topic notes and worked solutions you can come back to.</p>
           </li>
           <li class="path__step">
-            <h3>Apply it</h3>
-            <p>Practice with instant feedback, then a homework set.</p>
+            <h3>Practice</h3>
+            <p>Exam-style questions with instant feedback on every answer.</p>
           </li>
           <li class="path__step">
-            <h3>Evaluate your progress</h3>
-            <p>A timed topic quiz. Pass it and the next topic unlocks.</p>
+            <h3>Do the homework</h3>
+            <p>One graded set that shows what you can do on your own.</p>
           </li>
           <li class="path__step">
-            <h3>Review and refine</h3>
-            <p>Every mistake is linked to a skill, so you know exactly what to fix.</p>
+            <h3>Pass the quiz</h3>
+            <p>A timed topic quiz. Score 75% and the next topic unlocks. If you miss it, you get a review set built from your mistakes first.</p>
           </li>
         </ol>
       </div>
@@ -189,6 +188,7 @@
             <label class="q__choice"><input type="radio" name="a" value="D"><span class="q__key">D</span><span>36</span></label>
           </fieldset>
           <div class="q__foot">
+            <a class="btn btn--dark" href="https://sat-prod.pages.dev/sign-up" data-app="/sign-up" hidden>Start learning</a>
             <button class="btn btn--dark" type="submit" disabled>Check</button>
             <p class="q__feedback" role="status" aria-live="polite"></p>
           </div>
@@ -212,8 +212,8 @@
 
     <section class="close section--navy" aria-labelledby="close-title">
       <div class="wrap close__inner">
-        <h2 id="close-title" class="close__title">Ready to take your math skills to the next level?</h2>
-        <p class="close__lede">Learn smarter, practice better, and prepare with confidence.</p>
+        <h2 id="close-title" class="close__title">Your first topic is waiting.</h2>
+        <p class="close__lede">Watch the lesson, practice, pass the quiz, and the next topic opens. One step at a time.</p>
         <div class="hero__actions">
           <a class="btn btn--light" href="https://sat-prod.pages.dev/sign-up" data-app="/sign-up">Start learning today</a>
           <a class="btn btn--ghost" href="#courses">Explore courses</a>
@@ -224,7 +224,7 @@
 
   <footer class="foot">
     <div class="wrap foot__inner">
-      <a class="brand brand--dark" href="#top" aria-label="Back to top">
+      <a class="brand brand--dark" href="#top" aria-label="Abdelrahman Elmenshawy, back to top">
         <img src="assets/logo-mark.svg" alt="" width="50" height="36">
         <span class="brand__name">Abdelrahman Elmenshawy<small>Prepared Minds Score Higher.</small></span>
       </a>

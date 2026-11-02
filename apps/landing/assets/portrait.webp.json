@@ -1,4 +1,4 @@
 {
-  "prompt": "Origin: supplied teacher portrait (D:/books/New folder/Abdelrhman_Professional_Portrait_Crop.png, cut from an old poster). Background removed with rembg u2net_human_seg (alpha matting), cropped waist-up at y=690 to drop poster text, a third-party school badge and the belt buckle. Not AI-generated. Replace with original high-res photo.\n",
-  "createdAt": "2026-10-29T01:29:35.904Z"
+  "prompt": "Origin: supplied teacher portrait (D:/books/New folder/Abdelrhman_Professional_Portrait_Crop.png, cut from an old poster, hair cropped at the top edge). Extended upward with Google Gemini to restore the top of the head (face, clothes unchanged), background removed, cropped waist-up above the belt and resized to 640x838. Partly AI-generated (hair above the original crop line only). Replace with original high-res photo.\n",
+  "createdAt": "2026-11-02T20:02:00.000Z"
 }
