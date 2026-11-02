@@ -544,7 +544,7 @@ The landing `:root` properties are app roles under other names: `--navy` = `bran
 
 ### Layout
 - A 1200px wrap with a `clamp(16px, 4vw, 48px)` gutter. Sections pad `clamp(72px, 10vw, 136px)` vertically.
-- Two-column sections set a 5/7 split (heading left, content right; the "Why" heading is sticky). The about block uses a 12-column grid. Everything stacks at 960px; the nav links hide and the hero portrait shrinks. At 640px, lists go to one column and the hero buttons go full width.
+- Two-column sections set a 5/7 split (heading left, content right; the "Why" heading is sticky). The about block uses a 12-column grid. Everything stacks at 960px; the section links hide but Sign in stays beside the nav button, and the hero portrait shrinks. At 640px, lists go to one column, the hero buttons go full width, and the portrait moves above the headline with its waist crop faded into the navy so the teacher's face is in the first screen. Below 400px the nav keeps the mark and drops the name. On desktop the portrait height is capped to the viewport.
 - Section order follows the contract's story: hero, highlights ledger, about and credentials, why, courses, method, sample question, what you get, closing band, footer.
 
 ### Elevation & Depth
@@ -564,7 +564,7 @@ The landing `:root` properties are app roles under other names: `--navy` = `bran
 - **Buttons:** 52px tall (44px small), 26px sides, 12px radius, Lexend 600. Light (Baby Blue fill, navy text, turns white on hover) is the primary on navy. Ghost (white text, Baby Blue outline at 45%) is the secondary on navy. Dark (navy fill, white text, deepening to `exam-bar` on hover) is the action on white. Press nudges 1px down. Disabled is a `line` fill.
 - **Course codes:** "SAT" and "EST" set huge in Domine (up to 8rem), Baby Blue fill with a 1.5px navy stroke, above each course name.
 - **Method path:** five numbered steps on a 2px rail. Each number sits in a 40px navy disc with a 2px Baby Blue ring. The rail fills Baby Blue as the list scrolls through the viewport and stays full under reduced motion.
-- **Sample question:** a bordered card (20px radius, 1px `line`, soft navy shadow) that mirrors the app's choice tiles: 58px choices at 12px radius, a 30px letter key, a navy border with a Baby Blue wash when selected, and verdict washes after Check. Feedback is in the teacher's voice in a polite live region.
+- **Sample question:** a bordered card (20px radius, 1px `line`, soft navy shadow) that mirrors the app's choice tiles: 58px choices at 12px radius, a 30px letter key, a navy border with a Baby Blue wash when selected, and verdict washes after Check. Feedback is in the teacher's voice in a polite live region. After a correct answer a navy "Start learning" link appears and "Try again" drops to a quiet outline button; after a wrong answer "Try again" stays the navy action.
 - **Pending tag:** a pill in Baby Blue wash with a Baby Blue border and navy text, for Cognia's pending certification.
 - **Feature bullets:** a 22px navy disc with a Baby Blue check drawn in inline SVG.
 
