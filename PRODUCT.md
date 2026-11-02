@@ -89,8 +89,8 @@ EST coverage is a bonus, not the core claim.
 ## Evidence on Hand
 
 - Vector logo and app icons: `apps/landing/assets/`.
-- Teacher portrait: a background-removed cutout (`apps/landing/assets/portrait.webp`) from an old
-  poster. It is low resolution; ask for the original high-res photo.
+- Teacher portrait: a background-removed cutout (`apps/landing/assets/portrait.webp`, 640×838) from an old
+  poster, with the hair above the original crop line AI-extended. Approved by the user as final on 2026-11-02.
 - Instructor facts (teacher's brief, 2026-10-27): 7+ years teaching the American curriculum, 4+
   years SAT & EST Math, grades 10–12. College Board SAT Professional Development *Training* (never
   "certification" or "endorsement"). Cognia eleot® Observer Certification is **pending**.
