@@ -342,7 +342,7 @@ Source of truth is code. The app: `apps/client/lib/core/theme/` (`app_palette.da
 
 **Creative North Star: "The Category Standard, at Full Craft"**
 
-Khan Academy's calm and math legibility, Brilliant's polished feedback, Linear/Notion type and spacing discipline, and Duolingo's decisive Check structure without its playful styling, worn in the teacher's own identity. White ground, one ice-blue off-white surface, navy-black ink, and one accent: the teacher's Navy in light, his Baby Blue in dark. The A∫E mark signs the shell. The question and its feedback own the screen; chrome stays quiet.
+Khan Academy's calm and math legibility, Brilliant's polished feedback, Linear/Notion type and spacing discipline, and Duolingo's decisive Check structure without its playful styling, worn in the teacher's own identity. White ground, one ice-blue off-white surface, navy-black ink, and one accent: the teacher's Navy in light, his Baby Blue in dark. The AE mark signs the shell. The question and its feedback own the screen; chrome stays quiet.
 
 Density is relaxed and phone-first: 48px touch targets, 56px choice rows, a 680-720px content column on desktop. Depth comes from 1px lines and tonal surfaces, with soft shadows reserved for surfaces that act (primary button, sheets, dialogs, the feedback dock). Motion is short and purposeful, and every animation collapses to its end state under reduced motion. Light and dark themes share the same roles; every screen ships in both.
 
@@ -355,7 +355,7 @@ Confirmed rejections (from the approved spec): cold grey SaaS, gamified chrome (
 - Status is always icon + word, never colour alone.
 - Lexend everywhere in the app, tabular numerals for counts, timers and scores; LaTeX via `flutter_math_fork` at 1.21x the surrounding text.
 - Flat surfaces separated by 1px lines; shadows only on acting surfaces.
-- The A∫E `BrandMark` is the only logo, beside the name in the shell header and on the auth screens.
+- The AE `BrandMark` is the only logo, beside the name in the shell header and on the auth screens.
 - Lucide icons through one semantic `AppIcons` map.
 - unDraw illustrations recoloured to the brand at runtime, never inside the question area.
 
@@ -374,7 +374,7 @@ A white, near-neutral system tinted toward the teacher's navy, with a single acc
 
 ### Tertiary
 - **Teacher Warm** (`warm`, `warm-line`, `warm-ink`): the teacher's line in the feedback dock, the hint panel, margin notes and teacher notes.
-- **Subject Hues** (`SubjectHue`: blue, teal, violet, amber, rose; each with a wash and a dark pair): course card cover bands, `IconTile`, `TopicNumberTile`, unit headers. Cycled by unit order with `SubjectHue.forIndex(i)`. Text on a hue wash is always `ink`. Subject blue is the logo's Steel integral.
+- **Subject Hues** (`SubjectHue`: blue, teal, violet, amber, rose; each with a wash and a dark pair): course card cover bands, `IconTile`, `TopicNumberTile`, unit headers. Cycled by unit order with `SubjectHue.forIndex(i)`. Text on a hue wash is always `ink`. Subject blue sits beside the logo's Steel Blue E.
 - **Exam Bar** (`exam-bar` family): the deep-navy timed-exam header, with Baby Blue as its primary. It is the same in light and dark themes.
 
 ### Neutral
@@ -447,7 +447,7 @@ There are three corner radii plus the pill. **Control** (10px) is for buttons, i
 
 Borders are 1px (`AppStroke.thin`). Strong state borders are 2px. The current navigator cell uses 2.5px. The focus ring is 3px in `brand-line`. Dashed outlines (4/3) mark eliminated choices.
 
-The A∫E monogram is the system's one drawn form: a geometric A and E with a round-capped integral stroke and dot terminals between them.
+The AE monogram is the system's one drawn form: a tall serif A whose right leg doubles as the stem of a Steel Blue E, crossed by a navy swoosh with a Steel Blue swoosh beneath it. It is traced from the teacher's supplied logo (2026-11-03); only the mark is used, never that image's lettering.
 
 ## Components
 
@@ -471,7 +471,7 @@ One shared `QuestionView` renders practice, homework, quiz and mock (`QuestionVi
 - **Exam bar:** quiz and mock use the deep-navy `exam-bar` header with a tabular timer. At the warning threshold the clock turns `exam-bar-warning` with a single soft pulse.
 
 ### Brand mark (`BrandMark`)
-- The A∫E monogram as SVG (`flutter_svg`), 32px tall by default. Light theme renders `assets/brand/logo-mark.svg` (navy A and E, Steel integral); dark renders `logo-mark-reverse.svg` (white A and E, Baby Blue integral). The files are copies of `apps/landing/assets/`, which is the source of truth.
+- The AE monogram as SVG (`flutter_svg`), 32px tall by default (about 1.21:1). Light theme renders `assets/brand/logo-mark.svg` (navy A and swoosh, Steel Blue `#6A98C2` E and lower swoosh); dark renders `logo-mark-reverse.svg` (white A and swoosh, Baby Blue E and lower swoosh). The files are copies of `apps/landing/assets/`, which is the source of truth.
 - Excluded from semantics unless a `semanticLabel` is passed; the name beside it carries the meaning.
 - Used only through `ShellWordmark`: in the shell header and on the auth card. It renders the supplied SVGs unmodified.
 
@@ -527,13 +527,13 @@ One shared `QuestionView` renders practice, homework, quiz and mock (`QuestionVi
 - **Don't** add gamified chrome (points, mascots, confetti) or exam-software imitation.
 - **Don't** add uppercase kickers or eyebrow labels. The skill line above the stem is QuestionView anatomy, not a pattern for other titles.
 - **Don't** place illustrations inside the question or answer area.
-- **Don't** redraw, recolour or add "Certified" or "IGCSE" to the A∫E mark.
+- **Don't** redraw, recolour or add "Certified" or "IGCSE" to the AE mark, and never use the supplied logo image's lettering (it misspells the name and claims a certification).
 
 ## Landing page
 
 Scope: `apps/landing/` only (static HTML/CSS/JS, light only, `color-scheme: light`). Nothing here enters the Flutter app. The app rules above still hold on the landing page unless this section names the exception.
 
-**Thesis.** The teacher's own mark, A∫E, is the page's grammar: the integral stroke and a graph-paper field run through it. Navy owns the bands, Baby Blue supplies strokes, washes and the primary button on navy, and white and Ice White are the reading ground.
+**Thesis.** The teacher's own mark, the AE monogram with its rising swoosh, is the page's grammar: the rising curve and a graph-paper field run through it. Navy owns the bands, Baby Blue supplies strokes, washes and the primary button on navy, and white and Ice White are the reading ground.
 
 ### Colors
 The landing `:root` properties are app roles under other names: `--navy` = `brand`, `--baby` = `brand-dark`, `--baby-wash` = `brand-wash`, `--ground` = `surface`, `--line` = `line`, `--ink-2` = `ink-secondary`, `--navy-deep` = `exam-bar`, `--navy-line` = `exam-bar-rule`, `--steel` = `hue-blue`, plus the app's verdict pairs. Two differences: landing ink is Navy itself (`--ink` = `brand`, not the app's `ink`), and secondary text on navy is `landing-on-navy-secondary`. Steel is the landing focus ring and small blue type on white (credential issuer).
@@ -558,7 +558,7 @@ The landing `:root` properties are app roles under other names: `--navy` = `bran
 
 **The Hairline Column Rule.** Lists and columns are divided by 1px `line` rules, not boxed in cards: the highlights ledger (vertical rules between four columns), the why and features lists (top rules), the credentials block, and the two courses (a 2px navy top rule and a vertical hairline between them). The sample question is the one bordered card.
 
-**The Mark Rule.** The A∫E mark appears only as supplied: `logo-mark-reverse.svg` on navy (nav, 58px wide) and `logo-mark.svg` on white (footer, 50px wide), each beside the Domine name. The integral alone (`integral.svg`, Steel) serves as the pull-quote mark. `icon.svg` is the favicon, and the app icons are rendered from `icon.svg` and `icon-maskable.svg`.
+**The Mark Rule.** The AE mark appears only as supplied: `logo-mark-reverse.svg` on navy (nav, 53px wide) and `logo-mark.svg` on white (footer, 46px wide), each beside the Domine name. The integral alone (`integral.svg`, Steel) serves as the pull-quote mark. `icon.svg` is the favicon, and the app icons are rendered from `icon.svg` and `icon-maskable.svg`.
 
 ### Components
 - **Buttons:** 52px tall (44px small), 26px sides, 12px radius, Lexend 600. Light (Baby Blue fill, navy text, turns white on hover) is the primary on navy. Ghost (white text, Baby Blue outline at 45%) is the secondary on navy. Dark (navy fill, white text, deepening to `exam-bar` on hover) is the action on white. Press nudges 1px down. Disabled is a `line` fill.
