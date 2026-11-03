@@ -76,8 +76,8 @@ EST coverage is a bonus, not the core claim.
   next concrete step ("Close. Check the sign in step 2 and try again."), never empty praise and
   never harsh.
 - Slogan: **Prepared Minds Score Higher.** Hero line: "Master the SAT. Shape Your Future."
-- Identity (decided 2026-10-29, from the teacher's brief): the **A∫E** monogram (A, integral sign,
-  E), tagline "SAT & EST MATH"; palette Navy `#102A43`, Baby Blue `#B8E0F6`, White, `#F4F9FC`
+- Identity (decided 2026-10-29, mark replaced 2026-11-03 with the teacher's real logo): the **AE**
+  monogram (serif A and E joined by a swoosh; only the mark, not the logo image's lettering), tagline "SAT & EST MATH"; palette Navy `#102A43`, Baby Blue `#B8E0F6`, White, `#F4F9FC`
   across the landing page and the whole app. Spelling is always "Abdelrahman". The logo never
   says "Certified" or "IGCSE". Rollout: `docs/superpowers/specs/2026-10-29-brand-rollout-design.md`.
 - Visual direction (decided 2026-10-26): **the category standard, executed at full craft**, not
