@@ -15,7 +15,6 @@
   <link rel="preload" href="fonts/domine-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="fonts/lexend-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="styles.css">
-  <script>document.documentElement.classList.add('js')</script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -35,6 +34,7 @@
         <path d="M1110 150l-7 14h14z" class="hero__arrow"/>
       </g>
       <path class="hero__curve" pathLength="1" d="M40 872C520 868 780 760 920 560S1150 170 1410 150"/>
+      <circle class="hero__dot" cx="1410" cy="150" r="5"/>
     </svg>
 
     <nav class="nav wrap" aria-label="Main">
@@ -70,10 +70,10 @@
   <main id="main">
     <section class="ledger" aria-label="Experience highlights">
       <ul class="ledger__list wrap">
-        <li><b>7+ years</b> teaching mathematics in the American curriculum</li>
-        <li><b>4+ years</b> specializing in SAT &amp; EST Math preparation</li>
-        <li><b>Grades 10–12</b> high school mathematics</li>
-        <li><b>Digital SAT</b> content, question analysis and exam strategy</li>
+        <li><b><span data-count="7">7</span>+ years<span class="ledger__rule" aria-hidden="true"></span></b> teaching mathematics in the American curriculum</li>
+        <li><b><span data-count="4">4</span>+ years<span class="ledger__rule" aria-hidden="true"></span></b> specializing in SAT &amp; EST Math preparation</li>
+        <li><b>Grades 10–<span data-count="12" data-from="10">12</span><span class="ledger__rule" aria-hidden="true"></span></b> high school mathematics</li>
+        <li><b>Digital SAT<span class="ledger__rule" aria-hidden="true"></span></b> content, question analysis and exam strategy</li>
       </ul>
     </section>
 
@@ -94,7 +94,7 @@
 
         <div class="creds" aria-labelledby="creds-title">
           <h3 id="creds-title" class="h3">Training and professional development</h3>
-          <dl class="creds__list">
+          <dl class="creds__list" data-reveal="list">
             <div class="creds__item">
               <dt>SAT Professional Development Training <span class="creds__by">College Board</span></dt>
               <dd>Professional development on the Digital SAT: its mathematical content and instructional approaches.</dd>
@@ -111,7 +111,7 @@
     <section class="why section section--tint" aria-labelledby="why-title">
       <div class="wrap why__grid">
         <h2 id="why-title" class="h2 why__title">Why learn with me?</h2>
-        <ul class="why__list">
+        <ul class="why__list" data-reveal="list">
           <li><h3>My method, not a generic one</h3><p>Every lesson, note and worked solution comes from me and the way I teach this exam.</p></li>
           <li><h3>A path you can't skip</h3><p>Each topic unlocks only after you pass its quiz, so gaps never pile up.</p></li>
           <li><h3>Know what costs you points</h3><p>Every answer feeds a skill report that shows exactly which skills to fix next.</p></li>
@@ -127,14 +127,14 @@
           <article class="course">
             <p class="course__code" aria-hidden="true">SAT</p>
             <h3 class="course__name">Digital SAT Math Preparation</h3>
-            <p class="course__meta">About 40 topics</p>
+            <p class="course__meta">About <span data-count="40">40</span> topics</p>
             <p>Structured SAT Math lessons, exam-style practice and efficient solving strategies, topic by topic.</p>
             <a class="btn btn--dark" href="https://sat-staging.pages.dev/catalogue" data-app="/catalogue">Start SAT Math</a>
           </article>
           <article class="course">
             <p class="course__code" aria-hidden="true">EST</p>
             <h3 class="course__name">EST Math Preparation</h3>
-            <p class="course__meta">About 45 topics</p>
+            <p class="course__meta">About <span data-count="45">45</span> topics</p>
             <p>Concepts, exam practice and strategies for the EST (Egyptian Scholastic Test) Math section.</p>
             <a class="btn btn--dark" href="https://sat-staging.pages.dev/catalogue" data-app="/catalogue">Start EST Math</a>
           </article>
@@ -149,6 +149,7 @@
           <p class="section__lede">You can't skip ahead, and that is the point. Each topic unlocks the next only when you have shown you understand it.</p>
         </div>
         <ol class="path" data-path>
+          <li class="path__fill" role="presentation" aria-hidden="true"></li>
           <li class="path__step">
             <h3>Watch the lesson</h3>
             <p>A video lesson that explains the idea step by step.</p>
@@ -199,7 +200,7 @@
     <section class="features section section--tint" aria-labelledby="features-title">
       <div class="wrap features__grid">
         <h2 id="features-title" class="h2">What you get</h2>
-        <ul class="features__list">
+        <ul class="features__list" data-reveal="list">
           <li>Structured courses with recorded video lessons</li>
           <li>Topic-by-topic notes and explanations</li>
           <li>Progressive practice with instant feedback</li>
@@ -212,7 +213,7 @@
 
     <section class="close section--navy" aria-labelledby="close-title">
       <div class="wrap close__inner">
-        <h2 id="close-title" class="close__title">Your first topic is waiting.</h2>
+        <h2 id="close-title" class="close__title" data-reveal="lines">Your first topic is waiting.</h2>
         <p class="close__lede">Watch the lesson, practice, pass the quiz, and the next topic opens. One step at a time.</p>
         <div class="hero__actions">
           <a class="btn btn--light" href="https://sat-staging.pages.dev/sign-up" data-app="/sign-up">Start learning today</a>
@@ -232,6 +233,10 @@
     </div>
   </footer>
 
+  <script src="vendor/gsap/gsap.min.js" defer></script>
+  <script src="vendor/gsap/ScrollTrigger.min.js" defer></script>
+  <script src="vendor/gsap/SplitText.min.js" defer></script>
+  <script src="vendor/gsap/MotionPathPlugin.min.js" defer></script>
   <script src="main.js" defer></script>
 </body>
 </html>

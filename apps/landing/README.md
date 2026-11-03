@@ -22,3 +22,7 @@ npx wrangler@4 deploy
 - The app links point at the **staging** app (`https://sat-staging.pages.dev`), so sign-ups land in the staging database. When the prod app is deployed (domain Q-01), update `APP_ORIGIN` in `main.js` and the `href`s in `index.html`, then redeploy.
 - When a custom domain is added, point `og:image` in `index.html` at it (it uses the workers.dev URL today).
 - Mark Cognia as awarded only after the credential arrives.
+
+## Motion
+
+GSAP 3.13.0 with ScrollTrigger, SplitText and MotionPathPlugin is vendored in `vendor/gsap` under the Standard "no charge" license: https://gsap.com/standard-license. No CDN or build step. `main.js` owns the hero timeline, counters, method rail, course and list entrances, button hover and verdict motion. Reduced motion uses end states; content and final numbers remain visible without GSAP or JavaScript.
