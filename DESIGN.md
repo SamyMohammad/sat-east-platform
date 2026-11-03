@@ -569,7 +569,11 @@ The landing `:root` properties are app roles under other names: `--navy` = `bran
 - **Feature bullets:** a 22px navy disc with a Baby Blue check drawn in inline SVG.
 
 ### Motion
-One easing, `cubic-bezier(.16, 1, .3, 1)`, at 0.2s for state changes. The hero curve draws over 1.8s. Under `prefers-reduced-motion` the curve renders drawn, the path rail renders full, and transitions are zeroed.
+GSAP 3.13.0 and ScrollTrigger, SplitText and MotionPathPlugin are vendored locally; no CDN or build step. A single 1.75s hero timeline fades the graph grid, draws the axes and integral curve, raises masked headline lines, settles the supporting copy and reveals the portrait from below. A Baby Blue dot rides the curve. `expo.out` / `power4.out` approximate the page's `cubic-bezier(.16, 1, .3, 1)`; state changes stay at 0.2s, with no bounce or elastic easing.
+
+Existing ledger figures count to 7 / 4 / 12 (the grade range starts at 10) after both hero completion and ledger entry, alongside left-to-right hairlines. Course topic counts rise to 40 / 45 on entry. Counter spans reserve tabular numeral widths. ScrollTrigger scrubs the method rail and fills each step disc as it passes. Course codes reveal their navy stroke then flood with Baby Blue; each list has one capped 0.4s stagger, and the closing headline reuses the masked-line reveal. Fine pointers get at most 4px of magnetic button travel; sample verdicts settle from 0.96 to 1 over 0.2s.
+
+SplitText auto-splits on resize and font changes, reverting its previous animation; ScrollTrigger refreshes after fonts load. `gsap.matchMedia()` applies motion only with `prefers-reduced-motion: no-preference`. Reduced motion renders final numbers, a drawn curve and a full rail without movement, and CSS zeroes transitions. HTML/CSS keep all content and final values visible when JavaScript or any GSAP plugin fails to load.
 
 ### Divergences from the direction contract
 The contract named the hero and closing band as navy; the build adds the method section as a third navy band. Graph rules also sit on the light tint sections. "1px hairlines replace cards" holds everywhere except the sample question, which is a card.
