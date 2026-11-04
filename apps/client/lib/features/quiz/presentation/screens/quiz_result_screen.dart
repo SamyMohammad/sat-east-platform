@@ -57,13 +57,17 @@ class QuizResultScreen extends StatelessWidget {
             Center(
               child: LoadingButton(
                 expanded: compact,
-                label: report.passed
+                label: report.nextNeedsAccess
+                    ? QuizCopy.enterActivationCode
+                    : report.passed
                     ? next == null
                           ? QuizCopy.backToCourse
                           : QuizCopy.nextTopic
                     : LearningCopy.backToTopic,
                 onPressed: () => context.go(
-                  report.passed
+                  report.nextNeedsAccess
+                      ? AppRoutes.activate
+                      : report.passed
                       ? next == null
                             ? AppRoutes.courses
                             : AppRoutes.topic(next.id)

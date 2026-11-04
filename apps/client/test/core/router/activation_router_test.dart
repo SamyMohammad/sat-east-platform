@@ -6,7 +6,6 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
-import 'package:sat_east_client/core/router/placeholder_screen.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/activation/domain/entities/activation_result.dart';
 import 'package:sat_east_client/features/activation/domain/repositories/activation_repository.dart';
@@ -20,11 +19,14 @@ import 'package:sat_east_client/features/course_map/domain/entities/course_map.d
 import 'package:sat_east_client/features/course_map/domain/repositories/course_map_repository.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
+import 'package:sat_east_client/features/home/presentation/screens/home_screen.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
 import '../../features/activation/activation_fixtures.dart';
 import '../../features/auth/presentation/screens/auth_screen_harness.dart'
     as auth_screens;
+
+import 'fake_home_cubit.dart';
 
 const _signedIn = AuthSignedIn(AppUser(id: 'student', email: 's@example.com'));
 const _map = CourseMap(
@@ -98,7 +100,9 @@ Future<void> _pumpRouter(
 }
 
 void main() {
-  testWidgets('S-10: signed-in home keeps its placeholder without map DI', (
+  setUp(registerFakeHomeCubit);
+  tearDown(unregisterFakeHomeCubit);
+  testWidgets('LRN-07: signed-in home renders HomeScreen without map DI', (
     tester,
   ) async {
     expect(getIt.isRegistered<CourseMapCubit>(), isFalse);
@@ -115,7 +119,8 @@ void main() {
     await _pumpRouter(tester, router, auth);
 
     expect(router.routeInformationProvider.value.uri.path, AppRoutes.home);
-    expect(find.byType(PlaceholderScreen), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
+    expect(find.byType(HomeView), findsOneWidget);
     expect(find.byType(CourseMapScreen), findsNothing);
     expect(tester.takeException(), isNull);
     await tester.pumpWidget(const SizedBox.shrink());

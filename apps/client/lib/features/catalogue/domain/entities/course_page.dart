@@ -19,6 +19,9 @@ class CoursePage extends Equatable {
   final Price? price;
   final List<CourseUnit> units;
 
+  bool get hasFreeTopic =>
+      units.any((unit) => unit.topics.any((topic) => topic.isFreePreview));
+
   @override
   List<Object?> get props => [id, slug, title, description, price, units];
 }

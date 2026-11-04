@@ -301,7 +301,7 @@ void main() {
     );
   });
 
-  testWidgets('F-4: notifications dispatch only a supplied callback', (
+  testWidgets('LRN-07: bell shown when callback given', (
     tester,
   ) async {
     var calls = 0;
@@ -310,30 +310,13 @@ void main() {
     expect(calls, 1);
   });
 
-  testWidgets('F-4: notifications are disabled without a callback', (
+  testWidgets('LRN-07: bell hidden when onNotifications is null', (
     tester,
   ) async {
     _viewport(tester, const Size(768, 800));
-    final semantics = tester.ensureSemantics();
-    try {
-      await _pumpShell(tester);
-      final button = find.widgetWithIcon(
-        IconButton,
-        AppIcons.notifications,
-      );
-      expect(tester.widget<IconButton>(button).onPressed, isNull);
-      final notificationSemantics = tester.getSemantics(button);
-      expect(
-        notificationSemantics.flagsCollection.isEnabled,
-        Tristate.isFalse,
-      );
-      await tester.tap(button);
-      await tester.pumpAndSettle();
-      _expectNavigation(768, selectedIndex: 0);
-      expect(tester.takeException(), isNull);
-    } finally {
-      semantics.dispose();
-    }
+    await _pumpShell(tester);
+    expect(find.byTooltip('Notifications'), findsNothing);
+    expect(find.byIcon(AppIcons.notifications), findsNothing);
   });
 }
 

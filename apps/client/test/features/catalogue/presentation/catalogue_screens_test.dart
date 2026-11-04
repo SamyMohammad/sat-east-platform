@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
@@ -16,6 +14,7 @@ import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_
 import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/screens/catalogue_screen.dart';
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
+import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/app_skeleton.dart';
 import 'package:sat_east_client/shared/widgets/icon_tile.dart';
@@ -32,17 +31,18 @@ Future<GoRouter> _pump(
   double width = 360,
   double scale = 1,
   bool load = true,
+  FakePreviewMapRepository? maps,
 }) async {
   tester.view.physicalSize = Size(width, 900);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   final catalogue = CatalogueCubit(repository);
-  final course = CoursePageCubit(repository);
+  final course = coursePageCubit(repository, maps: maps);
   addTearDown(catalogue.close);
   addTearDown(course.close);
   if (load) {
     if (page) {
-      await course.load('sat-math');
+      await course.load('sat-math', signedIn: state is AuthSignedIn);
     } else {
       await catalogue.load();
     }
@@ -61,6 +61,12 @@ Future<GoRouter> _pump(
         builder: (_, _) => page
             ? CoursePageView(enablePurchase: purchase)
             : const Scaffold(body: Text('syllabus destination')),
+      ),
+      GoRoute(
+        path: '/courses',
+        builder: (_, state) => Scaffold(
+          body: Text('preview:${state.uri.queryParameters['course']}'),
+        ),
       ),
       for (final path in ['/activate', '/sign-up'])
         GoRoute(
@@ -109,6 +115,87 @@ FakeCatalogueRepository _repository({bool price = true}) =>
       );
 
 void main() {
+  testWidgets(
+    'CRS-06: course page shows Try the free topic only when signed in, '
+    'not enrolled and a free topic exists',
+    (tester) async {
+      const signedIn = AuthSignedIn(
+        AppUser(id: 'u1', email: 'student@example.com'),
+      );
+      final maps = FakePreviewMapRepository();
+      await _pump(
+        tester,
+        _repository(),
+        page: true,
+        state: signedIn,
+        maps: maps,
+      );
+      final action = find.text('Try the free topic');
+      await tester.ensureVisible(action);
+      expect(action, findsOneWidget);
+      await tester.tap(action);
+      await tester.pumpAndSettle();
+      expect(find.text('preview:sat-math'), findsOneWidget);
+      expect(maps.slugs, ['sat-math']);
+    },
+  );
+  testWidgets('CRS-06: signed out course page keeps signup action', (
+    tester,
+  ) async {
+    await _pump(tester, _repository(), page: true);
+    expect(find.text('Try the free topic'), findsNothing);
+  });
+  for (final expired in [false, true]) {
+    testWidgets(
+      'CRS-06: enrolled course page hides free topic action '
+      '(expired: $expired)',
+      (tester) async {
+        final maps = FakePreviewMapRepository()
+          ..result = expired
+              ? const Failure(AppError('access_expired'))
+              : const Success(
+                  CourseMap(
+                    courseId: 'c1',
+                    slug: 'sat-math',
+                    title: 'SAT Math',
+                    continueTopic: null,
+                    units: [],
+                  ),
+                );
+        await _pump(
+          tester,
+          _repository(),
+          page: true,
+          state: const AuthSignedIn(
+            AppUser(id: 'u1', email: 'student@example.com'),
+          ),
+          maps: maps,
+        );
+        expect(find.text('Try the free topic'), findsNothing);
+      },
+    );
+  }
+  testWidgets('CRS-06: course page without free topic hides preview action', (
+    tester,
+  ) async {
+    final repo = _repository()
+      ..page = Success(
+        coursePageFromJson({...pagePayload, 'units': <Object?>[]}),
+      );
+    final maps = FakePreviewMapRepository();
+    await _pump(
+      tester,
+      repo,
+      page: true,
+      state: const AuthSignedIn(
+        AppUser(id: 'u1', email: 'student@example.com'),
+      ),
+      maps: maps,
+    );
+    expect(find.text('Try the free topic'), findsNothing);
+    expect(maps.slugs, isEmpty);
+  });
+
   testWidgets('catalogue_shows_welcome_illustration_and_hue_bands', (
     tester,
   ) async {

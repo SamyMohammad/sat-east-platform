@@ -21,6 +21,7 @@ import 'package:sat_east_client/features/catalogue/presentation/screens/catalogu
 import 'package:sat_east_client/features/catalogue/presentation/screens/course_page_screen.dart';
 import 'package:sat_east_client/features/course_map/presentation/screens/course_map_screen.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/home/presentation/screens/home_screen.dart';
 import 'package:sat_east_client/features/homework/presentation/screens/homework_screen.dart';
 import 'package:sat_east_client/features/notes/presentation/screens/notes_viewer_screen.dart'
     deferred as notes_viewer;
@@ -112,14 +113,23 @@ GoRouter createRouter({
     return await key.currentState?.confirmLeave() ?? true;
   }
 
-  return GoRouter(
+  late final GoRouter router;
+  // The redirect closure reads the router itself, so it cannot be inlined.
+  // ignore: join_return_with_assignment
+  router = GoRouter(
     initialLocation: initialLocation,
     refreshListenable:
         refresh ?? (auth == null ? null : GoRouterRefreshStream(auth.stream)),
-    redirect: auth == null
-        ? null
-        : (context, state) =>
-              _authRedirect(auth.state, state.uri.path, galleryEnabled),
+    redirect: (context, state) {
+      final authLocation = auth == null
+          ? null
+          : _authRedirect(auth.state, state.uri.path, galleryEnabled);
+      if (authLocation != null) return authLocation;
+      return _preserveCourseQuery(
+        router.routerDelegate.currentConfiguration.uri,
+        state.uri,
+      );
+    },
     routes: [
       GoRoute(
         path: AppRoutes.catalogue,
@@ -276,8 +286,10 @@ GoRouter createRouter({
                     context,
                     key: state.pageKey,
                     child: switch (destination) {
-                      AppShellDestination.courses => const CourseMapScreen(),
-                      AppShellDestination.home => const PlaceholderScreen(),
+                      AppShellDestination.courses => CourseMapScreen(
+                        slug: state.uri.queryParameters['course'],
+                      ),
+                      AppShellDestination.home => const HomeScreen(),
                       AppShellDestination.skills => const SkillsScreen(),
                       AppShellDestination.profile => const AccountScreen(),
                       _ => PlaceholderScreen(title: destination.label),
@@ -461,6 +473,7 @@ GoRouter createRouter({
         ),
     ],
   );
+  return router;
 }
 
 const _signedOutPaths = <String>{
@@ -621,4 +634,19 @@ class _DeferredVideoPlayerState extends State<_DeferredVideoPlayer> {
       );
     },
   );
+}
+
+String? _preserveCourseQuery(Uri previous, Uri next) {
+  bool isCoursePath(String path) =>
+      path == AppRoutes.courses || path.startsWith('${AppRoutes.courses}/');
+  final course = previous.queryParameters['course'];
+  if (course == null ||
+      next.queryParameters.containsKey('course') ||
+      !isCoursePath(previous.path) ||
+      !isCoursePath(next.path)) {
+    return null;
+  }
+  return next
+      .replace(queryParameters: {...next.queryParameters, 'course': course})
+      .toString();
 }

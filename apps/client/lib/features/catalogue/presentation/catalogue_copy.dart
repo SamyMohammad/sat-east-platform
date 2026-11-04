@@ -1,6 +1,7 @@
 import 'package:sat_east_client/core/errors/error_codes.dart';
 
 abstract final class CatalogueCopy {
+  static const tryFreeTopic = 'Try the free topic';
   static const title = 'Courses';
   static const syllabus = 'See the syllabus';
   static const contents = 'Contents';

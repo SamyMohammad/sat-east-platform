@@ -12,12 +12,14 @@ class CourseMapCubit extends Cubit<CourseMapState> {
 
   int _loadVersion = 0;
   CourseMap? _previous;
+  String? _slug;
 
-  Future<void> load() async {
+  Future<void> load({String? slug}) async {
     if (isClosed) return;
+    _slug = slug;
     final version = ++_loadVersion;
     if (state is! CourseMapLoaded) emit(const CourseMapLoading());
-    final result = await _repository.getCourseMap();
+    final result = await _repository.getCourseMap(slug: slug);
     if (isClosed || version != _loadVersion) return;
     switch (result) {
       case Success(:final value):
@@ -50,5 +52,5 @@ class CourseMapCubit extends Cubit<CourseMapState> {
     }
   }
 
-  Future<void> retry() => load();
+  Future<void> retry() => load(slug: _slug);
 }

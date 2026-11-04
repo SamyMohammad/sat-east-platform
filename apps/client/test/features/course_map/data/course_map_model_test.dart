@@ -46,6 +46,59 @@ Map<String, Object?> _json({Object? cont, List<Object?>? units}) => {
 };
 
 void main() {
+  test('CRS-06: parses access preview', () {
+    expect(
+      courseMapFromJson(_json()..['access'] = 'preview').access,
+      CourseAccess.preview,
+    );
+  });
+  test('CRS-06: parses access preview with key absent defaults to full', () {
+    expect(courseMapFromJson(_json()).access, CourseAccess.full);
+  });
+  test('CRS-06: parses needs_access lock reason', () {
+    final json = _json(
+      units: [
+        {
+          'title': null,
+          'topics': [
+            _topic('t1', status: 'locked', lockedReason: 'needs_access'),
+          ],
+        },
+      ],
+    );
+    expect(
+      courseMapFromJson(json).units.single.topics.single.lockReason,
+      const NeedsAccess(),
+    );
+  });
+  test(
+    'CRS-06: parses needs_access lock reason with key absent defaults to null',
+    () {
+      final topic = _topic('t1')..remove('locked_reason');
+      expect(
+        courseMapFromJson(
+          _json(
+            units: [
+              {
+                'title': null,
+                'topics': [topic],
+              },
+            ],
+          ),
+        ).units.single.topics.single.lockReason,
+        isNull,
+      );
+    },
+  );
+  for (final invalid in [null, 'other', 1]) {
+    test('CRS-06: rejects malformed access $invalid', () {
+      expect(
+        () => courseMapFromJson(_json()..['access'] = invalid),
+        throwsFormatException,
+      );
+    });
+  }
+
   group('L-1: courseMapFromJson', () {
     test('L-1: parses the spec example', () {
       final map = courseMapFromJson(

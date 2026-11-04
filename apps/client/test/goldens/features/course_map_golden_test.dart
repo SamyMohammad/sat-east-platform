@@ -15,6 +15,26 @@ import 'feature_golden_harness.dart';
 void main() {
   for (final width in [360.0, 1280.0]) {
     for (final brightness in Brightness.values) {
+      final name = 'course_map_preview_${brightness.name}_${width.toInt()}';
+      testWidgets('CRS-06: golden $name', (tester) async {
+        final cubit = courseMapCubit(CourseMapLoaded(previewMapFixture()));
+        await expectFeatureGolden(
+          tester,
+          name: name,
+          width: width,
+          brightness: brightness,
+          location: '/courses',
+          child: BlocProvider<CourseMapCubit>.value(
+            value: cubit,
+            child: const Scaffold(body: CourseMapView()),
+          ),
+        );
+      });
+    }
+  }
+
+  for (final width in [360.0, 1280.0]) {
+    for (final brightness in Brightness.values) {
       for (final unlocked in [false, true]) {
         final state = unlocked ? 'unlocked' : 'loaded';
         final name = 'course_map_${state}_${brightness.name}_${width.toInt()}';

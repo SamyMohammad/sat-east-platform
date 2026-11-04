@@ -23,7 +23,7 @@ void main() {
       testWidgets('PAY-01: golden $name', (tester) async {
         final repository = FakeCatalogueRepository()
           ..page = Success(coursePageFromJson(pagePayload));
-        final cubit = CoursePageCubit(repository);
+        final cubit = coursePageCubit(repository);
         addTearDown(cubit.close);
         await cubit.load('sat-math');
         await expectFeatureGolden(

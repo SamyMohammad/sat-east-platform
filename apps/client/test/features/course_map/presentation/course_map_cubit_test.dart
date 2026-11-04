@@ -23,6 +23,20 @@ const _map = CourseMap(
 
 void main() {
   late _MockRepo repo;
+  test('CRS-06: course map cubit loads by slug from the route query', () async {
+    final slug = Uri.parse(
+      '/courses?course=est-math',
+    ).queryParameters['course'];
+    when(
+      () => repo.getCourseMap(slug: slug),
+    ).thenAnswer((_) async => const Success(_map));
+    final cubit = CourseMapCubit(repo);
+    addTearDown(cubit.close);
+    await cubit.load(slug: slug);
+    await cubit.retry();
+    verify(() => repo.getCourseMap(slug: 'est-math')).called(2);
+    expect(cubit.state, const CourseMapLoaded(_map));
+  });
 
   setUp(() => repo = _MockRepo());
 

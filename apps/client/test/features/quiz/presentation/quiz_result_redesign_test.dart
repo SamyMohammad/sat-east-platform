@@ -79,6 +79,48 @@ Future<void> pumpResult(
 }
 
 void main() {
+  testWidgets(
+    'CRS-06: quiz result shows Enter activation code when next_needs_access',
+    (tester) async {
+      final router = GoRouter(
+        routes: [
+          GoRoute(
+            path: '/',
+            builder: (_, _) => const Scaffold(
+              body: QuizResultScreen(
+                topicId: 't1',
+                report: QuizReport(
+                  attemptId: 'a1',
+                  scoreRaw: 9,
+                  scoreTotal: 12,
+                  scorePct: 75,
+                  passMark: 70,
+                  passed: true,
+                  nextTopic: null,
+                  retakeAt: null,
+                  nextNeedsAccess: true,
+                ),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: '/activate',
+            builder: (_, _) => const Text('activation form'),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        MaterialApp.router(theme: AppTheme.light(), routerConfig: router),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Next topic'), findsNothing);
+      await tester.tap(find.text('Enter activation code'));
+      await tester.pumpAndSettle();
+      expect(find.text('activation form'), findsOneWidget);
+    },
+  );
+
   testWidgets('ANL-02: result_shows_by_skill_rows', (tester) async {
     final semantics = tester.ensureSemantics();
     await pumpResult(tester, report: skillBreakdownReport, reduced: true);

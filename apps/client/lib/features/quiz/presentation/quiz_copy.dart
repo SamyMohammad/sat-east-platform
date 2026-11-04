@@ -2,6 +2,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/presentation/learning_copy.dart';
 
 abstract final class QuizCopy {
+  static const enterActivationCode = 'Enter activation code';
   static const title = 'Quiz';
   static const passed = 'Quiz passed';
   static const notPassed = 'Quiz not passed';

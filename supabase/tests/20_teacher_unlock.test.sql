@@ -25,6 +25,9 @@ insert into public.topic_progress (user_id, topic_id, practice_count, unlocked_a
   (tests.get_supabase_uid('unlock_student'), '00000000-0000-0000-0000-0000000020d2', 3, null, null),
   (tests.get_supabase_uid('unlock_other'), '00000000-0000-0000-0000-0000000020d2', 0,
    now() - interval '1 day', tests.get_supabase_uid('unlock_teacher'));
+-- CRS-06: teacher unlock applies to enrolled students; without an enrolment the map is a free preview.
+insert into public.enrollments (user_id, course_id, status, expires_at) values
+  (tests.get_supabase_uid('unlock_student'), '00000000-0000-0000-0000-0000000020c1', 'active', now() + interval '30 days');
 create temp table unlock_ctx (k text primary key, v jsonb);
 grant select, insert on unlock_ctx to authenticated;
 

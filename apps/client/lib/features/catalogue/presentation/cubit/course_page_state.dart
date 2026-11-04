@@ -14,12 +14,13 @@ final class CoursePageLoading extends CoursePageState {
 }
 
 final class CoursePageLoaded extends CoursePageState {
-  const CoursePageLoaded(this.data);
+  const CoursePageLoaded(this.data, {this.canPreview = false});
 
   final CoursePage data;
+  final bool canPreview;
 
   @override
-  List<Object?> get props => [data];
+  List<Object?> get props => [data, canPreview];
 }
 
 final class CoursePageFailed extends CoursePageState {

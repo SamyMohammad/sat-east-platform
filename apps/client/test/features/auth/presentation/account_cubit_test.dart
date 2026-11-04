@@ -24,6 +24,7 @@ const _other = Device(id: 'other', label: 'Phone');
 const _network = AppError(ErrorCodes.network);
 final _loaded = AccountLoaded(_profile, const [_current, _other], 2);
 final _enrollment = MyEnrollment(
+  courseId: 'sat-id',
   courseTitle: 'SAT Math',
   targetTestDate: DateTime(2027, 3, 15),
   expiresAt: DateTime.utc(2027, 3, 30),
