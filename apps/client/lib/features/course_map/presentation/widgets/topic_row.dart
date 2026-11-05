@@ -40,6 +40,8 @@ class TopicRow extends StatelessWidget {
   void _open(BuildContext context) =>
       context.go(AppRoutes.topic(topic.id), extra: topic.title);
 
+  void _activate(BuildContext context) => context.go(AppRoutes.activate);
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -50,9 +52,14 @@ class TopicRow extends StatelessWidget {
     final open = status == TopicStatus.open;
     final titleColor = locked ? colors.inkSecondary : scheme.onSurface;
     final reason = topic.lockReason;
-    final lockLine = locked && reason is PreviousQuiz
-        ? CourseMapCopy.lockLine(reason.afterTitle)
-        : null;
+    final needsAccess = locked && reason is NeedsAccess;
+    final lockLine = switch (reason) {
+      PreviousQuiz(:final afterTitle) when locked => CourseMapCopy.lockLine(
+        afterTitle,
+      ),
+      NeedsAccess() when locked => CourseMapCopy.activationNeeded,
+      _ => null,
+    };
 
     final statusWord = switch (status) {
       TopicStatus.completed => CourseMapCopy.statusCompleted,
@@ -130,7 +137,7 @@ class TopicRow extends StatelessWidget {
               ],
             ),
           ),
-          if (!locked)
+          if (!locked || needsAccess)
             Icon(
               AppIcons.next,
               color: open ? scheme.primary : scheme.onSurfaceVariant,
@@ -168,11 +175,17 @@ class TopicRow extends StatelessWidget {
       child: Semantics(
         container: true,
         label: label,
-        button: !locked,
-        enabled: !locked,
+        button: !locked || needsAccess,
+        enabled: !locked || needsAccess,
         excludeSemantics: true,
-        onTap: locked ? null : () => _open(context),
-        child: locked
+        onTap: needsAccess
+            ? () => _activate(context)
+            : locked
+            ? null
+            : () => _open(context),
+        child: needsAccess
+            ? InkWell(onTap: () => _activate(context), child: content)
+            : locked
             ? content
             : InkWell(onTap: () => _open(context), child: content),
       ),

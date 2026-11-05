@@ -10,6 +10,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
+import 'package:sat_east_client/core/theme/app_colors.dart';
 import 'package:sat_east_client/core/theme/app_hues.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/course_map/domain/entities/course_map.dart';
@@ -25,13 +26,17 @@ import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 
 class CourseMapScreen extends StatelessWidget {
-  const CourseMapScreen({super.key});
+  /// [courseSlug] opens that course's map (preview entry from its page);
+  /// null shows the student's current course.
+  const CourseMapScreen({super.key, this.courseSlug});
+
+  final String? courseSlug;
 
   @override
   Widget build(BuildContext context) => BlocProvider(
     create: (_) {
       final cubit = getIt<CourseMapCubit>();
-      unawaited(cubit.load());
+      unawaited(cubit.load(slug: courseSlug));
       return cubit;
     },
     child: const CourseMapView(),
@@ -110,6 +115,10 @@ class _Loaded extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpace.s4),
+            if (map.access == CourseAccess.preview) ...[
+              const _PreviewBanner(),
+              const SizedBox(height: AppSpace.s4),
+            ],
             if (continueTopic != null) ...[
               ContinueCard(topic: continueTopic),
               const SizedBox(height: AppSpace.s6),
@@ -169,6 +178,27 @@ class _Loaded extends StatelessWidget {
             ],
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _PreviewBanner extends StatelessWidget {
+  const _PreviewBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(AppSpace.s4),
+      decoration: BoxDecoration(
+        color: context.appColors.brandWash,
+        borderRadius: BorderRadius.circular(AppRadius.card),
+      ),
+      child: Text(
+        CourseMapCopy.previewBanner,
+        style: theme.textTheme.bodyMedium,
+        textDirection: TextDirection.ltr,
       ),
     );
   }

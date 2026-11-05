@@ -44,6 +44,7 @@ QuizReport quizReportFromJson(Map<String, Object?> json, String attemptId) {
             title: attemptJsonString(nextTopic, 'title'),
           ),
     retakeAt: retake == null ? null : attemptJsonInstant(json, 'retake_at'),
+    nextNeedsAccess: json['next_needs_access'] == true,
     skills: json.containsKey('skills')
         ? List.unmodifiable(
             attemptJsonList(json, 'skills').map(skillResultFromJson),

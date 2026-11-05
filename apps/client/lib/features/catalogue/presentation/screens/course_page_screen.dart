@@ -115,9 +115,30 @@ class _CourseContent extends StatelessWidget {
           if (page.price case final price? when enablePurchase)
             Text(formatPrice(price), style: theme.textTheme.titleLarge),
           if (!enablePurchase) const Text(CatalogueCopy.appNote),
+          if (page.hasFreeTopic) _FreeTopicLink(slug: page.slug),
           const _ActivationLink(),
         ],
       ),
+    );
+  }
+}
+
+/// Opens the course map in preview (CRS-06). Hidden when signed out; for an
+/// enrolled student the server returns the full map for the same slug.
+class _FreeTopicLink extends StatelessWidget {
+  const _FreeTopicLink({required this.slug});
+
+  final String slug;
+
+  @override
+  Widget build(BuildContext context) {
+    final signedIn = context.select<AuthCubit, bool>(
+      (cubit) => cubit.state is AuthSignedIn,
+    );
+    if (!signedIn) return const SizedBox.shrink();
+    return FilledButton(
+      onPressed: () => context.go(AppRoutes.coursePreview(slug)),
+      child: const Text(CatalogueCopy.tryFreeTopic),
     );
   }
 }

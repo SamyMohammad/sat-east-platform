@@ -5,6 +5,7 @@ abstract final class CatalogueCopy {
   static const syllabus = 'See the syllabus';
   static const contents = 'Contents';
   static const free = 'Free';
+  static const tryFreeTopic = 'Try the free topic';
   static const activation = 'Have an activation code?';
   static const appNote = 'Sign in or enter an activation code.';
   static const emptyTitle = 'No courses yet';

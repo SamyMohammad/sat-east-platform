@@ -6,6 +6,7 @@ abstract final class QuizCopy {
   static const passed = 'Quiz passed';
   static const notPassed = 'Quiz not passed';
   static const nextTopic = 'Next topic';
+  static const enterActivationCode = 'Enter activation code';
   static const backToCourse = 'Back to course';
   static const notSaved = 'Not saved \u2014 retrying';
   static const saveStopped = 'Not saved \u2014 return to the topic';

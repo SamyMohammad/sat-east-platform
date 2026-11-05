@@ -2,6 +2,10 @@ import 'package:equatable/equatable.dart';
 
 enum TopicStatus { completed, open, locked }
 
+/// `full` for an enrolled student; `preview` for a signed-in student with no
+/// enrolment who may only open the course's free topics (CRS-06).
+enum CourseAccess { full, preview }
+
 /// Why a topic is locked.
 sealed class LockReason extends Equatable {
   const LockReason();
@@ -17,6 +21,14 @@ final class PreviousQuiz extends LockReason {
   List<Object?> get props => [afterTitle];
 }
 
+/// Locked because the student has no enrolment and the topic is not free.
+final class NeedsAccess extends LockReason {
+  const NeedsAccess();
+
+  @override
+  List<Object?> get props => const [];
+}
+
 /// The student's map of one course: units of topics with progress state.
 class CourseMap extends Equatable {
   const CourseMap({
@@ -25,6 +37,7 @@ class CourseMap extends Equatable {
     required this.title,
     required this.continueTopic,
     required this.units,
+    this.access = CourseAccess.full,
   });
 
   final String courseId;
@@ -32,9 +45,17 @@ class CourseMap extends Equatable {
   final String title;
   final ContinueTopic? continueTopic;
   final List<MapUnit> units;
+  final CourseAccess access;
 
   @override
-  List<Object?> get props => [courseId, slug, title, continueTopic, units];
+  List<Object?> get props => [
+    courseId,
+    slug,
+    title,
+    continueTopic,
+    units,
+    access,
+  ];
 }
 
 /// The topic the "Continue" action should open.

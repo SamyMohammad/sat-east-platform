@@ -58,6 +58,7 @@ class QuizReport extends Equatable {
     required this.nextTopic,
     required this.retakeAt,
     this.skills = const [],
+    this.nextNeedsAccess = false,
   });
 
   final String attemptId;
@@ -70,6 +71,9 @@ class QuizReport extends Equatable {
   final DateTime? retakeAt;
   final List<SkillResult> skills;
 
+  /// The student has no enrolment and the next topic is not free (CRS-06).
+  final bool nextNeedsAccess;
+
   @override
   List<Object?> get props => [
     attemptId,
@@ -81,5 +85,6 @@ class QuizReport extends Equatable {
     nextTopic,
     retakeAt,
     skills,
+    nextNeedsAccess,
   ];
 }

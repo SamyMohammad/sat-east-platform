@@ -10,6 +10,10 @@ abstract final class CourseMapCopy {
   static const statusCompleted = 'Completed';
   static const statusOpen = 'Open';
   static const statusLocked = 'Locked';
+  static const previewBanner =
+      "You're previewing this course. Enter an activation code to unlock "
+      'every topic.';
+  static const activationNeeded = 'Activation needed';
   static const emptyTitle = 'No topics yet';
   static const emptyBody = 'This course has no topics yet.';
   static const String notEnrolledTitle = LearningCopy.notEnrolledTitle;

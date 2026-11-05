@@ -13,6 +13,11 @@ CourseMap courseMapFromJson(Map<String, Object?> json) {
     units: [
       for (final u in _list(json, 'units')) _unit(_asMap(u, 'units[]')),
     ],
+    access: switch (json['access']) {
+      null || 'full' => CourseAccess.full,
+      'preview' => CourseAccess.preview,
+      final other => throw FormatException('unknown access: $other'),
+    },
   );
 }
 
@@ -40,6 +45,7 @@ MapTopic _topic(Map<String, Object?> json) {
   final LockReason? reason = switch (json['locked_reason']) {
     null => null,
     'previous_quiz' => PreviousQuiz(_str(json, 'after_title')),
+    'needs_access' => const NeedsAccess(),
     final other => throw FormatException('unknown locked_reason: $other'),
   };
   return MapTopic(

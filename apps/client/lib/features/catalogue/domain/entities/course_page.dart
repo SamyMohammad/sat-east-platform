@@ -19,6 +19,10 @@ class CoursePage extends Equatable {
   final Price? price;
   final List<CourseUnit> units;
 
+  /// At least one topic can be tried without an activation code (CRS-06).
+  bool get hasFreeTopic =>
+      units.any((unit) => unit.topics.any((topic) => topic.isFreePreview));
+
   @override
   List<Object?> get props => [id, slug, title, description, price, units];
 }

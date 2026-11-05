@@ -11,13 +11,20 @@ class CourseMapCubit extends Cubit<CourseMapState> {
   final CourseMapRepository _repository;
 
   int _loadVersion = 0;
+  String? _slug;
   CourseMap? _previous;
 
-  Future<void> load() async {
+  /// Loads the map. A non-null [slug] (a course previewed from its page) is
+  /// remembered so refresh and retry reload the same course.
+  Future<void> load({String? slug}) async {
     if (isClosed) return;
+    if (slug != null) _slug = slug;
     final version = ++_loadVersion;
     if (state is! CourseMapLoaded) emit(const CourseMapLoading());
-    final result = await _repository.getCourseMap();
+    final result = switch (_slug) {
+      final slug? => await _repository.getCourseMap(slug: slug),
+      null => await _repository.getCourseMap(),
+    };
     if (isClosed || version != _loadVersion) return;
     switch (result) {
       case Success(:final value):

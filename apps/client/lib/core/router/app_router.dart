@@ -55,6 +55,8 @@ abstract final class AppRoutes {
   static const home = '/';
   static const activate = '/activate';
   static const courses = '/courses';
+  static String coursePreview(String slug) =>
+      '$courses?course=${Uri.encodeQueryComponent(slug)}';
   static String topic(String id) => '/courses/topics/$id';
   static String video(String topicId, String assetId) =>
       '/courses/topics/$topicId/video/$assetId';
@@ -276,7 +278,9 @@ GoRouter createRouter({
                     context,
                     key: state.pageKey,
                     child: switch (destination) {
-                      AppShellDestination.courses => const CourseMapScreen(),
+                      AppShellDestination.courses => CourseMapScreen(
+                        courseSlug: state.uri.queryParameters['course'],
+                      ),
                       AppShellDestination.home => const PlaceholderScreen(),
                       AppShellDestination.skills => const SkillsScreen(),
                       AppShellDestination.profile => const AccountScreen(),
