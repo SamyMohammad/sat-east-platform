@@ -103,7 +103,7 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `ai-tutor` | Grounded LLM answer (see §6) |
 | `import-questions` | Validate and upsert pipeline JSON (teacher) |
 | `send-email` | Templates via Resend |
-| `cron-*` | Every minute: `expire-attempts` → `private.expire_overdue_attempts()` (submit overdue quizzes at their deadline after `save_grace_s`). Daily at 02:00 UTC: `nightly-cleanup` → `private.nightly_cleanup()` (abandon practice inactive for `practice_stale_h`, default 24 hours; purge rate-limit windows older than one day). Planned: expire enrollments, inactivity nudges, mastery decay, live reminders |
+| `cron-*` | Every minute: `expire-attempts` → `private.expire_overdue_attempts()` (submit overdue quizzes at their deadline after `save_grace_s`). Daily at 02:00 UTC: `nightly-cleanup` → `private.nightly_cleanup()` (abandon practice inactive for `practice_stale_h`, default 24 hours; purge rate-limit windows older than one day; delete `cron.job_run_details` rows older than `cron_history_keep_days`, default 7). Planned: expire enrollments, inactivity nudges, mastery decay, live reminders |
 
 ## 2. Unlock state machine
 
