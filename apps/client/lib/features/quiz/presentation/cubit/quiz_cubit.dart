@@ -1,7 +1,9 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/attempts/answer_save_queue.dart';
+import 'package:sat_east_client/core/attempts/pending_answers.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/time/ticker.dart';
@@ -11,12 +13,13 @@ import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_attempt_cl
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart';
 
 class QuizCubit extends Cubit<QuizState> {
-  QuizCubit(this._repository, this._now, this._ticker)
+  QuizCubit(this._repository, this._now, this._ticker, this._pending)
     : super(const QuizLoading());
 
   final QuizRepository _repository;
   final DateTime Function() _now;
   final Ticker _ticker;
+  final PendingAnswers _pending;
   StreamSubscription<void>? _tickSub;
   QuizAttemptClock? _clock;
   AnswerSaveQueue? _saves;
@@ -57,29 +60,45 @@ class QuizCubit extends Cubit<QuizState> {
     final clock = QuizAttemptClock(session, _now)
       ..show(session.questions.first.id);
     _clock = clock;
+    // Unacknowledged local answers win over the server copy (R4a outbox).
+    final local = _pending.forAttempt(session.attemptId);
+    final answers = {
+      for (final entry in session.answers.entries)
+        entry.key: entry.value.answer,
+    };
+    final marked = {
+      for (final entry in session.answers.entries)
+        if (entry.value.marked) entry.key,
+    };
+    for (final entry in local.entries) {
+      answers[entry.key] = entry.value.answer;
+      if (entry.value.marked) {
+        marked.add(entry.key);
+      } else {
+        marked.remove(entry.key);
+      }
+    }
     _saves = AnswerSaveQueue(
       clientSeq: session.clientSeq,
       now: _now,
       isActive: () => !isClosed && generation == _generation,
       save: _save,
       onError: (error) => _saveError(generation, error),
-      onDeadlinePassed: () => unawaited(timeUp()),
+      onDeadlinePassed: () {
+        _pending.clearAttempt(session.attemptId);
+        unawaited(timeUp());
+      },
     );
     emit(
       QuizRunning(
         session: session,
         remaining: clock.remaining,
-        answers: Map.unmodifiable({
-          for (final entry in session.answers.entries)
-            entry.key: entry.value.answer,
-        }),
-        marked: Set.unmodifiable({
-          for (final entry in session.answers.entries)
-            if (entry.value.marked) entry.key,
-        }),
+        answers: Map.unmodifiable(answers),
+        marked: Set.unmodifiable(marked),
       ),
     );
     _tickSub = _ticker(const Duration(seconds: 1)).listen((_) => _tick());
+    local.keys.forEach(_saves!.enqueue);
     if (clock.remaining <= Duration.zero) unawaited(timeUp());
   }
 
@@ -119,12 +138,11 @@ class QuizCubit extends Cubit<QuizState> {
   void _answer(QuizRunning current, String answer) {
     final id = current.session.questions[current.index].id;
     if (current.answers[id] == answer) return;
-    emit(
-      current.copyWith(
-        answers: Map.unmodifiable({...current.answers, id: answer}),
-      ),
+    final next = current.copyWith(
+      answers: Map.unmodifiable({...current.answers, id: answer}),
     );
-    _saves?.enqueue(id);
+    emit(next);
+    _record(next, id);
   }
 
   void toggleMark() {
@@ -133,7 +151,20 @@ class QuizCubit extends Cubit<QuizState> {
     final id = current.session.questions[current.index].id;
     final marked = Set<String>.of(current.marked);
     if (!marked.remove(id)) marked.add(id);
-    emit(current.copyWith(marked: Set.unmodifiable(marked)));
+    final next = current.copyWith(marked: Set.unmodifiable(marked));
+    emit(next);
+    _record(next, id);
+  }
+
+  /// Persists the change before queueing the save, so a reload cannot lose it.
+  void _record(QuizRunning next, String id) {
+    _pending.put(
+      next.session.attemptId,
+      id,
+      answer: next.answers[id],
+      marked: next.marked.contains(id),
+      timeMs: _clock?.timeMs(id) ?? 0,
+    );
     _saves?.enqueue(id);
   }
 
@@ -166,21 +197,32 @@ class QuizCubit extends Cubit<QuizState> {
     }
   }
 
-  Future<Result<SaveOutcome>> _save(String id, int seq) {
+  Future<Result<SaveOutcome>> _save(String id, int seq) async {
     final current = _running;
     final clock = _clock;
     if (current == null || clock == null) {
-      return Future.value(const Failure(AppError(ErrorCodes.internal)));
+      return const Failure(AppError(ErrorCodes.internal));
     }
-    return _repository.save(
-      attemptId: current.session.attemptId,
+    final attemptId = current.session.attemptId;
+    // A newer local edit made while this call is in flight bumps the rev, so
+    // the ack below leaves it in the outbox.
+    final rev = _pending.revOf(attemptId, id);
+    // save_answer overwrites time_ms; after a reload the clock restarts at 0,
+    // so never send less than the time already recorded in the outbox.
+    final stored = _pending.forAttempt(attemptId)[id]?.timeMs ?? 0;
+    final result = await _repository.save(
+      attemptId: attemptId,
       questionId: id,
       answer: current.answers[id],
       marked: current.marked.contains(id),
-      timeMs: clock.timeMs(id),
+      timeMs: math.max(stored, clock.timeMs(id)),
       eliminated: const [],
       clientSeq: seq,
     );
+    if (result is Success<SaveOutcome> && rev != null) {
+      _pending.ack(attemptId, id, rev);
+    }
+    return result;
   }
 
   void _saveError(int generation, AppError? error) {
@@ -238,6 +280,7 @@ class QuizCubit extends Cubit<QuizState> {
       case Failure(:final error):
         _submissionFailed(error, session, saves);
       case Success(:final value):
+        _pending.clearAttempt(session.attemptId);
         saves.dispose();
         final cancelTicker = _tickSub?.cancel();
         _tickSub = null;

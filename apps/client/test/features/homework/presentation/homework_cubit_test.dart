@@ -10,6 +10,7 @@ import 'package:sat_east_client/features/homework/presentation/cubit/homework_cu
 import 'package:sat_east_client/features/homework/presentation/cubit/homework_state.dart';
 import 'package:sat_east_client/features/homework/presentation/homework_copy.dart';
 
+import '../../../support/in_memory_pending_answers.dart';
 import '../homework_fixture.dart';
 
 class _Repo implements HomeworkRepository {
@@ -59,12 +60,15 @@ class _Repo implements HomeworkRepository {
 void main() {
   late _Repo repo;
   late HomeworkCubit cubit;
+  late InMemoryPendingAnswers pending;
   setUp(() {
     repo = _Repo();
+    pending = InMemoryPendingAnswers();
     cubit = HomeworkCubit(
       repo,
       () => DateTime.utc(2026),
       (_) => const Stream<void>.empty(),
+      pending,
     );
   });
   tearDown(() => cubit.close());

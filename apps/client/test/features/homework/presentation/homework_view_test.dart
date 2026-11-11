@@ -11,6 +11,7 @@ import 'package:sat_east_client/shared/widgets/question_view/question_view_mode.
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/fakes/fake_rpc.dart';
+import '../../../support/in_memory_pending_answers.dart';
 import '../homework_fixture.dart';
 
 void main() {
@@ -26,6 +27,7 @@ void main() {
         HomeworkRepositoryImpl(HomeworkRemoteDataSource(rpc.call)),
         () => DateTime.utc(2026),
         (_) => const Stream<void>.empty(),
+        InMemoryPendingAnswers(),
       );
       addTearDown(cubit.close);
       await cubit.start('t1');
@@ -64,6 +66,7 @@ void main() {
       HomeworkRepositoryImpl(HomeworkRemoteDataSource(rpc.call)),
       () => DateTime.utc(2026),
       (_) => const Stream<void>.empty(),
+      InMemoryPendingAnswers(),
     );
     addTearDown(cubit.close);
     await cubit.start('t1');

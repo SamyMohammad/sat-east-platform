@@ -169,13 +169,22 @@ Use Supabase Studio (`http://localhost:54323`) to *see* tables and run queries w
 ## 3. Offline — Outbox pattern for homework, quiz, mock
 
 ```
-answer tapped → AnswerOutbox (hive_ce, survives reload) → SyncWorker → save_answer RPC
-                     ▲ client_seq++                          │ on: connectivity, app resume, every 10 s
-                     └──────────── ack removes item ◀────────┘
+answer tapped → PendingAnswers (hive_ce, survives reload) + AnswerSaveQueue → save_answer RPC
+                     ▲ rev++ per local edit                  │ retries on 1 s ticks with backoff (2/5/10 s)
+                     └── ack removes entry only if rev unchanged ◀─┘
 ```
-- **One `AttemptSyncService`** in `apps/client/lib/core/sync/`, used by `assessment` and `exam`.
-- **Outbox store:** `hive_ce` (works on web via IndexedDB and on mobile). Key = `attempt_id:question_id`
-  (only the latest answer per question is kept → the queue never grows unbounded).
+- **Implemented as `PendingAnswers` + `AnswerSaveQueue`** in `apps/client/lib/core/attempts/`
+  (contract `pending_answers.dart`, Hive store `data/hive_pending_answers.dart`), used by quiz and
+  homework (mock exams do not exist yet). Not a separate `core/sync/AttemptSyncService`.
+- **Outbox store:** `hive_ce` box `pending_answers` (works on web via IndexedDB and on mobile). Key =
+  `attempt_id:question_id` (only the latest snapshot per question is kept → the queue never grows
+  unbounded). Each entry carries a `rev` that grows on every local change; an ack removes the entry only
+  if the stored `rev` is still the one that was sent, so an edit made during an in-flight save survives.
+- **Resume:** when the attempt starts again (reload, app kill) the cubit overlays the stored entries on
+  the server answers and re-enqueues them; the local entry wins because it is by definition unacknowledged.
+  Entries are cleared on a successful submit and on `deadline_passed`, and pruned after 7 days at startup.
+  Trade-off: an answer changed later on a *second* device can be overwritten by a stale unacknowledged one
+  from the first device (the device limit is 2 and both would have to work on the same attempt).
 - **Idempotent server:** `save_answer(..., client_seq)` upserts and **ignores** a write whose
   `client_seq` is older than the stored one. Duplicate or out-of-order retries are harmless.
 - **Everything up-front:** `start_attempt` returns all questions; images are precached → once started,

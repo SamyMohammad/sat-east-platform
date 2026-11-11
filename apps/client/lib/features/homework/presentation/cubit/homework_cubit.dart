@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/attempts/answer_save_queue.dart';
 import 'package:sat_east_client/core/attempts/attempt_question.dart';
+import 'package:sat_east_client/core/attempts/pending_answers.dart';
 import 'package:sat_east_client/core/attempts/save_outcome.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
@@ -11,11 +12,12 @@ import 'package:sat_east_client/features/homework/domain/repositories/homework_r
 import 'package:sat_east_client/features/homework/presentation/cubit/homework_state.dart';
 
 class HomeworkCubit extends Cubit<HomeworkState> {
-  HomeworkCubit(this._repository, this._now, this._ticker)
+  HomeworkCubit(this._repository, this._now, this._ticker, this._pending)
     : super(const HomeworkLoading());
   final HomeworkRepository _repository;
   final DateTime Function() _now;
   final Ticker _ticker;
+  final PendingAnswers _pending;
   final _times = <String, int>{};
   DateTime? _shownAt;
   StreamSubscription<void>? _ticks;
@@ -48,6 +50,24 @@ class HomeworkCubit extends Cubit<HomeworkState> {
           return;
         }
         _shownAt = _now();
+        // Unacknowledged local answers win over the server copy (R4a outbox).
+        final local = _pending.forAttempt(value.attemptId);
+        final answers = {
+          for (final e in value.answers.entries) e.key: e.value.answer,
+        };
+        final marked = {
+          for (final e in value.answers.entries)
+            if (e.value.marked) e.key,
+        };
+        for (final entry in local.entries) {
+          answers[entry.key] = entry.value.answer;
+          _times[entry.key] = entry.value.timeMs;
+          if (entry.value.marked) {
+            marked.add(entry.key);
+          } else {
+            marked.remove(entry.key);
+          }
+        }
         _saves = AnswerSaveQueue(
           clientSeq: value.clientSeq,
           now: _now,
@@ -55,23 +75,22 @@ class HomeworkCubit extends Cubit<HomeworkState> {
           save: _save,
           onError: (_) => _saveChanged(generation),
           onChanged: () => _saveChanged(generation),
-          onDeadlinePassed: () => _saveChanged(generation),
+          onDeadlinePassed: () {
+            _pending.clearAttempt(value.attemptId);
+            _saveChanged(generation);
+          },
         );
         emit(
           HomeworkRunning(
             session: value,
-            answers: Map.unmodifiable({
-              for (final e in value.answers.entries) e.key: e.value.answer,
-            }),
-            marked: Set.unmodifiable({
-              for (final e in value.answers.entries)
-                if (e.value.marked) e.key,
-            }),
+            answers: Map.unmodifiable(answers),
+            marked: Set.unmodifiable(marked),
           ),
         );
         _ticks = _ticker(const Duration(seconds: 1)).listen((_) {
           if (!isClosed && generation == _generation) _saves?.tick();
         });
+        local.keys.forEach(_saves!.enqueue);
     }
   }
 
@@ -105,12 +124,11 @@ class HomeworkCubit extends Cubit<HomeworkState> {
   void _answer(HomeworkRunning current, String answer) {
     final id = current.session.questions[current.index].id;
     if (current.answers[id] == answer) return;
-    emit(
-      current.copyWith(
-        answers: Map.unmodifiable({...current.answers, id: answer}),
-      ),
+    final next = current.copyWith(
+      answers: Map.unmodifiable({...current.answers, id: answer}),
     );
-    _saves?.enqueue(id);
+    emit(next);
+    _record(next, id);
   }
 
   void toggleMark() {
@@ -119,7 +137,20 @@ class HomeworkCubit extends Cubit<HomeworkState> {
     final id = current.session.questions[current.index].id;
     final marked = Set<String>.of(current.marked);
     if (!marked.remove(id)) marked.add(id);
-    emit(current.copyWith(marked: Set.unmodifiable(marked)));
+    final next = current.copyWith(marked: Set.unmodifiable(marked));
+    emit(next);
+    _record(next, id);
+  }
+
+  /// Persists the change before queueing the save, so a reload cannot lose it.
+  void _record(HomeworkRunning next, String id) {
+    _pending.put(
+      next.session.attemptId,
+      id,
+      answer: next.answers[id],
+      marked: next.marked.contains(id),
+      timeMs: _timeMs(id),
+    );
     _saves?.enqueue(id);
   }
 
@@ -191,13 +222,17 @@ class HomeworkCubit extends Cubit<HomeworkState> {
     return (_times[id] ?? 0) + elapsed;
   }
 
-  Future<Result<SaveOutcome>> _save(String id, int seq) {
+  Future<Result<SaveOutcome>> _save(String id, int seq) async {
     final current = _running;
     if (current == null) {
-      return Future.value(const Failure(AppError(ErrorCodes.internal)));
+      return const Failure(AppError(ErrorCodes.internal));
     }
-    return _repository.save(
-      attemptId: current.session.attemptId,
+    final attemptId = current.session.attemptId;
+    // A newer local edit made while this call is in flight bumps the rev, so
+    // the ack below leaves it in the outbox.
+    final rev = _pending.revOf(attemptId, id);
+    final result = await _repository.save(
+      attemptId: attemptId,
       questionId: id,
       answer: current.answers[id],
       timeMs: _timeMs(id),
@@ -205,6 +240,10 @@ class HomeworkCubit extends Cubit<HomeworkState> {
       eliminated: (current.eliminated[id] ?? {}).toList(),
       clientSeq: seq,
     );
+    if (result is Success<SaveOutcome> && rev != null) {
+      _pending.ack(attemptId, id, rev);
+    }
+    return result;
   }
 
   void _saveChanged(int generation) {
@@ -265,6 +304,7 @@ class HomeworkCubit extends Cubit<HomeworkState> {
       case Failure(:final error):
         _submitFailed(error, saves);
       case Success(:final value):
+        _pending.clearAttempt(current.session.attemptId);
         saves.dispose();
         final cancel = _ticks?.cancel();
         _ticks = null;

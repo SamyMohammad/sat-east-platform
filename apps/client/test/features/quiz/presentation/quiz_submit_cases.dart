@@ -82,7 +82,12 @@ void _submitCases() {
           },
         );
         final repo = _Repository();
-        final cubit = QuizCubit(repo, () => h.clock, (_) => ticker.stream);
+        final cubit = QuizCubit(
+          repo,
+          () => h.clock,
+          (_) => ticker.stream,
+          InMemoryPendingAnswers(),
+        );
         addTearDown(() async {
           if (!cancelled.isCompleted) cancelled.complete();
           await cubit.close();

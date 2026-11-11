@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_ce_flutter/hive_ce_flutter.dart';
 import 'package:sat_east_client/app.dart';
 import 'package:sat_east_client/core/analytics/analytics_factory.dart';
+import 'package:sat_east_client/core/attempts/pending_answers.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
@@ -42,6 +43,7 @@ Future<void> _start(ErrorReporter errorReporter) async {
   await Hive.initFlutter();
   final deviceBox = await Hive.openBox<String>('device');
   final settingsBox = await _openSettingsBox();
+  final pendingAnswersBox = await _openPendingAnswersBox();
   await Supabase.initialize(
     url: Env.supabaseUrl,
     publishableKey: Env.supabasePublishableKey,
@@ -56,6 +58,10 @@ Future<void> _start(ErrorReporter errorReporter) async {
     analytics: analytics,
     deviceBox: deviceBox,
     settingsBox: settingsBox,
+    pendingAnswersBox: pendingAnswersBox,
+  );
+  getIt<PendingAnswers>().pruneOlderThan(
+    DateTime.now().subtract(const Duration(days: 7)),
   );
   unawaited(getIt<AuthCubit>().start());
 
@@ -70,5 +76,16 @@ Future<Box<String>> _openSettingsBox() async {
   } on Object {
     await Hive.deleteBoxFromDisk('settings');
     return Hive.openBox<String>('settings');
+  }
+}
+
+/// Unsent quiz/homework answers (R4a). A corrupt box is reset like settings:
+/// losing the outbox is better than blocking startup.
+Future<Box<String>> _openPendingAnswersBox() async {
+  try {
+    return await Hive.openBox<String>('pending_answers');
+  } on Object {
+    await Hive.deleteBoxFromDisk('pending_answers');
+    return Hive.openBox<String>('pending_answers');
   }
 }
