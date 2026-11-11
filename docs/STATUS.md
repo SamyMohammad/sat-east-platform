@@ -2,7 +2,7 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-11-02
+> Last updated: 2026-11-11
 
 ## Now — closed beta prep
 
@@ -10,15 +10,30 @@ Code for the closed beta (activation codes, no Paymob) is done and staging-check
 
 | Item | Owner | State |
 |------|-------|-------|
-| Prod Supabase project (Free for beta) + GitHub environments, vars, secrets — [prod runbook](setup/prod.md) | user | to do |
+| Prod Supabase project `sat-prod` (eu-central-1) exists and GitHub prod vars are set, but the project is **INACTIVE (paused)** and both prod environments have no secrets (checked 2026-11-11). Restore it, move to Pro (see roadmap R0), add secrets — [prod runbook](setup/prod.md) | user | to do |
 | First prod deploy (`Deploy prod` workflow) + restore drill | router + user | after the prod project exists |
 | Teacher taxonomy loaded into `skills`; first real topics (videos, notes, questions) | teacher | waiting |
 | Retire the demo seed before real SAT content (see Open: Demo course code) | router | when content arrives |
 | Staging: Confirm email OFF for the beta (no SMTP yet) | user | check |
 
+## Production-readiness roadmap (2026-11-11)
+
+Review verdict: keep Supabase + Flutter (target is 2,000 students / 300 concurrent; logic is portable SQL; security is strong). The gaps are prod operations, the video pipeline and unmeasured DB performance. Each item below gets its own brainstorm → plan → Codex → review loop.
+
+| Phase | Items | Owner |
+|-------|-------|-------|
+| R0 — before the first real student | Restore `sat-prod` and move it to Pro (reverses "Free for beta": the project pauses, backups fail, no PITR; add PITR once revenue exists). Add prod/prod-backup secrets. Create Resend, Sentry, Turnstile and an external uptime monitor | user (billing, accounts, secrets) |
+| R0 | Green `Backup prod` + restore drill; split the backups bucket from the video bucket; Sentry DSN on staging + prod with release tags and web source maps; alert on backup failure; branch protection on `main`; confirm-email + captcha; enforce `device_header_required` and settle App Check; landing links to prod + CI deploy | router |
+| R1 — load | ~~R1a: FK indexes, expire-cron partial index, cron history purge~~ done (#81, #82). Per-row RLS rewrite dropped — the only direct `topic_assets` read filters by `topic_id`, so the index is the fix. R1b rate-limit rollback closed by design: Postgres has no autonomous transactions, the only fixes are a `dblink` loopback (DB password inside the DB) or rewriting ~18 RPCs, and the one guess-style RPC (`redeem_activation_code`) already returns errors; flood protection belongs at the edge. R1c k6 load test workflow (#83) — first runs pending the `STAGING_JWT_SECRET` secret | router |
+| R2 — video | Spike a managed provider (Bunny Stream, compare Cloudflare Stream): ABR, CDN, resumable upload from the teacher screen, Android/iOS playback, real cost. **Owner decides** whether to drop ADR-002's "$0 R2 bill" anti-goal; only then ADR-010, new provider, mobile player, migrate videos, remove `tools/video-pipeline` | user decides, router builds |
+| R3 — mobile release | Real Android release signing; iOS flavors + matching bundle ids; FLAG_SECURE + iOS capture blocking (SEC-03) | router |
+| R4 — structure | Declarative schema baseline; move table reads out of `core/di/injection.dart`; persistent answer outbox (docs say hive_ce, code is in-memory); integration tests + goldens on CI; fix doc drift (`docs/05` Riverpod, `docs/16` "private repo"); PostHog NFR-18 events | router |
+
+Later: blanket `authenticated` write grant on public tables (`f2_rls_policies.sql:9`); YouTube videos have no protection; content (R-01: 10 topics × 100 questions) is still the real critical path.
+
 ## Next — after launch
 
-Deferred for the closed beta (user, 2026-10-25): Paymob (P-2/P-3, blocked on Q-03), SMTP emails (Resend), coupons, live sessions, announcements, completion matrix (ANL-05), quiz spiral + difficulty blueprint, homework E/M/H blueprint, Google sign-in (A-1), free-topic access without enrolment.
+Deferred for the closed beta (user, 2026-10-25): Paymob (P-2/P-3, blocked on Q-03), SMTP emails (Resend), coupons, live sessions, announcements, completion matrix (ANL-05), quiz spiral + difficulty blueprint, homework E/M/H blueprint, Google sign-in (A-1).
 
 ### How we work (lanes)
 Up to 3 lanes at once, each in its own `git worktree` branched from `main` (never stacked). Each lane goes brainstorm → plan → Codex → review → PR.
@@ -40,7 +55,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 | Rate-limit rollback | `private.hit_rate_limit` counts only calls that don't raise (a raise rolls back the increment). Fine for practice/quiz RPCs; guess-style RPCs must return errors instead of raising (lane 1b `redeem_activation_code` does) |
 | Auth Site URL | Staging done (2026-10-24). Prod: set Site URL + Redirect URLs per `docs/setup/auth.md` §0 — user, part of the [prod runbook](setup/prod.md) |
 | Password reset redirect | Staging done (2026-10-24). Prod: add `<site>/?flow=recovery` (`docs/setup/auth.md` §0) — user |
-| Free topic access | Course page shows a Free badge only; opening a free topic without an enrolment is its own later story (user, 2026-10-19) |
+| Backup prod workflow | The nightly `Backup prod` run fails with "PGPASSWORD is not set" until the prod project and its secrets exist ([prod runbook](setup/prod.md)) — expected, not a code bug |
 | Skill taxonomy | Import rejects unknown skill codes; the teacher's taxonomy (`docs/09` §4) must be loaded into `skills` before real imports |
 | Regrade after key fix | Fixing a key (editor / review queue) does not regrade past attempts; its own story |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
@@ -55,6 +70,12 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| R1a | 47 FK indexes + pgTAP FK-index invariant, `attempts_quiz_in_progress_idx`, nightly purge of `cron.job_run_details` (`cron_history_keep_days`) (NFR-01/02) | #81, #82 |
+| P1 | Student Home (LRN-07): continue card with the next step, course progress, access-expiry banner from `access_expiry_warn_days`; bell hidden | #76, #77 |
+| P1 | Free topic preview without an enrolment (CRS-06): server, then course page, preview map and activation prompt | #70, #71 |
+| P1 | Teacher's real AE logo replaces the A∫E mark | #79 |
+| P1 | Landing page: polish, Cloudflare deploy, staging app links, GSAP motion | #72–#75, #78 |
+| — | Owner answers to open questions Q-02..Q-16 | #69 |
 | P1 | Brand rollout: A∫E mark, navy palette across the app, static landing page (`apps/landing`) | #68 |
 | P2 | Skills screen + server skill mastery (ANL-01), quiz per-skill report (ANL-02) | #64 |
 | P1 | Staging-check polish: no lost video seconds, whole percents, MB quota, report rows | #60 |
