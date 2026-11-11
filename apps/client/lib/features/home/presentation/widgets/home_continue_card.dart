@@ -16,6 +16,7 @@ typedef HomeStepAction = ({
   String line,
   String name,
   String button,
+  bool opensTopic,
   IconData icon,
 });
 
@@ -24,6 +25,13 @@ HomeStepAction homeStepAction(
   String topicId, {
   String cooldownTime = '',
 }) {
+  final opensTopic = switch (step) {
+    QuizStep(
+      quiz: QuizCooldown() || QuizPracticeNeeded() || QuizHomeworkNeeded(),
+    ) =>
+      true,
+    _ => false,
+  };
   final (route, line, name, icon) = switch (step) {
     VideoStep(:final video) => (
       AppRoutes.video(topicId, video.assetId),
@@ -48,19 +56,13 @@ HomeStepAction homeStepAction(
       switch ((homework.state, homework.total)) {
         (HomeworkState.inProgress, final int total) =>
           HomeCopy.homeworkProgress(homework.answered, total),
-        (_, final int total) => HomeCopy.homeworkCount(total),
-        _ => HomeCopy.homeworkAnswered(homework.answered),
+        _ => HomeCopy.homeworkStart,
       },
       HomeCopy.homework,
       AppIcons.homework,
     ),
     QuizStep(:final quiz) => (
-      switch (quiz) {
-        QuizAvailable() || QuizInProgress() => AppRoutes.quiz(topicId),
-        QuizCooldown() ||
-        QuizPracticeNeeded() ||
-        QuizHomeworkNeeded() => AppRoutes.topic(topicId),
-      },
+      opensTopic ? AppRoutes.topic(topicId) : AppRoutes.quiz(topicId),
       switch (quiz) {
         QuizAvailable() => HomeCopy.takeQuiz,
         QuizInProgress() => HomeCopy.finishQuiz,
@@ -75,9 +77,8 @@ HomeStepAction homeStepAction(
     route: route,
     line: line,
     name: name,
-    button: route == AppRoutes.topic(topicId)
-        ? HomeCopy.openTopic
-        : HomeCopy.continueButton,
+    button: opensTopic ? HomeCopy.openTopic : HomeCopy.continueButton,
+    opensTopic: opensTopic,
     icon: icon,
   );
 }
