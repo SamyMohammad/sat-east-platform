@@ -24,7 +24,7 @@ Review verdict: keep Supabase + Flutter (target is 2,000 students / 300 concurre
 |-------|-------|-------|
 | R0 — before the first real student | Restore `sat-prod` and move it to Pro (reverses "Free for beta": the project pauses, backups fail, no PITR; add PITR once revenue exists). Add prod/prod-backup secrets. Create Resend, Sentry, Turnstile and an external uptime monitor | user (billing, accounts, secrets) |
 | R0 | Green `Backup prod` + restore drill; split the backups bucket from the video bucket; Sentry DSN on staging + prod with release tags and web source maps; alert on backup failure; branch protection on `main`; confirm-email + captcha; enforce `device_header_required` and settle App Check; landing links to prod + CI deploy | router |
-| R1 — load | Indexes for unindexed FKs (RLS-used first: `topic_assets.topic_id`, `units.course_id`, `subtopics.topic_id`, `enrollments.course_id`, `attempt_questions.question_id`); partial index on `attempts (kind, status)` + purge `cron.job_run_details`; stop per-row function calls in `topic_assets` and notes storage RLS; fix rate-limit rollback; `pg_stat_statements` + k6 at 300 concurrent against staging to measure NFR-01/02/03 | router |
+| R1 — load | ~~R1a: FK indexes, expire-cron partial index, cron history purge~~ done (#81, #82). Per-row RLS rewrite dropped — the only direct `topic_assets` read filters by `topic_id`, so the index is the fix. Left: R1b fix rate-limit rollback; R1c `pg_stat_statements` + k6 at 300 concurrent against staging to measure NFR-01/02/03 | router |
 | R2 — video | Spike a managed provider (Bunny Stream, compare Cloudflare Stream): ABR, CDN, resumable upload from the teacher screen, Android/iOS playback, real cost. **Owner decides** whether to drop ADR-002's "$0 R2 bill" anti-goal; only then ADR-010, new provider, mobile player, migrate videos, remove `tools/video-pipeline` | user decides, router builds |
 | R3 — mobile release | Real Android release signing; iOS flavors + matching bundle ids; FLAG_SECURE + iOS capture blocking (SEC-03) | router |
 | R4 — structure | Declarative schema baseline; move table reads out of `core/di/injection.dart`; persistent answer outbox (docs say hive_ce, code is in-memory); integration tests + goldens on CI; fix doc drift (`docs/05` Riverpod, `docs/16` "private repo"); PostHog NFR-18 events | router |
@@ -70,6 +70,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| R1a | 47 FK indexes + pgTAP FK-index invariant, `attempts_quiz_in_progress_idx`, nightly purge of `cron.job_run_details` (`cron_history_keep_days`) (NFR-01/02) | #81, #82 |
 | P1 | Student Home (LRN-07): continue card with the next step, course progress, access-expiry banner from `access_expiry_warn_days`; bell hidden | #76, #77 |
 | P1 | Free topic preview without an enrolment (CRS-06): server, then course page, preview map and activation prompt | #70, #71 |
 | P1 | Teacher's real AE logo replaces the A∫E mark | #79 |
