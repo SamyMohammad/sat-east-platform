@@ -6,6 +6,11 @@ import 'package:sat_east_client/core/presentation/learning_copy.dart';
 abstract final class CourseMapCopy {
   static const continueTitle = 'Continue where you left off';
   static const continueButton = 'Continue';
+  static const previewBanner =
+      "You're previewing this course. "
+      'Enter an activation code to unlock every topic.';
+  static const activationNeeded = 'Activation needed';
+  static const enterActivationCode = 'Enter activation code';
   static const freeChip = 'Free';
   static const statusCompleted = 'Completed';
   static const statusOpen = 'Open';

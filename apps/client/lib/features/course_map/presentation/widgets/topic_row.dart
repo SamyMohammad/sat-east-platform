@@ -50,9 +50,19 @@ class TopicRow extends StatelessWidget {
     final open = status == TopicStatus.open;
     final titleColor = locked ? colors.inkSecondary : scheme.onSurface;
     final reason = topic.lockReason;
-    final lockLine = locked && reason is PreviousQuiz
-        ? CourseMapCopy.lockLine(reason.afterTitle)
-        : null;
+    final lockLine = !locked
+        ? null
+        : switch (reason) {
+            PreviousQuiz(:final afterTitle) => CourseMapCopy.lockLine(
+              afterTitle,
+            ),
+            NeedsAccess() => CourseMapCopy.activationNeeded,
+            null => null,
+          };
+    final canActivate = locked && reason is NeedsAccess;
+    final actionable = !locked || canActivate;
+    void onTap() =>
+        canActivate ? context.go(AppRoutes.activate) : _open(context);
 
     final statusWord = switch (status) {
       TopicStatus.completed => CourseMapCopy.statusCompleted,
@@ -168,13 +178,11 @@ class TopicRow extends StatelessWidget {
       child: Semantics(
         container: true,
         label: label,
-        button: !locked,
-        enabled: !locked,
+        button: actionable,
+        enabled: actionable,
         excludeSemantics: true,
-        onTap: locked ? null : () => _open(context),
-        child: locked
-            ? content
-            : InkWell(onTap: () => _open(context), child: content),
+        onTap: actionable ? onTap : null,
+        child: !actionable ? content : InkWell(onTap: onTap, child: content),
       ),
     );
   }

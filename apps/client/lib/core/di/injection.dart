@@ -30,12 +30,18 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/catalogue/data/datasources/catalogue_remote_data_source.dart';
 import 'package:sat_east_client/features/catalogue/data/repositories/catalogue_repository_impl.dart';
 import 'package:sat_east_client/features/catalogue/domain/repositories/catalogue_repository.dart';
+import 'package:sat_east_client/features/catalogue/domain/usecases/check_course_preview.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/course_map/data/datasources/course_map_remote_data_source.dart';
 import 'package:sat_east_client/features/course_map/data/repositories/course_map_repository_impl.dart';
 import 'package:sat_east_client/features/course_map/domain/repositories/course_map_repository.dart';
 import 'package:sat_east_client/features/course_map/presentation/cubit/course_map_cubit.dart';
+import 'package:sat_east_client/features/home/data/datasources/home_settings_remote_data_source.dart';
+import 'package:sat_east_client/features/home/data/repositories/home_settings_repository_impl.dart';
+import 'package:sat_east_client/features/home/domain/repositories/home_settings_repository.dart';
+import 'package:sat_east_client/features/home/domain/usecases/get_home_summary.dart';
+import 'package:sat_east_client/features/home/presentation/cubit/home_cubit.dart';
 import 'package:sat_east_client/features/homework/data/datasources/homework_remote_data_source.dart';
 import 'package:sat_east_client/features/homework/data/repositories/homework_repository_impl.dart';
 import 'package:sat_east_client/features/homework/domain/repositories/homework_repository.dart';
@@ -245,6 +251,28 @@ void configureDependencies({
     ..registerLazySingleton<TopicRepository>(
       () => TopicRepositoryImpl(getIt<TopicRemoteDataSource>()),
     )
+    ..registerLazySingleton<HomeSettingsRemoteDataSource>(
+      () => HomeSettingsRemoteDataSource(
+        readWarnDays: () => getIt<SupabaseClient>()
+            .from('settings')
+            .select('value')
+            .eq('key', 'access_expiry_warn_days')
+            .single(),
+      ),
+    )
+    ..registerLazySingleton<HomeSettingsRepository>(
+      () => HomeSettingsRepositoryImpl(getIt<HomeSettingsRemoteDataSource>()),
+    )
+    ..registerLazySingleton<GetHomeSummary>(
+      () => GetHomeSummary(
+        getIt<CourseMapRepository>(),
+        getIt<TopicRepository>(),
+        getIt<AuthRepository>(),
+        getIt<HomeSettingsRepository>(),
+        DateTime.now,
+      ),
+    )
+    ..registerFactory<HomeCubit>(() => HomeCubit(getIt<GetHomeSummary>()))
     ..registerFactory<TopicCubit>(() => TopicCubit(getIt<TopicRepository>()))
     // Ruled exception to "cubits are factories": AuthCubit is app-wide
     // session state that the router also reads, so it must be one instance.
@@ -280,8 +308,14 @@ void configureDependencies({
     ..registerFactory<CatalogueCubit>(
       () => CatalogueCubit(getIt<CatalogueRepository>()),
     )
+    ..registerLazySingleton(
+      () => CheckCoursePreview(getIt<CourseMapRepository>()),
+    )
     ..registerFactory<CoursePageCubit>(
-      () => CoursePageCubit(getIt<CatalogueRepository>()),
+      () => CoursePageCubit(
+        getIt<CatalogueRepository>(),
+        getIt<CheckCoursePreview>(),
+      ),
     )
     ..registerLazySingleton<CourseBuilderRemoteDataSource>(
       () => CourseBuilderRemoteDataSource(

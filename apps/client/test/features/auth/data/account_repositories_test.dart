@@ -104,6 +104,7 @@ void main() {
         final expected = code == null
             ? Success<List<MyEnrollment>>([
                 MyEnrollment(
+                  courseId: 'sat-id',
                   courseTitle: 'SAT Math',
                   targetTestDate: null,
                   expiresAt: DateTime.utc(2027, 3, 30),

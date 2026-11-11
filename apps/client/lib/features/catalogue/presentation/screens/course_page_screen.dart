@@ -34,15 +34,20 @@ class CoursePageScreen extends StatelessWidget {
   final bool enablePurchase;
 
   @override
-  Widget build(BuildContext context) => BlocProvider(
-    key: ValueKey(slug),
-    create: (_) {
-      final cubit = getIt<CoursePageCubit>();
-      unawaited(cubit.load(slug));
-      return cubit;
-    },
-    child: CoursePageView(enablePurchase: enablePurchase),
-  );
+  Widget build(BuildContext context) {
+    final signedIn = context.select<AuthCubit, bool>(
+      (cubit) => cubit.state is AuthSignedIn,
+    );
+    return BlocProvider(
+      key: ValueKey((slug, signedIn)),
+      create: (_) {
+        final cubit = getIt<CoursePageCubit>();
+        unawaited(cubit.load(slug, signedIn: signedIn));
+        return cubit;
+      },
+      child: CoursePageView(enablePurchase: enablePurchase),
+    );
+  }
 }
 
 class CoursePageView extends StatelessWidget {
@@ -72,7 +77,8 @@ class CoursePageView extends StatelessWidget {
           message: CatalogueCopy.errorBody(error.code),
           onRetry: () => unawaited(context.read<CoursePageCubit>().retry()),
         ),
-        CoursePageLoaded(:final data) => _CourseContent(
+        CoursePageLoaded(:final data, :final canPreview) => _CourseContent(
+          canPreview: canPreview,
           page: data,
           enablePurchase: enablePurchase,
         ),
@@ -82,9 +88,14 @@ class CoursePageView extends StatelessWidget {
 }
 
 class _CourseContent extends StatelessWidget {
-  const _CourseContent({required this.page, required this.enablePurchase});
+  const _CourseContent({
+    required this.page,
+    required this.enablePurchase,
+    required this.canPreview,
+  });
 
   final CoursePage page;
+  final bool canPreview;
   final bool enablePurchase;
 
   @override
@@ -115,6 +126,16 @@ class _CourseContent extends StatelessWidget {
           if (page.price case final price? when enablePurchase)
             Text(formatPrice(price), style: theme.textTheme.titleLarge),
           if (!enablePurchase) const Text(CatalogueCopy.appNote),
+          if (canPreview)
+            FilledButton(
+              onPressed: () => context.go(
+                Uri(
+                  path: AppRoutes.courses,
+                  queryParameters: {'course': page.slug},
+                ).toString(),
+              ),
+              child: const Text(CatalogueCopy.tryFreeTopic),
+            ),
           const _ActivationLink(),
         ],
       ),

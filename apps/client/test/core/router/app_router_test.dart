@@ -48,8 +48,10 @@ import '../../features/teacher/questions/editor_fixtures.dart';
 import '../../features/teacher/questions/import_fixtures.dart';
 import '../../features/teacher/review/review_fixtures.dart';
 import '../../features/teacher/settings/settings_fixtures.dart';
+
 import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
+import 'fake_home_cubit.dart';
 import 'fake_notes_viewer_cubit.dart';
 import 'fake_practice_cubit.dart';
 import 'fake_skills_cubit.dart';
@@ -58,6 +60,72 @@ import 'fake_topic_cubit.dart';
 part 'fake_quiz_cubit.dart';
 
 void main() {
+  setUp(registerFakeHomeCubit);
+  tearDown(unregisterFakeHomeCubit);
+  testWidgets(
+    'CRS-06: preview map survives topic return and Courses reselect',
+    (tester) async {
+      final slugs = <String?>[];
+      await registerFakeCourseMapCubit(onSlug: slugs.add);
+      final router = createRouter(initialLocation: '/courses?course=sat-math');
+      addTearDown(router.dispose);
+      _viewport(tester, 1280);
+      await _pumpRouter(tester, router);
+      router.go(AppRoutes.topic('free'));
+      await tester.pumpAndSettle();
+      expect(
+        router.routeInformationProvider.value.uri.queryParameters['course'],
+        'sat-math',
+      );
+      router.pop();
+      await tester.pumpAndSettle();
+      expect(router.routeInformationProvider.value.uri.path, '/courses');
+      expect(
+        router.routeInformationProvider.value.uri.queryParameters['course'],
+        'sat-math',
+      );
+      router.go(AppRoutes.topic('free'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: _navigationFinder(),
+          matching: find.text('Courses'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(router.routeInformationProvider.value.uri.path, '/courses');
+      expect(
+        router.routeInformationProvider.value.uri.queryParameters['course'],
+        'sat-math',
+      );
+      expect(slugs, ['sat-math']);
+    },
+  );
+
+  testWidgets(
+    'CRS-06: course map route passes query slug and replaces it on navigation',
+    (tester) async {
+      final slugs = <String?>[];
+      await registerFakeCourseMapCubit(onSlug: slugs.add);
+      final router = createRouter(initialLocation: '/courses?course=sat-math');
+      addTearDown(router.dispose);
+      await _pumpRouter(tester, router);
+      expect(slugs, ['sat-math']);
+      router.go('/courses?course=est-math');
+      await tester.pump();
+      await tester.pump();
+      expect(slugs, ['sat-math', 'est-math']);
+      router.go('/courses');
+      await tester.pump();
+      await tester.pump();
+      expect(slugs, ['sat-math', 'est-math']);
+      expect(
+        router.routeInformationProvider.value.uri.queryParameters['course'],
+        'est-math',
+      );
+    },
+  );
+
   setUp(registerReviewFakes);
   tearDown(unregisterReviewFakes);
   setUp(() {
@@ -289,7 +357,7 @@ void main() {
           ..page = const Failure(AppError(ErrorCodes.invalidInput));
         getIt
           ..registerFactory<CatalogueCubit>(() => CatalogueCubit(repo))
-          ..registerFactory<CoursePageCubit>(() => CoursePageCubit(repo));
+          ..registerFactory<CoursePageCubit>(() => coursePageCubit(repo));
         addTearDown(() async {
           await getIt.unregister<CatalogueCubit>();
           await getIt.unregister<CoursePageCubit>();

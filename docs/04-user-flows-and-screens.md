@@ -57,7 +57,7 @@ Dashboard (alerts: stuck, inactive, reports, escalations)
 |---|--------|-------|
 | S-10 | Onboarding: profile + target test + test date | Sets access window |
 | S-11 | Device limit screen | List devices, remove one |
-| S-12 | Home | Continue card, next deadline-free step, streak, upcoming live session |
+| S-12 | Home | Continue card, next deadline-free step, streak, upcoming live session. Beta (LRN-07, 2026-11-02): greeting, continue card, course progress, expiry banner; no streak or live session yet |
 | S-13 | My courses | SAT / EST cards, access expiry |
 | S-14 | Course map | Units → topics, lock states, progress rings |
 | S-15 | Topic page | 5-step stepper (Video, Notes, Practice, Homework, Quiz) |

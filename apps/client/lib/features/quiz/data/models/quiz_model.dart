@@ -37,6 +37,9 @@ QuizReport quizReportFromJson(Map<String, Object?> json, String attemptId) {
     scorePct: attemptJsonPercentage(json, 'score_pct'),
     passMark: passMark,
     passed: attemptJsonBool(json, 'passed'),
+    nextNeedsAccess:
+        json.containsKey('next_needs_access') &&
+        attemptJsonBool(json, 'next_needs_access'),
     nextTopic: nextTopic == null
         ? null
         : (

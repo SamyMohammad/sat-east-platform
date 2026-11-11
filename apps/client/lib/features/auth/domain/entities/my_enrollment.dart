@@ -2,12 +2,14 @@ import 'package:equatable/equatable.dart';
 
 final class MyEnrollment extends Equatable {
   const MyEnrollment({
+    required this.courseId,
     required this.courseTitle,
     required this.targetTestDate,
     required this.expiresAt,
     required this.isExpired,
   });
 
+  final String courseId;
   final String courseTitle;
   final DateTime? targetTestDate;
   final DateTime expiresAt;
@@ -15,6 +17,7 @@ final class MyEnrollment extends Equatable {
 
   @override
   List<Object?> get props => [
+    courseId,
     courseTitle,
     targetTestDate,
     expiresAt,

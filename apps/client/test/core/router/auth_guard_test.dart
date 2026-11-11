@@ -22,7 +22,9 @@ import 'package:sat_east_client/features/design_gallery/presentation/gallery_scr
 import 'package:sat_east_client/shared/widgets/app_splash.dart';
 
 import '../../features/auth/presentation/screens/auth_screen_harness.dart';
+
 import 'fake_course_map_cubit.dart';
+import 'fake_home_cubit.dart';
 
 const _user = AppUser(id: 'u1', email: 'a@b.co');
 const _device = Device(id: 'd1', platform: 'web', label: 'Chrome on Windows');
@@ -96,6 +98,8 @@ Future<GoRouter> _pump(
 }
 
 void main() {
+  setUp(registerFakeHomeCubit);
+  tearDown(unregisterFakeHomeCubit);
   setUp(registerFakeCourseMapCubit);
   tearDown(unregisterFakeCourseMapCubit);
 
