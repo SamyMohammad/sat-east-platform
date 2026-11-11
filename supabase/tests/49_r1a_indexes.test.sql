@@ -44,11 +44,12 @@ select is(
 );
 
 -- Purge: rows older than the keep window go, recent rows stay.
-insert into cron.job_run_details (jobid, job_pid, database, username, command, status, return_message, start_time, end_time)
+-- Explicit runid: postgres has no usage on cron.runid_seq. Negative ids never collide with real runs.
+insert into cron.job_run_details (runid, jobid, job_pid, database, username, command, status, return_message, start_time, end_time)
 values
-  (0, 0, 'postgres', 'postgres', 'r1a-purge-old', 'succeeded', 'ok',
+  (-1, 0, 0, 'postgres', 'postgres', 'r1a-purge-old', 'succeeded', 'ok',
    pg_catalog.now() - interval '8 days', pg_catalog.now() - interval '8 days'),
-  (0, 0, 'postgres', 'postgres', 'r1a-purge-recent', 'succeeded', 'ok',
+  (-2, 0, 0, 'postgres', 'postgres', 'r1a-purge-recent', 'succeeded', 'ok',
    pg_catalog.now() - interval '1 day', pg_catalog.now() - interval '1 day');
 
 select private.nightly_cleanup();
