@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
+import 'package:sat_east_client/core/attempts/data/hive_pending_answers.dart';
+import 'package:sat_east_client/core/attempts/pending_answers.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
 import 'package:sat_east_client/core/supabase/edge_caller.dart';
 import 'package:sat_east_client/core/supabase/rpc_caller.dart';
@@ -127,6 +129,7 @@ void configureDependencies({
   required AnalyticsService analytics,
   required Box<String> deviceBox,
   required Box<String> settingsBox,
+  required Box<String> pendingAnswersBox,
 }) {
   getIt
     ..registerLazySingleton<SupabaseClient>(() => Supabase.instance.client)
@@ -144,6 +147,12 @@ void configureDependencies({
     )
     ..registerSingleton<ErrorReporter>(errorReporter)
     ..registerSingleton<AnalyticsService>(analytics)
+    ..registerLazySingleton<PendingAnswers>(
+      () => HivePendingAnswers(
+        pendingAnswersBox,
+        reporter: getIt<ErrorReporter>(),
+      ),
+    )
     ..registerLazySingleton<ThemeModeStore>(
       () => ThemeModeStore(settingsBox, getIt<ErrorReporter>()),
     )
@@ -219,7 +228,12 @@ void configureDependencies({
       () => QuizRepositoryImpl(getIt<QuizRemoteDataSource>()),
     )
     ..registerFactory<QuizCubit>(
-      () => QuizCubit(getIt<QuizRepository>(), DateTime.now, defaultTicker),
+      () => QuizCubit(
+        getIt<QuizRepository>(),
+        DateTime.now,
+        defaultTicker,
+        getIt<PendingAnswers>(),
+      ),
     )
     ..registerLazySingleton<HomeworkRemoteDataSource>(
       () => HomeworkRemoteDataSource(getIt<RpcCaller>()),
@@ -232,6 +246,7 @@ void configureDependencies({
         getIt<HomeworkRepository>(),
         DateTime.now,
         defaultTicker,
+        getIt<PendingAnswers>(),
       ),
     )
     ..registerLazySingleton<AttemptReviewRemoteDataSource>(

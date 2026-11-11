@@ -20,6 +20,7 @@ void main() {
         analytics: const NoopAnalyticsService(),
         deviceBox: _Box(),
         settingsBox: _Box(),
+        pendingAnswersBox: _Box(),
       );
       final edge = getIt<EdgeCaller>(instanceName: edgeCallerInstanceName);
       final rpc = getIt<RpcCaller>();

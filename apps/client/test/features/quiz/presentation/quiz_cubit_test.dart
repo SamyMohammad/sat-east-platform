@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:sat_east_client/core/attempts/pending_answers.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
@@ -8,15 +9,19 @@ import 'package:sat_east_client/features/quiz/domain/repositories/quiz_repositor
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_cubit.dart';
 import 'package:sat_east_client/features/quiz/presentation/cubit/quiz_state.dart';
 
+import '../../../support/in_memory_pending_answers.dart';
+
 part 'quiz_autosave_cases.dart';
 part 'quiz_clock_cases.dart';
 part 'quiz_lifecycle_cases.dart';
+part 'quiz_outbox_cases.dart';
 part 'quiz_submit_cases.dart';
 
 void main() {
   _autosaveCases();
   _clockCases();
   _lifecycleCases();
+  _outboxCases();
   _submitCases();
 
   test('PRC-03: start loads the server session', () async {
@@ -90,14 +95,17 @@ void main() {
 }
 
 class _Harness {
-  _Harness() {
-    cubit = QuizCubit(repo, () => clock, (period) {
+  _Harness({PendingAnswers? pending, _Repository? repo})
+    : pending = pending ?? InMemoryPendingAnswers(),
+      repo = repo ?? _Repository() {
+    cubit = QuizCubit(this.repo, () => clock, (period) {
       expect(period, const Duration(seconds: 1));
       return ticks.stream;
-    });
+    }, this.pending);
   }
 
-  final repo = _Repository();
+  final _Repository repo;
+  final PendingAnswers pending;
   final ticks = StreamController<void>.broadcast(sync: true);
   DateTime clock = DateTime.utc(2026, 10, 17, 12);
   late final QuizCubit cubit;
