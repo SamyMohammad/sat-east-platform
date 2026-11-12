@@ -146,6 +146,14 @@ void main() {
       });
     }
 
+    test('MCK-03: mapPostgrestException keeps mock_form_published', () {
+      final error = mapPostgrestException(
+        const PostgrestException(message: 'mock_form_published'),
+      );
+      expect(error.code, ErrorCodes.mockFormPublished);
+      expect(ErrorCodes.mockFormPublished, 'mock_form_published');
+    });
+
     for (final code in ['not_enrolled', 'access_expired', 'topic_locked']) {
       test('L-1: mapPostgrestException keeps $code', () {
         expect(
