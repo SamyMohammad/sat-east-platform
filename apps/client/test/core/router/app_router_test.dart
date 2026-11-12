@@ -29,6 +29,8 @@ import 'package:sat_east_client/features/quiz/presentation/quiz_entry.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_screen.dart';
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_overview_cubit.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
@@ -42,6 +44,7 @@ import '../../features/auth/presentation/screens/auth_screen_harness.dart'
     as auth_screens;
 import '../../features/catalogue/catalogue_fixtures.dart';
 import '../../features/teacher/course_builder/builder_fixtures.dart';
+import '../../features/teacher/mock/mock_fakes.dart';
 import '../../features/teacher/notes/notes_fixtures.dart';
 import '../../features/teacher/questions/bank_fixtures.dart';
 import '../../features/teacher/questions/editor_fixtures.dart';
@@ -149,6 +152,12 @@ void main() {
           schedule: FakeBankScheduler().schedule,
         ),
       )
+      ..registerFactory<MockOverviewCubit>(
+        () => MockOverviewCubit(
+          FakeTeacherMockRepository(),
+          FindSatCourse(FakeBuilderRepository()),
+        ),
+      )
       ..registerFactory<QuestionEditorCubit>(
         () => QuestionEditorCubit(FakeEditorRepository(), FakeBankRepository()),
       );
@@ -160,6 +169,7 @@ void main() {
   tearDown(() => getIt.unregister<QuestionImportCubit>());
   tearDown(() => getIt.unregister<QuestionBankCubit>());
   tearDown(() => getIt.unregister<QuestionEditorCubit>());
+  tearDown(() => getIt.unregister<MockOverviewCubit>());
 
   for (final signedIn in [false, true]) {
     testWidgets('L-3: notes route requires sign-in: $signedIn', (tester) async {
@@ -203,6 +213,7 @@ void main() {
     '/teacher/courses/c1/topics/t1/notes',
     '/teacher/settings',
     '/teacher/review',
+    '/teacher/mock-exams',
     '/teacher/questions/import',
     '/teacher/questions',
     '/teacher/questions/new',
@@ -242,6 +253,7 @@ void main() {
           router.routeInformationProvider.value.uri.path,
           role == 'teacher'
               ? (path == '/teacher/review' ||
+                        path == '/teacher/mock-exams' ||
                         path == '/teacher/settings' ||
                         path.startsWith('/teacher/questions') ||
                         path.endsWith('/notes'))
@@ -256,6 +268,8 @@ void main() {
             find.text(
               path == '/teacher/review'
                   ? 'Review queue'
+                  : path == '/teacher/mock-exams'
+                  ? 'SAT mock exams'
                   : path == '/teacher/questions'
                   ? 'Question bank'
                   : (path == '/teacher/questions/new' ||

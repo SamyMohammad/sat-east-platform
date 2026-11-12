@@ -32,6 +32,7 @@ import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_s
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/skills/presentation/screens/skills_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_overview_screen.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/screens/teacher_notes_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_editor_screen.dart';
@@ -84,6 +85,9 @@ abstract final class AppRoutes {
       '/teacher/courses/$courseId/topics/$topicId/notes';
   static const teacherSettings = '/teacher/settings';
   static const teacherReview = '/teacher/review';
+  static const teacherMockExams = '/teacher/mock-exams';
+  static String teacherMockForm(int setNo, int formNo) =>
+      '$teacherMockExams/$setNo/$formNo';
   static const resetPassword = '/reset-password';
 }
 
@@ -173,6 +177,14 @@ GoRouter createRouter({
           context,
           key: state.pageKey,
           child: const TeacherShell(child: ReviewQueueScreen()),
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.teacherMockExams,
+        pageBuilder: (context, state) => fadeThroughPage(
+          context,
+          key: state.pageKey,
+          child: const TeacherShell(child: MockOverviewScreen()),
         ),
       ),
       GoRoute(

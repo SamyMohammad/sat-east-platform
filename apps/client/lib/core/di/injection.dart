@@ -68,6 +68,11 @@ import 'package:sat_east_client/features/teacher/course_builder/data/datasources
 import 'package:sat_east_client/features/teacher/course_builder/data/repositories/course_builder_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/course_builder/domain/repositories/course_builder_repository.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
+import 'package:sat_east_client/features/teacher/mock/data/datasources/teacher_mock_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/mock/data/repositories/teacher_mock_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/mock/domain/repositories/teacher_mock_repository.dart';
+import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_overview_cubit.dart';
 import 'package:sat_east_client/features/teacher/notes/data/datasources/teacher_notes_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/notes/data/repositories/teacher_notes_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/notes/data/services/pdfrx_page_counter.dart';
@@ -399,6 +404,23 @@ void configureDependencies({
       () => QuestionEditorCubit(
         getIt<QuestionEditorRepository>(),
         getIt<QuestionBankRepository>(),
+      ),
+    )
+    ..registerLazySingleton<TeacherMockRemoteDataSource>(
+      () => TeacherMockRemoteDataSource(
+        (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
+      ),
+    )
+    ..registerLazySingleton<TeacherMockRepository>(
+      () => TeacherMockRepositoryImpl(getIt<TeacherMockRemoteDataSource>()),
+    )
+    ..registerLazySingleton<FindSatCourse>(
+      () => FindSatCourse(getIt<CourseBuilderRepository>()),
+    )
+    ..registerFactory<MockOverviewCubit>(
+      () => MockOverviewCubit(
+        getIt<TeacherMockRepository>(),
+        getIt<FindSatCourse>(),
       ),
     )
     ..registerFactory<VideoPlayerCubit>(
