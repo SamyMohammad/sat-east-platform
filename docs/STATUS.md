@@ -2,11 +2,20 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-11-11
+> Last updated: 2026-11-12
 
-## Now — closed beta prep
+## Now — pre-beta build (owner, 2026-11-12)
 
-Code for the closed beta (activation codes, no Paymob) is done and staging-checked. What is left is setup and content.
+The first closed-beta slice (activation codes, no Paymob) is done and staging-checked. The owner widened the beta scope: the SAT mock, Ask AI and the small gaps ship before the first student. Web only. Scope, decisions and order: [pre-beta roadmap](superpowers/specs/2026-11-12-pre-beta-roadmap-design.md). Each project still gets its own brainstorm → spec → plan.
+
+| Lane | Projects, in order | State |
+|------|--------------------|-------|
+| A | SAT mock exam: assembly server → teacher review → exam screen → report | spec next |
+| B | Ask AI (free: Cloudflare Workers AI, Groq fallback) → review-set screen (S-23) → regrade after a key fix (student's favour only) | spec next |
+| C | PostHog NFR-18 events → staff course preview → intro video off YouTube → `register-device` Edge Function | spec next |
+| — | Desmos calculator on every question | on hold until Desmos answers on commercial use (owner writes to them) |
+
+Setup and content, in parallel:
 
 | Item | Owner | State |
 |------|-------|-------|
@@ -27,13 +36,13 @@ Review verdict: keep Supabase + Flutter (target is 2,000 students / 300 concurre
 | R1 — load | ~~R1a: FK indexes, expire-cron partial index, cron history purge~~ done (#81, #82). Per-row RLS rewrite dropped — the only direct `topic_assets` read filters by `topic_id`, so the index is the fix. R1b rate-limit rollback closed by design: Postgres has no autonomous transactions, the only fixes are a `dblink` loopback (DB password inside the DB) or rewriting ~18 RPCs, and the one guess-style RPC (`redeem_activation_code`) already returns errors; flood protection belongs at the edge. R1c k6 load test workflow (#83) — first runs pending the `STAGING_JWT_SECRET` secret | router |
 | R2 — video | Spike a managed provider (Bunny Stream, compare Cloudflare Stream): ABR, CDN, resumable upload from the teacher screen, Android/iOS playback, real cost. **Owner decides** whether to drop ADR-002's "$0 R2 bill" anti-goal; only then ADR-010, new provider, mobile player, migrate videos, remove `tools/video-pipeline` | user decides, router builds |
 | R3 — mobile release | Real Android release signing; iOS flavors + matching bundle ids; FLAG_SECURE + iOS capture blocking (SEC-03) | router |
-| R4 — structure | Declarative schema baseline; move table reads out of `core/di/injection.dart`; persistent answer outbox (docs say hive_ce, code is in-memory); integration tests + goldens on CI; fix doc drift (`docs/05` Riverpod, `docs/16` "private repo"); PostHog NFR-18 events | router |
+| R4 — structure | Declarative schema baseline; move table reads out of `core/di/injection.dart`; ~~persistent answer outbox~~ done (#84); integration tests + goldens on CI; fix doc drift (`docs/05` Riverpod, `docs/16` "private repo"); PostHog NFR-18 events | router |
 
 Later: blanket `authenticated` write grant on public tables (`f2_rls_policies.sql:9`); YouTube videos have no protection; content (R-01: 10 topics × 100 questions) is still the real critical path.
 
 ## Next — after launch
 
-Deferred for the closed beta (user, 2026-10-25): Paymob (P-2/P-3, blocked on Q-03), SMTP emails (Resend), coupons, live sessions, announcements, completion matrix (ANL-05), quiz spiral + difficulty blueprint, homework E/M/H blueprint, Google sign-in (A-1).
+Deferred for the closed beta (user, 2026-10-25), in the order chosen on 2026-11-12: (1) Paymob (P-2/P-3, blocked on Q-03), coupons, SMTP emails (Resend), Google sign-in (A-1); (2) live sessions, announcements, completion matrix (ANL-05); (3) quiz spiral + difficulty blueprint, homework E/M/H blueprint; (4) mobile release (R2, R3). Steps 2–4 are the router's proposed order.
 
 ### How we work (lanes)
 Up to 3 lanes at once, each in its own `git worktree` branched from `main` (never stacked). Each lane goes brainstorm → plan → Codex → review → PR.
@@ -70,6 +79,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| R4a | Persistent answer outbox for quiz and homework (hive_ce) | #84 |
 | R1a | 47 FK indexes + pgTAP FK-index invariant, `attempts_quiz_in_progress_idx`, nightly purge of `cron.job_run_details` (`cron_history_keep_days`) (NFR-01/02) | #81, #82 |
 | P1 | Student Home (LRN-07): continue card with the next step, course progress, access-expiry banner from `access_expiry_warn_days`; bell hidden | #76, #77 |
 | P1 | Free topic preview without an enrolment (CRS-06): server, then course page, preview map and activation prompt | #70, #71 |
