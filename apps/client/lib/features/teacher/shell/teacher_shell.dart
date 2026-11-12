@@ -111,6 +111,9 @@ class _TeacherNavigation extends StatelessWidget {
     final questionsSelected =
         GoRouter.maybeOf(context) != null &&
         GoRouterState.of(context).uri.path.startsWith('/teacher/questions');
+    final mockSelected =
+        GoRouter.maybeOf(context) != null &&
+        GoRouterState.of(context).uri.path.startsWith('/teacher/mock-exams');
     return Material(
       color: context.appColors.surface,
       child: ListView(
@@ -133,7 +136,10 @@ class _TeacherNavigation extends StatelessWidget {
           ),
           _NavTile(
             selected:
-                !settingsSelected && !questionsSelected && !reviewSelected,
+                !settingsSelected &&
+                !questionsSelected &&
+                !reviewSelected &&
+                !mockSelected,
             icon: AppIcons.courseBuilder,
             title: 'Course builder',
             onTap: () => _go(context, '/teacher'),
@@ -149,6 +155,12 @@ class _TeacherNavigation extends StatelessWidget {
             icon: AppIcons.quiz,
             title: 'Questions',
             onTap: () => _go(context, '/teacher/questions'),
+          ),
+          _NavTile(
+            selected: mockSelected,
+            icon: AppIcons.mockExams,
+            title: 'Mock exams',
+            onTap: () => _go(context, '/teacher/mock-exams'),
           ),
           _NavTile(
             selected: reviewSelected,

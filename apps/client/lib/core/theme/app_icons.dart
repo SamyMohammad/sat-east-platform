@@ -23,6 +23,7 @@ abstract final class AppIcons {
   static const IconData courses = LucideIcons.bookOpen;
   static const IconData profile = LucideIcons.user;
   static const IconData mockExams = LucideIcons.timer;
+  static const IconData swap = LucideIcons.arrowLeftRight;
   static const IconData notifications = LucideIcons.bell;
   static const IconData unsynced = LucideIcons.cloudOff;
   static const IconData error = LucideIcons.circleAlert;

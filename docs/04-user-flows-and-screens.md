@@ -98,7 +98,7 @@ Dashboard (alerts: stuck, inactive, reports, escalations)
 | T-11 | Class insights | Hardest questions, wrong-option stats, stuck students |
 | T-12 | AI escalations inbox | Reply / add to live session |
 | T-13 | Live sessions manager | Schedule, attach recording |
-| T-14 | Mock templates & mock sets | Blueprint config, generate set |
+| T-14 | Mock templates & mock sets | Blueprint config, generate set. Built (MCK-03, `/teacher/mock-exams`): readiness / shortage report, forms list, assemble a form per set; form detail `/teacher/mock-exams/:set/:form` with preview, swap, delete draft, publish. Blueprint is read-only (changed by migration) |
 | T-15 | Coupons & activation codes | |
 | T-16 | Announcements | |
 | T-17 | Settings | Pass mark, cooldown, device limit, access window, pool split |

@@ -7,8 +7,14 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:sat_east_client/core/di/injection.dart';
+import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_cubit.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_overview_cubit.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_form_screen.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_overview_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
@@ -19,6 +25,7 @@ import 'package:sat_east_client/features/teacher/settings/presentation/screens/t
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
 
 import '../../../features/teacher/course_builder/builder_fixtures.dart';
+import '../../../features/teacher/mock/mock_fakes.dart';
 import '../../../features/teacher/questions/bank_fixtures.dart';
 import '../../../features/teacher/questions/editor_fixtures.dart';
 import '../../../features/teacher/review/review_fixtures.dart';
@@ -33,8 +40,20 @@ void main() {
   );
   tearDown(unregisterReviewFakes);
   for (final brightness in Brightness.values) {
-    for (final surface in ['builder', 'review', 'settings', 'bank', 'editor']) {
-      final widths = surface == 'builder' || surface == 'bank'
+    for (final surface in [
+      'builder',
+      'review',
+      'settings',
+      'bank',
+      'editor',
+      'mock',
+      'mockform',
+    ]) {
+      final widths =
+          surface == 'builder' ||
+              surface == 'bank' ||
+              surface == 'mock' ||
+              surface == 'mockform'
           ? [360.0, 1280.0]
           : [1280.0];
       for (final width in widths) {
@@ -89,6 +108,34 @@ void main() {
               addTearDown(() => getIt.unregister<QuestionEditorCubit>());
               body = const QuestionEditorScreen(questionId: 'q1');
               location = '/teacher/questions/q1';
+            case 'mock':
+              final cubit = MockOverviewCubit(
+                FakeTeacherMockRepository()
+                  ..overviewResult = Success(shortOverview),
+                FindSatCourse(FakeBuilderRepository()),
+              );
+              addTearDown(cubit.close);
+              await cubit.load();
+              body = BlocProvider.value(
+                value: cubit,
+                child: const MockOverviewView(),
+              );
+              location = '/teacher/mock-exams';
+            case 'mockform':
+              final cubit = MockFormCubit(
+                FakeTeacherMockRepository(),
+                FakeEditorRepository(),
+                FindSatCourse(FakeBuilderRepository()),
+                setNo: 1,
+                formNo: 2,
+              );
+              addTearDown(cubit.close);
+              await cubit.load();
+              body = BlocProvider.value(
+                value: cubit,
+                child: const MockFormView(),
+              );
+              location = '/teacher/mock-exams/1/2';
           }
           await expectFeatureGolden(
             tester,

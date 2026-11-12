@@ -25,6 +25,7 @@ abstract final class ErrorCodes {
   static const codeInvalid = 'code_invalid';
   static const codeUsed = 'code_used';
   static const alreadyEnrolled = 'already_enrolled';
+  static const mockFormPublished = 'mock_form_published';
 
   // Client-only (GoTrue / transport).
   static const invalidCredentials = 'invalid_credentials';
@@ -70,6 +71,7 @@ abstract final class ErrorCodes {
     codeInvalid,
     codeUsed,
     alreadyEnrolled,
+    mockFormPublished,
   };
 
   /// Whether [code] is a `docs/07` §9 server code.

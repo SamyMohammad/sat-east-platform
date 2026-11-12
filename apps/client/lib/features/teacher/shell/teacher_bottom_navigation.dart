@@ -9,13 +9,15 @@ const List<(String, IconData, String)> teacherDestinations = [
   ('Course builder', AppIcons.courseBuilder, '/teacher'),
   ('Settings', AppIcons.settings, '/teacher/settings'),
   ('Questions', AppIcons.quiz, '/teacher/questions'),
+  ('Mock exams', AppIcons.mockExams, '/teacher/mock-exams'),
   ('Review', AppIcons.reviewQueue, '/teacher/review'),
 ];
 
 int teacherDestinationIndex(String path) {
   if (path.startsWith('/teacher/settings')) return 1;
   if (path.startsWith('/teacher/questions')) return 2;
-  if (path.startsWith('/teacher/review')) return 3;
+  if (path.startsWith('/teacher/mock-exams')) return 3;
+  if (path.startsWith('/teacher/review')) return 4;
   return 0;
 }
 
@@ -104,10 +106,8 @@ class _TeacherNavItem extends StatelessWidget {
           child: AnimatedContainer(
             duration: AppMotion.resolve(context, AppMotion.state),
             constraints: const BoxConstraints(minHeight: AppSize.touchTarget),
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSpace.s1,
-              vertical: AppSpace.s2,
-            ),
+            // No side padding: five labels must fit 360 px ("Questions").
+            padding: const EdgeInsets.symmetric(vertical: AppSpace.s2),
             decoration: BoxDecoration(
               color: selected ? colors.raised : Colors.transparent,
               borderRadius: BorderRadius.circular(AppRadius.control),
