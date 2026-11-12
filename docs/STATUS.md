@@ -10,7 +10,7 @@ The first closed-beta slice (activation codes, no Paymob) is done and staging-ch
 
 | Lane | Projects, in order | State |
 |------|--------------------|-------|
-| A | SAT mock exam ([spec](superpowers/specs/2026-11-12-mock-sat-design.md)): assembly server → teacher review → exam screen → report | part 1 assembly server in review (#87); part 2 teacher screen next |
+| A | SAT mock exam ([spec](superpowers/specs/2026-11-12-mock-sat-design.md)): assembly server → teacher review → exam screen → report | part 1 assembly server done (#87, staging-checked); part 2 teacher screen in review (#88); part 3 exam engine + screen next |
 | B | Ask AI (free: Cloudflare Workers AI, Groq fallback) → review-set screen (S-23) → regrade after a key fix (student's favour only) | spec next |
 | C | PostHog NFR-18 events → staff course preview → intro video off YouTube → `register-device` Edge Function | spec next |
 | — | Desmos calculator on every question | on hold until Desmos answers on commercial use (owner writes to them) |

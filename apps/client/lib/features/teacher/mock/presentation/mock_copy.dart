@@ -83,3 +83,55 @@ String mockDateLabel(DateTime at) {
 }
 
 String mockPublishedLine(DateTime at) => 'Published ${mockDateLabel(at)}';
+
+const mockFormMissingTitle = 'This form no longer exists';
+const mockFormMissingMessage =
+    'It may have been deleted. Go back to the forms list.';
+const mockBackToList = 'Back to mock exams';
+const mockAllForms = 'All forms';
+const mockNoDomain = 'No domain';
+const mockNoReference = 'No reference';
+const mockStaleMarker = 'Changed since assembly';
+const mockPublishedReadOnly = 'This form is published and read-only.';
+const mockSwapTooltip = 'Swap question';
+const mockSwapTitle = 'Swap question';
+const mockNoCandidates = 'No other question fits this slot';
+const mockPublishLabel = 'Publish';
+const mockDeleteLabel = 'Delete draft';
+const mockPreviewTitle = 'Question preview';
+const mockClosePreview = 'Close preview';
+
+String mockModuleTitle(String name) => switch (name) {
+  'M1' => 'Module 1',
+  'M2E' => 'Module 2 (easier)',
+  'M2H' => 'Module 2 (harder)',
+  _ => name,
+};
+
+String mockStaleBanner(int n) => n == 1
+    ? '1 question changed since assembly. Swap it, then publish again.'
+    : '$n questions changed since assembly. Swap them, then publish again.';
+
+String mockSlotLabel(int slotNo) => 'Slot $slotNo';
+
+String mockSlotDetail(MockSlot slot) =>
+    '${slot.domain == null ? mockNoDomain : mockHumanize(slot.domain!)} · '
+    '${mockHumanize(slot.difficulty)} · ${slot.type.toUpperCase()}';
+
+String mockStemLine(String stemMd) => stemMd
+    .split('\n')
+    .map((l) => l.trim())
+    .firstWhere((l) => l.isNotEmpty, orElse: () => '');
+
+const mockDeleteTitle = 'Delete draft';
+String mockDeleteBody(int setNo, int formNo) =>
+    'Delete ${mockFormTitle(setNo, formNo)}? Its questions become available '
+    "again. This can't be undone.";
+const mockPublishTitle = 'Publish form';
+String mockPublishBody(int setNo, int formNo) =>
+    'Publish ${mockFormTitle(setNo, formNo)}? '
+    "A published form can't be edited or unpublished.";
+const mockSwapConfirmTitle = 'Swap question';
+String mockSwapConfirmBody(String oldRef, String newRef) =>
+    'Replace $oldRef with $newRef in this slot?';
+const mockSwapConfirmLabel = 'Swap';

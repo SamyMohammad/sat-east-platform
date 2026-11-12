@@ -11,7 +11,9 @@ import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_cubit.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_overview_cubit.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_form_screen.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_overview_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
@@ -45,9 +47,13 @@ void main() {
       'bank',
       'editor',
       'mock',
+      'mockform',
     ]) {
       final widths =
-          surface == 'builder' || surface == 'bank' || surface == 'mock'
+          surface == 'builder' ||
+              surface == 'bank' ||
+              surface == 'mock' ||
+              surface == 'mockform'
           ? [360.0, 1280.0]
           : [1280.0];
       for (final width in widths) {
@@ -115,6 +121,21 @@ void main() {
                 child: const MockOverviewView(),
               );
               location = '/teacher/mock-exams';
+            case 'mockform':
+              final cubit = MockFormCubit(
+                FakeTeacherMockRepository(),
+                FakeEditorRepository(),
+                FindSatCourse(FakeBuilderRepository()),
+                setNo: 1,
+                formNo: 2,
+              );
+              addTearDown(cubit.close);
+              await cubit.load();
+              body = BlocProvider.value(
+                value: cubit,
+                child: const MockFormView(),
+              );
+              location = '/teacher/mock-exams/1/2';
           }
           await expectFeatureGolden(
             tester,

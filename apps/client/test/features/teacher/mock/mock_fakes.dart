@@ -9,13 +9,25 @@ final MockOverview readyOverview = mockOverviewFromJson(overviewJson());
 final MockOverview shortOverview = mockOverviewFromJson(
   overviewJson(missing: [shortageCellJson()], noDomain: 3),
 );
+final MockForm draftForm = mockFormFromJson(formJson());
+final MockForm publishedForm = mockFormFromJson(formJson(status: 'published'));
+final List<MockCandidate> candidateList = mockCandidatesFromJson(
+  candidatesJson(),
+);
 
 class FakeTeacherMockRepository implements TeacherMockRepository {
   Result<MockOverview> overviewResult = Success(readyOverview);
   Result<AssembleResult> assembleResult = const Success(
     Assembled(setNo: 1, formNo: 3),
   );
+  Result<MockForm> formResult = Success(draftForm);
+  Result<List<MockCandidate>> candidatesResult = Success(candidateList);
+  Result<void> swapResult = const Success(null);
+  Result<void> deleteResult = const Success(null);
+  Result<PublishResult> publishResult = const Success(Published());
   final calls = <(String, List<Object?>)>[];
+
+  int count(String name) => calls.where((c) => c.$1 == name).length;
 
   @override
   Future<Result<MockOverview>> overview(String courseId) async {
@@ -30,8 +42,10 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
   }
 
   @override
-  Future<Result<MockForm>> form(String courseId, int setNo, int formNo) async =>
-      Success(mockFormFromJson(formJson()));
+  Future<Result<MockForm>> form(String courseId, int setNo, int formNo) async {
+    calls.add(('form', [courseId, setNo, formNo]));
+    return formResult;
+  }
 
   @override
   Future<Result<List<MockCandidate>>> candidates(
@@ -39,7 +53,10 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
     int setNo,
     int formNo,
     String questionId,
-  ) async => const Success([]);
+  ) async {
+    calls.add(('candidates', [courseId, setNo, formNo, questionId]));
+    return candidatesResult;
+  }
 
   @override
   Future<Result<void>> swap(
@@ -48,19 +65,28 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
     int formNo,
     String oldId,
     String newId,
-  ) async => const Success(null);
+  ) async {
+    calls.add(('swap', [courseId, setNo, formNo, oldId, newId]));
+    return swapResult;
+  }
 
   @override
   Future<Result<void>> deleteDraft(
     String courseId,
     int setNo,
     int formNo,
-  ) async => const Success(null);
+  ) async {
+    calls.add(('delete', [courseId, setNo, formNo]));
+    return deleteResult;
+  }
 
   @override
   Future<Result<PublishResult>> publish(
     String courseId,
     int setNo,
     int formNo,
-  ) async => const Success(Published());
+  ) async {
+    calls.add(('publish', [courseId, setNo, formNo]));
+    return publishResult;
+  }
 }

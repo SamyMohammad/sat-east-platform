@@ -72,6 +72,7 @@ import 'package:sat_east_client/features/teacher/mock/data/datasources/teacher_m
 import 'package:sat_east_client/features/teacher/mock/data/repositories/teacher_mock_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/repositories/teacher_mock_repository.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_cubit.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_overview_cubit.dart';
 import 'package:sat_east_client/features/teacher/notes/data/datasources/teacher_notes_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/notes/data/repositories/teacher_notes_repository_impl.dart';
@@ -421,6 +422,15 @@ void configureDependencies({
       () => MockOverviewCubit(
         getIt<TeacherMockRepository>(),
         getIt<FindSatCourse>(),
+      ),
+    )
+    ..registerFactoryParam<MockFormCubit, ({int setNo, int formNo}), void>(
+      (key, _) => MockFormCubit(
+        getIt<TeacherMockRepository>(),
+        getIt<QuestionEditorRepository>(),
+        getIt<FindSatCourse>(),
+        setNo: key.setNo,
+        formNo: key.formNo,
       ),
     )
     ..registerFactory<VideoPlayerCubit>(

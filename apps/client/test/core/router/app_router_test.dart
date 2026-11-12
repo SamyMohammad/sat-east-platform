@@ -30,6 +30,7 @@ import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_s
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/cubit/course_builder_cubit.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_cubit.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_overview_cubit.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teacher_notes_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
@@ -158,6 +159,15 @@ void main() {
           FindSatCourse(FakeBuilderRepository()),
         ),
       )
+      ..registerFactoryParam<MockFormCubit, ({int setNo, int formNo}), void>(
+        (key, _) => MockFormCubit(
+          FakeTeacherMockRepository(),
+          FakeEditorRepository(),
+          FindSatCourse(FakeBuilderRepository()),
+          setNo: key.setNo,
+          formNo: key.formNo,
+        ),
+      )
       ..registerFactory<QuestionEditorCubit>(
         () => QuestionEditorCubit(FakeEditorRepository(), FakeBankRepository()),
       );
@@ -170,6 +180,7 @@ void main() {
   tearDown(() => getIt.unregister<QuestionBankCubit>());
   tearDown(() => getIt.unregister<QuestionEditorCubit>());
   tearDown(() => getIt.unregister<MockOverviewCubit>());
+  tearDown(() => getIt.unregister<MockFormCubit>());
 
   for (final signedIn in [false, true]) {
     testWidgets('L-3: notes route requires sign-in: $signedIn', (tester) async {
@@ -214,6 +225,8 @@ void main() {
     '/teacher/settings',
     '/teacher/review',
     '/teacher/mock-exams',
+    '/teacher/mock-exams/1/2',
+    '/teacher/mock-exams/x/0',
     '/teacher/questions/import',
     '/teacher/questions',
     '/teacher/questions/new',
@@ -253,7 +266,7 @@ void main() {
           router.routeInformationProvider.value.uri.path,
           role == 'teacher'
               ? (path == '/teacher/review' ||
-                        path == '/teacher/mock-exams' ||
+                        path.startsWith('/teacher/mock-exams') ||
                         path == '/teacher/settings' ||
                         path.startsWith('/teacher/questions') ||
                         path.endsWith('/notes'))
@@ -270,6 +283,10 @@ void main() {
                   ? 'Review queue'
                   : path == '/teacher/mock-exams'
                   ? 'SAT mock exams'
+                  : path == '/teacher/mock-exams/1/2'
+                  ? 'Set 1 · Form 2'
+                  : path == '/teacher/mock-exams/x/0'
+                  ? 'This form no longer exists'
                   : path == '/teacher/questions'
                   ? 'Question bank'
                   : (path == '/teacher/questions/new' ||

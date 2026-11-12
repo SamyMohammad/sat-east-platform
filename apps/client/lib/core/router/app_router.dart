@@ -32,6 +32,7 @@ import 'package:sat_east_client/features/quiz/presentation/screens/quiz_result_s
 import 'package:sat_east_client/features/quiz/presentation/screens/quiz_screen.dart';
 import 'package:sat_east_client/features/skills/presentation/screens/skills_screen.dart';
 import 'package:sat_east_client/features/teacher/course_builder/presentation/screens/course_builder_screen.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_form_screen.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_overview_screen.dart';
 import 'package:sat_east_client/features/teacher/notes/presentation/screens/teacher_notes_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
@@ -185,6 +186,19 @@ GoRouter createRouter({
           context,
           key: state.pageKey,
           child: const TeacherShell(child: MockOverviewScreen()),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.teacherMockExams}/:setNo/:formNo',
+        pageBuilder: (context, state) => sharedAxisPage(
+          context,
+          key: state.pageKey,
+          child: TeacherShell(
+            child: MockFormScreen(
+              setNo: state.pathParameters['setNo']!,
+              formNo: state.pathParameters['formNo']!,
+            ),
+          ),
         ),
       ),
       GoRoute(
