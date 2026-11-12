@@ -82,6 +82,9 @@ SPR key: `"key": {"accepted": ["7/2", "3.5"], "tolerance": 0}`.
 ## 4. Skill taxonomy
 
 - Codes: `DOMAIN.TOPIC.SKILL`, e.g. `ALG.LIN.SLOPE`, `ADV.QUAD.VERTEX_FORM`, `PSD.STAT.MEAN_MEDIAN`, `GEO.TRIG.RIGHT_TRIANGLE`.
+- SAT skills must use exactly these `domain` values: `Algebra`, `Advanced Math`, `PSDA`,
+  `Geometry & Trig`. Mock assembly (08 §3) only counts a skill toward a blueprint domain when its
+  `domain` matches one of these strings exactly.
 - The teacher approves the list of topics → subtopics → skills **before** bulk tagging
   (deliverable `content/taxonomy.csv`). Tagging quality determines analytics quality.
 

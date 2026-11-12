@@ -69,6 +69,13 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `teacher_list_question_reports` | p_question_id uuid | `[{report_id,reason,note,created_at,full_name}]` | C-6 / T-08; teacher only; open reports only, oldest first then report id; full_name is the reporting student's profile name; unknown question raises invalid_input |
 | `teacher_resolve_reports` | p_question_id uuid, p_outcome text, p_note text | `{closed:n}` | C-6 / T-08; teacher only; fixed or dismissed; closes all and only the question's open reports, records resolved_at/resolved_by/teacher_note; leaves question status unchanged; one question_reports.resolve audit row with only outcome and closed count |
 | `teacher_review_counts` | none | `{reported,needs_review}` | C-6 / QB-08 / T-08; teacher only; reported counts questions with open reports; needs_review counts questions with that status, including those without reports; a question may appear in both tabs |
+| `teacher_mock_overview` | p_course_id uuid | `{template:{id,name,blueprint},need_per_form:[{domain,difficulty,type,count}],forms:[{set_no,form_no,status,published_at}],next_form:{missing,no_domain}}` | MCK-03; teacher only; creates the course's SAT template on first call; `need_per_form` computed from the blueprint slots (08 §3); `missing` as in `teacher_assemble_mock_form`; non-SAT or null course: `invalid_input` |
+| `teacher_assemble_mock_form` | p_course_id uuid, p_set_no int | `{ok:true,set_no,form_no}` or `{ok:false,missing:[{domain,difficulty,type,needed,available,modules}],no_domain}` | MCK-03; teacher only; builds a draft form (M1, M2E, M2H = 66 questions) from the template blueprint, random pick per cell, `form_no` = max in the set + 1; shortage is returned, nothing inserted; `no_domain` = published mock_reserve questions without exactly one blueprint domain; `p_set_no` null or < 1: `invalid_input`; per-template advisory lock |
+| `teacher_get_mock_form` | p_course_id uuid, p_set_no int, p_form_no int | `{set_no,form_no,status,published_at,modules:[{module,questions:[{slot_no,id,external_ref,type,difficulty,domain,stem_md}]}]}` | MCK-03; teacher only; modules M1, M2E, M2H, questions in slot order; no key, explanation or choices (preview via `teacher_get_question`); unknown form: `invalid_input` |
+| `teacher_mock_swap_candidates` | p_course_id uuid, p_set_no int, p_form_no int, p_question_id uuid | `[{id,external_ref,stem_md}]` | MCK-03; teacher only; unused eligible questions of the slot's cell (from the blueprint slot, not the question's current attributes), ordered by `external_ref`; question not in the form: `invalid_input` |
+| `teacher_swap_mock_question` | p_course_id uuid, p_set_no int, p_form_no int, p_old_id uuid, p_new_id uuid | `{ok:true}` | MCK-03; teacher only; replaces `p_old_id` in the same module and slot; `p_new_id` must be an unused eligible question of the slot's cell else `invalid_input`; published form: `mock_form_published` |
+| `teacher_delete_mock_draft` | p_course_id uuid, p_set_no int, p_form_no int | `{ok:true}` | MCK-03; teacher only; deletes the form's three rows, freeing its questions; unknown form: `invalid_input`; published form: `mock_form_published` |
+| `teacher_publish_mock_form` | p_course_id uuid, p_set_no int, p_form_no int | `{ok:true}` or `{ok:false,stale:[question ids]}` | MCK-03; teacher only; re-checks all 66 questions (published mock_reserve, one blueprint domain, still in their slot's cell); stale ids in module then slot order, nothing changes; else status `published` and one `published_at` on the three rows; already published: `mock_form_published` |
 
 Teacher-only `teacher_*` RPCs may read/write keys for the teacher only.
 
@@ -99,7 +106,7 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `teacher/video-delete` | Planned L-2a EF: POST /api/teacher/video-delete {asset_id}; JWT → caller teacher_video_prefix → R2 list/delete under prefix → caller teacher_delete_video; R2 failure returns internal and preserves DB row for retry; CORS |
 | `teacher/video-upload-urls` | POST /api/teacher/video-upload-urls {asset_id,files}; JWT, UUID and 1-2000 unique file names validated before caller teacher_video_upload_grant; names match `^[A-Za-z0-9_-]{1,64}\.(m3u8\|ts)$` and include master.m3u8; returns `{urls:{file:url},expires_in}` with presigned PUT URLs beneath the granted prefix and configured TTL; teacher CORS, no-store; storage secrets remain server-side |
 | `pdf-url` | Check access; return Storage signed URL (TTL 5 min). Client downloads once and opens from memory. Optional per-student stamp (short id, not name) streamed by the EF — see `docs/spikes/2026-10-08-pdf-viewer.md` |
-| `assemble-mock` | Build mock forms for a template + set_no (teacher) or pick next unseen form for a student |
+| `assemble-mock` | Planned (MCK-04): pick the student's next unseen published form. Teacher assembly is the `teacher_*_mock_*` RPCs in §1.1 |
 | `ai-tutor` | Grounded LLM answer (see §6) |
 | `import-questions` | Validate and upsert pipeline JSON (teacher) |
 | `send-email` | Templates via Resend |
@@ -263,6 +270,7 @@ log everything for teacher review.
 
 ## 9. Error codes
 `version_conflict` (question changed since loading; reload before saving),
+`mock_form_published` (swap, delete or publish on an already published mock form),
 `in_use` (course-builder deletion blocked by children or FK references),
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
 `video_needed` (a ready video is below settings.video_done_pct; exempt when practice_count >= settings.practice_min or quiz_passed_at is set; checked before notes_needed),

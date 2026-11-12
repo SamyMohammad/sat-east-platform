@@ -17,13 +17,13 @@ begin
   if n <> 1 then raise exception 'check 1: expected 1 published demo course, got %', n; end if;
   select count(*) into n from public.topics where course_id = c and is_published;
   if n <> 3 then raise exception 'check 1: expected 3 published demo topics, got %', n; end if;
-  select count(*) into n from public.subtopics st join public.topics t on t.id = st.topic_id where t.course_id = c;
+  select count(*) into n from public.subtopics st join public.topics t on t.id = st.topic_id where t.course_id = c and t.is_published;
   if n <> 3 then raise exception 'check 1: expected 3 demo subtopics, got %', n; end if;
   select count(*) into n from public.skills where code like 'DEMO.%';
-  if n <> 6 then raise exception 'check 1: expected 6 demo skills, got %', n; end if;
+  if n <> 10 then raise exception 'check 1: expected 10 demo skills (6 topic + 4 mock), got %', n; end if;
 
   -- 2. Per topic: 12 practice + 12 quiz, all published, source demo
-  for r in select id, slug from public.topics where course_id = c loop
+  for r in select id, slug from public.topics where course_id = c and is_published loop
     select count(*) into n from public.questions
       where topic_id = r.id and pool = 'practice' and status = 'published' and source = 'demo';
     if n <> 12 then raise exception 'check 2: topic % has % published practice questions, expected 12', r.slug, n; end if;
@@ -157,6 +157,60 @@ begin
   if n <> 0 then raise exception 'check 7: test profile residue after cleanup'; end if;
   select count(*) into n from public.enrollments where user_id = v_user;
   if n <> 0 then raise exception 'check 7: test enrolment residue after cleanup'; end if;
+
+  -- 11. Mock bank (40_mock_reserve.sql): lives on an unpublished topic, so students never see it
+  select count(*) into n from public.topics where course_id = c and not is_published;
+  if n <> 1 then raise exception 'check 11: expected 1 unpublished mock topic, got %', n; end if;
+  select count(*) into n from public.questions q join public.topics t on t.id = q.topic_id
+    where q.source = 'demo-mock' and t.is_published;
+  if n <> 0 then raise exception 'check 11: % mock questions sit on a published topic', n; end if;
+  -- (continued) Mock bank (40_mock_reserve.sql): one form plus one spare per cell, 85 questions
+  select count(*) into n from public.questions where source = 'demo-mock';
+  if n <> 85 then raise exception 'check 11: expected 85 demo mock questions, got %', n; end if;
+  select count(*) into n from public.questions
+    where source = 'demo-mock' and external_ref like 'DEMO-MOCK-%' and pool = 'mock_reserve' and status = 'published';
+  if n <> 85 then raise exception 'check 11: % of 85 mock questions are published mock_reserve with a DEMO-MOCK ref', n; end if;
+  select count(*) - count(distinct stem_md) into n from public.questions where source = 'demo-mock';
+  if n <> 0 then raise exception 'check 11: % duplicate stems among the mock questions', n; end if;
+  for r in
+    select q.id, k.correct_answer,
+           (select array_agg(label::text order by label) from public.question_choices ch where ch.question_id = q.id) as labels,
+           (select count(distinct ch.body_md) from public.question_choices ch where ch.question_id = q.id) as distinct_bodies
+    from public.questions q join private.question_keys k on k.question_id = q.id
+    where q.source = 'demo-mock' and q.type = 'mcq'
+  loop
+    if r.labels is distinct from array['A','B','C','D'] or r.distinct_bodies <> 4 then
+      raise exception 'check 11: mock MCQ % needs four distinct choices A-D', r.id;
+    end if;
+    if not ((r.correct_answer ->> 'choice') = any (r.labels)) then
+      raise exception 'check 11: mock MCQ % key % is not one of its choices', r.id, r.correct_answer;
+    end if;
+  end loop;
+  select count(distinct k.correct_answer ->> 'choice') into n
+    from public.questions q join private.question_keys k on k.question_id = q.id
+    where q.source = 'demo-mock' and q.type = 'mcq';
+  if n < 2 then raise exception 'check 11: the correct letter never varies'; end if;
+  for r in
+    select q.id, k.correct_answer
+    from public.questions q join private.question_keys k on k.question_id = q.id
+    where q.source = 'demo-mock' and q.type = 'spr'
+  loop
+    for s in select jsonb_array_elements_text(r.correct_answer -> 'accepted') loop
+      if not private.grade_spr(s, r.correct_answer) then
+        raise exception 'check 11: mock SPR % key "%" does not grade true', r.id, s;
+      end if;
+    end loop;
+  end loop;
+  select count(*) into n from public.questions q
+    join private.question_keys k on k.question_id = q.id
+    where q.source = 'demo-mock' and (btrim(coalesce(k.explanation_md, '')) = ''
+      or concat_ws(' ', q.stem_md, k.explanation_md) ~ '\$'
+      or concat_ws(' ', q.stem_md, k.explanation_md) ~ U&'[\0600-\06FF\0750-\077F\08A0-\08FF\FB50-\FDFF\FE70-\FEFF]');
+  if n <> 0 then raise exception 'check 11: % mock questions lack an explanation, use $, or contain non-English text', n; end if;
+  -- The bank must supply one full form (mock_template_for creates the SAT template row; intended).
+  if private.mock_shortage(private.mock_template_for(c)) <> '[]'::jsonb then
+    raise exception 'check 11: mock bank cannot supply one form: %', private.mock_shortage(private.mock_template_for(c));
+  end if;
 
   raise notice 'demo seed OK';
 end;

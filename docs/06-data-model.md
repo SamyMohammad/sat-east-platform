@@ -35,7 +35,7 @@ questions 1─* question_choices           questions *─* question_skills *─1
 profiles 1─* attempts 1─* attempt_answers *─1 questions
 profiles 1─* topic_progress *─1 topics
 profiles 1─* skill_mastery *─1 skills
-mock_templates 1─* mock_forms (M1, M2E, M2H) ; attempts(kind=mock) ─ mock_forms
+mock_templates 1─* mock_forms (M1, M2E, M2H) ; attempts(kind=mock_module) ─ mock_forms
 profiles 1─* ai_threads 1─* ai_messages ; ai_threads ─ escalations
 orders 1─1 enrollments ; coupons ; activation_codes
 live_sessions ; announcements ; notifications ; settings ; question_reports ; audit_log
@@ -208,7 +208,9 @@ mock_templates(id uuid pk, course_id fk, name text, adaptive bool,
   blueprint jsonb)            -- see 08 §3
 mock_forms(id uuid pk, template_id fk, set_no int, form_no int,
   module text check (module in ('M1','M2E','M2H','EST1','EST2')),
-  question_ids uuid[], created_at)
+  question_ids uuid[], created_at,
+  status text default 'draft' check (status in ('draft','published')),  -- same on a form's three rows
+  published_at timestamptz)   -- set once, identical on the three rows; published forms are frozen
 mock_results(id uuid pk, user_id fk, template_id fk, group_id uuid,
   route text, raw_m1 int, raw_m2 int, est_low int, est_high int,
   domain_breakdown jsonb, created_at)
