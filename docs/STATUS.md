@@ -10,7 +10,7 @@ The first closed-beta slice (activation codes, no Paymob) is done and staging-ch
 
 | Lane | Projects, in order | State |
 |------|--------------------|-------|
-| A | SAT mock exam: assembly server → teacher review → exam screen → report | spec next |
+| A | SAT mock exam ([spec](superpowers/specs/2026-11-12-mock-sat-design.md)): assembly server → teacher review → exam screen → report | part 1 assembly server in review (#87); part 2 teacher screen next |
 | B | Ask AI (free: Cloudflare Workers AI, Groq fallback) → review-set screen (S-23) → regrade after a key fix (student's favour only) | spec next |
 | C | PostHog NFR-18 events → staff course preview → intro video off YouTube → `register-device` Edge Function | spec next |
 | — | Desmos calculator on every question | on hold until Desmos answers on commercial use (owner writes to them) |
@@ -67,6 +67,8 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 | Backup prod workflow | The nightly `Backup prod` run fails with "PGPASSWORD is not set" until the prod project and its secrets exist ([prod runbook](setup/prod.md)) — expected, not a code bug |
 | Skill taxonomy | Import rejects unknown skill codes; the teacher's taxonomy (`docs/09` §4) must be loaded into `skills` before real imports |
 | Regrade after key fix | Fixing a key (editor / review queue) does not regrade past attempts; its own story |
+| Mock bank in skill totals | `private.course_questions` (`anl01_get_my_skills`) counts every published question of a published topic, any pool, so real `mock_reserve` questions will inflate the Skills page totals. The demo bank avoids it with an unpublished topic. Decide in mock part 4 (report): pool filter for totals only, keeping mock answers in mastery |
+| Mock blueprint copy | The template stores a copy of `mock_blueprint_sat` at first use; changing the setting later does not change an existing template — update both in the migration |
 | Staff course preview | Teachers/admins see `not_enrolled` on Courses (not auto-enrolled); staff preview belongs to the teacher area |
 | Local `supabase start` | Also exits 139 on fresh init (Realtime); pgTAP for part 3 ran in a scratch Postgres container — CI is the source of truth |
 | register-device Edge Function | register-device Edge Function (App Check) deferred; the client calls the RPC directly |

@@ -13,8 +13,13 @@
 -- Skills: four demo skills, one per blueprint domain (exact domain strings, docs/09 s4).
 -- Question ids 00000000-0000-4000-8de0-00000004DKKK: D = domain 1-4 (Algebra, Advanced Math,
 -- PSDA, Geometry & Trig), KKK = counter k. external_ref DEMO-MOCK-<ALG|ADV|PSD|GEO>-<KKK>.
--- Pool mock_reserve, all attached to demo topic 1 (the mock ignores topics). source is 'demo-mock'
--- so the structure checks on source 'demo' (72 practice/quiz questions) stay untouched.
+-- Pool mock_reserve, all attached to a dedicated UNPUBLISHED demo topic (...0014, subtopic ...0024)
+-- so student skill pages and topic totals (private.course_questions needs topics.is_published) never
+-- count them; mock eligibility does not look at topics.is_published. source is 'demo-mock' so the
+-- structure checks on source 'demo' (72 practice/quiz questions) stay untouched.
+-- Insert-only for questions: an id that already exists is skipped, so a re-run never resurrects a
+-- retired question or rewrites one that sits in a form. Cells come from the template's stored
+-- blueprint (the one assembly uses), not the live setting.
 
 set client_min_messages = warning;
 
@@ -30,11 +35,31 @@ on conflict (id) do update set
   domain       = excluded.domain,
   course_scope = excluded.course_scope;
 
+insert into public.topics (id, course_id, unit_id, title, slug, sort, is_free_preview, is_published)
+values ('00000000-0000-4000-8de0-000000000014', '00000000-0000-4000-8de0-000000000001', null,
+        'Mock Bank (Demo)', 'mock-bank-demo', 99, false, false)
+on conflict (id) do update set
+  course_id       = excluded.course_id,
+  unit_id         = excluded.unit_id,
+  title           = excluded.title,
+  slug            = excluded.slug,
+  sort            = excluded.sort,
+  is_free_preview = excluded.is_free_preview,
+  is_published    = excluded.is_published;
+
+insert into public.subtopics (id, topic_id, title, sort)
+values ('00000000-0000-4000-8de0-000000000024', '00000000-0000-4000-8de0-000000000014', 'Mock Bank (Demo)', 1)
+on conflict (id) do update set
+  topic_id = excluded.topic_id,
+  title    = excluded.title,
+  sort     = excluded.sort;
+
 do $do$
 declare
-  v_topic    constant uuid := '00000000-0000-4000-8de0-000000000011';
-  v_subtopic constant uuid := '00000000-0000-4000-8de0-000000000021';
+  v_topic    constant uuid := '00000000-0000-4000-8de0-000000000014';
+  v_subtopic constant uuid := '00000000-0000-4000-8de0-000000000024';
   v_bp       jsonb;
+  v_tpl      uuid;
   r          record;
   j          int;
   k          int;
@@ -55,9 +80,11 @@ declare
   v_id       uuid;
   v_ref      text;
 begin
-  select s.value into v_bp from public.settings s where s.key = 'mock_blueprint_sat';
+  -- Separate statement: a row the function inserts is not visible to the query that calls it.
+  v_tpl := private.mock_template_for('00000000-0000-4000-8de0-000000000001');
+  select t.blueprint into v_bp from public.mock_templates t where t.id = v_tpl;
   if not private.mock_blueprint_ok(v_bp) then
-    raise exception 'demo mock seed: mock_blueprint_sat is missing or invalid';
+    raise exception 'demo mock seed: the SAT template blueprint is missing or invalid';
   end if;
 
   for r in
@@ -155,6 +182,10 @@ begin
 
       v_id := ('00000000-0000-4000-8de0-00000004' || lpad((dom_no * 100 + k)::text, 4, '0'))::uuid;
       v_ref := 'DEMO-MOCK-' || codes[dom_no] || '-' || lpad(k::text, 3, '0');
+
+      if exists (select 1 from public.questions q where q.id = v_id) then
+        continue;
+      end if;
 
       perform private.demo_upsert_question(
         v_id, v_topic, v_subtopic, 'mock_reserve', r.qtype, r.difficulty,

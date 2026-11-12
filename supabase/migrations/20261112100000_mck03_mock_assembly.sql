@@ -24,6 +24,7 @@ values ('mock_blueprint_sat', '{
 on conflict (key) do nothing;
 
 -- 3. One adaptive template per course ------------------------------------------------------------
+-- Assumes no course already has two adaptive templates (true today: none are seeded).
 create unique index mock_templates_one_adaptive_per_course
   on public.mock_templates (course_id) where adaptive;
 
@@ -404,6 +405,8 @@ begin
 end;
 $$;
 
+-- Note: although read-only for the caller, this may create the course's template row on first use
+-- (private.mock_template_for) and takes the per-template advisory lock where it reads form state.
 create function public.teacher_mock_overview(p_course_id uuid)
 returns jsonb
 language plpgsql
@@ -456,6 +459,8 @@ end;
 $$;
 
 -- Read one form for preview. No key, explanation or choices (use teacher_get_question for those).
+-- Note: although read-only for the caller, this may create the course's template row on first use
+-- (private.mock_template_for) and takes the per-template advisory lock where it reads form state.
 create function public.teacher_get_mock_form(p_course_id uuid, p_set_no int, p_form_no int)
 returns jsonb
 language plpgsql
@@ -578,6 +583,8 @@ $$;
 revoke execute on function private.mock_form_lock(uuid, int, int, boolean) from public, anon, authenticated;
 revoke execute on function private.mock_question_cell(uuid, uuid) from public, anon, authenticated;
 
+-- Note: although read-only for the caller, this may create the course's template row on first use
+-- (private.mock_template_for) and takes the per-template advisory lock where it reads form state.
 create function public.teacher_mock_swap_candidates(p_course_id uuid, p_set_no int, p_form_no int, p_question_id uuid)
 returns jsonb
 language plpgsql

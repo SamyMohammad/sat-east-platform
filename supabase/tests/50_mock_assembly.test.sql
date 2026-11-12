@@ -118,6 +118,14 @@ select throws_ok($$ select * from private.mock_module_slots(pg_temp.bp(), 'EST1'
 -- mock_template_for.
 select is((select count(*)::int from public.mock_templates t join public.courses c on c.id = t.course_id where c.code = 'SAT'),
   0, 'MCK-03: no SAT template before first use');
+-- With an invalid setting and no template yet, the first call refuses instead of copying it.
+create temp table t_bp_orig as select value from public.settings where key = 'mock_blueprint_sat';
+update public.settings set value = jsonb_set(value, '{modules,M1,count}', '21') where key = 'mock_blueprint_sat';
+select throws_ok($$ select private.mock_template_for((select id from public.courses where code = 'SAT')) $$, 'P0001', 'internal',
+  'MCK-03: first template creation with an invalid setting is internal');
+select is((select count(*)::int from public.mock_templates t join public.courses c on c.id = t.course_id where c.code = 'SAT'), 0,
+  'MCK-03: nothing was created from the invalid setting');
+update public.settings set value = (select value from t_bp_orig) where key = 'mock_blueprint_sat';
 create temp table t_tpl as
   select private.mock_template_for((select id from public.courses where code = 'SAT')) as id;
 select is((select count(*)::int from public.mock_templates t join public.courses c on c.id = t.course_id where c.code = 'SAT'),
@@ -579,6 +587,24 @@ select tests.clear_authentication();
 reset role;
 select is(pg_temp.res(51), '{"ok": true, "set_no": 1, "form_no": 3}'::jsonb, 'MCK-03: next form_no is max + 1 (form 1 was deleted, form 2 exists)');
 select is(pg_temp.res(53), '{"ok": true, "set_no": 1, "form_no": 3}'::jsonb, 'MCK-03: the highest form_no is reused after its draft is deleted');
+
+-- Invalid stored blueprint: assemble, publish and overview refuse with internal and write nothing.
+create temp table t_before as select count(*)::int n from public.mock_forms;
+create temp table t_bp_good as select blueprint from public.mock_templates where id = (select id from t_tpl2);
+grant select on t_before, t_bp_good to authenticated;
+update public.mock_templates set blueprint = jsonb_set(blueprint, '{modules,M1,count}', '21') where id = (select id from t_tpl2);
+select tests.authenticate_as('mk_teacher');
+select throws_ok($$ select public.teacher_assemble_mock_form((select id from public.courses where code = 'SAT'), 7) $$, 'P0001', 'internal',
+  'MCK-03: assemble with an invalid template blueprint is internal');
+select throws_ok($$ select public.teacher_publish_mock_form((select id from public.courses where code = 'SAT'), 1, 3) $$, 'P0001', 'internal',
+  'MCK-03: publish with an invalid template blueprint is internal');
+select throws_ok($$ select public.teacher_mock_overview((select id from public.courses where code = 'SAT')) $$, 'P0001', 'internal',
+  'MCK-03: overview with an invalid template blueprint is internal');
+select tests.clear_authentication();
+reset role;
+select is((select count(*)::int from public.mock_forms), (select n from t_before), 'MCK-03: the invalid blueprint calls wrote nothing');
+select is((select count(*)::int from public.mock_forms where status = 'published' and set_no = 1 and form_no = 3), 0, 'MCK-03: the draft stayed a draft');
+update public.mock_templates set blueprint = (select blueprint from t_bp_good) where id = (select id from t_tpl2);
 
 select * from finish();
 rollback;
