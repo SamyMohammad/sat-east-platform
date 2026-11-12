@@ -1,7 +1,9 @@
 # Demo seed (P1 vertical slice)
 
 ## What it is
-Demo course "SAT Math (Demo)" for the staging vertical slice: 1 unit, 3 topics, 6 skills and 72 questions (3 topics x 12 practice + 12 quiz), plus a trigger that enrols every new student in it. Files run in order: `00_structure.sql` (structure, helper `private.demo_upsert_question`, trigger), then one file per topic. `check.sql` verifies the result and is not part of the seed.
+Demo course "SAT Math (Demo)" for the staging vertical slice: 1 unit, 3 topics, 10 skills and 157 questions (3 topics x 12 practice + 12 quiz = 72, plus 85 `mock_reserve` mock questions), plus a trigger that enrols every new student in it. Files run in order: `00_structure.sql` (structure, helper `private.demo_upsert_question`, trigger), one file per topic, then `40_mock_reserve.sql`. `check.sql` verifies the result and is not part of the seed.
+
+`40_mock_reserve.sql` (MCK-03) stocks one SAT mock form plus one spare per cell: 85 questions with `source = 'demo-mock'` and `external_ref` `DEMO-MOCK-<ALG|ADV|PSD|GEO>-<n>`, four skills `DEMO.MOCK.*` with the exact blueprint domain strings. The cells are generated from `private.mock_module_slots` over the `mock_blueprint_sat` setting, so it needs the MCK-03 migration. `check.sql` asserts `private.mock_shortage(private.mock_template_for(demo course)) = '[]'` (which creates the SAT template row, as intended).
 
 All files are idempotent; fixed UUIDs use the prefix `00000000-0000-4000-8de0-`.
 
