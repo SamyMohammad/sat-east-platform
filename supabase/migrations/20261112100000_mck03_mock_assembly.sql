@@ -245,3 +245,271 @@ $$;
 revoke execute on function private.mock_blueprint_ok(jsonb) from public, anon, authenticated;
 revoke execute on function private.mock_module_slots(jsonb, text) from public, anon, authenticated;
 revoke execute on function private.mock_template_for(uuid) from public, anon, authenticated;
+
+-- 5. Eligibility, shortage (private helpers) ----------------------------------------------------
+-- A question is eligible for a template when it is published mock_reserve, its topic belongs to the
+-- template's course, its skills resolve to exactly one domain that is a key of the template's
+-- blueprint domains, and it sits in no mock_forms.question_ids of that template (draft or published).
+create function private.mock_eligible(p_template_id uuid)
+returns table (question_id uuid, domain text, difficulty public.difficulty, qtype public.question_type)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select q.id, d.domain, q.difficulty, q.type
+  from public.mock_templates t
+  join public.topics tp on tp.course_id = t.course_id
+  join public.questions q on q.topic_id = tp.id
+  join lateral (
+    select min(s.domain) as domain, count(distinct s.domain) as n
+    from public.question_skills qs
+    join public.skills s on s.id = qs.skill_id
+    where qs.question_id = q.id
+  ) d on true
+  where t.id = p_template_id
+    and q.pool = 'mock_reserve' and q.status = 'published'
+    and d.n = 1
+    and (t.blueprint -> 'domains') ? d.domain
+    and not exists (
+      select 1 from public.mock_forms f
+      where f.template_id = t.id and q.id = any (f.question_ids)
+    );
+$$;
+
+-- Published mock_reserve questions of the course that fail only the single-domain rule.
+create function private.mock_no_domain_count(p_template_id uuid)
+returns int
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select count(*)::int
+  from public.mock_templates t
+  join public.topics tp on tp.course_id = t.course_id
+  join public.questions q on q.topic_id = tp.id
+  where t.id = p_template_id
+    and q.pool = 'mock_reserve' and q.status = 'published'
+    and not exists (
+      select 1
+      from (select count(distinct s.domain) as n, min(s.domain) as domain
+            from public.question_skills qs
+            join public.skills s on s.id = qs.skill_id
+            where qs.question_id = q.id) d
+      where d.n = 1 and (t.blueprint -> 'domains') ? d.domain
+    );
+$$;
+
+-- Cells where the bank cannot supply one more form: [{domain, difficulty, type, needed, available,
+-- modules:{M1:n,...}}] ordered by domain, difficulty, type. '[]' when a form can be built.
+create function private.mock_shortage(p_template_id uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with bp as (
+    select t.blueprint as b from public.mock_templates t where t.id = p_template_id
+  ), need as (
+    select s.domain, s.difficulty, s.qtype, m.module, count(*)::int as n
+    from bp, unnest(array['M1', 'M2E', 'M2H']) as m(module),
+         lateral private.mock_module_slots(bp.b, m.module) s
+    group by 1, 2, 3, 4
+  ), cell as (
+    select domain, difficulty, qtype, sum(n)::int as needed, jsonb_object_agg(module, n) as modules
+    from need group by 1, 2, 3
+  ), avail as (
+    select e.domain, e.difficulty, e.qtype, count(*)::int as c
+    from private.mock_eligible(p_template_id) e group by 1, 2, 3
+  )
+  select coalesce(jsonb_agg(jsonb_build_object(
+           'domain', c.domain, 'difficulty', c.difficulty::text, 'type', c.qtype::text,
+           'needed', c.needed, 'available', coalesce(a.c, 0), 'modules', c.modules)
+         order by c.domain collate "C", c.difficulty, c.qtype), '[]'::jsonb)
+  from cell c
+  left join avail a on a.domain = c.domain and a.difficulty = c.difficulty and a.qtype = c.qtype
+  where coalesce(a.c, 0) < c.needed;
+$$;
+
+revoke execute on function private.mock_eligible(uuid) from public, anon, authenticated;
+revoke execute on function private.mock_no_domain_count(uuid) from public, anon, authenticated;
+revoke execute on function private.mock_shortage(uuid) from public, anon, authenticated;
+
+-- 6. Teacher RPCs: assemble, overview, read ------------------------------------------------------
+create function public.teacher_assemble_mock_form(p_course_id uuid, p_set_no int)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl     uuid;
+  v_bp      jsonb;
+  v_missing jsonb;
+  v_form_no int;
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not public.is_teacher() then
+    raise exception 'forbidden';
+  end if;
+  if p_course_id is null or p_set_no is null or p_set_no < 1 then
+    raise exception 'invalid_input';
+  end if;
+
+  v_tpl := private.mock_template_for(p_course_id);
+
+  -- Serialise assemblers per template (two-key advisory lock: fixed namespace + hash of the
+  -- template id) so no question is picked twice and form_no stays unique. Held until commit.
+  perform pg_advisory_xact_lock(hashtext('mock_assemble'), hashtext(v_tpl::text));
+
+  select t.blueprint into v_bp from public.mock_templates t where t.id = v_tpl;
+  if not private.mock_blueprint_ok(v_bp) then
+    raise exception 'internal';
+  end if;
+
+  v_missing := private.mock_shortage(v_tpl);
+  if jsonb_array_length(v_missing) > 0 then
+    return jsonb_build_object('ok', false, 'missing', v_missing,
+                              'no_domain', private.mock_no_domain_count(v_tpl));
+  end if;
+
+  select coalesce(max(f.form_no), 0) + 1 into v_form_no
+  from public.mock_forms f where f.template_id = v_tpl and f.set_no = p_set_no;
+
+  -- Per cell, take a random sample as large as the cell's need, then deal it to the cell's slots
+  -- in (module, slot) order.
+  insert into public.mock_forms (template_id, set_no, form_no, module, question_ids)
+  select v_tpl, p_set_no, v_form_no, d.module, array_agg(d.question_id order by d.slot_no)
+  from (
+    select sl.module, sl.slot_no, pk.question_id
+    from (
+      select m.module, m.ord, s.slot_no, s.domain, s.difficulty, s.qtype,
+             row_number() over (partition by s.domain, s.difficulty, s.qtype order by m.ord, s.slot_no) as rn
+      from unnest(array['M1', 'M2E', 'M2H']) with ordinality as m(module, ord),
+           lateral private.mock_module_slots(v_bp, m.module) s
+    ) sl
+    join (
+      select e.question_id, e.domain, e.difficulty, e.qtype,
+             row_number() over (partition by e.domain, e.difficulty, e.qtype order by random()) as rn
+      from private.mock_eligible(v_tpl) e
+    ) pk on pk.domain = sl.domain and pk.difficulty = sl.difficulty and pk.qtype = sl.qtype and pk.rn = sl.rn
+  ) d
+  group by d.module;
+
+  return jsonb_build_object('ok', true, 'set_no', p_set_no, 'form_no', v_form_no);
+end;
+$$;
+
+create function public.teacher_mock_overview(p_course_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl uuid;
+  v_t   public.mock_templates;
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not public.is_teacher() then
+    raise exception 'forbidden';
+  end if;
+  if p_course_id is null then
+    raise exception 'invalid_input';
+  end if;
+
+  v_tpl := private.mock_template_for(p_course_id);
+  select * into v_t from public.mock_templates t where t.id = v_tpl;
+
+  return jsonb_build_object(
+    'template', jsonb_build_object('id', v_t.id, 'name', v_t.name, 'blueprint', v_t.blueprint),
+    'need_per_form', (
+      select coalesce(jsonb_agg(jsonb_build_object(
+               'domain', x.domain, 'difficulty', x.difficulty::text, 'type', x.qtype::text, 'count', x.n)
+             order by x.domain collate "C", x.difficulty, x.qtype), '[]'::jsonb)
+      from (
+        select s.domain, s.difficulty, s.qtype, count(*)::int as n
+        from unnest(array['M1', 'M2E', 'M2H']) as m(module),
+             lateral private.mock_module_slots(v_t.blueprint, m.module) s
+        group by 1, 2, 3
+      ) x),
+    'forms', (
+      select coalesce(jsonb_agg(jsonb_build_object(
+               'set_no', g.set_no, 'form_no', g.form_no, 'status', g.status, 'published_at', g.published_at)
+             order by g.set_no, g.form_no), '[]'::jsonb)
+      from (
+        select f.set_no, f.form_no, min(f.status) as status, max(f.published_at) as published_at
+        from public.mock_forms f where f.template_id = v_tpl
+        group by f.set_no, f.form_no
+      ) g),
+    'next_form', jsonb_build_object(
+      'missing', private.mock_shortage(v_tpl),
+      'no_domain', private.mock_no_domain_count(v_tpl))
+  );
+end;
+$$;
+
+-- Read one form for preview. No key, explanation or choices (use teacher_get_question for those).
+create function public.teacher_get_mock_form(p_course_id uuid, p_set_no int, p_form_no int)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl uuid;
+  v_hdr record;
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not public.is_teacher() then
+    raise exception 'forbidden';
+  end if;
+  if p_course_id is null or p_set_no is null or p_form_no is null then
+    raise exception 'invalid_input';
+  end if;
+
+  v_tpl := private.mock_template_for(p_course_id);
+
+  select min(f.status) as status, max(f.published_at) as published_at, count(*) as n
+    into v_hdr
+  from public.mock_forms f
+  where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no;
+  if v_hdr.n = 0 then
+    raise exception 'invalid_input';
+  end if;
+
+  return jsonb_build_object(
+    'set_no', p_set_no, 'form_no', p_form_no,
+    'status', v_hdr.status, 'published_at', v_hdr.published_at,
+    'modules', (
+      select jsonb_agg(jsonb_build_object('module', f.module, 'questions', (
+        select jsonb_agg(jsonb_build_object(
+                 'slot_no', u.slot_no, 'id', q.id, 'external_ref', q.external_ref,
+                 'type', q.type::text, 'difficulty', q.difficulty::text,
+                 'domain', (select min(s.domain) from public.question_skills qs
+                            join public.skills s on s.id = qs.skill_id where qs.question_id = q.id),
+                 'stem_md', q.stem_md)
+               order by u.slot_no)
+        from unnest(f.question_ids) with ordinality as u(qid, slot_no)
+        join public.questions q on q.id = u.qid))
+        order by case f.module when 'M1' then 1 when 'M2E' then 2 else 3 end)
+      from public.mock_forms f
+      where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no)
+  );
+end;
+$$;
+
+revoke execute on function public.teacher_assemble_mock_form(uuid, int) from public, anon;
+revoke execute on function public.teacher_mock_overview(uuid) from public, anon;
+revoke execute on function public.teacher_get_mock_form(uuid, int, int) from public, anon;
+grant execute on function public.teacher_assemble_mock_form(uuid, int) to authenticated;
+grant execute on function public.teacher_mock_overview(uuid) to authenticated;
+grant execute on function public.teacher_get_mock_form(uuid, int, int) to authenticated;
