@@ -21,8 +21,9 @@ Problem-Solving & Data Analysis ~15% · Geometry & Trigonometry ~15%.
 ## 2. Mock lifecycle
 
 ```
-mock_templates (blueprint)  ──assemble-mock──▶  mock_forms per set_no:
+mock_templates (blueprint)  ──teacher_assemble_mock_form──▶  mock_forms per set_no (draft)
       form k = { M1, M2E (easier), M2H (harder) }       ← built once, reviewed by teacher
+   draft ──swap / delete──▶ draft ──teacher_publish_mock_form──▶ published (frozen)
 Student starts mock → pick lowest form_no in student's set_no not yet taken
    → attempt(kind=mock_module, module 1)  → submit → route → attempt(module 2: M2E | M2H)
    → mock_results (raw scores, route, estimated range, domain breakdown) → drill set
@@ -32,6 +33,9 @@ Student starts mock → pick lowest form_no in student's set_no not yet taken
   and so score estimates are comparable across students.
 - `set_no` ties to the enrollment's `mock_set_no`: renewal = new set the student hasn't seen (PAY-08).
 - A question used in a form is excluded from all other forms in the same template (no overlap).
+- A new form is a **draft**: the teacher can swap a question for another eligible one of the same
+  cell (domain, difficulty, type) or delete the draft. **Publish** re-checks every question, then
+  freezes the form (no swap, no delete). Only published forms reach students.
 
 ## 3. Blueprint (JSON in `mock_templates.blueprint`)
 
@@ -49,6 +53,53 @@ Student starts mock → pick lowest form_no in student's set_no not yet taken
 }
 ```
 Numbers are starting values — the teacher can tune them in T-14.
+
+The SAT blueprint is the `settings` key `mock_blueprint_sat`; the course's template copies it on
+first use and assembly always reads the template's copy. Changes go through a migration.
+
+**Slot rule.** Assembly turns a blueprint into a fixed list of slots per module (a slot = one cell:
+difficulty, domain, type), deterministic so it can be tested. For a module with `count = N` and
+difficulty counts `E, M, H`:
+
+1. **Difficulty:** slots `1..E` are E, the next `M` are M, the rest H (difficulty ascending).
+2. **Domain counts:** `n_d = floor(share_d × N)`; the remaining `N − Σ n_d` go one each to the domains
+   with the largest fractional part, ties by domain name ascending.
+3. **Domain of slot i** (from 1): the domain with the largest `n_d × i / N − already_assigned_d`,
+   ties by domain name ascending.
+4. **Type:** `s = round(N × spr_ratio)` (half up); slot i is `spr` when
+   `floor(i × s / N) > floor((i − 1) × s / N)`, else `mcq`.
+
+Assembly fills each slot with a random unused eligible question of its cell. Eligible: `mock_reserve`,
+published, topic in the template's course, skills resolving to exactly one domain that is a
+blueprint key, and in no form of the same template. A blueprint whose counts or shares do not add up
+is refused with `internal`.
+
+With the seeded blueprint every module has 8 Advanced Math, 8 Algebra, 3 Geometry & Trig and 3 PSDA
+questions, with SPR at slots 4, 8, 11, 15, 19 and 22. One form (M1 + M2E + M2H, 66 questions) needs:
+
+| Domain | Difficulty | Type | Per form |
+|--------|-----------|------|---------:|
+| Advanced Math | E | mcq | 8 |
+| Advanced Math | M | mcq | 7 |
+| Advanced Math | M | spr | 2 |
+| Advanced Math | H | mcq | 6 |
+| Advanced Math | H | spr | 1 |
+| Algebra | E | mcq | 6 |
+| Algebra | E | spr | 1 |
+| Algebra | M | mcq | 7 |
+| Algebra | M | spr | 3 |
+| Algebra | H | mcq | 2 |
+| Algebra | H | spr | 5 |
+| Geometry & Trig | E | mcq | 3 |
+| Geometry & Trig | M | mcq | 1 |
+| Geometry & Trig | M | spr | 3 |
+| Geometry & Trig | H | mcq | 2 |
+| PSDA | E | spr | 2 |
+| PSDA | M | mcq | 3 |
+| PSDA | M | spr | 1 |
+| PSDA | H | mcq | 3 |
+
+`teacher_mock_overview` returns this table as `need_per_form`, computed from the template's blueprint.
 **Bank size check:** one form = 66 questions → 10 forms ≈ 660 `mock_reserve` questions per set.
 
 ## 4. Exam screen (S-29) — feature checklist

@@ -366,5 +366,219 @@ select is(pg_temp.res(20) -> 'missing', private.mock_shortage((select id from t_
 select is((pg_temp.res(20) ->> 'no_domain')::int, 3, 'MCK-03: assemble returns no_domain');
 select is((select count(*)::int from public.mock_forms where template_id = (select id from t_tpl2)), 6, 'MCK-03: shortage inserted nothing');
 
+
+-- ================================================================================================
+-- Task 3: swap candidates, swap, delete draft, publish.
+-- ================================================================================================
+-- Back to a clean bank: un-retire the two questions the shortage test retired. State: set 1 has
+-- drafts form 1 and form 2; every cell has need + 1 eligible questions.
+update public.questions set status = 'published' where external_ref like 'MK50-%' and status = 'retired';
+select is(private.mock_shortage((select id from t_tpl2)), '[]'::jsonb, 'MCK-03: bank restored for task 3 tests');
+
+create function pg_temp.slot_id(p_set int, p_form int, p_module text, p_slot int) returns uuid language sql stable security definer as $$
+  select f.question_ids[p_slot] from public.mock_forms f
+  where f.template_id = (select id from t_tpl2) and f.set_no = p_set and f.form_no = p_form and f.module = p_module $$;
+grant execute on function pg_temp.slot_id(int, int, text, int) to authenticated;
+create function pg_temp.cell_ids(p_domain text, p_diff public.difficulty, p_type public.question_type) returns uuid[]
+language sql stable as $$
+  select array_agg(e.question_id order by q.external_ref) from private.mock_eligible((select id from t_tpl2)) e
+  join public.questions q on q.id = e.question_id
+  where e.domain = p_domain and e.difficulty = p_diff and e.qtype = p_type $$;
+create function pg_temp.cand_ids(p_json jsonb) returns uuid[] language sql stable as $$
+  select array_agg((e ->> 'id')::uuid order by ord) from jsonb_array_elements(p_json) with ordinality x(e, ord) $$;
+
+grant execute on function pg_temp.cand_ids(jsonb), pg_temp.res(int) to authenticated;
+create temp table t_snap as
+  select f.module, u.o as slot, u.q as qid
+  from public.mock_forms f, unnest(f.question_ids) with ordinality u(q, o)
+  where f.template_id = (select id from t_tpl2) and f.set_no = 1 and f.form_no = 1;
+create temp table t_old as select pg_temp.slot_id(1, 1, 'M1', 1) as id;      -- Advanced Math / E / mcq slot
+create temp table t_old2 as select pg_temp.slot_id(1, 1, 'M1', 2) as id;     -- Algebra / E / mcq slot
+-- Pre-picked candidates (chosen as postgres).
+grant select on t_snap, t_old, t_old2, t_tpl2 to authenticated;
+create temp table t_pick as select
+  (pg_temp.cell_ids('Advanced Math', 'E', 'mcq'))[1] as same_cell,
+  (pg_temp.cell_ids('Algebra', 'E', 'mcq'))[1] as other_cell,
+  pg_temp.slot_id(1, 2, 'M1', 2) as in_other_form,
+  pg_temp.slot_id(1, 1, 'M1', 6) as in_this_form,
+  (select id from public.questions where external_ref = 'MKX-retired') as not_eligible;
+
+grant select on t_pick to authenticated;
+
+-- Permissions for the four new RPCs.
+select tests.authenticate_as('mk_student');
+select throws_ok(format('select public.%I(%s)', p.proname,
+  (select string_agg('null::' || format_type(a, null), ',') from unnest(p.proargtypes::oid[]) a)),
+  'P0001', 'forbidden', 'MCK-03: student denied ' || p.proname)
+from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+where ns.nspname = 'public' and p.proname in ('teacher_mock_swap_candidates', 'teacher_swap_mock_question', 'teacher_delete_mock_draft', 'teacher_publish_mock_form');
+select tests.clear_authentication();
+reset role;
+set local role anon;
+select throws_ok(format('select public.%I(%s)', p.proname,
+  (select string_agg('null::' || format_type(a, null), ',') from unnest(p.proargtypes::oid[]) a)),
+  '42501', null, 'MCK-03: anon denied ' || p.proname)
+from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+where ns.nspname = 'public' and p.proname in ('teacher_mock_swap_candidates', 'teacher_swap_mock_question', 'teacher_delete_mock_draft', 'teacher_publish_mock_form');
+reset role;
+set local role authenticated;
+select throws_ok(format('select public.%I(%s)', p.proname,
+  (select string_agg('null::' || format_type(a, null), ',') from unnest(p.proargtypes::oid[]) a)),
+  'P0001', 'not_authenticated', 'MCK-03: uid checked ' || p.proname)
+from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+where ns.nspname = 'public' and p.proname in ('teacher_mock_swap_candidates', 'teacher_swap_mock_question', 'teacher_delete_mock_draft', 'teacher_publish_mock_form');
+reset role;
+select is((select count(*)::int from pg_proc p join pg_namespace ns on ns.oid = p.pronamespace
+  where ns.nspname = 'public' and p.proname in ('teacher_mock_swap_candidates', 'teacher_swap_mock_question', 'teacher_delete_mock_draft', 'teacher_publish_mock_form')),
+  4, 'MCK-03: four more public RPC contracts exist');
+
+-- Candidates: exactly the eligible questions of the slot's cell, ordered by external_ref.
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 30, public.teacher_mock_swap_candidates((select id from public.courses where code = 'SAT'), 1, 1, (select id from t_old));
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.cand_ids(pg_temp.res(30)), pg_temp.cell_ids('Advanced Math', 'E', 'mcq'), 'MCK-03: candidates = eligible of the slot cell, ordered');
+select is(jsonb_array_length(pg_temp.res(30)), 9, 'MCK-03: candidates = need 8 + 1 spare');
+select is((select count(*)::int from jsonb_array_elements(pg_temp.res(30)) e
+  where (e ->> 'id')::uuid in (select u from public.mock_forms f, unnest(f.question_ids) u where f.template_id = (select id from t_tpl2))), 0,
+  'MCK-03: candidates exclude every question used in any form');
+select ok(pg_temp.res(30) -> 0 ?& array['id', 'external_ref', 'stem_md'] and pg_temp.res(30)::text !~ 'correct_answer|explanation|choices',
+  'MCK-03: candidate rows carry id, external_ref, stem_md only');
+
+-- The cell comes from the slot, not from the old question's current attributes.
+update public.questions set difficulty = 'M' where id = (select id from t_old2);
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 31, public.teacher_mock_swap_candidates((select id from public.courses where code = 'SAT'), 1, 1, (select id from t_old2));
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.cand_ids(pg_temp.res(31)), pg_temp.cell_ids('Algebra', 'E', 'mcq'), 'MCK-03: candidates follow the slot cell after the old question was edited');
+update public.questions set difficulty = 'E' where id = (select id from t_old2);
+
+-- Swap.
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 32, public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, (select id from t_old), (select same_cell from t_pick));
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.res(32), '{"ok": true}'::jsonb, 'MCK-03: swap returns ok');
+select is(pg_temp.slot_id(1, 1, 'M1', 1), (select same_cell from t_pick), 'MCK-03: the new question sits in the same slot');
+select is((select count(*)::int from public.mock_forms f cross join lateral unnest(f.question_ids) with ordinality u(q, o)
+  join t_snap s on s.module = f.module and s.slot = u.o and s.qid = u.q
+  where f.template_id = (select id from t_tpl2) and f.set_no = 1 and f.form_no = 1), 65, 'MCK-03: the other 65 questions are unchanged');
+select ok((select id from t_old) in (select question_id from private.mock_eligible((select id from t_tpl2))), 'MCK-03: the swapped-out question is eligible again');
+select ok((select same_cell from t_pick) not in (select question_id from private.mock_eligible((select id from t_tpl2))), 'MCK-03: the swapped-in question is no longer eligible');
+
+-- Swap and candidate rejections.
+select tests.authenticate_as('mk_teacher');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, pg_temp.slot_id(1, 1, 'M1', 1), (select other_cell from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap with a candidate from another cell is invalid_input');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, pg_temp.slot_id(1, 1, 'M1', 2), (select in_other_form from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap with a question used in another form is invalid_input');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, pg_temp.slot_id(1, 1, 'M1', 2), (select in_this_form from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap with a question already in this form is invalid_input');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, pg_temp.slot_id(1, 1, 'M1', 2), (select not_eligible from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap with an ineligible question is invalid_input');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, (select in_other_form from t_pick), (select other_cell from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap of a question not in the form is invalid_input');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, null, (select other_cell from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap with a null old id is invalid_input');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 1, pg_temp.slot_id(1, 1, 'M1', 2), null) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap with a null new id is invalid_input');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 99, pg_temp.slot_id(1, 1, 'M1', 2), (select other_cell from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: swap in an unknown form is invalid_input');
+select throws_ok($$ select public.teacher_mock_swap_candidates((select id from public.courses where code = 'SAT'), 1, 1, (select in_other_form from t_pick)) $$,
+  'P0001', 'invalid_input', 'MCK-03: candidates for a question not in the form is invalid_input');
+select throws_ok($$ select public.teacher_mock_swap_candidates((select id from public.courses where code = 'SAT'), 1, 1, null) $$,
+  'P0001', 'invalid_input', 'MCK-03: candidates with a null id is invalid_input');
+select throws_ok($$ select public.teacher_delete_mock_draft((select id from public.courses where code = 'SAT'), 1, 99) $$,
+  'P0001', 'invalid_input', 'MCK-03: delete of an unknown form is invalid_input');
+select throws_ok($$ select public.teacher_delete_mock_draft(null, 1, 1) $$, 'P0001', 'invalid_input', 'MCK-03: delete with a null course is invalid_input');
+select throws_ok($$ select public.teacher_publish_mock_form((select id from public.courses where code = 'SAT'), 1, 99) $$,
+  'P0001', 'invalid_input', 'MCK-03: publish of an unknown form is invalid_input');
+select throws_ok($$ select public.teacher_publish_mock_form((select id from public.courses where code = 'SAT'), null, 1) $$,
+  'P0001', 'invalid_input', 'MCK-03: publish with a null set is invalid_input');
+select throws_ok($$ select public.teacher_publish_mock_form((select id from public.courses where code = 'EST'), 1, 1) $$,
+  'P0001', 'invalid_input', 'MCK-03: publish for a non-SAT course is invalid_input');
+select tests.clear_authentication();
+reset role;
+select is((select count(*)::int from public.mock_forms f cross join lateral unnest(f.question_ids) with ordinality u(q, o)
+  join t_snap s on s.module = f.module and s.slot = u.o and s.qid = u.q
+  where f.template_id = (select id from t_tpl2) and f.set_no = 1 and f.form_no = 1), 65, 'MCK-03: rejected swaps changed nothing');
+
+-- Stale publish: retire one question of form 2, publish must report it and change nothing.
+create temp table t_stale as select pg_temp.slot_id(1, 2, 'M2H', 5) as id;
+grant select on t_stale to authenticated;
+update public.questions set status = 'retired' where id = (select id from t_stale);
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 40, public.teacher_publish_mock_form((select id from public.courses where code = 'SAT'), 1, 2);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.res(40), jsonb_build_object('ok', false, 'stale', jsonb_build_array((select id from t_stale))), 'MCK-03: stale publish lists the retired question');
+select is((select count(*)::int from public.mock_forms where template_id = (select id from t_tpl2) and set_no = 1 and form_no = 2
+  and status = 'draft' and published_at is null), 3, 'MCK-03: stale publish leaves the form a draft');
+
+-- A question edited out of its slot cell is stale too (difficulty changed).
+create temp table t_stale2 as select pg_temp.slot_id(1, 2, 'M1', 1) as id;
+grant select on t_stale2 to authenticated;
+update public.questions set difficulty = 'H' where id = (select id from t_stale2);
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 41, public.teacher_publish_mock_form((select id from public.courses where code = 'SAT'), 1, 2);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.res(41) -> 'stale', jsonb_build_array((select id from t_stale2), (select id from t_stale)),
+  'MCK-03: stale ids list a cell mismatch too, ordered by module then slot');
+update public.questions set difficulty = 'E' where id = (select id from t_stale2);
+
+-- Swap the retired one out (its candidates come from the slot cell), then publish.
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 42, public.teacher_mock_swap_candidates((select id from public.courses where code = 'SAT'), 1, 2, (select id from t_stale));
+select tests.clear_authentication();
+reset role;
+select ok(jsonb_array_length(pg_temp.res(42)) > 0, 'MCK-03: a retired question still has candidates from its slot cell');
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 43, public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 2, (select id from t_stale), (pg_temp.cand_ids(pg_temp.res(42)))[1]);
+insert into t_res select 44, public.teacher_publish_mock_form((select id from public.courses where code = 'SAT'), 1, 2);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.res(43), '{"ok": true}'::jsonb, 'MCK-03: a retired question can be swapped out');
+select is(pg_temp.res(44), '{"ok": true}'::jsonb, 'MCK-03: publish succeeds once nothing is stale');
+select is((select count(*)::int from public.mock_forms where template_id = (select id from t_tpl2) and set_no = 1 and form_no = 2
+  and status = 'published' and published_at is not null), 3, 'MCK-03: three rows are published');
+select is((select count(distinct published_at)::int from public.mock_forms where template_id = (select id from t_tpl2) and set_no = 1 and form_no = 2), 1,
+  'MCK-03: one identical published_at');
+select is((select count(*)::int from public.mock_forms where template_id = (select id from t_tpl2) and set_no = 1 and form_no = 1 and status = 'draft'), 3,
+  'MCK-03: the other form stays a draft');
+
+-- Published forms are frozen.
+select tests.authenticate_as('mk_teacher');
+select throws_ok($$ select public.teacher_swap_mock_question((select id from public.courses where code = 'SAT'), 1, 2, pg_temp.slot_id(1, 2, 'M1', 1), (select other_cell from t_pick)) $$,
+  'P0001', 'mock_form_published', 'MCK-03: swap on a published form is refused');
+select throws_ok($$ select public.teacher_delete_mock_draft((select id from public.courses where code = 'SAT'), 1, 2) $$,
+  'P0001', 'mock_form_published', 'MCK-03: delete of a published form is refused');
+select throws_ok($$ select public.teacher_publish_mock_form((select id from public.courses where code = 'SAT'), 1, 2) $$,
+  'P0001', 'mock_form_published', 'MCK-03: publishing twice is refused');
+select tests.clear_authentication();
+reset role;
+select is((select count(*)::int from private.mock_eligible((select id from t_tpl2)) e
+  where e.question_id in (select u from public.mock_forms f, unnest(f.question_ids) u where f.set_no = 1 and f.form_no = 2)), 0,
+  'MCK-03: published questions stay ineligible');
+
+-- Delete a draft: rows gone, questions free, form_no reuse only when it was the highest.
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 50, public.teacher_delete_mock_draft((select id from public.courses where code = 'SAT'), 1, 1);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.res(50), '{"ok": true}'::jsonb, 'MCK-03: delete returns ok');
+select is((select count(*)::int from public.mock_forms where template_id = (select id from t_tpl2) and set_no = 1 and form_no = 1), 0, 'MCK-03: the three rows are gone');
+select ok((select bool_and(s.qid in (select question_id from private.mock_eligible((select id from t_tpl2)))) from t_snap s where s.qid <> (select id from t_old)),
+  'MCK-03: the deleted form questions are eligible again');
+select tests.authenticate_as('mk_teacher');
+insert into t_res select 51, public.teacher_assemble_mock_form((select id from public.courses where code = 'SAT'), 1);
+insert into t_res select 52, public.teacher_delete_mock_draft((select id from public.courses where code = 'SAT'), 1, 3);
+insert into t_res select 53, public.teacher_assemble_mock_form((select id from public.courses where code = 'SAT'), 1);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.res(51), '{"ok": true, "set_no": 1, "form_no": 3}'::jsonb, 'MCK-03: next form_no is max + 1 (form 1 was deleted, form 2 exists)');
+select is(pg_temp.res(53), '{"ok": true, "set_no": 1, "form_no": 3}'::jsonb, 'MCK-03: the highest form_no is reused after its draft is deleted');
+
 select * from finish();
 rollback;

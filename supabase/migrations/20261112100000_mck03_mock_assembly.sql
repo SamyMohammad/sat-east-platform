@@ -513,3 +513,253 @@ revoke execute on function public.teacher_get_mock_form(uuid, int, int) from pub
 grant execute on function public.teacher_assemble_mock_form(uuid, int) to authenticated;
 grant execute on function public.teacher_mock_overview(uuid) to authenticated;
 grant execute on function public.teacher_get_mock_form(uuid, int, int) to authenticated;
+
+-- 7. Draft editing: swap candidates, swap, delete, publish ---------------------------------------
+-- Error code mock_form_published (docs/07 section 9): swap, delete or publish on a published form.
+
+-- Shared prologue of the form RPCs: validates ids, finds the template, takes the same advisory lock
+-- as teacher_assemble_mock_form (so edits never interleave with an assemble), checks that the form
+-- exists and, when p_draft_only, that it is still a draft. Returns the template id.
+create function private.mock_form_lock(p_course_id uuid, p_set_no int, p_form_no int, p_draft_only boolean)
+returns uuid
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl    uuid;
+  v_n      int;
+  v_status text;
+begin
+  if p_course_id is null or p_set_no is null or p_form_no is null then
+    raise exception 'invalid_input';
+  end if;
+  v_tpl := private.mock_template_for(p_course_id);
+  perform pg_advisory_xact_lock(hashtext('mock_assemble'), hashtext(v_tpl::text));
+
+  select count(*), min(f.status) into v_n, v_status
+  from public.mock_forms f
+  where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no;
+  if v_n = 0 then
+    raise exception 'invalid_input';
+  end if;
+  if p_draft_only and v_status = 'published' then
+    raise exception 'mock_form_published';
+  end if;
+  return v_tpl;
+end;
+$$;
+
+-- The cell (domain, difficulty, type) a question currently fills for a template, or no row when it
+-- is not usable: published mock_reserve, topic in the template's course, one domain that is a
+-- blueprint key. Same rule as mock_eligible minus the "not used in a form" clause.
+create function private.mock_question_cell(p_template_id uuid, p_question_id uuid)
+returns table (domain text, difficulty public.difficulty, qtype public.question_type)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select d.domain, q.difficulty, q.type
+  from public.mock_templates t
+  join public.questions q on q.id = p_question_id
+  join public.topics tp on tp.id = q.topic_id and tp.course_id = t.course_id
+  join lateral (
+    select min(s.domain) as domain, count(distinct s.domain) as n
+    from public.question_skills qs
+    join public.skills s on s.id = qs.skill_id
+    where qs.question_id = q.id
+  ) d on true
+  where t.id = p_template_id
+    and q.pool = 'mock_reserve' and q.status = 'published'
+    and d.n = 1 and (t.blueprint -> 'domains') ? d.domain;
+$$;
+
+revoke execute on function private.mock_form_lock(uuid, int, int, boolean) from public, anon, authenticated;
+revoke execute on function private.mock_question_cell(uuid, uuid) from public, anon, authenticated;
+
+create function public.teacher_mock_swap_candidates(p_course_id uuid, p_set_no int, p_form_no int, p_question_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl  uuid;
+  v_bp   jsonb;
+  v_mod  text;
+  v_pos  int;
+  v_cell record;
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not public.is_teacher() then
+    raise exception 'forbidden';
+  end if;
+  if p_question_id is null then
+    raise exception 'invalid_input';
+  end if;
+
+  v_tpl := private.mock_form_lock(p_course_id, p_set_no, p_form_no, false);
+  select t.blueprint into v_bp from public.mock_templates t where t.id = v_tpl;
+
+  select f.module, array_position(f.question_ids, p_question_id) into v_mod, v_pos
+  from public.mock_forms f
+  where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no
+    and p_question_id = any (f.question_ids);
+  if v_mod is null then
+    raise exception 'invalid_input';
+  end if;
+
+  -- The slot's cell, not the question's current attributes (it may have been edited since).
+  select s.domain, s.difficulty, s.qtype into v_cell
+  from private.mock_module_slots(v_bp, v_mod) s where s.slot_no = v_pos;
+
+  return (
+    select coalesce(jsonb_agg(jsonb_build_object(
+             'id', q.id, 'external_ref', q.external_ref, 'stem_md', q.stem_md)
+           order by q.external_ref, q.id), '[]'::jsonb)
+    from private.mock_eligible(v_tpl) e
+    join public.questions q on q.id = e.question_id
+    where e.domain = v_cell.domain and e.difficulty = v_cell.difficulty and e.qtype = v_cell.qtype
+  );
+end;
+$$;
+
+create function public.teacher_swap_mock_question(p_course_id uuid, p_set_no int, p_form_no int, p_old_id uuid, p_new_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl  uuid;
+  v_bp   jsonb;
+  v_row  uuid;
+  v_mod  text;
+  v_pos  int;
+  v_cell record;
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not public.is_teacher() then
+    raise exception 'forbidden';
+  end if;
+  if p_old_id is null or p_new_id is null then
+    raise exception 'invalid_input';
+  end if;
+
+  v_tpl := private.mock_form_lock(p_course_id, p_set_no, p_form_no, true);
+  select t.blueprint into v_bp from public.mock_templates t where t.id = v_tpl;
+
+  select f.id, f.module, array_position(f.question_ids, p_old_id) into v_row, v_mod, v_pos
+  from public.mock_forms f
+  where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no
+    and p_old_id = any (f.question_ids);
+  if v_row is null then
+    raise exception 'invalid_input';
+  end if;
+
+  select s.domain, s.difficulty, s.qtype into v_cell
+  from private.mock_module_slots(v_bp, v_mod) s where s.slot_no = v_pos;
+
+  -- Eligible already excludes questions used in any form of the template, this one included.
+  if not exists (
+    select 1 from private.mock_eligible(v_tpl) e
+    where e.question_id = p_new_id
+      and e.domain = v_cell.domain and e.difficulty = v_cell.difficulty and e.qtype = v_cell.qtype
+  ) then
+    raise exception 'invalid_input';
+  end if;
+
+  update public.mock_forms f
+  set question_ids = f.question_ids[1 : v_pos - 1] || p_new_id || f.question_ids[v_pos + 1 : array_length(f.question_ids, 1)]
+  where f.id = v_row;
+
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+create function public.teacher_delete_mock_draft(p_course_id uuid, p_set_no int, p_form_no int)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl uuid;
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not public.is_teacher() then
+    raise exception 'forbidden';
+  end if;
+
+  v_tpl := private.mock_form_lock(p_course_id, p_set_no, p_form_no, true);
+
+  delete from public.mock_forms f
+  where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no;
+
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+create function public.teacher_publish_mock_form(p_course_id uuid, p_set_no int, p_form_no int)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_tpl   uuid;
+  v_bp    jsonb;
+  v_stale uuid[];
+begin
+  if auth.uid() is null then
+    raise exception 'not_authenticated';
+  end if;
+  if not public.is_teacher() then
+    raise exception 'forbidden';
+  end if;
+
+  v_tpl := private.mock_form_lock(p_course_id, p_set_no, p_form_no, true);
+  select t.blueprint into v_bp from public.mock_templates t where t.id = v_tpl;
+
+  -- Every question must still fill its slot's cell and satisfy the eligibility rule.
+  select array_agg(x.qid order by x.ord, x.slot) into v_stale
+  from (
+    select u.qid, u.slot, case f.module when 'M1' then 1 when 'M2E' then 2 else 3 end as ord,
+           f.module, s.domain, s.difficulty, s.qtype
+    from public.mock_forms f
+    cross join lateral unnest(f.question_ids) with ordinality as u(qid, slot)
+    join lateral private.mock_module_slots(v_bp, f.module) s on s.slot_no = u.slot
+    where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no
+  ) x
+  where not exists (
+    select 1 from private.mock_question_cell(v_tpl, x.qid) c
+    where c.domain = x.domain and c.difficulty = x.difficulty and c.qtype = x.qtype
+  );
+
+  if v_stale is not null then
+    return jsonb_build_object('ok', false, 'stale', to_jsonb(v_stale));
+  end if;
+
+  update public.mock_forms f
+  set status = 'published', published_at = now()
+  where f.template_id = v_tpl and f.set_no = p_set_no and f.form_no = p_form_no;
+
+  return jsonb_build_object('ok', true);
+end;
+$$;
+
+revoke execute on function public.teacher_mock_swap_candidates(uuid, int, int, uuid) from public, anon;
+revoke execute on function public.teacher_swap_mock_question(uuid, int, int, uuid, uuid) from public, anon;
+revoke execute on function public.teacher_delete_mock_draft(uuid, int, int) from public, anon;
+revoke execute on function public.teacher_publish_mock_form(uuid, int, int) from public, anon;
+grant execute on function public.teacher_mock_swap_candidates(uuid, int, int, uuid) to authenticated;
+grant execute on function public.teacher_swap_mock_question(uuid, int, int, uuid, uuid) to authenticated;
+grant execute on function public.teacher_delete_mock_draft(uuid, int, int) to authenticated;
+grant execute on function public.teacher_publish_mock_form(uuid, int, int) to authenticated;
