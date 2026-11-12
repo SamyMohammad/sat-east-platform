@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/entities/mock_entities.dart';
@@ -108,5 +110,28 @@ void main() {
     final t = _make();
     expect(await t.cubit.assemble(1), isNull);
     expect(t.mock.calls, isEmpty);
+  });
+  test('MCK-03: a second assemble while busy makes no second RPC', () async {
+    final t = _make();
+    await t.cubit.load();
+    t.mock.gate = Completer<void>();
+    final first = t.cubit.assemble(1);
+    expect(await t.cubit.assemble(1), isNull);
+    expect(t.mock.count('assemble'), 1);
+    expect((t.cubit.state as MockOverviewLoaded).busy, isTrue);
+    t.mock.gate!.complete();
+    expect(await first, const Assembled(setNo: 1, formNo: 3));
+  });
+
+  test('MCK-03: refresh failing after assemble keeps the form', () async {
+    final t = _make();
+    await t.cubit.load();
+    t.mock.overviewResult = const Failure(AppError('network'));
+    final result = await t.cubit.assemble(1);
+    expect(result, const Assembled(setNo: 1, formNo: 3));
+    final state = t.cubit.state as MockOverviewLoaded;
+    expect(state.overview, readyOverview);
+    expect(state.lastError?.code, 'network');
+    expect(state.busy, isFalse);
   });
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/teacher/mock/data/models/mock_models.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/entities/mock_entities.dart';
@@ -27,6 +29,9 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
   Result<PublishResult> publishResult = const Success(Published());
   final calls = <(String, List<Object?>)>[];
 
+  /// When set, assemble, swap, delete and publish wait on it (busy tests).
+  Completer<void>? gate;
+
   int count(String name) => calls.where((c) => c.$1 == name).length;
 
   @override
@@ -38,6 +43,7 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
   @override
   Future<Result<AssembleResult>> assemble(String courseId, int setNo) async {
     calls.add(('assemble', [courseId, setNo]));
+    await gate?.future;
     return assembleResult;
   }
 
@@ -67,6 +73,7 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
     String newId,
   ) async {
     calls.add(('swap', [courseId, setNo, formNo, oldId, newId]));
+    await gate?.future;
     return swapResult;
   }
 
@@ -77,6 +84,7 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
     int formNo,
   ) async {
     calls.add(('delete', [courseId, setNo, formNo]));
+    await gate?.future;
     return deleteResult;
   }
 
@@ -87,6 +95,7 @@ class FakeTeacherMockRepository implements TeacherMockRepository {
     int formNo,
   ) async {
     calls.add(('publish', [courseId, setNo, formNo]));
+    await gate?.future;
     return publishResult;
   }
 }

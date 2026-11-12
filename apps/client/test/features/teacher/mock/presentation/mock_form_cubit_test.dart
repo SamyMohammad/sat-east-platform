@@ -1,13 +1,31 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sat_east_client/core/errors/result.dart';
+import 'package:sat_east_client/features/teacher/mock/data/models/mock_models.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/entities/mock_entities.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_cubit.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_state.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/mock_copy.dart';
 
 import '../../course_builder/builder_fixtures.dart';
 import '../../questions/editor_fixtures.dart';
 import '../mock_fakes.dart';
+import '../mock_fixtures.dart';
+
+MockForm _formReplacing(String oldId, String newId) {
+  final json = formJson();
+  for (final module in json['modules']! as List<Object?>) {
+    final questions =
+        (module! as Map<String, Object?>)['questions']! as List<Object?>;
+    for (final q in questions) {
+      final map = q! as Map<String, Object?>;
+      if (map['id'] == oldId) map['id'] = newId;
+    }
+  }
+  return mockFormFromJson(json);
+}
 
 class _Setup {
   _Setup() {
@@ -234,5 +252,119 @@ void main() {
       t.mock.calls.map((c) => c.$1).toSet(),
       {'form'},
     );
+  });
+  test('MCK-03: openSwap reports whether it started', () async {
+    final t = _Setup();
+    await t.cubit.load();
+    expect(t.cubit.canOpenSwap, isTrue);
+    expect(await t.cubit.openSwap('M1-q1'), isTrue);
+  });
+
+  group('MCK-03: busy guards', () {
+    test('a second publish while busy makes no second RPC', () async {
+      final t = _Setup();
+      await t.cubit.load();
+      t.mock.gate = Completer<void>();
+      final first = t.cubit.publish();
+      await t.cubit.publish();
+      expect(t.mock.count('publish'), 1);
+      expect(t.loaded.busy, isTrue);
+      t.mock.gate!.complete();
+      await first;
+      expect(t.loaded.busy, isFalse);
+    });
+
+    test('a second delete while busy makes no second RPC', () async {
+      final t = _Setup();
+      await t.cubit.load();
+      t.mock.gate = Completer<void>();
+      final first = t.cubit.delete();
+      expect(await t.cubit.delete(), isFalse);
+      expect(t.mock.count('delete'), 1);
+      t.mock.gate!.complete();
+      expect(await first, isTrue);
+    });
+
+    test('a second swap and openSwap while busy do nothing', () async {
+      final t = _Setup();
+      await t.cubit.load();
+      await t.cubit.openSwap('M1-q1');
+      t.mock.gate = Completer<void>();
+      final first = t.cubit.swap('c1');
+      expect(await t.cubit.swap('c2'), isFalse);
+      expect(t.cubit.canOpenSwap, isFalse);
+      final candidatesBefore = t.mock.count('candidates');
+      expect(await t.cubit.openSwap('M1-q2'), isFalse);
+      expect(t.mock.count('candidates'), candidatesBefore);
+      expect(t.mock.count('swap'), 1);
+      t.mock.gate!.complete();
+      expect(await first, isTrue);
+    });
+  });
+
+  test('MCK-03: a non-gone publish failure keeps the form editable', () async {
+    final t = _Setup();
+    await t.cubit.load();
+    t.mock.publishResult = const Failure(AppError('network'));
+    await t.cubit.publish();
+    expect(t.loaded.lastError?.code, 'network');
+    expect(t.loaded.isDraft, isTrue);
+    expect(t.loaded.busy, isFalse);
+    expect(t.mock.count('form'), 1);
+    t.mock.publishResult = const Success(Published());
+    t.mock.formResult = Success(publishedForm);
+    await t.cubit.publish();
+    expect(t.loaded.form.status, MockFormStatus.published);
+  });
+
+  test('MCK-03: a non-gone delete failure keeps the form editable', () async {
+    final t = _Setup();
+    await t.cubit.load();
+    t.mock.deleteResult = const Failure(AppError('network'));
+    expect(await t.cubit.delete(), isFalse);
+    expect(t.loaded.lastError?.code, 'network');
+    expect(t.loaded.isDraft, isTrue);
+    expect(t.loaded.busy, isFalse);
+    expect(t.mock.count('form'), 1);
+    t.mock.deleteResult = const Success(null);
+    expect(await t.cubit.delete(), isTrue);
+  });
+
+  test('MCK-03: closeSwap clears the sheet state', () async {
+    final t = _Setup();
+    await t.cubit.load();
+    await t.cubit.openSwap('M1-q1');
+    t.cubit.closeSwap();
+    expect(t.loaded.swappingId, isNull);
+    expect(t.loaded.candidates, isNull);
+  });
+
+  test('MCK-03: swap invalid_input uses the slot copy and reloads', () async {
+    final t = _Setup();
+    await t.cubit.load();
+    await t.cubit.openSwap('M1-q1');
+    t.mock.swapResult = const Failure(AppError('invalid_input'));
+    final before = t.mock.count('form');
+    expect(await t.cubit.swap('c1'), isFalse);
+    expect(t.loaded.lastError?.code, mockSlotUnavailableCode);
+    expect(t.loaded.swappingId, isNull);
+    expect(t.mock.count('form'), before + 1);
+    expect(
+      mockErrorCopy(mockSlotUnavailableCode),
+      'That question is no longer available for this slot.',
+    );
+  });
+
+  test('MCK-03: preview closes when its question leaves the form', () async {
+    final t = _Setup();
+    await t.cubit.load();
+    await t.cubit.openPreview('M1-q1');
+    expect(t.loaded.preview, isNotNull);
+    await t.cubit.openSwap('M1-q1');
+    final swapped = _formReplacing('M1-q1', 'c1');
+    t.mock.formResult = Success(swapped);
+    await t.cubit.swap('c1');
+    expect(t.loaded.previewId, isNull);
+    expect(t.loaded.preview, isNull);
   });
 }

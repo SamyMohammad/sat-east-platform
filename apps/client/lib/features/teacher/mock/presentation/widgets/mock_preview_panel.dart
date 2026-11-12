@@ -71,3 +71,45 @@ class MockPreviewPanel extends StatelessWidget {
     ],
   );
 }
+
+/// Bottom-sheet preview. It closes itself when the preview goes away (the
+/// question left the form) and when the screen grows to the wide layout,
+/// where the side panel takes over; so the two are never shown together.
+class MockPreviewSheetBody extends StatefulWidget {
+  const MockPreviewSheetBody({super.key});
+
+  @override
+  State<MockPreviewSheetBody> createState() => _MockPreviewSheetBodyState();
+}
+
+class _MockPreviewSheetBodyState extends State<MockPreviewSheetBody> {
+  var _closing = false;
+
+  void _close() {
+    if (_closing) return;
+    _closing = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) unawaited(Navigator.of(context).maybePop());
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (AppLayout.forWidth(MediaQuery.sizeOf(context).width) ==
+        AppLayout.expanded) {
+      _close();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      BlocListener<MockFormCubit, MockFormState>(
+        listenWhen: (previous, current) =>
+            previous is MockFormLoaded &&
+            previous.previewId != null &&
+            (current is! MockFormLoaded || current.previewId == null),
+        listener: (context, state) => _close(),
+        child: const MockPreviewBody(),
+      );
+}

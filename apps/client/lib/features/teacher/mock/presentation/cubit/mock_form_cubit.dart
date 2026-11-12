@@ -5,6 +5,7 @@ import 'package:sat_east_client/features/teacher/mock/domain/entities/mock_entit
 import 'package:sat_east_client/features/teacher/mock/domain/repositories/teacher_mock_repository.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_state.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/mock_copy.dart';
 import 'package:sat_east_client/features/teacher/questions/domain/repositories/question_editor_repository.dart';
 
 class MockFormCubit extends Cubit<MockFormState> {
@@ -63,6 +64,16 @@ class MockFormCubit extends Cubit<MockFormState> {
                   form: value,
                   stale: current.stale.intersection(ids),
                   busy: false,
+                  // The previewed question may have been swapped out.
+                  previewId: ids.contains(current.previewId)
+                      ? current.previewId
+                      : null,
+                  preview: ids.contains(current.previewId)
+                      ? current.preview
+                      : null,
+                  previewError: ids.contains(current.previewId)
+                      ? current.previewError
+                      : null,
                 )
               : MockFormLoaded(value),
         );
@@ -89,9 +100,17 @@ class MockFormCubit extends Cubit<MockFormState> {
     emit(current.copyWith(previewId: null, preview: null, previewError: null));
   }
 
-  Future<void> openSwap(String questionId) async {
+  /// Whether [openSwap] would start now (a draft that is not busy).
+  bool get canOpenSwap {
     final current = state;
-    if (current is! MockFormLoaded || !current.isDraft || current.busy) return;
+    return current is MockFormLoaded && current.isDraft && !current.busy;
+  }
+
+  /// Starts loading the slot's candidates; false when swapping is not
+  /// possible right now, so the screen opens no sheet.
+  Future<bool> openSwap(String questionId) async {
+    if (!canOpenSwap) return false;
+    final current = state as MockFormLoaded;
     emit(
       current.copyWith(
         swappingId: questionId,
@@ -105,9 +124,9 @@ class MockFormCubit extends Cubit<MockFormState> {
       formNo,
       questionId,
     );
-    if (isClosed) return;
+    if (isClosed) return true;
     final now = state;
-    if (now is! MockFormLoaded || now.swappingId != questionId) return;
+    if (now is! MockFormLoaded || now.swappingId != questionId) return true;
     switch (result) {
       case Success(:final value):
         emit(now.copyWith(candidates: value));
@@ -115,6 +134,7 @@ class MockFormCubit extends Cubit<MockFormState> {
         emit(now.copyWith(swappingId: null, lastError: error));
         await _reloadIfGone(error);
     }
+    return true;
   }
 
   void closeSwap() {
@@ -151,7 +171,11 @@ class MockFormCubit extends Cubit<MockFormState> {
         await _loadForm();
         return true;
       case Failure(:final error):
-        await _fail(error);
+        await _fail(
+          error.code == ErrorCodes.invalidInput
+              ? const AppError(mockSlotUnavailableCode)
+              : error,
+        );
         return false;
     }
   }
@@ -218,5 +242,6 @@ class MockFormCubit extends Cubit<MockFormState> {
 
   bool _isGone(AppError error) =>
       error.code == ErrorCodes.mockFormPublished ||
-      error.code == ErrorCodes.invalidInput;
+      error.code == ErrorCodes.invalidInput ||
+      error.code == mockSlotUnavailableCode;
 }

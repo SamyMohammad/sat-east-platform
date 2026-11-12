@@ -23,6 +23,9 @@ import 'package:sat_east_client/shared/widgets/empty_state.dart';
 import 'package:sat_east_client/shared/widgets/error_retry.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
+/// Set and form numbers above this are treated as not found (no server call).
+const _maxParam = 100000;
+
 /// Route entry: parses the `:setNo/:formNo` path parameters. Anything that
 /// is not a positive integer is the same "form not found" page as a form
 /// that no longer exists.
@@ -35,7 +38,12 @@ class MockFormScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final set = int.tryParse(setNo);
     final form = int.tryParse(formNo);
-    if (set == null || form == null || set < 1 || form < 1) {
+    if (set == null ||
+        form == null ||
+        set < 1 ||
+        form < 1 ||
+        set > _maxParam ||
+        form > _maxParam) {
       return const MockFormMissingView();
     }
     return BlocProvider<MockFormCubit>(
@@ -122,7 +130,7 @@ class _Loaded extends StatelessWidget {
           value: cubit,
           child: SizedBox(
             height: MediaQuery.sizeOf(context).height * 0.7,
-            child: const MockPreviewBody(),
+            child: const MockPreviewSheetBody(),
           ),
         ),
       ).whenComplete(cubit.closePreview),
@@ -131,6 +139,7 @@ class _Loaded extends StatelessWidget {
 
   void _swap(BuildContext context, String id) {
     final cubit = context.read<MockFormCubit>();
+    if (!cubit.canOpenSwap) return;
     unawaited(cubit.openSwap(id));
     unawaited(showMockSwapSheet(context, cubit));
   }
@@ -186,6 +195,7 @@ class _Loaded extends StatelessWidget {
               module: module,
               stale: state.stale,
               canSwap: state.isDraft,
+              swapEnabled: !state.busy,
               selectedId: state.previewId,
               onPreview: (id) => _preview(context, id),
               onSwap: (id) => _swap(context, id),

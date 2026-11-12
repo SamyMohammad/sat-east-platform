@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -9,6 +11,7 @@ import 'package:sat_east_client/features/teacher/mock/data/models/mock_models.da
 import 'package:sat_east_client/features/teacher/mock/domain/entities/mock_entities.dart';
 import 'package:sat_east_client/features/teacher/mock/domain/usecases/find_sat_course.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_cubit.dart';
+import 'package:sat_east_client/features/teacher/mock/presentation/cubit/mock_form_state.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/mock_copy.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/screens/mock_form_screen.dart';
 import 'package:sat_east_client/features/teacher/mock/presentation/widgets/mock_preview_panel.dart';
@@ -292,7 +295,14 @@ void main() {
     expect(find.text('Overview body'), findsOneWidget);
   });
 
-  for (final (set, form) in [('x', '1'), ('1', '0'), ('0', '2'), ('-1', '1')]) {
+  for (final (set, form) in [
+    ('x', '1'),
+    ('1', '0'),
+    ('0', '2'),
+    ('-1', '1'),
+    ('100001', '1'),
+    ('1', '999999999999'),
+  ]) {
     testWidgets('MCK-03: bad params $set/$form show the missing page', (
       tester,
     ) async {
@@ -313,5 +323,61 @@ void main() {
     final h = _H(tester);
     await h.pump(width: 360);
     expect(tester.takeException(), isNull);
+  });
+  testWidgets('MCK-03: tapping swap while busy opens nothing', (tester) async {
+    final h = _H(tester);
+    await h.pump();
+    h.mock.gate = Completer<void>();
+    await tester.tap(find.widgetWithText(FilledButton, 'Publish'));
+    await h.settle();
+    await tester.tap(h.dialogButton('Publish'));
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(h.cubit.state, isA<MockFormLoaded>());
+    await tester.tap(
+      find.byTooltip(mockSwapTooltip).first,
+      warnIfMissed: false,
+    );
+    await tester.pump(const Duration(milliseconds: 100));
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(h.mock.count('candidates'), 0);
+    h.mock.gate!.complete();
+    await h.settle();
+  });
+
+  testWidgets('MCK-03: swap failure shows inline copy and keeps the sheet', (
+    tester,
+  ) async {
+    final h = _H(tester);
+    h.mock.swapResult = const Failure(AppError('network'));
+    await h.pump();
+    await tester.tap(find.byTooltip(mockSwapTooltip).first);
+    await h.settle();
+    await tester.tap(find.text('REF-C1'));
+    await h.settle();
+    await tester.tap(h.dialogButton(mockSwapConfirmLabel));
+    await h.settle();
+    expect(find.byType(BottomSheet), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.text(mockErrorCopy('network')),
+      ),
+      findsOneWidget,
+    );
+    expect(h.mock.count('swap'), 1);
+  });
+
+  testWidgets('MCK-03: growing to wide closes the preview sheet', (
+    tester,
+  ) async {
+    final h = _H(tester);
+    await h.pump(width: 360);
+    await tester.tap(find.text('REF-M1-1'));
+    await h.settle();
+    expect(find.byType(BottomSheet), findsOneWidget);
+    tester.view.physicalSize = const Size(1280, 1000);
+    await h.settle();
+    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(MockPreviewPanel), findsNothing);
   });
 }

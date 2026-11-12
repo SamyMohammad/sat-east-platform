@@ -12,6 +12,7 @@ class MockModuleSection extends StatelessWidget {
     required this.module,
     required this.stale,
     required this.canSwap,
+    required this.swapEnabled,
     required this.selectedId,
     required this.onPreview,
     required this.onSwap,
@@ -20,6 +21,7 @@ class MockModuleSection extends StatelessWidget {
   final MockModule module;
   final Set<String> stale;
   final bool canSwap;
+  final bool swapEnabled;
   final String? selectedId;
   final ValueChanged<String> onPreview;
   final ValueChanged<String> onSwap;
@@ -38,6 +40,7 @@ class MockModuleSection extends StatelessWidget {
           slot: slot,
           isStale: stale.contains(slot.questionId),
           canSwap: canSwap,
+          swapEnabled: swapEnabled,
           selected: selectedId == slot.questionId,
           onPreview: () => onPreview(slot.questionId),
           onSwap: () => onSwap(slot.questionId),
@@ -51,6 +54,7 @@ class _SlotRow extends StatelessWidget {
     required this.slot,
     required this.isStale,
     required this.canSwap,
+    required this.swapEnabled,
     required this.selected,
     required this.onPreview,
     required this.onSwap,
@@ -58,6 +62,7 @@ class _SlotRow extends StatelessWidget {
   final MockSlot slot;
   final bool isStale;
   final bool canSwap;
+  final bool swapEnabled;
   final bool selected;
   final VoidCallback onPreview;
   final VoidCallback onSwap;
@@ -149,7 +154,7 @@ class _SlotRow extends StatelessWidget {
                 if (canSwap)
                   IconButton(
                     tooltip: mockSwapTooltip,
-                    onPressed: onSwap,
+                    onPressed: swapEnabled ? onSwap : null,
                     icon: const Icon(AppIcons.swap),
                   ),
               ],

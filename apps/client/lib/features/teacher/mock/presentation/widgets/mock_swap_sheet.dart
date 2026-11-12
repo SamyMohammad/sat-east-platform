@@ -46,6 +46,13 @@ class _SwapSheetBody extends StatelessWidget {
             spacing: AppSpace.s2,
             children: [
               Text(mockSwapTitle, style: theme.textTheme.titleLarge),
+              if (state.lastError case final error?)
+                Text(
+                  mockErrorCopy(error.code),
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    color: context.appColors.incorrect,
+                  ),
+                ),
               if (candidates == null)
                 const Padding(
                   padding: EdgeInsets.all(AppSpace.s4),

@@ -20,7 +20,12 @@ const mockAssembleConfirm = 'Assemble';
 const mockCancel = 'Cancel';
 const mockSetLabel = 'Set';
 
+/// Client-only code: the server refused a swap target (`invalid_input`).
+const mockSlotUnavailableCode = 'mock_slot_unavailable';
+
 String mockErrorCopy(String code) => switch (code) {
+  mockSlotUnavailableCode =>
+    'That question is no longer available for this slot.',
   ErrorCodes.forbidden => 'Only teachers can manage mock exams.',
   ErrorCodes.invalidInput => 'This form no longer exists. Refresh the page.',
   ErrorCodes.mockFormPublished => 'This form is already published.',
