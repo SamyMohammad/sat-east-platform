@@ -1,22 +1,32 @@
 # 08 — Exam Engine Spec (Bluebook-style Simulator)
 
 > Goal: a student who has done our mocks should feel *nothing new* on test day.
-> Verify all format numbers against the current College Board test specifications before Phase 3 —
-> the format can change.
+> Format numbers below were verified against the College Board pages listed in §1 on 2026-11-13.
+> Re-check them when College Board announces a change; they can change.
 
 ## 1. Digital SAT Math format we simulate
 
 | Item | Value |
 |------|-------|
-| Modules | 2, adaptive (Module 2 easier or harder based on Module 1) |
-| Questions | 22 per module, 44 total (official test includes a few unscored pretest items; our mocks score all) |
-| Time | 35 min per module, no pause; short transition screen between modules |
-| Types | ~75% MCQ (4 choices), ~25% Student-Produced Response (SPR) |
-| Calculator | Desmos graphing calculator available for every question |
-| Score | Section score 200–800 |
+| Modules | 2, multistage adaptive (Module 2 easier or harder based on Module 1) |
+| Questions | 22 per module, 44 total. Officially 20 operational (scored) + 2 pretest (unscored) per module; **our mocks score all 22** (raw 0–44) |
+| Time | 35 min per module; no break between the two Math modules; short transition screen |
+| Types | ~75% multiple choice (4 choices), ~25% Student-Produced Response (SPR) |
+| Calculator | Allowed on every question. Bluebook has a built-in Desmos graphing calculator (or a scientific one); students may instead bring their own approved non-CAS calculator. A reference sheet of formulas is provided |
+| Score | Section score 200–800 from an IRT model (College Board does not publish the table) |
 
-Domain mix per full test (approx., verify): Algebra ~35% · Advanced Math ~35% ·
-Problem-Solving & Data Analysis ~15% · Geometry & Trigonometry ~15%.
+Domains (official share of the ~40 scored questions): Algebra 35% (13–15) · Advanced Math 35% (13–15) ·
+Problem-Solving & Data Analysis 15% (5–7) · Geometry & Trigonometry 15% (5–7).
+
+**Sources (checked 2026-11-13):**
+- https://satsuite.collegeboard.org/k12-educators/about/alignment/math — 20 operational + 2 pretest per module, 44 total.
+- https://satsuite.collegeboard.org/sat/whats-on-the-test/structure — two 35-minute Math modules, no break between them, module 2 easier or harder.
+- https://satsuite.collegeboard.org/media/pdf/assessment-framework-for-digital-sat-suite.pdf — domain shares, 75% MCQ / 25% SPR, multistage testing, IRT scaling 200–800, reference sheet, calculator rules.
+
+**Our decisions where the official material is silent or differs:**
+- All 22 questions of a module are scored (no hidden pretest items), so raw score is 0–44.
+- Per module, domains split 8 / 8 / 3 / 3 (Algebra / Advanced Math / PSDA / Geometry & Trig), which is the 35/35/15/15 mix rounded to whole questions (blueprint, §3).
+- The routing threshold (`threshold_correct_m1`) and the two scale tables (§5) are **our estimate**, not College Board numbers; the report says so.
 
 ## 2. Mock lifecycle
 
@@ -28,6 +38,32 @@ Student starts mock → pick lowest form_no in student's set_no not yet taken
    → attempt(kind=mock_module, module 1)  → submit → route → attempt(module 2: M2E | M2H)
    → mock_results (raw scores, route, estimated range, domain breakdown) → drill set
 ```
+
+### 2.1 Student flow (server engine, MCK-03 part 3a)
+
+- **Unlock (MCK-09).** The student's k-th playable form (k = 1, 2, …) needs `settings.mock_unlock_topics[min(k, length)]`
+  passed topics (a topic is passed when its quiz is passed). Seed `[3, 6, 10]`: form 1 after 3 topics, form 2 after 6,
+  form 3 and later after 10. `k` counts only **published** forms of the student's `mock_set_no` that have all three
+  modules published, ordered by `form_no`, so drafts and gaps in `form_no` do not shift it. `get_mock_hub` shows each form
+  as `locked | available | in_progress | finished` with its `need`.
+- **Start.** `start_mock` resumes an unfinished mock if there is one (even if the enrolment expired meanwhile: a started
+  mock always ends); otherwise it starts the lowest unstarted form that is unlocked. Nothing unlocked: `mock_locked`;
+  every form taken: `mock_none_available`. One M1 per student and form. Module 1 gets `time_limit_s = blueprint.modules.M1.time_s`;
+  its questions are written to `question_exposure`.
+- **Timing.** The deadline is stored (`started_at + time_limit_s`); saves are accepted until deadline + `save_grace_s`.
+  A module past deadline + grace is finished **at its deadline** by the next mock RPC of that student or by the
+  every-minute cron (`expire_overdue_attempts`), whichever comes first. Unanswered questions count as wrong.
+- **Gap.** Submitting M1 sets the route (`correct_m1 >= threshold_correct_m1` → M2H, else M2E) and
+  `meta.gap_until = submit time + settings.mock_gap_s` (seed 120 s). The student can start M2 early with
+  `start_mock_module2` (M2 starts now); otherwise M2 starts **automatically at `gap_until`** (so its clock is already
+  running when the student comes back) and is auto-finished if the whole time has passed.
+- **Nothing before M2 ends.** Until module 2 is finished the student receives no route, no score, no keys and no
+  module-1 answers: `submit_attempt` on a module returns only `{stage, …}`, and the `attempts` / `attempt_answers` rows of
+  a mock stay hidden by RLS until the group has a `mock_results` row (06 §Mocks). `get_attempt_review` for mock modules
+  arrives with the report (part 4).
+- **Mastery.** Mock answers feed `apply_mastery` (weight `mock`) once, when module 2 finishes — not per module.
+- **Active exam.** `private.has_active_exam(uid)` is true during a quiz, a mock module or the gap; the AI tutor (AI-03)
+  uses it to refuse during an exam.
 
 - Forms are **pre-assembled and frozen** (not random per student) so the teacher can review them
   and so score estimates are comparable across students.
@@ -113,7 +149,7 @@ Layout (laptop): top bar (section/module name, timer, tools) · question area ·
 - [ ] **Answer eliminator** (strike-through choices) per question, persisted.
 - [ ] SPR input box with live **"Answer Preview"** rendering (fraction display) and validation hints.
 - [ ] **Reference sheet** (formulas) — our own rendering of standard formulas (no copied artwork).
-- [ ] **Desmos graphing calculator** panel, draggable/resizable on laptop, full-screen sheet on phone; state persists per module, reset between mocks.
+- [ ] **Calculator.** Official Bluebook offers a built-in Desmos graphing (or scientific) calculator, or the student's own approved non-CAS calculator. Our exam bar keeps a slot for it, hidden until the Desmos decision (spec Part 3). When enabled: Desmos panel, draggable/resizable on laptop, full-screen sheet on phone; state persists per module, reset between mocks.
 - [ ] Review page at end of module before submit.
 - [ ] No back-navigation into Module 1 after it's submitted.
 - [ ] Autosave every answer; resume after reconnect with **server-side** remaining time (deadline stored at start).
@@ -125,14 +161,18 @@ Layout (laptop): top bar (section/module name, timer, tools) · question area ·
 
 **Routing:** Module 1 correct ≥ `threshold_correct_m1` → M2H, else M2E.
 
-**Score estimate (v1 heuristic):**
+**Score estimate (v1 heuristic, our own model — College Board's IRT scaling is not published):**
 ```
 raw_total = correct_m1 + correct_m2
 scale table chosen by route (two lookup tables: M2E caps lower, M2H reaches 800)
 est_mid = table[route][raw_total]
 range   = est_mid ± 30   (round to nearest 10, clamp 200–800)
 ```
-- Tables stored in `settings` (`sat_scale_easy`, `sat_scale_hard`), editable by the teacher.
+- Settings: `sat_scale_easy` and `sat_scale_hard` (45 integers each, raw 0–44, 200–800, non-decreasing, rounded to 10) and
+  `sat_scale_margin` (30). Seeded by migration with starting values: easy rises linearly 200 → 620 over raw 0–35 and
+  reaches 650 at 44; hard rises 200 → 480 over raw 0–14 and reaches 800 at 44 (hard raw below 14 is unreachable on that
+  route). They change by migration in the beta (not in the teacher settings screen); `private.mock_scale_ok` validates
+  a table and `private.mock_score(route, raw)` returns the range, raising `mock_settings_invalid` on a bad table.
 - Show as a **range** with the note "estimate — official scoring uses a different, unpublished model".
 - Calibration (P1): when students log official scores (MCK-06), compare and adjust tables.
 
