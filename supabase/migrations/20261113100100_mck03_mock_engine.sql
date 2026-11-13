@@ -194,6 +194,7 @@ declare
   v_raw    int;
   v_total  int;
   v_route  text;
+  v_thr    jsonb;
   v_m1     public.attempts%rowtype;
   v_low    int;
   v_high   int;
@@ -230,7 +231,11 @@ begin
   end if;
 
   if v_att.module_no = 1 then
-    v_route := case when v_raw >= (v_bp -> 'routing' ->> 'threshold_correct_m1')::int then 'M2H' else 'M2E' end;
+    v_thr := v_bp -> 'routing' -> 'threshold_correct_m1';
+    if v_thr is null or jsonb_typeof(v_thr) <> 'number' or (v_thr #>> '{}')::numeric <> trunc((v_thr #>> '{}')::numeric) then
+      raise exception 'internal';   -- a bad blueprint must not silently route everyone to M2E
+    end if;
+    v_route := case when v_raw >= (v_thr #>> '{}')::int then 'M2H' else 'M2E' end;
     update public.attempts a
     set status = 'submitted', submitted_at = p_submitted_at,
         score_raw = v_raw, score_total = v_total, score_pct = round(100::numeric * v_raw / v_total, 2),
@@ -379,8 +384,8 @@ begin
 end;
 $$;
 
--- Quiz-shaped payload of a module attempt: questions without keys, saved answers with marks and
--- eliminated choices, deadline and server clock.
+-- Quiz-shaped payload of a module attempt: questions without keys or difficulty (difficulty would reveal
+-- the route in module 2), saved answers with marks and eliminated choices, deadline and server clock.
 create function private.mock_module_payload(p_att public.attempts)
 returns jsonb
 language plpgsql
@@ -393,7 +398,7 @@ declare
   v_answers   jsonb;
   v_seq       int;
 begin
-  select jsonb_agg(jsonb_build_object('id', q.id, 'type', q.type, 'difficulty', q.difficulty,
+  select jsonb_agg(jsonb_build_object('id', q.id, 'type', q.type,
     'stem_md', q.stem_md, 'choices', coalesce((select jsonb_agg(
       jsonb_build_object('label', c.label, 'body_md', c.body_md) order by c.label)
       from public.question_choices c where c.question_id = q.id), '[]'::jsonb)) order by aq.position)

@@ -8,6 +8,8 @@ select tests.create_supabase_user('mk3_a');   -- M1 overdue, gap not ended
 select tests.create_supabase_user('mk3_b');   -- gap ended, no M2
 select tests.create_supabase_user('mk3_c');   -- M2 overdue
 select tests.create_supabase_user('mk3_d');   -- M1 still running
+select tests.create_supabase_user('mk3_e');   -- M2 overdue that cannot be finished
+select tests.create_supabase_user('mk3_f');   -- healthy overdue M1
 
 update public.settings set value = '30'::jsonb where key = 'save_grace_s';
 insert into public.courses (code, title, slug) values ('SAT', 'Mock SAT', 'mock-sat') on conflict (code) do nothing;
@@ -113,6 +115,28 @@ values ('53000000-0000-0000-0000-000000000901', '53000000-0000-0000-0000-0000000
 select is(private.expire_overdue_attempts(), 1, 'MCK-03: cron still finishes an overdue quiz');
 select is((select status::text from public.attempts where id = '53000000-0000-0000-0000-000000000901'), 'submitted',
   'MCK-03: overdue quiz is submitted');
+
+-- Isolation: a mock that cannot be advanced must not stop quiz expiry or other students.
+select private.mock_create_module(pg_temp.uid('mk3_e'), pg_temp.course(), pg_temp.grp('5'), pg_temp.form('M1'), 1, now() - interval '2000 seconds');
+select private.finish_mock_module(pg_temp.m(5, 1), now() - interval '1400 seconds');
+select private.mock_create_m2((select a from public.attempts a where a.id = pg_temp.m(5, 1)), now() - interval '700 seconds');
+select private.mock_create_module(pg_temp.uid('mk3_f'), pg_temp.course(), pg_temp.grp('6'), pg_temp.form('M1'), 1, now() - interval '700 seconds');
+insert into public.attempts (id, user_id, kind, course_id, topic_id, started_at, time_limit_s)
+values ('53000000-0000-0000-0000-000000000902', pg_temp.uid('mk3_b'), 'quiz', pg_temp.course(),
+        '53000000-0000-0000-0000-000000000101', now() - interval '1 hour', 60);
+insert into public.attempt_questions (attempt_id, question_id, position)
+values ('53000000-0000-0000-0000-000000000902', '53000000-0000-0000-0000-000000000402', 1);
+-- A corrupt scale table makes scoring (M2 finish) fail; M1 finishing does not need it.
+update public.settings set value = (select jsonb_agg(500) from generate_series(1, 44)) where key = 'sat_scale_easy';
+select lives_ok($$ select private.expire_overdue_attempts() $$, 'MCK-03: cron survives a mock that cannot be finished');
+select is((select status::text from public.attempts where id = '53000000-0000-0000-0000-000000000902'), 'submitted',
+  'MCK-03: the quiz is still expired when a mock fails');
+select is((select status::text from public.attempts where id = pg_temp.m(6, 1)), 'submitted',
+  'MCK-03: another student''s healthy overdue mock is still advanced');
+select is((select status::text from public.attempts where id = pg_temp.m(5, 2)), 'in_progress',
+  'MCK-03: the broken mock is left for a later run');
+select is((select count(*)::int from public.mock_results where group_id = pg_temp.grp('5')), 0,
+  'MCK-03: the broken mock has no half-written result');
 
 select ok(not has_function_privilege('authenticated', 'private.expire_overdue_attempts()', 'execute')
   and not has_function_privilege('anon', 'private.expire_overdue_attempts()', 'execute')

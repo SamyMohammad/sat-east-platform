@@ -123,6 +123,8 @@ select ok((select v ? 'deadline' and v ? 'server_now' and v ? 'warn_s' and v ? '
 select is((select (v -> 'questions' -> 0 ->> 'id')::uuid from ctx where k = 'm1'), pg_temp.q(1), 'MCK-03: questions keep form order');
 select ok((select not (v::text ~* '(correct|explanation|accepted)') from ctx where k = 'm1'),
   'MCK-03: payload carries no keys or explanations');
+select ok((select not (v -> 'questions' -> 0 ? 'difficulty') from ctx where k = 'm1'),
+  'MCK-03: question payload has no difficulty (it would reveal the route)');
 select is(public.start_mock(pg_temp.course()) ->> 'attempt_id', (select v ->> 'attempt_id' from ctx where k = 'm1'),
   'MCK-03: start_mock resumes the unfinished mock');
 select is((select jsonb_array_length(v) from (select public.get_mock_hub(pg_temp.course()) -> 'forms' v) x), 3, 'MCK-03: hub still lists 3 forms');
@@ -171,6 +173,14 @@ select is((select meta ->> 'route' from public.attempts where id = pg_temp.aid('
 select is((select (meta ->> 'gap_until')::timestamptz - submitted_at from public.attempts where id = pg_temp.aid('m1')),
   interval '120 seconds', 'MCK-03: gap_until = submit time + mock_gap_s');
 select is((select count(*)::int from public.skill_mastery where user_id = pg_temp.uid('mk2_a')), 0, 'MCK-03: no mastery after M1');
+select is((select count(*)::int from private.course_graded_answers(pg_temp.uid('mk2_a'), pg_temp.course())), 0,
+  'MCK-03: a submitted M1 is not a graded answer before the group has a result');
+select tests.authenticate_as('mk2_a');
+select is((public.get_my_skills(pg_temp.course()) -> 'summary' ->> 'graded_answers')::int, 0,
+  'MCK-03: get_my_skills excludes a submitted M1 before M2 ends');
+select throws_ok($$ select public.save_answer(pg_temp.aid('m1'), pg_temp.q(1), 'B', 1, false, null, 5) $$, 'P0001', 'invalid_input',
+  'MCK-03: save_answer on a submitted M1 during the gap is invalid_input');
+reset role;
 select is((select count(*)::int from public.mock_results), 0, 'MCK-03: no result after M1');
 select tests.authenticate_as('mk2_b');
 select throws_ok($$ select public.get_mock_session(pg_temp.gid('m1')) $$, 'P0001', 'invalid_input', 'MCK-03: other students cannot read the session');
@@ -185,6 +195,8 @@ select is((select jsonb_array_length(v -> 'questions') from ctx where k = 'm2'),
 select is((select (v -> 'questions' -> 0 ->> 'id')::uuid from ctx where k = 'm2'), pg_temp.q(9), 'MCK-03: M2H questions come from the M2H form');
 select is(public.start_mock_module2(pg_temp.gid('m1')) ->> 'attempt_id', (select v ->> 'attempt_id' from ctx where k = 'm2'),
   'MCK-03: early start is idempotent');
+select throws_ok($$ select public.save_answer(pg_temp.aid('m1'), pg_temp.q(1), 'B', 1, false, null, 6) $$, 'P0001', 'invalid_input',
+  'MCK-03: save_answer on a submitted M1 while M2 runs is invalid_input');
 select is(public.get_mock_session(pg_temp.gid('m1')) ->> 'attempt_id', (select v ->> 'attempt_id' from ctx where k = 'm2'),
   'MCK-03: session now shows module 2');
 reset role;
@@ -215,6 +227,12 @@ select is((select domain_breakdown from public.mock_results where group_id = pg_
     {"domain":"Geometry & Trig","correct":0,"total":2},{"domain":"PSDA","correct":2,"total":2}]'::jsonb,
   'MCK-03: domain breakdown');
 select is((select count(*)::int from public.mock_results), 1, 'MCK-03: one result row');
+reset role;
+select is((select count(*)::int from private.course_graded_answers(pg_temp.uid('mk2_a'), pg_temp.course())), 8,
+  'MCK-03: both modules count as graded answers after M2 ends');
+select tests.authenticate_as('mk2_a');
+select is((public.get_my_skills(pg_temp.course()) -> 'summary' ->> 'graded_answers')::int, 8,
+  'MCK-03: get_my_skills includes the mock after M2 ends');
 reset role;
 select is((select sum(attempts)::int from public.skill_mastery where user_id = pg_temp.uid('mk2_a')), 8, 'MCK-03: mastery applied once per answer');
 select is((select count(*)::int from public.skill_mastery where user_id = pg_temp.uid('mk2_a') and attempts = 2), 4, 'MCK-03: two per skill');
@@ -337,6 +355,27 @@ select throws_ok($$ select public.submit_attempt('52000000-0000-0000-0000-000000
 reset role;
 update public.attempts set status = 'abandoned' where id = '52000000-0000-0000-0000-000000000900';
 select is(private.has_active_exam(pg_temp.uid('mk2_c')), false, 'MCK-03: a closed quiz is not an active exam');
+
+-- ===== Bad routing threshold is an internal error, not a silent M2E =============================
+select private.mock_create_module(pg_temp.uid('mk2_c'), pg_temp.course(), gen_random_uuid(),
+  (select id from public.mock_forms where module = 'M1' and form_no = 1 and set_no = 1), 1, now());
+update public.mock_templates set blueprint = blueprint #- '{routing,threshold_correct_m1}'
+where id = '52000000-0000-0000-0000-000000000500';
+select throws_ok($$ select private.finish_mock_module(
+  (select id from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), now()) $$,
+  'P0001', 'internal', 'MCK-03: a missing routing threshold raises internal');
+update public.mock_templates set blueprint = jsonb_set(blueprint, '{routing}', '{"threshold_correct_m1": "3"}')
+where id = '52000000-0000-0000-0000-000000000500';
+select throws_ok($$ select private.finish_mock_module(
+  (select id from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), now()) $$,
+  'P0001', 'internal', 'MCK-03: a non-numeric routing threshold raises internal');
+update public.mock_templates set blueprint = jsonb_set(blueprint, '{routing}', '{"threshold_correct_m1": 2.5}')
+where id = '52000000-0000-0000-0000-000000000500';
+select throws_ok($$ select private.finish_mock_module(
+  (select id from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), now()) $$,
+  'P0001', 'internal', 'MCK-03: a fractional routing threshold raises internal');
+select is((select status::text from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), 'in_progress',
+  'MCK-03: the module is not closed by a failed routing');
 
 -- ===== Grants ==================================================================================
 select ok(has_function_privilege('authenticated', 'public.get_mock_hub(uuid)', 'execute')

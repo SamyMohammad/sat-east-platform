@@ -30,6 +30,7 @@ $$;
 
 -- Quiz loop identical to 20261018100000_lane2a_expire_cron.sql; new mock loop below it.
 -- Returns the number of quizzes finished plus the number of students whose mocks were advanced.
+-- A student whose mock cannot be advanced is logged as a warning and retried next minute.
 create or replace function private.expire_overdue_attempts()
 returns int
 language plpgsql
@@ -79,8 +80,13 @@ begin
     if not pg_catalog.pg_try_advisory_xact_lock(private.mock_lock_key(v_uid)) then
       continue;
     end if;
-    perform private.mock_tick(v_uid);
-    v_finished := v_finished + 1;
+    -- One broken mock must not roll back quiz expiry or other students: isolate each student.
+    begin
+      perform private.mock_tick(v_uid);
+      v_finished := v_finished + 1;
+    exception when others then
+      raise warning 'mock_tick failed for %: %', v_uid, sqlerrm;
+    end;
   end loop;
   return v_finished;
 end;
