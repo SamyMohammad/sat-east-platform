@@ -17,7 +17,8 @@ create function pg_temp.score(p_route text, p_raw int) returns text language sql
   $$ select est_low || '-' || est_high from private.mock_score(p_route, p_raw) $$;
 
 -- Seeds exist with the agreed values.
-select is(pg_temp.setting('mock_unlock_topics'), '[3, 6, 10]'::jsonb, 'MCK-03: mock_unlock_topics seed');
+select is(pg_temp.setting('mock_unlock_first_topics'), '3'::jsonb, 'MCK-09: mock_unlock_first_topics seed');
+select is(pg_temp.setting('mock_unlock_step_topics'), '3'::jsonb, 'MCK-09: mock_unlock_step_topics seed');
 select is(pg_temp.setting('mock_gap_s'), '120'::jsonb, 'MCK-03: mock_gap_s seed');
 select is(pg_temp.setting('sat_scale_margin'), '30'::jsonb, 'MCK-03: sat_scale_margin seed');
 select ok(exists (select 1 from public.settings where key = 'sat_scale_easy'), 'MCK-03: sat_scale_easy exists');
@@ -36,9 +37,8 @@ select ok(not exists (
     select 1 from public.settings s, jsonb_array_elements_text(s.value) e
     where s.key in ('sat_scale_easy', 'sat_scale_hard') and e::int % 10 <> 0),
   'MCK-03: every seeded scale value is a multiple of 10');
-select ok(not exists (select 1 from private.teacher_setting_spec() where key in
-    ('mock_unlock_topics', 'mock_gap_s', 'sat_scale_margin', 'sat_scale_easy', 'sat_scale_hard')),
-  'MCK-03: new keys are not teacher-editable (migration only)');
+select ok(not exists (select 1 from private.teacher_setting_spec() where key in ('sat_scale_easy', 'sat_scale_hard')),
+  'MCK-03: scale tables are not teacher-editable (migration only); the other mock settings are (see 54)');
 
 -- setting_json.
 select is(private.setting_json('mock_gap_s'), '120'::jsonb, 'MCK-03: setting_json returns the value');
@@ -57,18 +57,20 @@ select ok(not private.mock_scale_ok(pg_temp.with_at(pg_temp.flat(45, 500), 20, '
 select ok(not private.mock_scale_ok('{"a": 1}'::jsonb), 'MCK-03: an object rejected');
 select ok(not private.mock_scale_ok(null), 'MCK-03: null rejected');
 
--- Unlock thresholds: list [3, 6, 10]; form k beyond the list uses the last entry.
+-- Unlock thresholds: form k needs first + (k - 1) * step (3 and 3 by default).
 select is((select array_agg(private.mock_unlock_need(k) order by k) from generate_series(1, 5) k),
-  array[3, 6, 10, 10, 10], 'MCK-03: unlock_need(1..5) with [3,6,10]');
-select is(private.mock_unlock_need(0), 3, 'MCK-03: unlock_need below 1 uses the first entry');
+  array[3, 6, 9, 12, 15], 'MCK-09: unlock_need(1..5) with first 3, step 3');
+select is(private.mock_unlock_need(0), 3, 'MCK-09: unlock_need below 1 counts as form 1');
 
-update public.settings set value = '[2, 4]'::jsonb where key = 'mock_unlock_topics';
+update public.settings set value = '2'::jsonb where key = 'mock_unlock_first_topics';
+update public.settings set value = '4'::jsonb where key = 'mock_unlock_step_topics';
 select is((select array_agg(private.mock_unlock_need(k) order by k) from generate_series(1, 4) k),
-  array[2, 4, 4, 4], 'MCK-03: unlock_need follows an edited list');
-update public.settings set value = '[]'::jsonb where key = 'mock_unlock_topics';
+  array[2, 6, 10, 14], 'MCK-09: unlock_need follows the edited numbers');
+delete from public.settings where key = 'mock_unlock_step_topics';
 select throws_ok($$ select private.mock_unlock_need(1) $$, 'P0001', 'mock_settings_invalid',
-  'MCK-03: an empty unlock list raises mock_settings_invalid');
-update public.settings set value = '[3, 6, 10]'::jsonb where key = 'mock_unlock_topics';
+  'MCK-09: a missing unlock setting raises mock_settings_invalid');
+insert into public.settings (key, value) values ('mock_unlock_step_topics', '3'::jsonb);
+update public.settings set value = '3'::jsonb where key = 'mock_unlock_first_topics';
 
 -- mock_score edges (seeded margin 30).
 select is(pg_temp.score('M2E', 0), '200-230', 'MCK-03: easy raw 0 clamps low to 200');

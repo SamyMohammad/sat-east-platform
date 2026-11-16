@@ -126,17 +126,17 @@ values ('53000000-0000-0000-0000-000000000902', pg_temp.uid('mk3_b'), 'quiz', pg
         '53000000-0000-0000-0000-000000000101', now() - interval '1 hour', 60);
 insert into public.attempt_questions (attempt_id, question_id, position)
 values ('53000000-0000-0000-0000-000000000902', '53000000-0000-0000-0000-000000000402', 1);
--- A corrupt scale table makes scoring (M2 finish) fail; M1 finishing does not need it.
+-- A corrupt scale table no longer blocks the finish: module 2 closes with a null score range (see 54).
 update public.settings set value = (select jsonb_agg(500) from generate_series(1, 44)) where key = 'sat_scale_easy';
-select lives_ok($$ select private.expire_overdue_attempts() $$, 'MCK-03: cron survives a mock that cannot be finished');
+select lives_ok($$ select private.expire_overdue_attempts() $$, 'MCK-03: cron survives a corrupt scale table');
 select is((select status::text from public.attempts where id = '53000000-0000-0000-0000-000000000902'), 'submitted',
   'MCK-03: the quiz is still expired when a mock fails');
 select is((select status::text from public.attempts where id = pg_temp.m(6, 1)), 'submitted',
   'MCK-03: another student''s healthy overdue mock is still advanced');
-select is((select status::text from public.attempts where id = pg_temp.m(5, 2)), 'in_progress',
-  'MCK-03: the broken mock is left for a later run');
-select is((select count(*)::int from public.mock_results where group_id = pg_temp.grp('5')), 0,
-  'MCK-03: the broken mock has no half-written result');
+select is((select status::text from public.attempts where id = pg_temp.m(5, 2)), 'submitted',
+  'MCK-03: a mock with a corrupt scale table is still finished');
+select is((select est_low is null and est_high is null and raw_m2 = 0 from public.mock_results where group_id = pg_temp.grp('5')), true,
+  'MCK-03: its result is written with a null range');
 
 select ok(not has_function_privilege('authenticated', 'private.expire_overdue_attempts()', 'execute')
   and not has_function_privilege('anon', 'private.expire_overdue_attempts()', 'execute')

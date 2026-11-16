@@ -95,7 +95,7 @@ select is((select jsonb_array_length(v -> 'forms') from ctx where k = 'hub0'), 3
 select is((select string_agg(f ->> 'form_no', ',' order by (f ->> 'k')::int) from ctx, jsonb_array_elements(v -> 'forms') f where k = 'hub0'),
   '1,2,4', 'MCK-03: form k ignores the draft and the gap in form_no');
 select is((select string_agg(f ->> 'need', ',' order by (f ->> 'k')::int) from ctx, jsonb_array_elements(v -> 'forms') f where k = 'hub0'),
-  '3,6,10', 'MCK-03: need comes from mock_unlock_topics');
+  '3,6,9', 'MCK-09: need is first + (k - 1) * step');
 select is(pg_temp.states((select v from ctx where k = 'hub0')), 'locked,locked,locked', 'MCK-03: all locked at 0 passed');
 select is((select v -> 'active_group' from ctx where k = 'hub0'), 'null'::jsonb, 'MCK-03: no active group yet');
 select throws_ok($$ select public.start_mock(pg_temp.course()) $$, 'P0001', 'mock_locked',
@@ -356,26 +356,25 @@ reset role;
 update public.attempts set status = 'abandoned' where id = '52000000-0000-0000-0000-000000000900';
 select is(private.has_active_exam(pg_temp.uid('mk2_c')), false, 'MCK-03: a closed quiz is not an active exam');
 
--- ===== Bad routing threshold is an internal error, not a silent M2E =============================
-select private.mock_create_module(pg_temp.uid('mk2_c'), pg_temp.course(), gen_random_uuid(),
-  (select id from public.mock_forms where module = 'M1' and form_no = 1 and set_no = 1), 1, now());
+-- ===== Bad routing threshold is refused when the mock starts (it is snapshotted into the run) ===
+-- (Before the hardening migration this was checked at finish time against the live template.)
 update public.mock_templates set blueprint = blueprint #- '{routing,threshold_correct_m1}'
 where id = '52000000-0000-0000-0000-000000000500';
-select throws_ok($$ select private.finish_mock_module(
-  (select id from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), now()) $$,
-  'P0001', 'internal', 'MCK-03: a missing routing threshold raises internal');
+select throws_ok($$ select private.mock_create_module(pg_temp.uid('mk2_c'), pg_temp.course(), gen_random_uuid(),
+  (select id from public.mock_forms where module = 'M1' and form_no = 1 and set_no = 1), 1, now()) $$,
+  'P0001', 'internal', 'MCK-03: a missing routing threshold raises internal at start');
 update public.mock_templates set blueprint = jsonb_set(blueprint, '{routing}', '{"threshold_correct_m1": "3"}')
 where id = '52000000-0000-0000-0000-000000000500';
-select throws_ok($$ select private.finish_mock_module(
-  (select id from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), now()) $$,
-  'P0001', 'internal', 'MCK-03: a non-numeric routing threshold raises internal');
+select throws_ok($$ select private.mock_create_module(pg_temp.uid('mk2_c'), pg_temp.course(), gen_random_uuid(),
+  (select id from public.mock_forms where module = 'M1' and form_no = 1 and set_no = 1), 1, now()) $$,
+  'P0001', 'internal', 'MCK-03: a non-numeric routing threshold raises internal at start');
 update public.mock_templates set blueprint = jsonb_set(blueprint, '{routing}', '{"threshold_correct_m1": 2.5}')
 where id = '52000000-0000-0000-0000-000000000500';
-select throws_ok($$ select private.finish_mock_module(
-  (select id from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), now()) $$,
-  'P0001', 'internal', 'MCK-03: a fractional routing threshold raises internal');
-select is((select status::text from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), 'in_progress',
-  'MCK-03: the module is not closed by a failed routing');
+select throws_ok($$ select private.mock_create_module(pg_temp.uid('mk2_c'), pg_temp.course(), gen_random_uuid(),
+  (select id from public.mock_forms where module = 'M1' and form_no = 1 and set_no = 1), 1, now()) $$,
+  'P0001', 'internal', 'MCK-03: a fractional routing threshold raises internal at start');
+select is((select count(*)::int from public.attempts where user_id = pg_temp.uid('mk2_c') and kind = 'mock_module'), 0,
+  'MCK-03: no module is created from a bad blueprint');
 
 -- ===== Grants ==================================================================================
 select ok(has_function_privilege('authenticated', 'public.get_mock_hub(uuid)', 'execute')
