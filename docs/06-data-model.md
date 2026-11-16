@@ -214,6 +214,13 @@ mock_forms(id uuid pk, template_id fk, set_no int, form_no int,
 mock_results(id uuid pk, user_id fk, template_id fk, group_id uuid,
   route text, raw_m1 int, raw_m2 int, est_low int, est_high int,
   domain_breakdown jsonb, created_at)
+private.mock_runs(group_id uuid pk, user_id fk, course_id fk, template_id fk, set_no int, form_no int,
+  m1_attempt_id fk, m2_attempt_id fk, route text check (route in ('M2H','M2E')), raw_m1 int,
+  m1_submitted_at timestamptz, finished_at timestamptz, created_at,
+  unique (user_id, template_id, set_no, form_no))
+  -- one row per (student, form); RLS on, no policy, no API grants; partial index on (user_id) where
+  -- finished_at is null. Holds the hidden state (route, module 1 score) until the run finishes.
+  -- Its group_id is the attempts.mock_attempt_group of both module attempts and mock_results.group_id.
 official_scores(id uuid pk, user_id fk, course_id fk, source text, score int, taken_on date)
 ```
 
@@ -257,7 +264,7 @@ dashboard or an Edge Function. Agreed in row 3 (docs/15 §1, 2026-10-07).
 | enrollments | — | select own |
 | orders | — | select own, every column except `raw_payload` |
 | attempts | — | select own |
-| attempt_answers | — | select own, only when the attempt is no longer `in_progress` (rule 1) |
+| attempt_answers | — | select own, only when the attempt is no longer `in_progress` (rule 1); for a `mock_module` attempt also only when its run has `finished_at` (`public.mock_attempt_visible`), so module 1 stays hidden until module 2 ends |
 | topic_progress, video_progress, skill_mastery, skill_mastery_daily, mistake_notebook, mock_results | — | select own |
 | official_scores, question_reports | — | select + insert own |
 | ai_threads, ai_messages, escalations | — | select own (writes: `ai-tutor` EF, so cost caps hold) |
@@ -289,7 +296,7 @@ preview branch applies only when no enrolment row exists.
 
 Traps closed by row 3 (from the row 2b review), each with a pgTAP test:
 - `profiles.role` cannot be self-updated (column-level `update` grant).
-- `attempt_answers` is unreadable while the attempt is `in_progress`.
+- `attempt_answers` is unreadable while the attempt is `in_progress`, and for a mock module until its run is finished; the module 1 attempt keeps `score_*` and `meta` null until then.
 - `orders.raw_payload` is not granted; `mock_forms` has no student access.
 - Every `user_id` / `thread_id` FK used by a "select own" policy has an index.
 

@@ -18,6 +18,15 @@
 Domain mix per full test (approx., verify): Algebra ~35% · Advanced Math ~35% ·
 Problem-Solving & Data Analysis ~15% · Geometry & Trigonometry ~15%.
 
+**Verified 2026-11-16** against College Board pages
+(<https://satsuite.collegeboard.org/sat/whats-on-the-test/structure>,
+<https://satsuite.collegeboard.org/k12-educators/about/alignment/math>,
+<https://satsuite.collegeboard.org/sat/what-to-bring-do/calculator-policy>): 2 adaptive Math modules,
+22 questions each (20 operational + 2 unscored pretest) and 35 minutes per module, domain shares about
+35/35/15/15, Desmos available for the whole section, score 200–800. Our mocks score all 22 questions.
+No break between the two Math modules is documented officially; our gap is the setting `mock_gap_s`
+(0 disables it). The MCQ/SPR split has no official number.
+
 ## 2. Mock lifecycle
 
 ```
@@ -25,9 +34,24 @@ mock_templates (blueprint)  ──teacher_assemble_mock_form──▶  mock_form
       form k = { M1, M2E (easier), M2H (harder) }       ← built once, reviewed by teacher
    draft ──swap / delete──▶ draft ──teacher_publish_mock_form──▶ published (frozen)
 Student starts mock → pick lowest form_no in student's set_no not yet taken
-   → attempt(kind=mock_module, module 1)  → submit → route → attempt(module 2: M2E | M2H)
+   → attempt(kind=mock_module, module 1)  → submit → route → gap (mock_gap_s) → attempt(module 2: M2E | M2H)
    → mock_results (raw scores, route, estimated range, domain breakdown) → drill set
 ```
+
+- **Unlock (MCK-09):** form *k* (the k-th published form of the student's set by `form_no`) needs
+  `mock_unlock_first_topics + (k − 1) × mock_unlock_step_topics` passed topics (defaults 3 and 3). Only the
+  lowest not-started form can start, one run at a time (`mock_locked`, `mock_in_progress`, `mock_already_taken`).
+- **Engine:** state lives in `private.mock_runs`; the two modules are `attempts` of kind `mock_module`, so
+  `save_answer` and the outbox are reused. The server owns time and routing. Until module 2 ends the student
+  sees no score, route or `is_correct` (module 1 attempt keeps `score_*` and `meta` null; its answers are hidden by RLS).
+- **Gap and tick:** after module 1 there is a gap of `mock_gap_s` seconds (default 120); the student may start
+  module 2 early, otherwise it starts by itself when the gap ends. `private.mock_tick(uid)` runs first in every
+  mock RPC and in the minute cron: module 1 past `time_limit_s + save_grace_s` is finished, the gap ending creates
+  module 2 (started at the gap's end), an overdue module 2 is finished with unanswered questions counted wrong.
+  A student who vanishes still gets a result.
+- Access is checked only when a run starts; a started run can always be resumed, saved and submitted.
+- Settings (teacher group Mock): `mock_unlock_first_topics`, `mock_unlock_step_topics`, `mock_gap_s`, `mock_warn_s`,
+  `mock_score_margin`.
 
 - Forms are **pre-assembled and frozen** (not random per student) so the teacher can review them
   and so score estimates are comparable across students.
@@ -132,7 +156,10 @@ scale table chosen by route (two lookup tables: M2E caps lower, M2H reaches 800)
 est_mid = table[route][raw_total]
 range   = est_mid ± 30   (round to nearest 10, clamp 200–800)
 ```
-- Tables stored in `settings` (`sat_scale_easy`, `sat_scale_hard`), editable by the teacher.
+- Tables stored in `settings` (`sat_scale_easy`, `sat_scale_hard`): 45 integers (raw 0–44), changed by migration
+  only (`teacher_update_settings` rejects arrays), validated by `private.mock_scale_ok`. **The shipped values are
+  uncalibrated starting values**: a straight line, hard = `round10(200 + 600 × raw / 44)`, easy =
+  `round10(200 + 420 × raw / 44)` (tops out at 620). The margin is `mock_score_margin` (default 30).
 - Show as a **range** with the note "estimate — official scoring uses a different, unpublished model".
 - Calibration (P1): when students log official scores (MCK-06), compare and adjust tables.
 
