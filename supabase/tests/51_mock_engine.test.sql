@@ -223,5 +223,240 @@ select throws_ok($$ select public.get_mock_hub(null) $$, 'P0001', 'not_authentic
 select throws_ok($$ select count(*) from private.mock_runs $$, '42501', null, 'MCK-01: authenticated cannot read private.mock_runs');
 reset role;
 
+-- ================================================================================================
+-- Task 2: start_mock, get_mock_stage, save_answer (mock_module), has_active_exam, hub resume.
+-- ================================================================================================
+update public.settings set value = '1000'::jsonb where key in ('rate_start_per_min', 'rate_save_per_min');
+select tests.create_supabase_user('mk2_a');
+select tests.create_supabase_user('mk2_b');
+select tests.create_supabase_user('mk2_c');
+select tests.create_supabase_user('mk2_d');
+select tests.create_supabase_user('mk2_e');
+
+insert into public.topics (course_id, title, slug, sort, is_published)
+select (select course_id from t_ids), 'MK2 topic ' || g, 'mk2-topic-' || g, 100 + g, true from generate_series(1, 12) g;
+insert into public.subtopics (id, topic_id, title, sort)
+select '52000000-0000-0000-0000-000000000001', id, 'MK2 sub', 1 from public.topics where slug = 'mk1-topic-1';
+
+-- 66 mock questions; n 1..66. Question 1 has choices and a key + explanation (must never leak).
+create temp table t_q as
+  select n, gen_random_uuid() as id from generate_series(1, 66) n;
+insert into public.questions (id, topic_id, subtopic_id, type, difficulty, stem_md, pool, status, external_ref)
+select q.id, (select id from public.topics where slug = 'mk1-topic-1'), '52000000-0000-0000-0000-000000000001',
+       case when q.n % 4 = 0 then 'spr' else 'mcq' end::public.question_type, 'M', 'Stem ' || q.n, 'mock_reserve', 'published', 'MK52-' || q.n
+from t_q q;
+insert into public.question_choices (question_id, label, body_md)
+select q.id, l, 'Choice ' || l from t_q q, (values ('A'), ('B'), ('C'), ('D')) c(l) where q.n % 4 <> 0;
+insert into private.question_keys (question_id, correct_answer, explanation_md)
+select q.id, '{"choice":"B"}', 'SECRET explanation ' || q.n from t_q q;
+
+-- set 3: forms 1 and 2 ok, form 3 published but its M1 has 21 questions, form 4 draft.
+create function pg_temp.ids(p_from int, p_to int, p_desc boolean) returns uuid[] language sql as $$
+  select array_agg(id order by case when p_desc then -n else n end) from t_q where n between p_from and p_to $$;
+insert into public.mock_forms (template_id, set_no, form_no, module, question_ids, status, published_at)
+select (select tpl from t_ids), 3, f.form_no, m.module,
+       case m.module when 'M1' then pg_temp.ids(1, case when f.form_no = 3 then 21 else 22 end, true)
+                     when 'M2E' then pg_temp.ids(23, 44, false) else pg_temp.ids(45, 66, false) end,
+       f.status, now()
+from (values (1, 'published'), (2, 'published'), (3, 'published'), (4, 'draft')) f(form_no, status),
+     (values ('M1'), ('M2E'), ('M2H')) m(module);
+
+create function pg_temp.setup(p_user text, p_passed int) returns void language sql as $$
+  insert into public.enrollments (user_id, course_id, status, expires_at, mock_set_no)
+  select tests.get_supabase_uid(p_user), course_id, 'active', now() + interval '30 days', 3 from t_ids;
+  insert into public.topic_progress (user_id, topic_id, quiz_passed_at)
+  select tests.get_supabase_uid(p_user), id, now()
+  from (select id from public.topics where slug like 'mk2-topic-%' order by sort limit p_passed) x;
+$$;
+select pg_temp.setup('mk2_a', 3);
+select pg_temp.setup('mk2_b', 0);
+select pg_temp.setup('mk2_c', 6);
+select pg_temp.setup('mk2_d', 3);
+select pg_temp.setup('mk2_e', 9);
+update public.enrollments set expires_at = now() - interval '1 day' where user_id = tests.get_supabase_uid('mk2_d');
+
+create temp table t_st (label text, r jsonb);
+grant all on t_st to authenticated;
+create function pg_temp.st(p_label text) returns jsonb language sql stable as $$ select r from t_st where label = p_label $$;
+
+-- start ------------------------------------------------------------------------------------------
+select tests.authenticate_as('mk2_a');
+insert into t_st select 'a1', public.start_mock((select course_id from t_ids), 1);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.st('a1') ->> 'stage', 'module', 'MCK-01: start_mock returns a module stage');
+select is(pg_temp.st('a1') -> 'module_no', '1'::jsonb, 'MCK-01: first stage is module 1');
+select is(jsonb_array_length(pg_temp.st('a1') -> 'questions'), 22, 'MCK-01: module 1 has 22 questions');
+select is((select array_agg(q ->> 'id' order by ord) from jsonb_array_elements(pg_temp.st('a1') -> 'questions') with ordinality x(q, ord)),
+  (select array_agg(id::text order by n desc) from t_q where n <= 22), 'MCK-01: questions follow the form''s M1 slot order');
+select is(pg_temp.st('a1') -> 'time_limit_s', '2100'::jsonb, 'MCK-01: time limit is the blueprint M1 time');
+select is(pg_temp.st('a1') -> 'warn_s', '300'::jsonb, 'MCK-01: warn_s comes from mock_warn_s');
+select is(pg_temp.st('a1') -> 'title', '"Module 1"'::jsonb, 'MCK-01: title is Module 1');
+select is((pg_temp.st('a1') ->> 'deadline')::timestamptz,
+  (select started_at + interval '2100 seconds' from public.attempts where id = (pg_temp.st('a1') ->> 'attempt_id')::uuid),
+  'MCK-01: deadline is started_at + time_limit_s');
+select ok(pg_temp.st('a1') ->> 'server_now' is not null and pg_temp.st('a1') -> 'client_seq' = '0'::jsonb
+  and pg_temp.st('a1') -> 'answers' = '[]'::jsonb, 'MCK-01: fresh stage has server_now, no answers, client_seq 0');
+select is((pg_temp.st('a1') -> 'questions' -> 21) ->> 'id', (select id::text from t_q where n = 1), 'MCK-01: last slot is the last id');
+select is(jsonb_array_length((select q -> 'choices' from jsonb_array_elements(pg_temp.st('a1') -> 'questions') q
+  where q ->> 'id' = (select id::text from t_q where n = 1))), 4, 'MCK-01: mcq carries its choices');
+select ok(pg_temp.st('a1')::text !~ '(correct_answer|explanation|is_correct|"key"|SECRET|misconception)',
+  'MCK-01: the stage payload has no key, explanation or is_correct');
+select is((select count(*)::int from private.mock_runs where user_id = tests.get_supabase_uid('mk2_a')), 1, 'MCK-01: one run row');
+select is((select m1_attempt_id from private.mock_runs where user_id = tests.get_supabase_uid('mk2_a')),
+  (pg_temp.st('a1') ->> 'attempt_id')::uuid, 'MCK-01: run points at the module 1 attempt');
+select is((select group_id from private.mock_runs where user_id = tests.get_supabase_uid('mk2_a')),
+  (pg_temp.st('a1') ->> 'group_id')::uuid, 'MCK-01: stage group id is the run id');
+select results_eq($$ select kind::text, module_no, mock_attempt_group, mock_form_id, status::text, time_limit_s, course_id
+    from public.attempts where id = (pg_temp.st('a1') ->> 'attempt_id')::uuid $$,
+  $$ select 'mock_module', 1, (pg_temp.st('a1') ->> 'group_id')::uuid,
+            (select id from public.mock_forms where set_no = 3 and form_no = 1 and module = 'M1'),
+            'in_progress', 2100, (select course_id from t_ids) $$,
+  'MCK-01: attempt row is a mock_module of module 1 on the M1 form row');
+select is((select array_agg(question_id order by position) from public.attempt_questions
+  where attempt_id = (pg_temp.st('a1') ->> 'attempt_id')::uuid),
+  (select question_ids from public.mock_forms where set_no = 3 and form_no = 1 and module = 'M1'),
+  'MCK-01: attempt_questions are in slot order');
+
+select tests.authenticate_as('mk2_a');
+insert into t_st select 'a2', public.start_mock((select course_id from t_ids), 1);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.st('a2') ->> 'attempt_id', pg_temp.st('a1') ->> 'attempt_id', 'MCK-01: second start_mock returns the same attempt');
+select is((select count(*)::int from private.mock_runs where user_id = tests.get_supabase_uid('mk2_a')), 1, 'MCK-01: still one run');
+select is((select count(*)::int from public.attempts where user_id = tests.get_supabase_uid('mk2_a')), 1, 'MCK-01: still one attempt');
+
+-- guards -------------------------------------------------------------------------------------------
+select tests.authenticate_as('mk2_b');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'mock_locked', 'MCK-01: too few topics is mock_locked');
+select tests.authenticate_as('mk2_c');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 2) $$, 'P0001', 'mock_locked',
+  'MCK-01: form 2 before form 1 is mock_locked even with enough topics');
+select tests.authenticate_as('mk2_a');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 2) $$, 'P0001', 'mock_in_progress',
+  'MCK-01: another form while a run is unfinished is mock_in_progress');
+select tests.authenticate_as('mk2_d');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'access_expired', 'MCK-01: expired enrolment is access_expired');
+select tests.authenticate_as('mk1_noenrol');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'not_enrolled', 'MCK-01: no enrolment is not_enrolled');
+select tests.authenticate_as('mk2_c');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 99) $$, 'P0001', 'invalid_input', 'MCK-01: unknown form is invalid_input');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 4) $$, 'P0001', 'invalid_input', 'MCK-01: draft form is invalid_input');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), null) $$, 'P0001', 'invalid_input', 'MCK-01: null form is invalid_input');
+select throws_ok($$ select public.start_mock(null, 1) $$, 'P0001', 'invalid_input', 'MCK-01: null course is invalid_input');
+select tests.clear_authentication();
+reset role;
+
+-- finished form is mock_already_taken; a form whose M1 has 21 questions is internal and leaves nothing.
+insert into private.mock_runs (user_id, course_id, template_id, set_no, form_no, finished_at)
+select tests.get_supabase_uid('mk2_e'), course_id, tpl, 3, f, now() from t_ids, generate_series(1, 2) f;
+select tests.authenticate_as('mk2_e');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'mock_already_taken', 'MCK-01: finished form is mock_already_taken');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 3) $$, 'P0001', 'internal', 'MCK-01: a 21-question module is internal');
+select tests.clear_authentication();
+reset role;
+select is((select count(*)::int from private.mock_runs where user_id = tests.get_supabase_uid('mk2_e') and form_no = 3), 0, 'MCK-01: a failed start leaves no run');
+select is((select count(*)::int from public.attempts where user_id = tests.get_supabase_uid('mk2_e')), 0, 'MCK-01: a failed start leaves no attempt');
+
+-- save_answer ----------------------------------------------------------------------------------------
+grant select on t_q to authenticated;
+create function pg_temp.q1() returns uuid language sql stable as $$ select id from t_q where n = 1 $$;
+create function pg_temp.att() returns uuid language sql stable as $$ select (r ->> 'attempt_id')::uuid from t_st where label = 'a1' $$;
+grant execute on function pg_temp.q1() to authenticated;
+grant execute on function pg_temp.att() to authenticated;
+grant execute on function pg_temp.st(text) to authenticated;
+select tests.authenticate_as('mk2_a');
+select is(public.save_answer(pg_temp.att(), pg_temp.q1(), 'B', 1500, true, array['A'], 1), '{"ok":true}'::jsonb, 'MCK-01: save_answer works on a mock module');
+select tests.clear_authentication();
+reset role;
+select results_eq($$ select answer, marked_for_review, eliminated, client_seq from public.attempt_answers where attempt_id = pg_temp.att() $$,
+  $$ values ('{"value":"B"}'::jsonb, true, '["A"]'::jsonb, 1) $$, 'MCK-01: answer, mark and eliminated are stored');
+select tests.authenticate_as('mk2_a');
+select is(public.save_answer(pg_temp.att(), pg_temp.q1(), 'C', 1500, false, array[]::text[], 1), '{"ok":true,"stale":true}'::jsonb,
+  'MCK-01: a stale client_seq is ignored');
+select is(public.save_answer(pg_temp.att(), pg_temp.q1(), 'C', 1500, false, array[]::text[], 2) ->> 'ok', 'true', 'MCK-01: a newer client_seq is stored');
+select throws_ok($$ select public.save_answer(pg_temp.att(), gen_random_uuid(), 'A', 1, false, array[]::text[], 3) $$, 'P0001', 'invalid_input',
+  'MCK-01: a question outside the module is invalid_input');
+select tests.authenticate_as('mk2_b');
+select throws_ok($$ select public.save_answer(pg_temp.att(), pg_temp.q1(), 'A', 1, false, array[]::text[], 9) $$, 'P0001', 'invalid_input',
+  'MCK-01: another student''s mock attempt is refused');
+select tests.clear_authentication();
+reset role;
+
+-- get_mock_stage, has_active_exam, expiry of enrolment mid-run ------------------------------------------
+select tests.authenticate_as('mk2_a');
+insert into t_st select 'a3', public.get_mock_stage((pg_temp.st('a1') ->> 'group_id')::uuid);
+select tests.clear_authentication();
+reset role;
+select is(pg_temp.st('a3') ->> 'attempt_id', pg_temp.st('a1') ->> 'attempt_id', 'MCK-01: get_mock_stage resumes the same module');
+select is(pg_temp.st('a3') -> 'answers', jsonb_build_array(jsonb_build_object('question_id', (select id from t_q where n = 1), 'answer', 'C', 'marked', false, 'eliminated', jsonb_build_array())),
+  'MCK-01: resume carries saved answers with eliminated');
+select is(pg_temp.st('a3') -> 'client_seq', '2'::jsonb, 'MCK-01: resume carries the latest client_seq');
+select ok((pg_temp.st('a3') ->> 'server_now')::timestamptz >= (pg_temp.st('a1') ->> 'server_now')::timestamptz, 'MCK-01: server_now does not go back');
+select ok(pg_temp.st('a3')::text !~ '(correct_answer|explanation|is_correct|"key"|SECRET)', 'MCK-01: resume payload has no key either');
+select tests.authenticate_as('mk2_b');
+select throws_ok($$ select public.get_mock_stage((select (r ->> 'group_id')::uuid from t_st where label = 'a1')) $$, 'P0001', 'invalid_input',
+  'MCK-01: another student''s group is invalid_input');
+select throws_ok($$ select public.get_mock_stage(null) $$, 'P0001', 'invalid_input', 'MCK-01: null group is invalid_input');
+select throws_ok($$ select public.get_mock_stage(gen_random_uuid()) $$, 'P0001', 'invalid_input', 'MCK-01: unknown group is invalid_input');
+select tests.clear_authentication();
+reset role;
+
+select is(private.has_active_exam(tests.get_supabase_uid('mk2_a')), true, 'MCK-01: has_active_exam is true during a mock run');
+select is(private.has_active_exam(tests.get_supabase_uid('mk2_b')), false, 'MCK-01: has_active_exam is false with nothing in progress');
+insert into public.attempts (id, user_id, kind, course_id, topic_id, status, started_at, time_limit_s)
+select '52000000-0000-0000-0000-0000000000a1', tests.get_supabase_uid('mk2_b'), 'quiz', course_id,
+       (select id from public.topics where slug = 'mk1-topic-1'), 'in_progress', now(), 600 from t_ids;
+select is(private.has_active_exam(tests.get_supabase_uid('mk2_b')), true, 'MCK-01: has_active_exam is true during a quiz');
+update public.attempts set started_at = now() - interval '2 hours' where id = '52000000-0000-0000-0000-0000000000a1';
+select is(private.has_active_exam(tests.get_supabase_uid('mk2_b')), false, 'MCK-01: an overdue quiz is not active');
+update public.attempts set started_at = now(), status = 'submitted' where id = '52000000-0000-0000-0000-0000000000a1';
+select is(private.has_active_exam(tests.get_supabase_uid('mk2_b')), false, 'MCK-01: a submitted quiz is not active');
+select is(private.has_active_exam(tests.get_supabase_uid('mk2_e')), false, 'MCK-01: finished runs are not active');
+select is(private.has_active_exam(null), false, 'MCK-01: has_active_exam of null is false');
+
+-- deadline: grace is time_limit_s + save_grace_s
+update public.attempts set started_at = now() - interval '2120 seconds' where id = pg_temp.att();
+select tests.authenticate_as('mk2_a');
+select is(public.save_answer(pg_temp.att(), pg_temp.q1(), 'D', 1, false, array[]::text[], 3) ->> 'ok', 'true',
+  'MCK-01: a save inside time limit plus grace still works');
+select tests.clear_authentication();
+reset role;
+update public.attempts set started_at = now() - interval '2140 seconds' where id = pg_temp.att();
+select tests.authenticate_as('mk2_a');
+select throws_ok($$ select public.save_answer(pg_temp.att(), pg_temp.q1(), 'D', 1, false, array[]::text[], 4) $$, 'P0001', 'deadline_passed',
+  'MCK-01: a save after time limit plus grace is deadline_passed');
+select tests.clear_authentication();
+reset role;
+update public.attempts set started_at = now() where id = pg_temp.att();
+
+-- enrolment expires mid-run: save, resume and the hub still work (Decision 6)
+update public.enrollments set expires_at = now() - interval '1 day' where user_id = tests.get_supabase_uid('mk2_a');
+select tests.authenticate_as('mk2_a');
+select is(public.save_answer(pg_temp.att(), pg_temp.q1(), 'A', 1, false, array[]::text[], 5) ->> 'ok', 'true', 'MCK-01: save works after the enrolment expired');
+select is(public.get_mock_stage((pg_temp.st('a1') ->> 'group_id')::uuid) ->> 'stage', 'module', 'MCK-01: resume works after the enrolment expired');
+select is(public.start_mock((select course_id from t_ids), 1) ->> 'attempt_id', pg_temp.st('a1') ->> 'attempt_id',
+  'MCK-01: start_mock on the running form resumes after the enrolment expired');
+select is(public.get_mock_hub((select course_id from t_ids)) #>> '{forms,0,state}', 'in_progress', 'MCK-01: hub shows the in-progress form after expiry');
+select is(public.get_mock_hub((select course_id from t_ids)) #>> '{forms,0,group_id}', pg_temp.st('a1') ->> 'group_id', 'MCK-01: hub carries its group id after expiry');
+select tests.clear_authentication();
+reset role;
+
+-- permissions
+set local role anon;
+select throws_ok($$ select public.start_mock(null, null) $$, '42501', null, 'MCK-01: anon cannot execute start_mock');
+select throws_ok($$ select public.get_mock_stage(null) $$, '42501', null, 'MCK-01: anon cannot execute get_mock_stage');
+reset role;
+set local role authenticated;
+select throws_ok($$ select public.start_mock(null, null) $$, 'P0001', 'not_authenticated', 'MCK-01: start_mock checks the uid');
+select throws_ok($$ select public.get_mock_stage(null) $$, 'P0001', 'not_authenticated', 'MCK-01: get_mock_stage checks the uid');
+reset role;
+select ok(not has_function_privilege('authenticated', 'private.has_active_exam(uuid)', 'execute')
+  and not has_function_privilege('anon', 'private.has_active_exam(uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'private.mock_stage(uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'private.mock_lock_user(uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'private.mock_access(uuid,uuid)', 'execute'),
+  'MCK-01: task 2 helpers are not executable by API roles');
+
 select * from finish();
 rollback;

@@ -1,6 +1,7 @@
 -- MCK-01: SAT mock engine, server. Spec: docs/superpowers/specs/2026-11-12-mock-sat-design.md Part 3.
 -- Sections: 1 settings | 2 scale tables | 3 teacher spec | 4 scale + estimate helpers | 5 mock_runs |
--- 6 unlock | 7 hub (later tasks append: start/save/resume, submit/routing/tick/results).
+-- 6 unlock | 7 access + hub rows | 8 hub | 9 payload helpers + stage | 10 start_mock + get_mock_stage |
+-- 11 save_answer | 12 has_active_exam (Task 3 appends: submit/routing/tick/results).
 
 -- 1. Settings (rule 5: no magic numbers) -----------------------------------------------------------
 insert into public.settings (key, value) values
@@ -177,7 +178,72 @@ end;
 $$;
 revoke execute on function private.mock_form_unlock(uuid, uuid) from public, anon, authenticated;
 
--- 7. Hub ------------------------------------------------------------------------------------------
+-- 7. Access + hub rows (shared by get_mock_hub and start_mock) -------------------------------------
+-- Course-level access. A student with an unfinished run for the course always passes (plan Decision 6:
+-- a started run is never locked out); otherwise not_enrolled / access_expired. Returns the set number.
+create function private.mock_access(p_uid uuid, p_course_id uuid)
+returns int
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_enr       public.enrollments%rowtype;
+  v_has_enr   boolean;
+  v_open_set  int;
+begin
+  select e.* into v_enr from public.enrollments e where e.user_id = p_uid and e.course_id = p_course_id;
+  v_has_enr := found;
+  select r.set_no into v_open_set from private.mock_runs r
+  where r.user_id = p_uid and r.course_id = p_course_id and r.finished_at is null
+  limit 1;
+  if v_open_set is not null then
+    return case when v_has_enr then v_enr.mock_set_no else v_open_set end;
+  end if;
+  if not v_has_enr then
+    raise exception 'not_enrolled';
+  end if;
+  if v_enr.status <> 'active' or v_enr.expires_at <= now() then
+    raise exception 'access_expired';
+  end if;
+  return v_enr.mock_set_no;
+end;
+$$;
+revoke execute on function private.mock_access(uuid, uuid) from public, anon, authenticated;
+
+-- One row per published form of the student's set with its state: locked / available / in_progress /
+-- finished. Exactly one form can be available: the lowest not-started one, unlocked, with no run unfinished.
+create function private.mock_hub_rows(p_uid uuid, p_course_id uuid, p_passed int)
+returns table (template_id uuid, set_no int, form_no int, topics_needed int, group_id uuid,
+               finished_at timestamptz, state text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with u as (
+    select * from private.mock_form_unlock(p_uid, p_course_id)
+  ), j as (
+    select u.template_id, u.set_no, u.form_no, u.topics_needed, r.group_id, r.finished_at
+    from u
+    left join private.mock_runs r on r.user_id = p_uid and r.template_id = u.template_id
+                                 and r.set_no = u.set_no and r.form_no = u.form_no
+  ), c as (
+    select (select min(j2.form_no) from j j2 where j2.group_id is null) as next_form,
+           exists (select 1 from private.mock_runs x where x.user_id = p_uid and x.finished_at is null) as busy
+  )
+  select j.template_id, j.set_no, j.form_no, j.topics_needed, j.group_id, j.finished_at,
+         case
+           when j.group_id is not null and j.finished_at is not null then 'finished'
+           when j.group_id is not null then 'in_progress'
+           when j.form_no = c.next_form and not c.busy and p_passed >= j.topics_needed then 'available'
+           else 'locked' end
+  from j cross join c
+  order by j.form_no;
+$$;
+revoke execute on function private.mock_hub_rows(uuid, uuid, int) from public, anon, authenticated;
+
+-- 8. Hub ------------------------------------------------------------------------------------------
 create function public.get_mock_hub(p_course_id uuid)
 returns jsonb
 language plpgsql
@@ -186,7 +252,7 @@ set search_path = ''
 as $$
 declare
   v_uid    uuid := auth.uid();
-  v_enr    public.enrollments%rowtype;
+  v_set_no int;
   v_passed int;
   v_forms  jsonb;
 begin
@@ -197,47 +263,303 @@ begin
     raise exception 'invalid_input';
   end if;
 
-  select e.* into v_enr from public.enrollments e where e.user_id = v_uid and e.course_id = p_course_id;
-  if not found then
-    raise exception 'not_enrolled';
-  end if;
-  if v_enr.status <> 'active' or v_enr.expires_at <= now() then
-    raise exception 'access_expired';
-  end if;
+  v_set_no := private.mock_access(v_uid, p_course_id);
 
   select count(*)::int into v_passed
   from private.topic_states(v_uid, p_course_id) ts where ts.status = 'completed';
 
-  with u as (
-    select * from private.mock_form_unlock(v_uid, p_course_id)
-  ), j as (
-    select u.form_no, u.topics_needed, r.group_id, r.finished_at, res.est_low, res.est_high,
-           (r.group_id is null) as not_started
-    from u
-    left join private.mock_runs r on r.user_id = v_uid and r.template_id = u.template_id
-                                 and r.set_no = u.set_no and r.form_no = u.form_no
-    left join public.mock_results res on res.group_id = r.group_id and res.user_id = v_uid
-  ), c as (
-    select (select min(j.form_no) from j where j.not_started) as next_form,
-           exists (select 1 from private.mock_runs x where x.user_id = v_uid and x.finished_at is null) as busy
-  )
   select coalesce(jsonb_agg(jsonb_build_object(
-      'form_no', j.form_no,
-      'state', case
-        when j.group_id is not null and j.finished_at is not null then 'finished'
-        when j.group_id is not null then 'in_progress'
-        when j.form_no = c.next_form and not c.busy and v_passed >= j.topics_needed then 'available'
-        else 'locked' end,
-      'topics_needed', j.topics_needed,
-      'group_id', j.group_id,
-      'est_low', case when j.finished_at is not null then j.est_low end,
-      'est_high', case when j.finished_at is not null then j.est_high end
-    ) order by j.form_no), '[]'::jsonb)
+      'form_no', r.form_no,
+      'state', r.state,
+      'topics_needed', r.topics_needed,
+      'group_id', r.group_id,
+      'est_low', case when r.state = 'finished' then res.est_low end,
+      'est_high', case when r.state = 'finished' then res.est_high end
+    ) order by r.form_no), '[]'::jsonb)
   into v_forms
-  from j cross join c;
+  from private.mock_hub_rows(v_uid, p_course_id, v_passed) r
+  left join public.mock_results res on res.group_id = r.group_id and res.user_id = v_uid;
 
-  return jsonb_build_object('set_no', v_enr.mock_set_no, 'topics_passed', v_passed, 'forms', v_forms);
+  return jsonb_build_object('set_no', v_set_no, 'topics_passed', v_passed, 'forms', v_forms);
 end;
 $$;
 revoke execute on function public.get_mock_hub(uuid) from public, anon;
 grant execute on function public.get_mock_hub(uuid) to authenticated;
+
+-- 9. Per-user lock, module payload, stage ------------------------------------------------------------
+-- Serialises every mock RPC of one student (two tabs, double tap, cron tick). Fixed namespace 7301.
+create function private.mock_lock_user(p_uid uuid)
+returns void
+language sql
+security definer
+set search_path = ''
+as $$
+  select pg_catalog.pg_advisory_xact_lock(7301, pg_catalog.hashtext(p_uid::text));
+$$;
+revoke execute on function private.mock_lock_user(uuid) from public, anon, authenticated;
+
+-- A module stage object. Same question shape as start_quiz; never a key, explanation or is_correct.
+create function private.mock_module_stage(p_group_id uuid, p_module_no int, p_attempt_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_att       public.attempts%rowtype;
+  v_questions jsonb;
+  v_answers   jsonb;
+  v_seq       int;
+begin
+  select a.* into v_att from public.attempts a where a.id = p_attempt_id;
+  if not found then
+    raise exception 'internal';
+  end if;
+
+  select coalesce(jsonb_agg(jsonb_build_object('id', q.id, 'type', q.type, 'difficulty', q.difficulty,
+    'stem_md', q.stem_md, 'choices', coalesce((select jsonb_agg(
+      jsonb_build_object('label', c.label, 'body_md', c.body_md) order by c.label)
+      from public.question_choices c where c.question_id = q.id), '[]'::jsonb)) order by aq.position), '[]'::jsonb)
+  into v_questions
+  from public.attempt_questions aq join public.questions q on q.id = aq.question_id
+  where aq.attempt_id = p_attempt_id;
+
+  select coalesce(jsonb_agg(jsonb_build_object('question_id', aa.question_id,
+    'answer', aa.answer -> 'value', 'marked', aa.marked_for_review,
+    'eliminated', coalesce(aa.eliminated, '[]'::jsonb)) order by aq.position), '[]'::jsonb),
+    coalesce(max(aa.client_seq), 0)
+  into v_answers, v_seq
+  from public.attempt_answers aa
+  join public.attempt_questions aq on aq.attempt_id = aa.attempt_id and aq.question_id = aa.question_id
+  where aa.attempt_id = p_attempt_id;
+
+  return jsonb_build_object('stage', 'module', 'group_id', p_group_id, 'module_no', p_module_no,
+    'attempt_id', p_attempt_id, 'title', 'Module ' || p_module_no,
+    'time_limit_s', v_att.time_limit_s,
+    'deadline', v_att.started_at + make_interval(secs => v_att.time_limit_s),
+    'server_now', now(), 'warn_s', private.setting_int('mock_warn_s'),
+    'questions', v_questions, 'answers', v_answers, 'client_seq', v_seq);
+end;
+$$;
+revoke execute on function private.mock_module_stage(uuid, int, uuid) from public, anon, authenticated;
+
+-- The current stage of a run: finished, module 2, module 1, or the gap in between.
+-- (Task 3 puts private.mock_tick in front of this so time moves a run forward.)
+create function private.mock_stage(p_group_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_run private.mock_runs%rowtype;
+begin
+  select r.* into v_run from private.mock_runs r where r.group_id = p_group_id;
+  if not found then
+    raise exception 'invalid_input';
+  end if;
+  if v_run.finished_at is not null then
+    return jsonb_build_object('stage', 'finished', 'group_id', v_run.group_id);
+  end if;
+  if v_run.m2_attempt_id is not null then
+    return private.mock_module_stage(v_run.group_id, 2, v_run.m2_attempt_id);
+  end if;
+  if v_run.m1_submitted_at is null then
+    return private.mock_module_stage(v_run.group_id, 1, v_run.m1_attempt_id);
+  end if;
+  return jsonb_build_object('stage', 'gap', 'group_id', v_run.group_id,
+    'gap_ends_at', v_run.m1_submitted_at + make_interval(secs => private.setting_int('mock_gap_s')),
+    'server_now', now());
+end;
+$$;
+revoke execute on function private.mock_stage(uuid) from public, anon, authenticated;
+
+-- 10. start_mock + get_mock_stage ----------------------------------------------------------------------
+create function public.start_mock(p_course_id uuid, p_form_no int)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid     uuid := auth.uid();
+  v_passed  int;
+  v_row     record;
+  v_bp      jsonb;
+  v_mod     text;
+  v_form    public.mock_forms%rowtype;
+  v_m1_form uuid;
+  v_group   uuid;
+  v_att     uuid;
+begin
+  if v_uid is null then
+    raise exception 'not_authenticated';
+  end if;
+  perform private.hit_rate_limit('start_mock:' || v_uid, private.setting_int('rate_start_per_min'), 60);
+  if p_course_id is null or p_form_no is null then
+    raise exception 'invalid_input';
+  end if;
+  perform private.mock_lock_user(v_uid);
+
+  perform private.mock_access(v_uid, p_course_id);
+  select count(*)::int into v_passed
+  from private.topic_states(v_uid, p_course_id) ts where ts.status = 'completed';
+
+  select r.* into v_row from private.mock_hub_rows(v_uid, p_course_id, v_passed) r where r.form_no = p_form_no;
+  if not found then
+    raise exception 'invalid_input';
+  end if;
+  if v_row.state = 'finished' then
+    raise exception 'mock_already_taken';
+  end if;
+  if v_row.state = 'in_progress' then
+    return private.mock_stage(v_row.group_id);
+  end if;
+  if exists (select 1 from private.mock_runs x where x.user_id = v_uid and x.finished_at is null) then
+    raise exception 'mock_in_progress';
+  end if;
+  if v_row.state <> 'available' then
+    raise exception 'mock_locked';
+  end if;
+
+  -- The form must match its template's blueprint exactly; nothing is inserted otherwise.
+  select t.blueprint into v_bp from public.mock_templates t where t.id = v_row.template_id;
+  if not private.mock_blueprint_ok(v_bp) then
+    raise exception 'internal';
+  end if;
+  foreach v_mod in array array['M1', 'M2E', 'M2H'] loop
+    select f.* into v_form from public.mock_forms f
+    where f.template_id = v_row.template_id and f.set_no = v_row.set_no and f.form_no = v_row.form_no
+      and f.module = v_mod and f.status = 'published';
+    if not found
+       or pg_catalog.cardinality(v_form.question_ids) <> (v_bp -> 'modules' -> v_mod ->> 'count')::int then
+      raise exception 'internal';
+    end if;
+    if v_mod = 'M1' then
+      v_m1_form := v_form.id;
+    end if;
+  end loop;
+
+  insert into private.mock_runs (user_id, course_id, template_id, set_no, form_no)
+  values (v_uid, p_course_id, v_row.template_id, v_row.set_no, v_row.form_no)
+  returning group_id into v_group;
+
+  insert into public.attempts (user_id, kind, course_id, mock_attempt_group, mock_form_id, module_no, started_at, time_limit_s)
+  values (v_uid, 'mock_module', p_course_id, v_group, v_m1_form, 1, now(), (v_bp -> 'modules' -> 'M1' ->> 'time_s')::int)
+  returning id into v_att;
+
+  insert into public.attempt_questions (attempt_id, question_id, position)
+  select v_att, u.qid, u.pos::int
+  from public.mock_forms f, unnest(f.question_ids) with ordinality u(qid, pos)
+  where f.id = v_m1_form;
+
+  update private.mock_runs r set m1_attempt_id = v_att where r.group_id = v_group;
+
+  return private.mock_stage(v_group);
+end;
+$$;
+revoke execute on function public.start_mock(uuid, int) from public, anon;
+grant execute on function public.start_mock(uuid, int) to authenticated;
+
+-- Resume after a reload. Owner only; needs no active access (a started run can always be resumed).
+create function public.get_mock_stage(p_group_id uuid)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_uid uuid := auth.uid();
+begin
+  if v_uid is null then
+    raise exception 'not_authenticated';
+  end if;
+  if p_group_id is null
+     or not exists (select 1 from private.mock_runs r where r.group_id = p_group_id and r.user_id = v_uid) then
+    raise exception 'invalid_input';
+  end if;
+  return private.mock_stage(p_group_id);
+end;
+$$;
+revoke execute on function public.get_mock_stage(uuid) from public, anon;
+grant execute on function public.get_mock_stage(uuid) to authenticated;
+
+-- 11. save_answer: the quiz/homework body unchanged, plus kind 'mock_module' (no topic access check;
+--     deadline = time_limit_s + save_grace_s, like a quiz) ----------------------------------------------
+create or replace function public.save_answer(
+  p_attempt_id uuid, p_question_id uuid, p_answer text, p_time_ms int,
+  p_marked boolean, p_eliminated text[], p_client_seq int
+)
+returns jsonb
+language plpgsql
+security definer
+set search_path = ''
+as $fn$
+declare
+  v_uid uuid := auth.uid();
+  v_att public.attempts%rowtype;
+  v_written int;
+begin
+  if v_uid is null then
+    raise exception 'not_authenticated';
+  end if;
+  perform private.hit_rate_limit('save_answer:' || v_uid, private.setting_int('rate_save_per_min'), 60);
+  select a.* into v_att from public.attempts a
+  where a.id = p_attempt_id and a.user_id = v_uid and a.kind in ('quiz', 'homework', 'mock_module');
+  if not found then
+    raise exception 'invalid_input';
+  end if;
+  if v_att.kind = 'quiz' then
+    perform private.expire_quiz(v_uid, v_att.topic_id);
+  end if;
+  if v_att.kind <> 'mock_module' then
+    perform private.practice_access(v_uid, v_att.topic_id);
+  end if;
+  select a.* into v_att from public.attempts a where a.id = p_attempt_id for update;
+  if p_question_id is null or p_client_seq is null or p_marked is null or pg_catalog.length(p_answer) > 32
+     or not exists (select 1 from public.attempt_questions aq
+                    where aq.attempt_id = p_attempt_id and aq.question_id = p_question_id) then
+    raise exception 'invalid_input';
+  end if;
+  if v_att.kind in ('quiz', 'mock_module') and v_att.started_at + pg_catalog.make_interval(secs => v_att.time_limit_s + private.setting_int('save_grace_s')) < pg_catalog.now() then
+    raise exception 'deadline_passed';
+  end if;
+  if v_att.status <> 'in_progress' then
+    raise exception 'invalid_input';
+  end if;
+  insert into public.attempt_answers as aa
+    (attempt_id, question_id, answer, time_ms, marked_for_review, eliminated, client_seq, answered_at)
+  values (p_attempt_id, p_question_id, pg_catalog.jsonb_build_object('value', p_answer),
+          greatest(0, least(coalesce(p_time_ms, 0), 3600000)), p_marked, pg_catalog.to_jsonb(p_eliminated), p_client_seq, pg_catalog.now())
+  on conflict (attempt_id, question_id) do update
+    set answer = excluded.answer, time_ms = excluded.time_ms, marked_for_review = excluded.marked_for_review,
+        eliminated = excluded.eliminated, client_seq = excluded.client_seq, answered_at = excluded.answered_at
+    where excluded.client_seq > aa.client_seq;
+  get diagnostics v_written = row_count;
+  if v_written = 0 then
+    return pg_catalog.jsonb_build_object('ok', true, 'stale', true);
+  end if;
+  return pg_catalog.jsonb_build_object('ok', true);
+end;
+$fn$;
+revoke execute on function public.save_answer(uuid, uuid, text, int, boolean, text[], int) from public, anon;
+grant execute on function public.save_answer(uuid, uuid, text, int, boolean, text[], int) to authenticated;
+
+-- 12. has_active_exam: a quiz in progress (inside deadline + grace) or a mock run without finished_at
+--     (includes the gap). For lane B (AI-03). ----------------------------------------------------------
+create function private.has_active_exam(p_user_id uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.attempts a
+    where a.user_id = p_user_id and a.kind = 'quiz' and a.status = 'in_progress'
+      and a.started_at + make_interval(secs => a.time_limit_s + private.setting_int('save_grace_s')) >= now()
+  ) or exists (
+    select 1 from private.mock_runs r where r.user_id = p_user_id and r.finished_at is null
+  );
+$$;
+revoke execute on function private.has_active_exam(uuid) from public, anon, authenticated;
