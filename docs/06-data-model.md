@@ -227,6 +227,8 @@ How a mock is stored (MCK-03):
   row per `group_id`. Partial index `attempts_mock_in_progress_idx` serves the cron scan.
 - `mock_results` is written once, when M2 is graded: `route`, `raw_m1`, `raw_m2`, `est_low`/`est_high` from
   `private.mock_score`, and `domain_breakdown` = `[{domain, correct, total}]` ordered by domain over both modules.
+  `est_low`/`est_high` are **null** when the estimate could not be computed at finish (scale table or margin edited
+  mid-run); the mock still finishes and the client shows the scores without a range.
 - **RLS hides a mock until it is finished:** for `kind='mock_module'`, the student `select` policies on `attempts` and
   `attempt_answers` (and the skills answer feed) require a `mock_results` row for the group. Before that the route, scores and
   module-1 answers are only reachable through the RPCs, which return nothing of the kind.

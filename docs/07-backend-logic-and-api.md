@@ -119,6 +119,8 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 **Mock Session** (`start_mock`, `get_mock_session`, `start_mock_module2`; no answer keys, route or score ever):
 `{stage:'module', group_id, module_no, attempt_id, title, time_limit_s, deadline, server_now, warn_s (`settings.mock_warn_s`), questions:[{id,type,stem_md,choices}] (no difficulty: it would reveal the route), answers:[{question_id,answer,marked,eliminated}], client_seq}`
 (same shape as the `start_quiz` payload) · `{stage:'gap', group_id, gap_until, server_now}` · `{stage:'finished', group_id, result_id}`.
+The `mock_results` row (read under RLS) can have null `est_low`/`est_high` when the estimate could not be computed at
+finish; show the scores without a range. `warn_s` in a module payload is `least(mock_warn_s, time_limit_s)`.
 
 **`save_answer` / `submit_attempt` for `kind='mock_module'`:** `save_answer` takes the same arguments (including
 `p_eliminated`) and has no enrolment or topic check — a started mock always ends — only the deadline (`started_at +

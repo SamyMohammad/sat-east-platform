@@ -2,7 +2,8 @@
 -- found, and the mock settings are teacher-editable. Ports the review hardening of the abandoned
 -- feat/MCK-01-mock-engine branch onto the merged engine (20261113100000..200).
 -- Sections: 1 settings + teacher spec | 2 two-number unlock rule | 3 equal modules (blueprint validator) |
---           4 run snapshot + start checks | 5 finish with a null range | 6 mock_warn_s | 7 hub resume.
+--           4 run snapshot + start checks | 5 finish with a null range | 6 mock_warn_s | 7 hub resume |
+--           8 snapshot backfill for mocks started before this migration.
 
 -- 1. Settings + teacher spec -------------------------------------------------------------------
 -- The list setting is replaced by two numbers (MCK-09). mock_gap_s and sat_scale_margin already exist.
@@ -248,7 +249,7 @@ begin
   else
     select a.meta -> 'blueprint' into v_bp from public.attempts a
     where a.mock_attempt_group = p_group and a.kind = 'mock_module' and a.module_no = 1;
-    if v_bp is null then   -- a mock started before the hardening migration
+    if v_bp is null then   -- defensive only: section 8 backfills every unfinished mock
       select t.blueprint into v_bp from public.mock_templates t where t.id = v_form.template_id;
     end if;
   end if;
@@ -303,7 +304,7 @@ begin
   end if;
   select f.* into v_form from public.mock_forms f where f.id = v_att.mock_form_id;
   -- The run's snapshot (taken at start, stored in the module 1 attempt's meta, hidden from students by RLS
-  -- until the mock ends); only a mock started before the hardening migration falls back to the live template.
+  -- until the mock ends). The live-template fallback is defensive only: section 8 backfills every unfinished mock.
   v_bp := coalesce(v_att.meta -> 'blueprint',
                    (select t.blueprint from public.mock_templates t where t.id = v_form.template_id));
 
@@ -417,7 +418,7 @@ begin
     'module_no', p_att.module_no, 'attempt_id', p_att.id, 'title', 'Module ' || p_att.module_no,
     'time_limit_s', p_att.time_limit_s,
     'deadline', p_att.started_at + make_interval(secs => p_att.time_limit_s),
-    'server_now', now(), 'warn_s', private.setting_int('mock_warn_s'),
+    'server_now', now(), 'warn_s', least(private.setting_int('mock_warn_s'), p_att.time_limit_s),
     'questions', coalesce(v_questions, '[]'::jsonb), 'answers', v_answers, 'client_seq', v_seq);
 end;
 $$;
@@ -472,3 +473,29 @@ end;
 $$;
 revoke execute on function public.get_mock_hub(uuid) from public, anon;
 grant execute on function public.get_mock_hub(uuid) to authenticated;
+
+-- 8. Snapshot backfill: unfinished mocks started before this migration have no meta.blueprint, so they would
+--    still read the live template (and could wedge). Give them their template's blueprint, once, here.
+create function private.mock_backfill_snapshots()
+returns int
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  v_n int;
+begin
+  update public.attempts a
+  set meta = coalesce(a.meta, '{}'::jsonb) || jsonb_build_object('blueprint', t.blueprint)
+  from public.mock_forms f
+  join public.mock_templates t on t.id = f.template_id
+  where f.id = a.mock_form_id
+    and a.kind = 'mock_module' and a.module_no = 1
+    and not (coalesce(a.meta, '{}'::jsonb) ? 'blueprint')
+    and not exists (select 1 from public.mock_results r where r.group_id = a.mock_attempt_group);
+  get diagnostics v_n = row_count;
+  return v_n;
+end;
+$$;
+revoke execute on function private.mock_backfill_snapshots() from public, anon, authenticated;
+select private.mock_backfill_snapshots();

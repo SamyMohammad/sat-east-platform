@@ -265,5 +265,39 @@ select tests.authenticate_as('h_n');
 select throws_ok($$ select public.get_mock_hub(pg_temp.course()) $$, 'P0001', 'not_enrolled', 'MCK-03: no enrolment is not_enrolled');
 reset role;
 
+-- ===== Review fixes ================================================================================
+-- warn_s never exceeds the module time (the setting can exceed a short module's time_s).
+update public.settings set value = '5000'::jsonb where key = 'mock_warn_s';
+select tests.authenticate_as('h_f');
+select is((public.get_mock_session(pg_temp.gid('f1')) ->> 'warn_s')::int,
+          (public.get_mock_session(pg_temp.gid('f1')) ->> 'time_limit_s')::int,
+          'MCK-03: warn_s is clamped to the module time');
+reset role;
+update public.settings set value = '300'::jsonb where key = 'mock_warn_s';
+
+-- A mock started before the hardening migration (module 1 without a snapshot) gets one from the backfill.
+update public.attempts set meta = meta - 'blueprint' where id = pg_temp.aid('h1');
+select is(private.mock_backfill_snapshots() >= 1, true, 'MCK-03: the backfill reports the attempts it fixed');
+select is((select meta -> 'blueprint' from public.attempts where id = pg_temp.aid('h1')),
+          (select blueprint from public.mock_templates where id = '54000000-0000-0000-0000-000000000500'),
+          'MCK-03: an unfinished mock without a snapshot gets the template blueprint');
+select is((select meta ? 'route' from public.attempts where id = pg_temp.aid('h1')), true,
+          'MCK-03: the backfill keeps the rest of meta');
+select is(private.mock_backfill_snapshots(), 0, 'MCK-03: a second backfill changes nothing');
+
+-- A teacher edits a Mock setting through teacher_update_settings and the hub follows.
+select tests.create_supabase_user('h_t');
+update public.profiles set role = 'teacher' where id = pg_temp.uid('h_t');
+select tests.authenticate_as('h_t');
+select lives_ok($$ select public.teacher_update_settings('{"mock_unlock_step_topics": 2}'::jsonb) $$,
+  'MCK-09: a teacher can edit mock_unlock_step_topics');
+select throws_ok($$ select public.teacher_update_settings('{"mock_unlock_step_topics": 51}'::jsonb) $$, 'P0001',
+  'invalid_input', 'MCK-09: mock_unlock_step_topics above its max is refused');
+reset role;
+select tests.authenticate_as('h_h');
+select is((select string_agg(f ->> 'need', ',' order by (f ->> 'k')::int) from jsonb_array_elements(public.get_mock_hub(pg_temp.course()) -> 'forms') f),
+  '3,5,7', 'MCK-09: the hub follows the teacher-edited step');
+reset role;
+
 select * from finish();
 rollback;
