@@ -69,6 +69,10 @@ All RPCs are Postgres functions called with `supabase.rpc(name, params)`; Edge F
 | `teacher_list_question_reports` | p_question_id uuid | `[{report_id,reason,note,created_at,full_name}]` | C-6 / T-08; teacher only; open reports only, oldest first then report id; full_name is the reporting student's profile name; unknown question raises invalid_input |
 | `teacher_resolve_reports` | p_question_id uuid, p_outcome text, p_note text | `{closed:n}` | C-6 / T-08; teacher only; fixed or dismissed; closes all and only the question's open reports, records resolved_at/resolved_by/teacher_note; leaves question status unchanged; one question_reports.resolve audit row with only outcome and closed count |
 | `teacher_review_counts` | none | `{reported,needs_review}` | C-6 / QB-08 / T-08; teacher only; reported counts questions with open reports; needs_review counts questions with that status, including those without reports; a question may appear in both tabs |
+| `get_mock_hub` | p_course_id uuid | `{passed_topics,forms:[{form_no,k,need,state}],active_group}`; `state` is `locked`/`available`/`in_progress`/`finished`, `active_group` null when nothing is unfinished | MCK-03 / MCK-09; authenticated; active enrolment (`not_enrolled`, `access_expired`); advances the caller's overdue mocks first; creates the SAT template on first use; `form_no` is the real number, `k` the 1-based rank among playable forms (08 §2.1); rate limited with `rate_start_per_min` |
+| `start_mock` | p_course_id uuid | Session (below) | MCK-03; authenticated; resumes the unfinished mock (even after the enrolment expired), else starts the lowest unstarted unlocked form: M1 attempt, questions in slot order, exposure rows; `mock_locked` (forms exist but none unlocked), `mock_none_available` (no unstarted playable form), `not_enrolled`, `access_expired`, `invalid_input` (null or non-SAT course); `rate_start_per_min` |
+| `get_mock_session` | p_group_id uuid | Session | MCK-03; authenticated, own group only (else `invalid_input`); advances overdue mocks first; `rate_save_per_min` |
+| `start_mock_module2` | p_group_id uuid | Session | MCK-03; authenticated; starts module 2 now during the gap; idempotent; M1 not yet submitted or foreign group: `invalid_input`; `rate_start_per_min` |
 | `teacher_mock_overview` | p_course_id uuid | `{template:{id,name,blueprint},need_per_form:[{domain,difficulty,type,count}],forms:[{set_no,form_no,status,published_at}],next_form:{missing,no_domain}}` | MCK-03; teacher only; creates the course's SAT template on first call; `need_per_form` computed from the blueprint slots (08 §3); `missing` as in `teacher_assemble_mock_form`; non-SAT or null course: `invalid_input` |
 | `teacher_assemble_mock_form` | p_course_id uuid, p_set_no int | `{ok:true,set_no,form_no}` or `{ok:false,missing:[{domain,difficulty,type,needed,available,modules}],no_domain}` | MCK-03; teacher only; builds a draft form (M1, M2E, M2H = 66 questions) from the template blueprint, random pick per cell, `form_no` = max in the set + 1; shortage is returned, nothing inserted; `no_domain` = published mock_reserve questions without exactly one blueprint domain; `p_set_no` null or < 1: `invalid_input`; per-template advisory lock |
 | `teacher_get_mock_form` | p_course_id uuid, p_set_no int, p_form_no int | `{set_no,form_no,status,published_at,modules:[{module,questions:[{slot_no,id,external_ref,type,difficulty,domain,stem_md}]}]}` | MCK-03; teacher only; modules M1, M2E, M2H, questions in slot order; no key, explanation or choices (preview via `teacher_get_question`); unknown form: `invalid_input` |
@@ -111,6 +115,22 @@ Sensitive routes (`video-otp`, `pdf-url`, `register-device`, `ai-tutor`) verify 
 | `import-questions` | Validate and upsert pipeline JSON (teacher) |
 | `send-email` | Templates via Resend |
 | `cron-*` | Every minute: `expire-attempts` → `private.expire_overdue_attempts()` (submit overdue quizzes at their deadline after `save_grace_s`). Daily at 02:00 UTC: `nightly-cleanup` → `private.nightly_cleanup()` (abandon practice inactive for `practice_stale_h`, default 24 hours; purge rate-limit windows older than one day; delete `cron.job_run_details` rows older than `cron_history_keep_days`, default 7). Planned: expire enrollments, inactivity nudges, mastery decay, live reminders |
+
+**Mock Session** (`start_mock`, `get_mock_session`, `start_mock_module2`; no answer keys, route or score ever):
+`{stage:'module', group_id, module_no, attempt_id, title, time_limit_s, deadline, server_now, warn_s, questions:[{id,type,difficulty,stem_md,choices}], answers:[{question_id,answer,marked,eliminated}], client_seq}`
+(same shape as the `start_quiz` payload) · `{stage:'gap', group_id, gap_until, server_now}` · `{stage:'finished', group_id, result_id}`.
+
+**`save_answer` / `submit_attempt` for `kind='mock_module'`:** `save_answer` takes the same arguments (including
+`p_eliminated`) and has no enrolment or topic check — a started mock always ends — only the deadline (`started_at +
+time_limit_s + save_grace_s`, else `deadline_passed`). `submit_attempt` closes the module at `least(now, deadline)` and
+returns **only** `{stage, group_id, …}` (`gap` after M1 with `gap_until`; `finished` with `result_id` after M2; `module` if M2 is
+already running): no score, route or key before module 2 ends. Quiz and homework behaviour is unchanged.
+
+**Internal (no grants):** `private.mock_tick(uid)` (finish overdue modules at their deadline, auto-start M2 at `gap_until`; every
+mock RPC and the cron call it, under advisory lock `private.mock_lock_key(uid)`), `private.finish_mock_module`, and
+`private.has_active_exam(uid) → boolean` — true during an in-progress quiz, an in-progress mock module, or the gap between
+modules; used by the `ai-tutor` Edge Function to refuse during an exam (§6, AI-03). `private.expire_overdue_attempts()` (cron,
+every minute) now also advances students with an overdue mock module or an ended gap, skipping any student whose lock is busy.
 
 ## 2. Unlock state machine
 
@@ -271,6 +291,9 @@ log everything for teacher review.
 ## 9. Error codes
 `version_conflict` (question changed since loading; reload before saving),
 `mock_form_published` (swap, delete or publish on an already published mock form),
+`mock_locked` (start_mock: playable forms exist but the student has not passed enough topics for the next one),
+`mock_none_available` (start_mock: no unstarted playable form left in the student's set),
+`mock_settings_invalid` (a mock setting — unlock list, margin or scale table — is malformed; a content/config error, not expected in production),
 `in_use` (course-builder deletion blocked by children or FK references),
 `not_authenticated`, `forbidden`, `invalid_input`, `not_enrolled`, `access_expired`, `topic_locked`,
 `video_needed` (a ready video is below settings.video_done_pct; exempt when practice_count >= settings.practice_min or quiz_passed_at is set; checked before notes_needed),
@@ -280,6 +303,7 @@ log everything for teacher review.
 `rate_limited`, `payment_invalid`, `code_invalid` (unknown code or unpublished course),
 `code_used` (already redeemed), `already_enrolled` (any existing enrollment for the course),
 `invalid_key` (malformed answer key — content error), `internal` (Edge Functions only — unexpected failure).
+`mock_route_invalid` and `mock_raw_invalid` are raised only by `private.mock_score` on impossible input; no client call can pass them, so treat them as `internal`.
 
 `redeem_activation_code` returns `code_invalid`, `code_used` and `already_enrolled` inside
 `{ok:false,error}`; these are successful SQL transactions that retain the rate-limit increment.

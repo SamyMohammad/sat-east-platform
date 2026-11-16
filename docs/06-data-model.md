@@ -217,6 +217,20 @@ mock_results(id uuid pk, user_id fk, template_id fk, group_id uuid,
 official_scores(id uuid pk, user_id fk, course_id fk, source text, score int, taken_on date)
 ```
 
+How a mock is stored (MCK-03):
+- A mock is one **group**: `attempts.mock_attempt_group` (a uuid) shared by two rows of `kind='mock_module'`:
+  `module_no = 1` (form's M1) and `module_no = 2` (the M2E or M2H form of the same `form_no`, picked by the route).
+  `mock_form_id` points at the module's `mock_forms` row; `attempt_questions` are the form's `question_ids` in slot order.
+- M1 `meta` holds `route` (`M2E`/`M2H`) and `gap_until` (M1 `submitted_at` + `settings.mock_gap_s`), both written when M1 is
+  graded. M2 starts at `gap_until` (auto) or at the early-start time.
+- Unique indexes: one M1 per `(user_id, mock_form_id)`; one row per `(mock_attempt_group, module_no)`; one `mock_results`
+  row per `group_id`. Partial index `attempts_mock_in_progress_idx` serves the cron scan.
+- `mock_results` is written once, when M2 is graded: `route`, `raw_m1`, `raw_m2`, `est_low`/`est_high` from
+  `private.mock_score`, and `domain_breakdown` = `[{domain, correct, total}]` ordered by domain over both modules.
+- **RLS hides a mock until it is finished:** for `kind='mock_module'`, the student `select` policies on `attempts` and
+  `attempt_answers` (and the skills answer feed) require a `mock_results` row for the group. Before that the route, scores and
+  module-1 answers are only reachable through the RPCs, which return nothing of the kind.
+
 ### AI, comms, ops
 ```sql
 ai_threads(id uuid pk, user_id fk, question_id fk, attempt_id uuid null, created_at)
@@ -256,8 +270,8 @@ dashboard or an Edge Function. Agreed in row 3 (docs/15 §1, 2026-10-07).
 | skills, subtopic_skills | — | select all (taxonomy) |
 | enrollments | — | select own |
 | orders | — | select own, every column except `raw_payload` |
-| attempts | — | select own |
-| attempt_answers | — | select own, only when the attempt is no longer `in_progress` (rule 1) |
+| attempts | — | select own; `mock_module` rows only once their group has a `mock_results` row |
+| attempt_answers | — | select own, only when the attempt is no longer `in_progress` (rule 1); `mock_module` answers also only once the group has a `mock_results` row |
 | topic_progress, video_progress, skill_mastery, skill_mastery_daily, mistake_notebook, mock_results | — | select own |
 | official_scores, question_reports | — | select + insert own |
 | ai_threads, ai_messages, escalations | — | select own (writes: `ai-tutor` EF, so cost caps hold) |
