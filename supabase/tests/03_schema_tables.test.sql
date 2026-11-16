@@ -20,7 +20,7 @@ select tables_are('public', array[
   'push_tokens','settings','audit_log'
 ], 'public tables match docs/06 §3');
 
-select tables_are('private', array['question_keys','video_keys','rate_limits'],
+select tables_are('private', array['question_keys','video_keys','rate_limits','mock_runs'],
   'secret tables live only in private');
 
 select * from finish();
