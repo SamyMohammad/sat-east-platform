@@ -61,6 +61,9 @@ update public.settings set value = '"x"'::jsonb where key = 'sat_scale_hard';
 select throws_ok($$ select * from private.mock_estimate('M2H', 10) $$, 'P0001', 'internal', 'MCK-01: a non-array scale is internal');
 update public.settings set value = '10'::jsonb where key = 'mock_score_margin';
 select results_eq($$ select * from private.mock_estimate('M2E', 44) $$, $$ values (610, 630) $$, 'MCK-01: the margin is read from settings');
+-- restore the hard scale and the margin the estimate tests broke on purpose (start_mock now validates both)
+update public.settings set value = '[200,210,230,240,250,270,280,300,310,320,340,350,360,380,390,400,420,430,450,460,470,490,500,510,530,540,550,570,580,600,610,620,640,650,660,680,690,700,720,730,750,760,770,790,800]'::jsonb where key = 'sat_scale_hard';
+update public.settings set value = '30'::jsonb where key = 'mock_score_margin';
 
 -- mock_runs ----------------------------------------------------------------------------------------
 select ok((select relrowsecurity from pg_class where oid = 'private.mock_runs'::regclass), 'MCK-01: mock_runs has RLS enabled');
@@ -160,8 +163,8 @@ select is(pg_temp.hub() #> '{forms,0}', '{"form_no":1,"state":"available","topic
 -- in_progress and finished (rows made as postgres: nothing creates runs yet).
 select tests.clear_authentication();
 reset role;
-insert into private.mock_runs (group_id, user_id, course_id, template_id, set_no, form_no)
-select '51000000-0000-0000-0000-000000000001', uid, course_id, tpl, 1, 1 from t_ids;
+insert into private.mock_runs (group_id, user_id, course_id, template_id, set_no, form_no, blueprint)
+select '51000000-0000-0000-0000-000000000001', uid, course_id, tpl, 1, 1, '{}'::jsonb from t_ids;
 select tests.authenticate_as('mk1_student');
 select is(pg_temp.states(), '1:in_progress:3,3:locked:6', 'MCK-01: unfinished run -> in_progress, nothing else available');
 select is(pg_temp.hub() #>> '{forms,0,group_id}', '51000000-0000-0000-0000-000000000001', 'MCK-01: in_progress carries the group id');
@@ -348,8 +351,8 @@ select tests.clear_authentication();
 reset role;
 
 -- finished form is mock_already_taken; a form whose M1 has 21 questions is internal and leaves nothing.
-insert into private.mock_runs (user_id, course_id, template_id, set_no, form_no, finished_at)
-select tests.get_supabase_uid('mk2_e'), course_id, tpl, 3, f, now() from t_ids, generate_series(1, 2) f;
+insert into private.mock_runs (user_id, course_id, template_id, set_no, form_no, finished_at, blueprint)
+select tests.get_supabase_uid('mk2_e'), course_id, tpl, 3, f, now(), '{}'::jsonb from t_ids, generate_series(1, 2) f;
 select tests.authenticate_as('mk2_e');
 select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'mock_already_taken', 'MCK-01: finished form is mock_already_taken');
 select throws_ok($$ select public.start_mock((select course_id from t_ids), 3) $$, 'P0001', 'internal', 'MCK-01: a 21-question module is internal');
@@ -677,16 +680,18 @@ select public.submit_attempt(pg_temp.att('e1'));
 select tests.clear_authentication();
 reset role;
 update private.mock_runs set m1_submitted_at = now() - interval '60 seconds' where group_id = pg_temp.grp('e1');
-select private.expire_overdue_attempts();
+select private.tick_overdue_mocks();
 select is((select m2_attempt_id from private.mock_runs where group_id = pg_temp.grp('e1')), null, 'MCK-01: cron does nothing while the gap is running');
 update private.mock_runs set m1_submitted_at = now() - interval '300 seconds' where group_id = pg_temp.grp('e1');
-select cmp_ok(private.expire_overdue_attempts(), '>=', 1, 'MCK-01: cron reports the run it moved');
+select private.expire_overdue_attempts();
+select is((select m2_attempt_id from private.mock_runs where group_id = pg_temp.grp('e1')), null, 'MCK-01: the quiz cron does not tick mock runs');
+select cmp_ok(private.tick_overdue_mocks(), '>=', 1, 'MCK-01: cron reports the run it moved');
 select isnt((select m2_attempt_id from private.mock_runs where group_id = pg_temp.grp('e1')), null, 'MCK-01: cron creates module 2 after the gap');
 update public.attempts set started_at = now() - interval '5000 seconds'
 where id = (select m2_attempt_id from private.mock_runs where group_id = pg_temp.grp('e1'));
-select private.expire_overdue_attempts();
+select private.tick_overdue_mocks();
 select is((select count(*)::int from public.mock_results where group_id = pg_temp.grp('e1')), 1, 'MCK-01: cron finishes an overdue module 2 with a result');
-select is(private.expire_overdue_attempts(), 0, 'MCK-01: cron with nothing due does nothing');
+select is(private.tick_overdue_mocks(), 0, 'MCK-01: cron with nothing due does nothing');
 
 -- F: the enrolment expires and the set changes mid-run
 select tests.authenticate_as('mk3_f');
@@ -725,6 +730,164 @@ select ok(not has_function_privilege('authenticated', 'private.mock_tick(uuid)',
   and not has_function_privilege('authenticated', 'private.mock_grade_attempt(uuid,timestamptz)', 'execute'),
   'MCK-01: task 3 helpers are not executable by API roles');
 select ok(not has_function_privilege('anon', 'public.mock_attempt_visible(uuid)', 'execute'), 'MCK-01: anon cannot execute the policy helper');
+
+
+-- ================================================================================================
+-- Review fixes: route leak, run never wedges (snapshot, start checks, null estimate), separate mock cron,
+-- unique results, owner-only visibility helper, access agreement, in-progress leak checks.
+-- ================================================================================================
+create function pg_temp.bpx() returns jsonb language sql stable as $$ select value from public.settings where key = 'mock_blueprint_sat' $$;
+create temp table t_bp_orig as select blueprint from public.mock_templates where id = (select tpl from t_ids);
+create function pg_temp.scale_hard() returns jsonb language sql immutable as $$
+  select '[200,210,230,240,250,270,280,300,310,320,340,350,360,380,390,400,420,430,450,460,470,490,500,510,530,540,550,570,580,600,610,620,640,650,660,680,690,700,720,730,750,760,770,790,800]'::jsonb $$;
+
+-- S1: no difficulty in any mock stage payload; M2E and M2H must look the same to the client
+select ok(pg_temp.st('m3a1')::text !~ 'difficulty', 'MCK-01: module 1 payload has no difficulty');
+select ok(pg_temp.st('m3a2')::text !~ 'difficulty', 'MCK-01: module 2 payload has no difficulty (it would reveal the route)');
+select is(private.mock_blueprint_ok(pg_temp.bpx()), true, 'MCK-01: the seeded blueprint is still valid');
+select is(private.mock_blueprint_ok(jsonb_set(pg_temp.bpx(), '{modules,M2E,time_s}', '2000')), false,
+  'MCK-01: M2E and M2H with different time_s are rejected');
+select is(private.mock_blueprint_ok(jsonb_set(jsonb_set(pg_temp.bpx(), '{modules,M2E,count}', '21'), '{modules,M2E,difficulty,E}', '9')), false,
+  'MCK-01: M2E and M2H with different counts are rejected');
+
+-- N1: one result per run
+select throws_ok($$ insert into public.mock_results (user_id, template_id, group_id)
+    select user_id, template_id, group_id from public.mock_results limit 1 $$, '23505', null, 'MCK-01: a second result for a run is refused');
+
+-- N2: the visibility helper reveals nothing about another student's attempt
+select tests.authenticate_as('mk3_a');
+select is(public.mock_attempt_visible(pg_temp.att('b1')), public.mock_attempt_visible(gen_random_uuid()),
+  'MCK-01: another student''s unfinished module answers like a random id');
+select tests.clear_authentication();
+reset role;
+
+-- S3: the mock cron is its own job; the quiz cron no longer knows about mocks
+select is((select schedule from cron.job where jobname = 'tick-mocks'), '* * * * *', 'MCK-01: tick-mocks runs every minute');
+select ok((select command like '%tick_overdue_mocks%' from cron.job where jobname = 'tick-mocks'), 'MCK-01: tick-mocks calls tick_overdue_mocks');
+select ok(pg_get_functiondef('private.expire_overdue_attempts()'::regprocedure) !~ 'mock', 'MCK-01: the quiz cron has no mock code');
+select ok(not has_function_privilege('authenticated', 'private.tick_overdue_mocks()', 'execute'), 'MCK-01: tick_overdue_mocks is not executable by authenticated');
+
+-- fixtures for the rest
+select tests.create_supabase_user('mk4_a');
+select tests.create_supabase_user('mk4_b');
+select tests.create_supabase_user('mk4_c');
+select tests.create_supabase_user('mk4_d');
+select tests.create_supabase_user('mk4_e');
+select pg_temp.setup('mk4_a', 3);
+select pg_temp.setup('mk4_b', 3);
+select pg_temp.setup('mk4_c', 3);
+select pg_temp.setup('mk4_d', 3);
+select pg_temp.setup('mk4_e', 3);
+
+-- S2a: the run uses its blueprint snapshot, not the live template
+select tests.authenticate_as('mk4_a');
+insert into t_st select 'r4a1', public.start_mock((select course_id from t_ids), 1);
+select tests.clear_authentication();
+reset role;
+select pg_temp.ans(pg_temp.att('r4a1'), 14);
+select is((select blueprint from private.mock_runs where group_id = pg_temp.grp('r4a1')), (select blueprint from t_bp_orig),
+  'MCK-01: start_mock snapshots the template blueprint into the run');
+update public.mock_templates
+set blueprint = jsonb_set(jsonb_set(jsonb_set(blueprint, '{routing,threshold_correct_m1}', '20'), '{modules,M2H,time_s}', '999'), '{modules,M2E,time_s}', '999')
+where id = (select tpl from t_ids);
+select tests.authenticate_as('mk4_a');
+select is(public.submit_attempt(pg_temp.att('r4a1')) ->> 'stage', 'gap', 'MCK-01: module 1 submits after the live threshold changed');
+insert into t_st select 'r4a2', public.start_mock_module2(pg_temp.grp('r4a1'));
+select tests.clear_authentication();
+reset role;
+select is((select route from private.mock_runs where group_id = pg_temp.grp('r4a1')), 'M2H', 'MCK-01: routing uses the snapshot threshold');
+select is((select time_limit_s from public.attempts where id = pg_temp.att('r4a2')), 2100, 'MCK-01: module 2 time limit comes from the snapshot');
+update public.mock_templates set blueprint = '{}'::jsonb where id = (select tpl from t_ids);
+select pg_temp.ans(pg_temp.att('r4a2'), 5);
+select tests.authenticate_as('mk4_a');
+select is(public.submit_attempt(pg_temp.att('r4a2')) ->> 'stage', 'finished', 'MCK-01: the run finishes even with the live blueprint destroyed');
+select tests.clear_authentication();
+reset role;
+select results_eq($$ select route, raw_m1, raw_m2 from public.mock_results where group_id = pg_temp.grp('r4a1') $$, $$ values ('M2H', 14, 5) $$,
+  'MCK-01: the snapshot run stored its result');
+select is((select sum((v ->> 'total')::int)::int from public.mock_results r, jsonb_each(r.domain_breakdown) x(k, v) where r.group_id = pg_temp.grp('r4a1')), 44,
+  'MCK-01: the domain breakdown is built from the snapshot');
+update public.mock_templates set blueprint = (select blueprint from t_bp_orig) where id = (select tpl from t_ids);
+
+-- S2c: a scale edited mid-run cannot stop the run from finishing
+select tests.authenticate_as('mk4_b');
+insert into t_st select 'r4b1', public.start_mock((select course_id from t_ids), 1);
+select tests.clear_authentication();
+reset role;
+select pg_temp.ans(pg_temp.att('r4b1'), 14);
+select tests.authenticate_as('mk4_b');
+select public.submit_attempt(pg_temp.att('r4b1'));
+insert into t_st select 'r4b2', public.start_mock_module2(pg_temp.grp('r4b1'));
+select tests.clear_authentication();
+reset role;
+select pg_temp.ans(pg_temp.att('r4b2'), 5);
+update public.settings set value = '"x"'::jsonb where key = 'sat_scale_hard';
+select tests.authenticate_as('mk4_b');
+select is(public.submit_attempt(pg_temp.att('r4b2')) ->> 'stage', 'finished', 'MCK-01: a broken scale at finish time still finishes the run');
+select is(public.get_mock_hub((select course_id from t_ids)) #>> '{forms,0,state}', 'finished', 'MCK-01: the hub shows the form finished');
+select is(public.get_mock_hub((select course_id from t_ids)) #> '{forms,0,est_low}', 'null'::jsonb, 'MCK-01: the hub range is null without an estimate');
+select tests.clear_authentication();
+reset role;
+select results_eq($$ select raw_m1, raw_m2, est_low, est_high from public.mock_results where group_id = pg_temp.grp('r4b1') $$,
+  $$ values (14, 5, null::int, null::int) $$, 'MCK-01: the result has scores and a null estimate');
+select results_eq($$ select score_raw, score_total from public.attempts where mock_attempt_group = pg_temp.grp('r4b1') order by module_no $$,
+  $$ values (14, 22), (5, 22) $$, 'MCK-01: both attempts are scored');
+select ok((select finished_at is not null from private.mock_runs where group_id = pg_temp.grp('r4b1')), 'MCK-01: finished_at is set');
+select is((select attempts from public.skill_mastery where user_id = pg_temp.uid('mk4_b')), 44, 'MCK-01: mastery is applied');
+update public.settings set value = pg_temp.scale_hard() where key = 'sat_scale_hard';
+
+-- S2b: a bad scale, margin or length is refused at start, with nothing inserted
+update public.settings set value = '"x"'::jsonb where key = 'sat_scale_hard';
+select tests.authenticate_as('mk4_c');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'internal', 'MCK-01: start with a broken scale is internal');
+select tests.clear_authentication();
+reset role;
+update public.settings set value = pg_temp.scale_hard() where key = 'sat_scale_hard';
+update public.settings set value = '-1'::jsonb where key = 'mock_score_margin';
+select tests.authenticate_as('mk4_c');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'internal', 'MCK-01: start with an invalid margin is internal');
+select tests.clear_authentication();
+reset role;
+update public.settings set value = '30'::jsonb where key = 'mock_score_margin';
+update public.mock_templates set blueprint = jsonb_set(jsonb_set(blueprint, '{modules,M1,count}', '23'), '{modules,M1,difficulty,E}', '8')
+where id = (select tpl from t_ids);
+select tests.authenticate_as('mk4_c');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'internal', 'MCK-01: a form longer than the scale allows is internal');
+select tests.clear_authentication();
+reset role;
+update public.mock_templates set blueprint = (select blueprint from t_bp_orig) where id = (select tpl from t_ids);
+select is((select count(*)::int from private.mock_runs where user_id = pg_temp.uid('mk4_c')), 0, 'MCK-01: a refused start leaves no run');
+select is((select count(*)::int from public.attempts where user_id = pg_temp.uid('mk4_c')), 0, 'MCK-01: a refused start leaves no attempt');
+
+-- in-progress module 2: the student reads nothing graded
+select tests.authenticate_as('mk4_d');
+insert into t_st select 'r4d1', public.start_mock((select course_id from t_ids), 1);
+select tests.clear_authentication();
+reset role;
+select pg_temp.ans(pg_temp.att('r4d1'), 14);
+select tests.authenticate_as('mk4_d');
+select public.submit_attempt(pg_temp.att('r4d1'));
+insert into t_st select 'r4d2', public.start_mock_module2(pg_temp.grp('r4d1'));
+select tests.clear_authentication();
+reset role;
+select pg_temp.ans(pg_temp.att('r4d2'), 5);
+select tests.authenticate_as('mk4_d');
+select results_eq($$ select score_raw, score_total, score_pct, meta from public.attempts where mock_attempt_group = pg_temp.grp('r4d1') and module_no = 2 $$,
+  $$ values (null::int, null::int, null::numeric, '{}'::jsonb) $$, 'MCK-01: the module 2 attempt shows no score while it runs');
+select is((select count(*)::int from public.attempt_answers where attempt_id in (pg_temp.att('r4d1'), pg_temp.att('r4d2'))), 0,
+  'MCK-01: no answer rows of either module are readable while module 2 runs');
+select is((select count(*)::int from public.attempts where mock_attempt_group = pg_temp.grp('r4d1') and score_raw is not null), 0,
+  'MCK-01: neither attempt carries a score while module 2 runs');
+select tests.clear_authentication();
+reset role;
+
+-- N3: access means the same as practice_access (status active and not past expires_at)
+update public.enrollments set status = 'suspended' where user_id = pg_temp.uid('mk4_e');
+select tests.authenticate_as('mk4_e');
+select throws_ok($$ select public.get_mock_hub((select course_id from t_ids)) $$, 'P0001', 'access_expired', 'MCK-01: a suspended enrolment is access_expired in the hub');
+select throws_ok($$ select public.start_mock((select course_id from t_ids), 1) $$, 'P0001', 'access_expired', 'MCK-01: a suspended enrolment is access_expired at start');
+select tests.clear_authentication();
+reset role;
 
 select * from finish();
 rollback;

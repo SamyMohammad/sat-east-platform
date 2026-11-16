@@ -2,7 +2,7 @@
 -- Sections: 1 settings | 2 scale tables | 3 teacher spec | 4 scale + estimate helpers | 5 mock_runs |
 -- 6 unlock | 7 access + hub rows | 8 hub | 9 payload helpers + stage | 10 start_mock + get_mock_stage |
 -- 11 save_answer | 12 has_active_exam | 13-22 Task 3: grading, finish 1/2, module 2, tick, hub tick + active_run,
--- start_mock_module2, submit_attempt, attempt_answers policy, cron.
+-- start_mock_module2, submit_attempt, attempt_answers policy, mock cron (4b: blueprint_ok replacement).
 
 -- 1. Settings (rule 5: no magic numbers) -----------------------------------------------------------
 insert into public.settings (key, value) values
@@ -117,6 +117,100 @@ $$;
 revoke execute on function private.mock_scale_ok(jsonb) from public, anon, authenticated;
 revoke execute on function private.mock_estimate(text, int) from public, anon, authenticated;
 
+-- 4b. mock_blueprint_ok (MCK-03, 20261112100000) replaced: M2E and M2H must have the same count and time_s,
+--     otherwise the module 2 payload or time_limit_s would reveal the route. Rest copied unchanged.
+create or replace function private.mock_blueprint_ok(p_blueprint jsonb)
+returns boolean
+language plpgsql
+immutable
+set search_path = ''
+as $$
+declare
+  v_mod   text;
+  v_m     jsonb;
+  v_count numeric;
+  v_sum   numeric;
+  v_ratio numeric;
+  v_thr   numeric;
+  v_dom   record;
+  v_n     int := 0;
+begin
+  if p_blueprint is null or jsonb_typeof(p_blueprint) <> 'object' then
+    return false;
+  end if;
+
+  foreach v_mod in array array['M1', 'M2E', 'M2H'] loop
+    v_m := p_blueprint -> 'modules' -> v_mod;
+    if v_m is null or jsonb_typeof(v_m) <> 'object'
+       or jsonb_typeof(v_m -> 'count') <> 'number'
+       or jsonb_typeof(v_m -> 'time_s') <> 'number'
+       or jsonb_typeof(v_m -> 'difficulty') <> 'object' then
+      return false;
+    end if;
+    v_count := (v_m ->> 'count')::numeric;
+    if v_count <= 0 or v_count <> trunc(v_count) or (v_m ->> 'time_s')::numeric <= 0 then
+      return false;
+    end if;
+    if jsonb_typeof(v_m -> 'difficulty' -> 'E') <> 'number'
+       or jsonb_typeof(v_m -> 'difficulty' -> 'M') <> 'number'
+       or jsonb_typeof(v_m -> 'difficulty' -> 'H') <> 'number' then
+      return false;
+    end if;
+    if (v_m -> 'difficulty' ->> 'E')::numeric < 0 or (v_m -> 'difficulty' ->> 'M')::numeric < 0
+       or (v_m -> 'difficulty' ->> 'H')::numeric < 0 then
+      return false;
+    end if;
+    v_sum := (v_m -> 'difficulty' ->> 'E')::numeric + (v_m -> 'difficulty' ->> 'M')::numeric
+           + (v_m -> 'difficulty' ->> 'H')::numeric;
+    if v_sum <> v_count then
+      return false;
+    end if;
+  end loop;
+
+  -- M2E and M2H must look identical to the student (same length and time), or the module 2 payload
+  -- or its time limit would reveal the route.
+  if (p_blueprint -> 'modules' -> 'M2E' ->> 'count')::numeric <> (p_blueprint -> 'modules' -> 'M2H' ->> 'count')::numeric
+     or (p_blueprint -> 'modules' -> 'M2E' ->> 'time_s')::numeric <> (p_blueprint -> 'modules' -> 'M2H' ->> 'time_s')::numeric then
+    return false;
+  end if;
+
+  if jsonb_typeof(p_blueprint -> 'domains') <> 'object' then
+    return false;
+  end if;
+  v_sum := 0;
+  for v_dom in select key as k, value as v from jsonb_each(p_blueprint -> 'domains') loop
+    if jsonb_typeof(v_dom.v) <> 'number' or (v_dom.v #>> '{}')::numeric <= 0 then
+      return false;
+    end if;
+    v_sum := v_sum + (v_dom.v #>> '{}')::numeric;
+    v_n := v_n + 1;
+  end loop;
+  if v_n = 0 or abs(v_sum - 1) > 0.001 then
+    return false;
+  end if;
+
+  if jsonb_typeof(p_blueprint -> 'spr_ratio') <> 'number' then
+    return false;
+  end if;
+  v_ratio := (p_blueprint ->> 'spr_ratio')::numeric;
+  if v_ratio < 0 or v_ratio > 1 then
+    return false;
+  end if;
+
+  if jsonb_typeof(p_blueprint -> 'routing' -> 'threshold_correct_m1') <> 'number' then
+    return false;
+  end if;
+  v_thr := (p_blueprint -> 'routing' ->> 'threshold_correct_m1')::numeric;
+  if v_thr < 0 or v_thr > (p_blueprint -> 'modules' -> 'M1' ->> 'count')::numeric then
+    return false;
+  end if;
+
+  return true;
+exception when others then
+  return false;
+end;
+$$;
+
 -- 5. mock_runs: one row per (student, form); hidden state (plan Decision 3) -------------------------
 create table private.mock_runs (
   group_id         uuid primary key default gen_random_uuid(),
@@ -131,9 +225,12 @@ create table private.mock_runs (
   raw_m1           int,
   m1_submitted_at  timestamptz,
   finished_at      timestamptz,
+  blueprint        jsonb not null,  -- snapshot of the template blueprint at start: the run never reads the live one
   created_at       timestamptz not null default now(),
   unique (user_id, template_id, set_no, form_no)
 );
+-- One result per run (the finish functions are idempotent, this makes it a rule).
+create unique index mock_results_group_id_key on public.mock_results (group_id);
 alter table private.mock_runs enable row level security;  -- no policy: only definer functions touch it
 revoke all on table private.mock_runs from anon, authenticated;
 create index mock_runs_unfinished_idx on private.mock_runs (user_id) where finished_at is null;
@@ -204,6 +301,9 @@ begin
   if not v_has_enr then
     raise exception 'not_enrolled';
   end if;
+  -- Same condition as private.practice_access (status active and not past expires_at). public.has_access
+  -- (20261009000000_auth04) says the same plus private.device_allowed(), which is bound to auth.uid() and
+  -- cannot be asked for p_uid; neither looks at starts_at, and free preview is a per-topic rule.
   if v_enr.status <> 'active' or v_enr.expires_at <= now() then
     raise exception 'access_expired';
   end if;
@@ -317,7 +417,7 @@ begin
     raise exception 'internal';
   end if;
 
-  select coalesce(jsonb_agg(jsonb_build_object('id', q.id, 'type', q.type, 'difficulty', q.difficulty,
+  select coalesce(jsonb_agg(jsonb_build_object('id', q.id, 'type', q.type,
     'stem_md', q.stem_md, 'choices', coalesce((select jsonb_agg(
       jsonb_build_object('label', c.label, 'body_md', c.body_md) order by c.label)
       from public.question_choices c where c.question_id = q.id), '[]'::jsonb)) order by aq.position), '[]'::jsonb)
@@ -387,6 +487,9 @@ declare
   v_passed  int;
   v_row     record;
   v_bp      jsonb;
+  v_scale_h jsonb;
+  v_scale_e jsonb;
+  v_margin  int;
   v_mod     text;
   v_form    public.mock_forms%rowtype;
   v_m1_form uuid;
@@ -429,6 +532,17 @@ begin
   if not private.mock_blueprint_ok(v_bp) then
     raise exception 'internal';
   end if;
+  -- Fail at start, not at finish: both scale tables and the margin must be valid, and a whole test
+  -- (M1 + either module 2) must fit the scale tables (max raw = length - 1).
+  select s.value into v_scale_h from public.settings s where s.key = 'sat_scale_hard';
+  select s.value into v_scale_e from public.settings s where s.key = 'sat_scale_easy';
+  select (s.value)::int into v_margin from public.settings s where s.key = 'mock_score_margin';
+  if not private.mock_scale_ok(v_scale_h) or not private.mock_scale_ok(v_scale_e)
+     or v_margin is null or v_margin < 0
+     or (v_bp -> 'modules' -> 'M1' ->> 'count')::int + (v_bp -> 'modules' -> 'M2H' ->> 'count')::int > jsonb_array_length(v_scale_h) - 1
+     or (v_bp -> 'modules' -> 'M1' ->> 'count')::int + (v_bp -> 'modules' -> 'M2E' ->> 'count')::int > jsonb_array_length(v_scale_e) - 1 then
+    raise exception 'internal';
+  end if;
   foreach v_mod in array array['M1', 'M2E', 'M2H'] loop
     select f.* into v_form from public.mock_forms f
     where f.template_id = v_row.template_id and f.set_no = v_row.set_no and f.form_no = v_row.form_no
@@ -442,8 +556,8 @@ begin
     end if;
   end loop;
 
-  insert into private.mock_runs (user_id, course_id, template_id, set_no, form_no)
-  values (v_uid, p_course_id, v_row.template_id, v_row.set_no, v_row.form_no)
+  insert into private.mock_runs (user_id, course_id, template_id, set_no, form_no, blueprint)
+  values (v_uid, p_course_id, v_row.template_id, v_row.set_no, v_row.form_no, v_bp)
   returning group_id into v_group;
 
   insert into public.attempts (user_id, kind, course_id, mock_attempt_group, mock_form_id, module_no, started_at, time_limit_s)
@@ -628,7 +742,7 @@ begin
   if not found or v_att.status <> 'in_progress' then
     raise exception 'internal';
   end if;
-  select t.blueprint into v_bp from public.mock_templates t where t.id = v_run.template_id;
+  v_bp := v_run.blueprint;
   if not private.mock_blueprint_ok(v_bp) then
     raise exception 'internal';
   end if;
@@ -665,7 +779,7 @@ begin
   if v_run.m2_attempt_id is not null or v_run.finished_at is not null then
     return;
   end if;
-  select t.blueprint into v_bp from public.mock_templates t where t.id = v_run.template_id;
+  v_bp := v_run.blueprint;
   if not private.mock_blueprint_ok(v_bp) then
     raise exception 'internal';
   end if;
@@ -702,7 +816,8 @@ declare
   v_raw2   int;
   v_n1     int;
   v_n2     int;
-  v_est    record;
+  v_est_low  int;
+  v_est_high int;
   v_dom    jsonb;
   v_ans    record;
 begin
@@ -721,7 +836,7 @@ begin
   if v_a2.status <> 'in_progress' then
     raise exception 'internal';
   end if;
-  select t.blueprint into v_bp from public.mock_templates t where t.id = v_run.template_id;
+  v_bp := v_run.blueprint;
   if not private.mock_blueprint_ok(v_bp) then
     raise exception 'internal';
   end if;
@@ -730,7 +845,15 @@ begin
   v_raw2 := private.mock_grade_attempt(v_a2.id, v_at);
   select count(*)::int into v_n1 from public.attempt_questions aq where aq.attempt_id = v_a1.id;
   select count(*)::int into v_n2 from public.attempt_questions aq where aq.attempt_id = v_a2.id;
-  select * into v_est from private.mock_estimate(v_run.route, v_run.raw_m1 + v_raw2);
+  -- The run must always finish: a scale or margin edited after start only costs the range.
+  begin
+    select e.est_low, e.est_high into v_est_low, v_est_high
+    from private.mock_estimate(v_run.route, v_run.raw_m1 + v_raw2) e;
+  exception when others then
+    v_est_low := null;
+    v_est_high := null;
+    raise warning 'mock_estimate failed at finish, result stored without a range: %', sqlerrm;
+  end;
 
   select coalesce(jsonb_object_agg(d.domain, jsonb_build_object('correct', d.c, 'total', d.t)), '{}'::jsonb)
   into v_dom
@@ -752,7 +875,7 @@ begin
 
   insert into public.mock_results (user_id, template_id, group_id, route, raw_m1, raw_m2, est_low, est_high, domain_breakdown)
   values (v_run.user_id, v_run.template_id, v_run.group_id, v_run.route, v_run.raw_m1, v_raw2,
-          v_est.est_low, v_est.est_high, v_dom);
+          v_est_low, v_est_high, v_dom);
 
   -- Mastery once, for every answer of both modules (the attempts trigger ignores mock_module).
   for v_ans in
@@ -1032,6 +1155,7 @@ as $$
   select not exists (
     select 1 from public.attempts a
     where a.id = p_attempt_id and a.kind = 'mock_module'
+      and a.user_id = (select auth.uid())  -- reveals nothing about anyone else's attempt
       and not exists (select 1 from private.mock_runs r
                       where r.group_id = a.mock_attempt_group and r.finished_at is not null)
   );
@@ -1047,43 +1171,23 @@ create policy "attempt_answers: student selects own submitted" on public.attempt
                    and a.status <> 'in_progress')
          and public.mock_attempt_visible(attempt_id));
 
--- 22. Cron: expire_overdue_attempts keeps its quiz loop and also ticks every user with an unfinished run
---     that has something due (module 1 or 2 past deadline + grace, or the gap over with no module 2).
---     The partial index on unfinished runs keeps the scan cheap; nothing due means no work. A failing run
---     (for example a broken scale table) is logged and skipped so it cannot block the others. ----------------
-create or replace function private.expire_overdue_attempts()
+-- 22. Cron: its own job, separate from the quiz cron (expire_overdue_attempts is untouched: the quiz cron
+--     holds skill_mastery row locks from finish_quiz and then waits on the user lock, while a mock finish
+--     holds the user lock and updates the same rows; keeping them apart removes that lock-order cycle).
+--     tick_overdue_mocks ticks every user with an unfinished run that has something due (module 1 or 2 past
+--     deadline + grace, or the gap over with no module 2). The partial index on unfinished runs keeps the
+--     scan cheap; nothing due means no work. A failing user is logged and skipped so it cannot block the
+--     others. Returns the number of users ticked. ------------------------------------------------------
+create function private.tick_overdue_mocks()
 returns int
 language plpgsql
 security definer
 set search_path = ''
 as $$
 declare
-  v_att public.attempts%rowtype;
-  v_finished int := 0;
-  v_user uuid;
+  v_ticked int := 0;
+  v_user   uuid;
 begin
-  for v_att in
-    select a.* from public.attempts a
-    where a.kind = 'quiz' and a.status = 'in_progress'
-      and a.started_at + pg_catalog.make_interval(secs => a.time_limit_s + private.setting_int('save_grace_s')) < pg_catalog.now()
-    order by a.started_at, a.id
-    for update skip locked
-  loop
-    -- RPCs take the advisory lock before the row lock; never wait in reverse order.
-    if not pg_catalog.pg_try_advisory_xact_lock(
-      pg_catalog.hashtextextended('quiz:' || v_att.user_id::text || v_att.topic_id::text, 0)
-    ) then
-      continue;
-    end if;
-
-    select a.* into v_att from public.attempts a where a.id = v_att.id;
-    if v_att.status <> 'in_progress' then
-      continue;
-    end if;
-    perform private.finish_quiz(v_att.id, v_att.started_at + pg_catalog.make_interval(secs => v_att.time_limit_s));
-    v_finished := v_finished + 1;
-  end loop;
-
   for v_user in
     select distinct r.user_id
     from private.mock_runs r
@@ -1099,12 +1203,15 @@ begin
   loop
     begin
       perform private.mock_tick(v_user);
-      v_finished := v_finished + 1;
+      v_ticked := v_ticked + 1;
     exception when others then
       raise warning 'mock_tick failed for a user: %', sqlerrm;
     end;
   end loop;
-  return v_finished;
+  return v_ticked;
 end;
 $$;
-revoke execute on function private.expire_overdue_attempts() from public, anon, authenticated;
+revoke execute on function private.tick_overdue_mocks() from public, anon, authenticated;
+
+-- Named schedules upsert per job name and owner (same as 'expire-attempts'); idempotent.
+select cron.schedule('tick-mocks', '* * * * *', 'select private.tick_overdue_mocks()');

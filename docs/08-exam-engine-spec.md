@@ -46,10 +46,15 @@ Student starts mock → pick lowest form_no in student's set_no not yet taken
   sees no score, route or `is_correct` (module 1 attempt keeps `score_*` and `meta` null; its answers are hidden by RLS).
 - **Gap and tick:** after module 1 there is a gap of `mock_gap_s` seconds (default 120); the student may start
   module 2 early, otherwise it starts by itself when the gap ends. `private.mock_tick(uid)` runs first in every
-  mock RPC and in the minute cron: module 1 past `time_limit_s + save_grace_s` is finished, the gap ending creates
+  mock RPC and in the minute cron job `tick-mocks` (separate from the quiz cron): module 1 past `time_limit_s + save_grace_s` is finished, the gap ending creates
   module 2 (started at the gap's end), an overdue module 2 is finished with unanswered questions counted wrong.
   A student who vanishes still gets a result.
 - Access is checked only when a run starts; a started run can always be resumed, saved and submitted.
+- **A run never wedges:** it stores a snapshot of the template blueprint at start (route threshold, times, counts) and
+  ignores later edits; `start_mock` refuses (`internal`) when the blueprint, a scale table or the margin is invalid
+  or M1 + module 2 is longer than the scale tables (max raw = length − 1); a scale broken after start only leaves the
+  score range null. M2E and M2H must have the same count and time, so nothing in the module 2 payload reveals the
+  route (the payload also omits per-question difficulty).
 - Settings (teacher group Mock): `mock_unlock_first_topics`, `mock_unlock_step_topics`, `mock_gap_s`, `mock_warn_s`,
   `mock_score_margin`.
 
