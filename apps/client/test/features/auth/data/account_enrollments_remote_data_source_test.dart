@@ -19,7 +19,7 @@ const _row = <String, Object?>{
   'target_test_date': '2027-03-15',
   'expires_at': '2027-03-30T00:00:00Z',
   'status': 'active',
-  'courses': {'title': 'SAT Math'},
+  'courses': {'title': 'SAT Math', 'code': 'SAT'},
 };
 final _now = DateTime.utc(2026, 10, 18, 12);
 
@@ -76,7 +76,7 @@ void main() {
     final enrollments = await load();
     expect(
       requests.single.url.queryParameters['select'],
-      'course_id,target_test_date,expires_at,status,courses(title)',
+      'course_id,target_test_date,expires_at,status,courses(title,code)',
     );
     expect(enrollments.single.courseId, 'sat-id');
   });
@@ -86,7 +86,8 @@ void main() {
 
     expect(requests.single.url.path, '/rest/v1/enrollments');
     expect(requests.single.url.queryParameters, {
-      'select': 'course_id,target_test_date,expires_at,status,courses(title)',
+      'select':
+          'course_id,target_test_date,expires_at,status,courses(title,code)',
       'user_id': 'eq.student-id',
       'order': 'expires_at.desc.nullslast',
     });
@@ -95,6 +96,34 @@ void main() {
     expect(enrollment.targetTestDate, DateTime(2027, 3, 15));
     expect(enrollment.expiresAt, DateTime.utc(2027, 3, 30));
     expect(enrollment.isExpired, isFalse);
+  });
+
+  test('MCK-01: enrollment exposes the course code', () async {
+    payload = [
+      _row,
+      {
+        ..._row,
+        'course_id': 'est-id',
+        'courses': {'title': 'EST Math', 'code': 'EST'},
+      },
+    ];
+
+    final enrollments = await load();
+
+    expect(enrollments.map((e) => e.courseCode), ['SAT', 'EST']);
+  });
+
+  test('MCK-01: a course without a code is a malformed payload', () async {
+    payload = [
+      {
+        ..._row,
+        'courses': {'title': 'SAT Math'},
+      },
+    ];
+
+    final result = await source.listMyEnrollments();
+
+    expect((result as Failure).error.code, ErrorCodes.internal);
   });
 
   test('AUTH-02: null target test date stays absent', () async {

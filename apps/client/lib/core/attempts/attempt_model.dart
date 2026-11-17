@@ -2,10 +2,16 @@ import 'package:sat_east_client/core/attempts/attempt_json.dart';
 import 'package:sat_east_client/core/attempts/attempt_question.dart';
 import 'package:sat_east_client/core/attempts/save_outcome.dart';
 
-List<AttemptQuestion> attemptQuestionsFromJson(Map<String, Object?> json) {
+List<AttemptQuestion> attemptQuestionsFromJson(
+  Map<String, Object?> json, {
+  bool difficultyHidden = false,
+}) {
   final questions = [
     for (final value in attemptJsonList(json, 'questions'))
-      attemptQuestionFromJson(attemptJsonMap(value, 'questions[]')),
+      attemptQuestionFromJson(
+        attemptJsonMap(value, 'questions[]'),
+        difficultyHidden: difficultyHidden,
+      ),
   ];
   if (questions.isEmpty ||
       questions.map((q) => q.id).toSet().length != questions.length) {
@@ -16,8 +22,9 @@ List<AttemptQuestion> attemptQuestionsFromJson(Map<String, Object?> json) {
 
 Map<String, SavedAnswer> attemptAnswersFromJson(
   Map<String, Object?> json,
-  List<AttemptQuestion> questions,
-) {
+  List<AttemptQuestion> questions, {
+  bool withEliminated = false,
+}) {
   final questionIds = questions.map((q) => q.id).toSet();
   if (questions.isEmpty || questionIds.length != questions.length) {
     throw const FormatException('questions');
@@ -36,19 +43,39 @@ Map<String, SavedAnswer> attemptAnswersFromJson(
     answers[id] = SavedAnswer(
       answer: answer as String?,
       marked: attemptJsonBool(saved, 'marked'),
+      eliminated: withEliminated ? _eliminated(saved) : const {},
     );
   }
   return Map.unmodifiable(answers);
 }
 
-AttemptQuestion attemptQuestionFromJson(Map<String, Object?> json) {
+Set<String> _eliminated(Map<String, Object?> saved) {
+  final value = saved['eliminated'];
+  if (value == null) return const {};
+  if (value is! List || value.any((label) => label is! String)) {
+    throw const FormatException('eliminated');
+  }
+  return Set.unmodifiable(value.cast<String>());
+}
+
+/// [difficultyHidden] for mock payloads, which omit it (it would reveal the
+/// route); the default keeps the strict quiz behaviour.
+AttemptQuestion attemptQuestionFromJson(
+  Map<String, Object?> json, {
+  bool difficultyHidden = false,
+}) {
   final kind = switch (attemptJsonString(json, 'type')) {
     'mcq' => AttemptKind.mcq,
     'spr' => AttemptKind.spr,
     _ => throw const FormatException('type'),
   };
-  final difficulty = attemptJsonString(json, 'difficulty');
-  if (difficulty != 'E' && difficulty != 'M' && difficulty != 'H') {
+  final difficulty = difficultyHidden
+      ? null
+      : attemptJsonString(json, 'difficulty');
+  if (!difficultyHidden &&
+      difficulty != 'E' &&
+      difficulty != 'M' &&
+      difficulty != 'H') {
     throw const FormatException('difficulty');
   }
   return AttemptQuestion(

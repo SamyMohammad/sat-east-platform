@@ -73,6 +73,7 @@ class HivePendingAnswers implements PendingAnswers {
     required bool marked,
     required int timeMs,
     String? answer,
+    Set<String> eliminated = const {},
   }) {
     final key = _key(attemptId, questionId);
     final rev = (_cache[key]?.rev ?? 0) + 1;
@@ -82,6 +83,7 @@ class HivePendingAnswers implements PendingAnswers {
       timeMs: timeMs,
       rev: rev,
       savedAt: _now(),
+      eliminated: Set.unmodifiable(eliminated),
     );
     _cache[key] = entry;
     _guard(_box.put(key, jsonEncode(entry.toJson())), 'Save pending answer');
