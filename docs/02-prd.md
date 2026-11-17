@@ -129,7 +129,7 @@ Each requirement has an ID used in the backlog (03) and tests (12).
 | MCK-06 | Score history chart; student can log official scores (Bluebook practice tests, real test). | P1 |
 | MCK-07 | EST mock on a separate configurable template (non-adaptive). | P0 for EST launch |
 | MCK-08 | Mock schedule suggestion for the final month (e.g. 2 mocks/week + review days). | P1 |
-| MCK-09 | Mocks unlock by passed-topic count: the k-th mock form needs `settings.mock_unlock_topics[min(k, length)]` passed topics (default `[3, 6, 10]`). | P0 |
+| MCK-09 | Mocks unlock by passed-topic count with two teacher-editable numbers: the first playable form needs `mock_unlock_first_topics` passed topics (default 3), each later one `mock_unlock_step_topics` more (default 3); form *k* needs `first + (k − 1) × step`. | P0 |
 
 ## Module AI — AI Tutor
 

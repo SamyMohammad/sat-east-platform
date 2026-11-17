@@ -41,15 +41,25 @@ Student starts mock → pick lowest form_no in student's set_no not yet taken
 
 ### 2.1 Student flow (server engine, MCK-03 part 3a)
 
-- **Unlock (MCK-09).** The student's k-th playable form (k = 1, 2, …) needs `settings.mock_unlock_topics[min(k, length)]`
-  passed topics (a topic is passed when its quiz is passed). Seed `[3, 6, 10]`: form 1 after 3 topics, form 2 after 6,
-  form 3 and later after 10. `k` counts only **published** forms of the student's `mock_set_no` that have all three
-  modules published, ordered by `form_no`, so drafts and gaps in `form_no` do not shift it. `get_mock_hub` shows each form
-  as `locked | available | in_progress | finished` with its `need`.
+- **Unlock (MCK-09).** The student's k-th playable form (k = 1, 2, …) needs `settings.mock_unlock_first_topics + (k − 1) ×
+  settings.mock_unlock_step_topics` passed topics (a topic is passed when its quiz is passed; both numbers are
+  teacher-editable, defaults 3 and 3: form 1 after 3 topics, form 2 after 6, form 3 after 9). `k` counts only **published**
+  forms of the student's `mock_set_no` that have all three modules published, ordered by `form_no`, so drafts and gaps
+  in `form_no` do not shift it. `get_mock_hub` shows each form as `locked | available | in_progress | finished` with its
+  `need`; a student with an unfinished mock gets the hub even after the enrolment expired (`active_group`).
 - **Start.** `start_mock` resumes an unfinished mock if there is one (even if the enrolment expired meanwhile: a started
   mock always ends); otherwise it starts the lowest unstarted form that is unlocked. Nothing unlocked: `mock_locked`;
   every form taken: `mock_none_available`. One M1 per student and form. Module 1 gets `time_limit_s = blueprint.modules.M1.time_s`;
   its questions are written to `question_exposure`.
+- **A mock never wedges.** At start the blueprint is snapshotted into the module 1 attempt (`meta.blueprint`, hidden by
+  RLS until the mock ends); routing, module 2 and the finish read the snapshot, never the live template. `start_mock`
+  raises `internal`, inserting nothing, when the routing threshold or a module time is invalid, M2E and M2H differ in
+  time or length (the route would show), a scale table or the margin is invalid, or M1 + module 2 is longer than the
+  scale tables allow (max raw = length − 1). A scale or margin broken after start only costs the score range: module 2
+  still finishes, with `est_low` / `est_high` null.
+- **Editable settings** (teacher group Mock): `mock_unlock_first_topics`, `mock_unlock_step_topics`, `mock_gap_s`,
+  `mock_warn_s` (time warning in a mock module, default 300 s, replaces `quiz_warn_s` there) and `sat_scale_margin`.
+  The scale tables stay migration-only. The blueprint validator also requires M2E and M2H to have the same count and time.
 - **Timing.** The deadline is stored (`started_at + time_limit_s`); saves are accepted until deadline + `save_grace_s`.
   A module past deadline + grace is finished **at its deadline** by the next mock RPC of that student or by the
   every-minute cron (`expire_overdue_attempts`), whichever comes first. Unanswered questions count as wrong.
