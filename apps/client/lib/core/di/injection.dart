@@ -48,6 +48,10 @@ import 'package:sat_east_client/features/homework/data/datasources/homework_remo
 import 'package:sat_east_client/features/homework/data/repositories/homework_repository_impl.dart';
 import 'package:sat_east_client/features/homework/domain/repositories/homework_repository.dart';
 import 'package:sat_east_client/features/homework/presentation/cubit/homework_cubit.dart';
+import 'package:sat_east_client/features/mock/data/datasources/mock_remote_data_source.dart';
+import 'package:sat_east_client/features/mock/data/repositories/mock_repository_impl.dart';
+import 'package:sat_east_client/features/mock/domain/repositories/mock_repository.dart';
+import 'package:sat_east_client/features/mock/presentation/cubit/mock_hub_cubit.dart';
 import 'package:sat_east_client/features/notes/data/datasources/notes_remote_data_source.dart';
 import 'package:sat_east_client/features/notes/data/repositories/notes_repository_impl.dart';
 import 'package:sat_east_client/features/notes/domain/repositories/notes_repository.dart';
@@ -225,6 +229,19 @@ void configureDependencies({
       () =>
           SkillsCubit(getIt<SkillsRepository>(), getIt<CourseMapRepository>()),
     )
+    ..registerLazySingleton<MockRemoteDataSource>(
+      () => MockRemoteDataSource(
+        getIt<RpcCaller>(),
+        readResult: supabaseMockResultReader(getIt<SupabaseClient>()),
+      ),
+    )
+    ..registerLazySingleton<MockRepository>(
+      () => MockRepositoryImpl(
+        getIt<MockRemoteDataSource>(),
+        listEnrollments: getIt<AuthRepository>().listMyEnrollments,
+      ),
+    )
+    ..registerFactory<MockHubCubit>(() => MockHubCubit(getIt<MockRepository>()))
     ..registerLazySingleton<QuizRemoteDataSource>(
       () => QuizRemoteDataSource(
         (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),

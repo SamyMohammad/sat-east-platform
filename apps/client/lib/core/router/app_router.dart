@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/auth_refresh.dart';
-import 'package:sat_east_client/core/router/placeholder_screen.dart';
 import 'package:sat_east_client/core/router/transitions.dart';
 import 'package:sat_east_client/features/activation/presentation/screens/activate_screen.dart';
 import 'package:sat_east_client/features/attempt_review/presentation/screens/attempt_review_screen.dart';
@@ -23,6 +22,8 @@ import 'package:sat_east_client/features/course_map/presentation/screens/course_
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
 import 'package:sat_east_client/features/home/presentation/screens/home_screen.dart';
 import 'package:sat_east_client/features/homework/presentation/screens/homework_screen.dart';
+import 'package:sat_east_client/features/mock/presentation/screens/mock_hub_screen.dart';
+import 'package:sat_east_client/features/mock/presentation/screens/mock_pre_exam_screen.dart';
 import 'package:sat_east_client/features/notes/presentation/screens/notes_viewer_screen.dart'
     deferred as notes_viewer;
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
@@ -70,6 +71,9 @@ abstract final class AppRoutes {
   static String quizResult(String id) => '/courses/topics/$id/quiz/result';
   static const skills = '/skills';
   static const mockExams = '/mock-exams';
+  static const mockStart = '/mock-exams/start';
+  static String mockRun(String groupId) =>
+      '/mock-exams/run/${Uri.encodeComponent(groupId)}';
   static const profile = '/profile';
   static const gallery = '/gallery';
   static const signIn = '/sign-in';
@@ -317,11 +321,20 @@ GoRouter createRouter({
                       ),
                       AppShellDestination.home => const HomeScreen(),
                       AppShellDestination.skills => const SkillsScreen(),
+                      AppShellDestination.mockExams => const MockHubScreen(),
                       AppShellDestination.profile => const AccountScreen(),
-                      _ => PlaceholderScreen(title: destination.label),
                     },
                   ),
                   routes: [
+                    if (destination == AppShellDestination.mockExams)
+                      GoRoute(
+                        path: 'start',
+                        pageBuilder: (context, state) => sharedAxisPage(
+                          context,
+                          key: state.pageKey,
+                          child: const MockPreExamScreen(),
+                        ),
+                      ),
                     if (destination == AppShellDestination.courses) ...[
                       GoRoute(
                         path: 'topics/:topicId',

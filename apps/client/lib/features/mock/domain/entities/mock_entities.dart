@@ -85,12 +85,17 @@ final class MockModule extends Equatable {
 /// Where a run stands: a module, the break between modules, or done.
 sealed class MockStage extends Equatable {
   const MockStage();
+
+  String get groupId;
 }
 
 final class MockModuleStage extends MockStage {
   const MockModuleStage(this.module);
 
   final MockModule module;
+
+  @override
+  String get groupId => module.groupId;
 
   @override
   List<Object?> get props => [module];
@@ -103,6 +108,7 @@ final class MockGapStage extends MockStage {
     required this.serverNow,
   });
 
+  @override
   final String groupId;
   final DateTime gapUntil;
   final DateTime serverNow;
@@ -114,6 +120,7 @@ final class MockGapStage extends MockStage {
 final class MockFinishedStage extends MockStage {
   const MockFinishedStage({required this.groupId, required this.resultId});
 
+  @override
   final String groupId;
   final String resultId;
 
@@ -126,6 +133,7 @@ final class MockFinishedStage extends MockStage {
 final class MockModuleStartedStage extends MockStage {
   const MockModuleStartedStage({required this.groupId, required this.moduleNo});
 
+  @override
   final String groupId;
   final int moduleNo;
 

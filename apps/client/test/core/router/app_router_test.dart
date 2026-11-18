@@ -10,6 +10,7 @@ import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
+import 'package:sat_east_client/core/router/placeholder_screen.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/auth/domain/entities/app_user.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
@@ -20,6 +21,8 @@ import 'package:sat_east_client/features/auth/presentation/screens/set_new_passw
 import 'package:sat_east_client/features/catalogue/presentation/cubit/catalogue_cubit.dart';
 import 'package:sat_east_client/features/catalogue/presentation/cubit/course_page_cubit.dart';
 import 'package:sat_east_client/features/design_gallery/presentation/gallery_screen.dart';
+import 'package:sat_east_client/features/mock/presentation/screens/mock_hub_screen.dart';
+import 'package:sat_east_client/features/mock/presentation/screens/mock_pre_exam_screen.dart';
 import 'package:sat_east_client/features/notes/presentation/cubit/notes_viewer_cubit.dart';
 import 'package:sat_east_client/features/practice/presentation/screens/practice_screen.dart';
 import 'package:sat_east_client/features/quiz/domain/entities/quiz.dart';
@@ -56,6 +59,7 @@ import '../../features/teacher/settings/settings_fixtures.dart';
 import 'fake_account_cubit.dart';
 import 'fake_course_map_cubit.dart';
 import 'fake_home_cubit.dart';
+import 'fake_mock_hub_cubit.dart';
 import 'fake_notes_viewer_cubit.dart';
 import 'fake_practice_cubit.dart';
 import 'fake_skills_cubit.dart';
@@ -497,6 +501,8 @@ void main() {
   tearDown(unregisterFakeQuizCubit);
   setUp(registerFakeSkillsCubit);
   tearDown(unregisterFakeSkillsCubit);
+  setUp(registerFakeMockHubCubit);
+  tearDown(unregisterFakeMockHubCubit);
 
   const passedReport = QuizReport(
     attemptId: 'a1',
@@ -854,6 +860,45 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
       router.dispose();
     }
+  });
+
+  testWidgets('MCK-01: /mock-exams shows the mock hub, not a placeholder', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.mockExams);
+    try {
+      await _pumpRouter(tester, router);
+      expect(find.byType(MockHubScreen), findsOneWidget);
+      expect(find.byType(PlaceholderScreen), findsNothing);
+      expect(_selectedIndex(tester), 3);
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  testWidgets('MCK-01: the pre-exam page opens cold inside the shell', (
+    tester,
+  ) async {
+    _viewport(tester, 1280);
+    final router = createRouter(initialLocation: AppRoutes.mockStart);
+    try {
+      await _pumpRouter(tester, router);
+      expect(find.byType(MockPreExamScreen), findsOneWidget);
+      expect(_selectedIndex(tester), 3);
+      expect(
+        router.routeInformationProvider.value.uri.path,
+        '/mock-exams/start',
+      );
+    } finally {
+      await tester.pumpWidget(const SizedBox.shrink());
+      router.dispose();
+    }
+  });
+
+  test('MCK-01: the run route encodes the group id', () {
+    expect(AppRoutes.mockRun('a b'), '/mock-exams/run/a%20b');
   });
 
   testWidgets('PRC-01: /courses/topics/x/practice opens practice cold', (
