@@ -51,6 +51,7 @@ import 'package:sat_east_client/features/homework/presentation/cubit/homework_cu
 import 'package:sat_east_client/features/mock/data/datasources/mock_remote_data_source.dart';
 import 'package:sat_east_client/features/mock/data/repositories/mock_repository_impl.dart';
 import 'package:sat_east_client/features/mock/domain/repositories/mock_repository.dart';
+import 'package:sat_east_client/features/mock/presentation/cubit/mock_exam_cubit.dart';
 import 'package:sat_east_client/features/mock/presentation/cubit/mock_hub_cubit.dart';
 import 'package:sat_east_client/features/notes/data/datasources/notes_remote_data_source.dart';
 import 'package:sat_east_client/features/notes/data/repositories/notes_repository_impl.dart';
@@ -242,6 +243,15 @@ void configureDependencies({
       ),
     )
     ..registerFactory<MockHubCubit>(() => MockHubCubit(getIt<MockRepository>()))
+    ..registerFactoryParam<MockExamCubit, String, void>(
+      (groupId, _) => MockExamCubit(
+        getIt<MockRepository>(),
+        DateTime.now,
+        defaultTicker,
+        getIt<PendingAnswers>(),
+        groupId,
+      ),
+    )
     ..registerLazySingleton<QuizRemoteDataSource>(
       () => QuizRemoteDataSource(
         (fn, params) => getIt<SupabaseClient>().rpc(fn, params: params),
