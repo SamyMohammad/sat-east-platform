@@ -4,10 +4,12 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import 'package:sat_east_client/core/theme/app_colors.dart';
+import 'package:sat_east_client/core/theme/app_icons.dart';
 import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/skills/domain/entities/skills_overview.dart';
 import 'package:sat_east_client/features/skills/presentation/skills_copy.dart';
+import 'package:sat_east_client/features/skills/presentation/widgets/chart_dash.dart';
 
 /// Section with the weekly trend: the line chart, or a plain sentence while
 /// there is too little data for a trend (fewer than two weeks).
@@ -46,7 +48,17 @@ class MasteryTrendSection extends StatelessWidget {
           Card(
             child: Padding(
               padding: const EdgeInsets.all(AppSpace.s4),
-              child: MasteryTrendChart(points: trend),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: AppSpace.s3,
+                children: [
+                  _DeltaHeader(points: trend),
+                  MasteryTrendChart(
+                    points: trend,
+                    strongAt: summary.strongAt?.toDouble(),
+                  ),
+                ],
+              ),
             ),
           ),
       ],
@@ -62,13 +74,60 @@ class MasteryTrendSection extends StatelessWidget {
   }
 }
 
-/// Weekly mean mastery as one line, 0-100 on the y axis, week dates on the x
-/// axis and the last value labelled. Draws in once; static under reduced
-/// motion.
-class MasteryTrendChart extends StatefulWidget {
-  const MasteryTrendChart({required this.points, super.key});
+/// Change since the previous point: icon plus word, never colour alone.
+class _DeltaHeader extends StatelessWidget {
+  const _DeltaHeader({required this.points});
 
   final List<TrendPoint> points;
+
+  @override
+  Widget build(BuildContext context) {
+    final change = points.weeklyDelta;
+    if (change == null) return const SizedBox.shrink();
+    final colors = context.appColors;
+    final icon = switch (change) {
+      0 => AppIcons.trendFlat,
+      > 0 => AppIcons.moveUp,
+      _ => AppIcons.moveDown,
+    };
+    return Row(
+      key: const ValueKey('trend-delta'),
+      spacing: AppSpace.s1,
+      children: [
+        ExcludeSemantics(
+          child: Icon(icon, size: AppSize.iconStatus, color: colors.ink),
+        ),
+        Flexible(
+          child: Text(
+            SkillsCopy.trendDelta(
+              change,
+              since: points[points.length - 2].weekStart,
+              until: points.last.weekStart,
+            ),
+            style: Theme.of(
+              context,
+            ).textTheme.labelLarge?.copyWith(color: colors.ink),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Weekly mean mastery as one line, 0-100 on the y axis, week dates on the x
+/// axis, a dashed target line at [strongAt] and the last value labelled.
+/// Draws in once; static under reduced motion.
+class MasteryTrendChart extends StatefulWidget {
+  const MasteryTrendChart({
+    required this.points,
+    this.strongAt,
+    super.key,
+  });
+
+  final List<TrendPoint> points;
+
+  /// Mastery at which a skill counts as strong; no target line when null.
+  final double? strongAt;
 
   @override
   State<MasteryTrendChart> createState() => _MasteryTrendChartState();
@@ -133,6 +192,8 @@ class _MasteryTrendChartState extends State<MasteryTrendChart>
                     l10n.formatShortMonthDay(point.weekStart),
                 ],
                 progress: _progress.value,
+                strongAt: widget.strongAt,
+                strongLabel: SkillsCopy.band(MasteryBand.strong),
                 lineColor: colors.brand,
                 gridColor: colors.line,
                 surface: colors.raised,
@@ -156,6 +217,8 @@ class _TrendPainter extends CustomPainter {
     required this.points,
     required this.labels,
     required this.progress,
+    required this.strongAt,
+    required this.strongLabel,
     required this.lineColor,
     required this.gridColor,
     required this.surface,
@@ -167,6 +230,8 @@ class _TrendPainter extends CustomPainter {
   final List<TrendPoint> points;
   final List<String> labels;
   final double progress;
+  final double? strongAt;
+  final String strongLabel;
   final Color lineColor;
   final Color gridColor;
   final Color surface;
@@ -217,6 +282,23 @@ class _TrendPainter extends CustomPainter {
         canvas,
         Offset(yLabelWidth - yLabels[i].width, y - yLabels[i].height / 2),
       );
+    }
+
+    final target = validStrongAt(strongAt);
+    if (target != null) {
+      final y = yFor(target);
+      drawDashedPath(
+        canvas,
+        Path()
+          ..moveTo(plot.left, y)
+          ..lineTo(plot.right, y),
+        Paint()
+          ..color = labelStyle.color ?? gridColor
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = AppStroke.thin,
+      );
+      final label = _text(strongLabel, labelStyle);
+      label.paint(canvas, Offset(plot.left + _gap, y - label.height - 2));
     }
 
     final first = points.first.weekStart;
@@ -308,6 +390,8 @@ class _TrendPainter extends CustomPainter {
   @override
   bool shouldRepaint(_TrendPainter old) =>
       old.progress != progress ||
+      old.strongAt != strongAt ||
+      old.strongLabel != strongLabel ||
       old.points != points ||
       old.labels != labels ||
       old.lineColor != lineColor ||
