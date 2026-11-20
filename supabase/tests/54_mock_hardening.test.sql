@@ -15,9 +15,12 @@ select tests.create_supabase_user('h_f');   -- enrolment expires mid-mock
 select tests.create_supabase_user('h_g');   -- expired, no mock
 select tests.create_supabase_user('h_h');   -- unlock rule, warn_s, RLS probes
 select tests.create_supabase_user('h_n');   -- not enrolled
+select tests.create_supabase_user('h_k');   -- MCK-09 all-topics rule
 
 update public.settings set value = '1000'::jsonb
 where key in ('rate_start_per_min', 'rate_save_per_min', 'rate_submit_per_min');
+-- Sections 1-8 test the first/step rule; the all-topics switch (default on) is exercised in section 9.
+update public.settings set value = '0'::jsonb where key = 'mock_unlock_require_all_topics';
 
 insert into public.courses (code, title, slug) values ('SAT', 'Mock SAT', 'mock-sat') on conflict (code) do nothing;
 update public.courses set is_published = true where code = 'SAT';
@@ -76,7 +79,7 @@ from (values ('M1', 1, 4), ('M2E', 5, 4), ('M2H', 9, 3)) m(module, lo, n);
 
 insert into public.enrollments (user_id, course_id, status, starts_at, expires_at, mock_set_no)
 select pg_temp.uid(u.n), pg_temp.course(), 'active', now() - interval '1 day', now() + interval '30 days', u.s
-from (values ('h_a', 1), ('h_b', 1), ('h_c', 1), ('h_d', 2), ('h_e', 1), ('h_i', 3), ('h_f', 1), ('h_g', 1), ('h_h', 1)) u(n, s);
+from (values ('h_a', 1), ('h_b', 1), ('h_c', 1), ('h_d', 2), ('h_e', 1), ('h_i', 3), ('h_f', 1), ('h_g', 1), ('h_h', 1), ('h_k', 1)) u(n, s);
 
 create function pg_temp.pass(p_user text, p_n int) returns void language sql as $$
   insert into public.topic_progress (user_id, topic_id, quiz_passed_at)
@@ -92,22 +95,22 @@ select is((select value from public.settings where key = 'mock_unlock_step_topic
 select is((select count(*)::int from public.settings where key = 'mock_unlock_topics'), 0, 'MCK-09: the unlock list setting is gone');
 select is((select value from public.settings where key = 'mock_warn_s'), '300'::jsonb, 'MCK-03: mock_warn_s defaults to 300');
 select results_eq($$ select key, grp, min, max from private.teacher_setting_spec() where grp = 'Mock' order by sort $$,
-  $$ values ('mock_unlock_first_topics', 'Mock', 0, 50), ('mock_unlock_step_topics', 'Mock', 0, 50),
+  $$ values ('mock_unlock_require_all_topics', 'Mock', 0, 1), ('mock_unlock_first_topics', 'Mock', 0, 50), ('mock_unlock_step_topics', 'Mock', 0, 50),
             ('mock_gap_s', 'Mock', 0, 900), ('mock_warn_s', 'Mock', 0, 1800), ('sat_scale_margin', 'Mock', 0, 100) $$,
-  'MCK-03: the five mock settings are in the teacher spec');
+  'MCK-03: the six mock settings are in the teacher spec');
 select is((select count(*)::int from private.teacher_setting_spec() where key in ('sat_scale_easy', 'sat_scale_hard')), 0,
   'MCK-03: scale tables stay migration-only');
-select is((select array_agg(private.mock_unlock_need(k) order by k) from generate_series(1, 4) k), array[3, 6, 9, 12],
+select is((select array_agg(private.mock_unlock_need(k, pg_temp.course()) order by k) from generate_series(1, 4) k), array[3, 6, 9, 12],
   'MCK-09: need(k) = first + (k - 1) * step');
-select is(private.mock_unlock_need(0), 3, 'MCK-09: need below 1 counts as form 1');
+select is(private.mock_unlock_need(0, pg_temp.course()), 3, 'MCK-09: need below 1 counts as form 1');
 update public.settings set value = '2'::jsonb where key = 'mock_unlock_first_topics';
 update public.settings set value = '5'::jsonb where key = 'mock_unlock_step_topics';
-select is((select array_agg(private.mock_unlock_need(k) order by k) from generate_series(1, 3) k), array[2, 7, 12],
+select is((select array_agg(private.mock_unlock_need(k, pg_temp.course()) order by k) from generate_series(1, 3) k), array[2, 7, 12],
   'MCK-09: need follows the edited numbers');
 update public.settings set value = '-1'::jsonb where key = 'mock_unlock_step_topics';
-select throws_ok($$ select private.mock_unlock_need(2) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a negative step is mock_settings_invalid');
+select throws_ok($$ select private.mock_unlock_need(2, pg_temp.course()) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a negative step is mock_settings_invalid');
 update public.settings set value = '"x"'::jsonb where key = 'mock_unlock_step_topics';
-select throws_ok($$ select private.mock_unlock_need(2) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a non-number step is mock_settings_invalid');
+select throws_ok($$ select private.mock_unlock_need(2, pg_temp.course()) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a non-number step is mock_settings_invalid');
 update public.settings set value = '3'::jsonb where key in ('mock_unlock_first_topics', 'mock_unlock_step_topics');
 
 select tests.authenticate_as('h_h');
@@ -298,6 +301,83 @@ select tests.authenticate_as('h_h');
 select is((select string_agg(f ->> 'need', ',' order by (f ->> 'k')::int) from jsonb_array_elements(public.get_mock_hub(pg_temp.course()) -> 'forms') f),
   '3,5,7', 'MCK-09: the hub follows the teacher-edited step');
 reset role;
+
+-- ===== 9. MCK-09: mocks unlock after ALL published topics (switch on, the default) ===============
+reset role;
+create function pg_temp.total() returns int language sql stable as
+  $$ select count(*)::int from public.topics where course_id = pg_temp.course() and is_published $$;
+create function pg_temp.needs(p jsonb) returns text language sql immutable as
+  $$ select string_agg(f ->> 'need', ',' order by (f ->> 'k')::int) from jsonb_array_elements(p -> 'forms') f $$;
+grant execute on function pg_temp.total(), pg_temp.needs(jsonb) to authenticated;
+update public.settings set value = '1'::jsonb where key = 'mock_unlock_require_all_topics';
+select is(pg_temp.total(), 10, 'MCK-09: the test course has 10 published topics');
+select is((select array_agg(private.mock_unlock_need(k, pg_temp.course()) order by k) from generate_series(0, 4) k),
+  array[10, 10, 10, 10, 10], 'MCK-09: switch on, every form needs all published topics');
+update public.topics set is_published = false where slug = 'h-topic-10';
+select is(private.mock_unlock_need(1, pg_temp.course()), 9, 'MCK-09: an unpublished topic does not count');
+update public.topics set is_published = true where slug = 'h-topic-10';
+
+select tests.authenticate_as('h_k');
+select is(pg_temp.needs(public.get_mock_hub(pg_temp.course())), '10,10,10', 'MCK-09: the hub shows need = total topics for every form');
+select is((public.get_mock_hub(pg_temp.course()) ->> 'total_topics')::int, 10, 'MCK-09: the hub reports total_topics');
+select is(pg_temp.states(public.get_mock_hub(pg_temp.course())), 'locked,locked,locked', 'MCK-09: 0 of 10 topics: all locked');
+reset role;
+select pg_temp.pass('h_k', 9);
+select tests.authenticate_as('h_k');
+select is(pg_temp.states(public.get_mock_hub(pg_temp.course())), 'locked,locked,locked', 'MCK-09: 9 of 10 topics: still locked');
+select is((public.get_mock_hub(pg_temp.course()) ->> 'passed_topics')::int, 9, 'MCK-09: the hub reports passed_topics');
+select throws_ok($$ select public.start_mock(pg_temp.course()) $$, 'P0001', 'mock_locked', 'MCK-09: start_mock refuses at 9 of 10 topics');
+reset role;
+select pg_temp.pass('h_k', 10);
+select tests.authenticate_as('h_k');
+select is(pg_temp.states(public.get_mock_hub(pg_temp.course())), 'available,available,available', 'MCK-09: all 10 topics: every form available');
+insert into ctx select 'k1', public.start_mock(pg_temp.course());
+select is((select v ->> 'stage' from ctx where k = 'k1'), 'module', 'MCK-09: start_mock works once all topics are completed');
+reset role;
+
+-- An empty course never auto-unlocks (need is at least 1).
+insert into public.courses (code, title, slug) values ('EST', 'Empty', 'mock-empty') on conflict (code) do nothing;
+update public.topics set is_published = false where course_id = (select id from public.courses where code = 'EST');
+select is(private.mock_unlock_need(1, (select id from public.courses where code = 'EST')), 1, 'MCK-09: an empty course needs at least 1 topic');
+
+-- Switch off: the old first/step rule applies again (step 3 again after the teacher edit above).
+update public.settings set value = '0'::jsonb where key = 'mock_unlock_require_all_topics';
+update public.settings set value = '3'::jsonb where key = 'mock_unlock_step_topics';
+select is((select array_agg(private.mock_unlock_need(k, pg_temp.course()) order by k) from generate_series(1, 3) k), array[3, 6, 9],
+  'MCK-09: switch off, need is first + (k - 1) * step (3/6/9)');
+select tests.authenticate_as('h_k');
+select is(pg_temp.needs(public.get_mock_hub(pg_temp.course())), '3,6,9', 'MCK-09: switch off, the hub shows 3/6/9');
+select is((public.get_mock_hub(pg_temp.course()) ->> 'total_topics')::int, 10, 'MCK-09: total_topics is reported with the switch off too');
+reset role;
+
+-- An invalid switch value is mock_settings_invalid, never a silent fallback.
+update public.settings set value = '"yes"'::jsonb where key = 'mock_unlock_require_all_topics';
+select throws_ok($$ select private.mock_unlock_need(1, pg_temp.course()) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a string switch is mock_settings_invalid');
+update public.settings set value = 'true'::jsonb where key = 'mock_unlock_require_all_topics';
+select throws_ok($$ select private.mock_unlock_need(1, pg_temp.course()) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a JSON boolean switch is mock_settings_invalid');
+update public.settings set value = '2'::jsonb where key = 'mock_unlock_require_all_topics';
+select throws_ok($$ select private.mock_unlock_need(1, pg_temp.course()) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a switch other than 0 or 1 is mock_settings_invalid');
+delete from public.settings where key = 'mock_unlock_require_all_topics';
+select throws_ok($$ select private.mock_unlock_need(1, pg_temp.course()) $$, 'P0001', 'mock_settings_invalid', 'MCK-09: a missing switch is mock_settings_invalid');
+insert into public.settings (key, value) values ('mock_unlock_require_all_topics', '1'::jsonb);
+
+-- A teacher flips the switch through teacher_update_settings.
+select tests.authenticate_as('h_t');
+select lives_ok($$ select public.teacher_update_settings('{"mock_unlock_require_all_topics": 0}'::jsonb) $$,
+  'MCK-09: a teacher can switch the all-topics rule off');
+select throws_ok($$ select public.teacher_update_settings('{"mock_unlock_require_all_topics": 2}'::jsonb) $$, 'P0001',
+  'invalid_input', 'MCK-09: the switch above 1 is refused');
+reset role;
+select is((select value from public.settings where key = 'mock_unlock_require_all_topics'), '0'::jsonb, 'MCK-09: the teacher edit is stored');
+
+select ok(not has_function_privilege('authenticated', 'private.mock_unlock_need(integer,uuid)', 'execute')
+  and not has_function_privilege('anon', 'private.mock_unlock_need(integer,uuid)', 'execute')
+  and not has_function_privilege('authenticated', 'private.mock_total_topics(uuid)', 'execute')
+  and has_function_privilege('authenticated', 'public.get_mock_hub(uuid)', 'execute')
+  and not has_function_privilege('anon', 'public.get_mock_hub(uuid)', 'execute')
+  and has_function_privilege('authenticated', 'public.start_mock(uuid)', 'execute')
+  and not has_function_privilege('anon', 'public.start_mock(uuid)', 'execute'),
+  'MCK-09: helpers are private; hub and start are authenticated only');
 
 select * from finish();
 rollback;
