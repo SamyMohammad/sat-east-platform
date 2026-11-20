@@ -118,6 +118,47 @@ void main() {
     expect(entry.rev, 1);
   });
 
+  test('MCK-01: eliminated choices survive closing the box', () async {
+    final name = box.name;
+    open().put(
+      'a',
+      'q',
+      answer: 'B',
+      marked: false,
+      timeMs: 5,
+      eliminated: const {'D', 'A'},
+    );
+    await box.close();
+    box = await Hive.openBox<String>(name);
+    expect(open().forAttempt('a')['q']!.eliminated, {'A', 'D'});
+  });
+
+  test('MCK-01: a value stored in the old shape loads with no eliminated '
+      'choices and is not reported as corrupt', () async {
+    final name = box.name;
+    // Written by a build from before `eliminated` existed.
+    await box.put(
+      'a:old',
+      '{"answer":"A","marked":true,"time_ms":7,"rev":3,'
+          '"saved_at":"2026-11-11T12:00:00.000Z"}',
+    );
+    final store = open();
+    final entry = store.forAttempt('a')['old']!;
+    expect(entry.answer, 'A');
+    expect(entry.marked, isTrue);
+    expect(entry.timeMs, 7);
+    expect(entry.rev, 3);
+    expect(entry.eliminated, isEmpty);
+    expect(reporter.hints, isEmpty);
+    // Updating the old entry rewrites it in the new shape.
+    store.put('a', 'old', answer: 'B', marked: true, timeMs: 8);
+    await box.close();
+    box = await Hive.openBox<String>(name);
+    final reloaded = open().forAttempt('a')['old']!;
+    expect(reloaded.rev, 4);
+    expect(reloaded.eliminated, isEmpty);
+  });
+
   test('PRC-03: corrupt entries are skipped, deleted and reported', () async {
     final name = box.name;
     await box.put('a:bad-json', 'not json');

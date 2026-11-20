@@ -8,6 +8,7 @@ final class PendingAnswer extends Equatable {
     required this.timeMs,
     required this.rev,
     required this.savedAt,
+    this.eliminated = const {},
   });
 
   factory PendingAnswer.fromJson(Map<String, Object?> json) {
@@ -16,6 +17,14 @@ final class PendingAnswer extends Equatable {
     final timeMs = json['time_ms'];
     final rev = json['rev'];
     final savedAt = json['saved_at'];
+    // Absent in values written before the mock exam: read as none struck out.
+    final eliminated = json['eliminated'];
+    if (eliminated != null &&
+        (eliminated is! List ||
+            eliminated.any((label) => label is! String) ||
+            eliminated.toSet().length != eliminated.length)) {
+      throw const FormatException('pending answer eliminated');
+    }
     if ((answer != null && answer is! String) ||
         marked is! bool ||
         timeMs is! int ||
@@ -29,6 +38,9 @@ final class PendingAnswer extends Equatable {
       timeMs: timeMs,
       rev: rev,
       savedAt: DateTime.parse(savedAt),
+      eliminated: Set.unmodifiable(
+        (eliminated as List?)?.cast<String>() ?? const <String>[],
+      ),
     );
   }
 
@@ -40,16 +52,20 @@ final class PendingAnswer extends Equatable {
   final int rev;
   final DateTime savedAt;
 
+  /// Choice labels struck out (mock eliminator); empty for quizzes.
+  final Set<String> eliminated;
+
   Map<String, Object?> toJson() => {
     'answer': answer,
     'marked': marked,
     'time_ms': timeMs,
     'rev': rev,
     'saved_at': savedAt.toUtc().toIso8601String(),
+    'eliminated': eliminated.toList()..sort(),
   };
 
   @override
-  List<Object?> get props => [answer, marked, timeMs, rev, savedAt];
+  List<Object?> get props => [answer, marked, timeMs, rev, savedAt, eliminated];
 }
 
 /// Local store of answers the server has not acknowledged yet. Synchronous so
@@ -62,6 +78,7 @@ abstract interface class PendingAnswers {
     required bool marked,
     required int timeMs,
     String? answer,
+    Set<String> eliminated,
   });
 
   int? revOf(String attemptId, String questionId);

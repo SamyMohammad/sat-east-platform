@@ -18,6 +18,7 @@ class InMemoryPendingAnswers implements PendingAnswers {
     required bool marked,
     required int timeMs,
     String? answer,
+    Set<String> eliminated = const {},
   }) {
     final rev = (revOf(attemptId, questionId) ?? 0) + 1;
     (_entries[attemptId] ??= {})[questionId] = PendingAnswer(
@@ -26,6 +27,7 @@ class InMemoryPendingAnswers implements PendingAnswers {
       timeMs: timeMs,
       rev: rev,
       savedAt: _now(),
+      eliminated: Set.unmodifiable(eliminated),
     );
     return rev;
   }

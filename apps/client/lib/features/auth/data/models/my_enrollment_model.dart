@@ -15,6 +15,10 @@ MyEnrollment? myEnrollmentFromJson(Map<String, Object?> json, DateTime now) {
   if (title is! String || title.isEmpty) {
     throw const FormatException('courses.title');
   }
+  final code = course['code'];
+  if (code is! String || code.isEmpty) {
+    throw const FormatException('courses.code');
+  }
   final status = json['status'];
   if (!const {'active', 'expired', 'refunded', 'suspended'}.contains(status)) {
     throw const FormatException('status');
@@ -29,6 +33,7 @@ MyEnrollment? myEnrollmentFromJson(Map<String, Object?> json, DateTime now) {
         : _calendarDate(targetTestDate),
     expiresAt: expiresAt,
     isExpired: status != 'active' || !expiresAt.isAfter(now),
+    courseCode: code,
   );
 }
 

@@ -7,6 +7,7 @@ final class MyEnrollment extends Equatable {
     required this.targetTestDate,
     required this.expiresAt,
     required this.isExpired,
+    this.courseCode,
   });
 
   final String courseId;
@@ -15,6 +16,9 @@ final class MyEnrollment extends Equatable {
   final DateTime expiresAt;
   final bool isExpired;
 
+  /// `courses.code` (`SAT` / `EST`).
+  final String? courseCode;
+
   @override
   List<Object?> get props => [
     courseId,
@@ -22,6 +26,7 @@ final class MyEnrollment extends Equatable {
     targetTestDate,
     expiresAt,
     isExpired,
+    courseCode,
   ];
 
   @override

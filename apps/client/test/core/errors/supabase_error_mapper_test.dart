@@ -154,6 +154,19 @@ void main() {
       expect(ErrorCodes.mockFormPublished, 'mock_form_published');
     });
 
+    for (final (code, constant) in [
+      ('mock_locked', ErrorCodes.mockLocked),
+      ('mock_none_available', ErrorCodes.mockNoneAvailable),
+      ('mock_settings_invalid', ErrorCodes.mockSettingsInvalid),
+    ]) {
+      test('MCK-01: mapPostgrestException keeps $code', () {
+        final error = mapPostgrestException(PostgrestException(message: code));
+        expect(error.code, constant);
+        expect(constant, code);
+        expect(ErrorCodes.isServerCode(code), isTrue);
+      });
+    }
+
     for (final code in ['not_enrolled', 'access_expired', 'topic_locked']) {
       test('L-1: mapPostgrestException keeps $code', () {
         expect(

@@ -23,7 +23,9 @@ class AttemptQuestion extends Equatable {
 
   final String id;
   final AttemptKind kind;
-  final String difficulty;
+
+  /// `E`/`M`/`H`; null when the server hides it (mock questions).
+  final String? difficulty;
   final String stemMd;
   final List<AttemptChoice> choices;
 
@@ -32,11 +34,18 @@ class AttemptQuestion extends Equatable {
 }
 
 class SavedAnswer extends Equatable {
-  const SavedAnswer({required this.marked, this.answer});
+  const SavedAnswer({
+    required this.marked,
+    this.answer,
+    this.eliminated = const {},
+  });
 
   final String? answer;
   final bool marked;
 
+  /// Choice labels the student struck out; empty unless the payload has them.
+  final Set<String> eliminated;
+
   @override
-  List<Object?> get props => [answer, marked];
+  List<Object?> get props => [answer, marked, eliminated];
 }

@@ -8,7 +8,7 @@ void main() {
     'target_test_date': '2027-03-15',
     'expires_at': '2027-03-30T00:00:00Z',
     'status': 'active',
-    'courses': {'title': 'SAT Math'},
+    'courses': {'title': 'SAT Math', 'code': 'SAT'},
   };
 
   test('LRN-07: enrollment mapper reads course_id', () {
