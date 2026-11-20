@@ -26,6 +26,101 @@ abstract final class SkillsCopy {
   static const activateAction = 'Enter activation code';
   static const browseAction = 'Browse courses';
 
+  static const radarTitle = 'Domain mastery';
+  static const notStarted = 'Not started';
+  static const trendNoChange = 'No change';
+
+  static String strongest(String domain) => 'Strongest: $domain';
+
+  static String focusNext(String domain) => 'Focus next: $domain';
+
+  /// "78 · Strong", or "Not started" while no skill is practised.
+  static String domainValue(DomainMastery d) {
+    final mean = d.mean;
+    return mean == null ? notStarted : '${mastery(mean)} · ${band(d.band)}';
+  }
+
+  /// Axis label: "Algebra · 78 · Strong", or "Algebra · Not started".
+  static String domainLabel(DomainMastery d) =>
+      '${d.domain} · ${domainValue(d)}';
+
+  static String startNext(String domain) => 'Start next: $domain';
+
+  /// Size of a sparkline change; the arrow icon next to it shows direction.
+  static String sparkDelta(int delta) => '${delta.abs()}';
+
+  /// Spoken change of a sparkline, naming where it starts.
+  static String sparkDeltaSpoken(int delta, {required DateTime since}) =>
+      switch (delta) {
+        0 => 'no change since ${shortDate(since)}',
+        > 0 => 'up $delta points since ${shortDate(since)}',
+        _ => 'down ${-delta} points since ${shortDate(since)}',
+      };
+
+  /// Spoken summary of the whole radar.
+  static String radarSemantics(List<DomainMastery> domains) =>
+      '$radarTitle: ${domains.map(_domainSpoken).join(', ')}';
+
+  static String _domainSpoken(DomainMastery d) {
+    final mean = d.mean;
+    return mean == null
+        ? '${d.domain} not started'
+        : '${d.domain} ${mastery(mean)} ${band(d.band).toLowerCase()}';
+  }
+
+  static const _months = [
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
+  ];
+
+  /// "Oct 12".
+  static String shortDate(DateTime date) =>
+      '${_months[date.month - 1]} ${date.day}';
+
+  /// "+6 this week" when [since] and [until] are exactly a week apart,
+  /// otherwise "+6 since Oct 5"; "−3 ..." uses a true minus sign; "No change"
+  /// for zero.
+  static String trendDelta(
+    int delta, {
+    required DateTime since,
+    required DateTime until,
+  }) {
+    if (delta == 0) return trendNoChange;
+    final span = until.difference(since).inDays == 7
+        ? 'this week'
+        : 'since ${shortDate(since)}';
+    return delta > 0 ? '+$delta $span' : '−${-delta} $span';
+  }
+
+  /// "1m 12s", "45s" or "2m"; never shows less than one second.
+  static String duration(Duration value) {
+    final total = (value.inMilliseconds / 1000).round().clamp(1, 1 << 30);
+    final minutes = total ~/ 60;
+    final seconds = total % 60;
+    if (minutes == 0) return '${seconds}s';
+    return seconds == 0 ? '${minutes}m' : '${minutes}m ${seconds}s';
+  }
+
+  /// "82% correct · 1m 12s avg"; null when there are no attempts.
+  static String? accuracyLine(SkillMastery skill) {
+    final accuracy = skill.accuracy;
+    if (skill.attempts == 0 || accuracy == null) return null;
+    final avg = skill.avgTime;
+    return avg == null
+        ? '${accuracy.round()}% correct'
+        : '${accuracy.round()}% correct · ${duration(avg)} avg';
+  }
+
   static String solved(int solved, int total) =>
       '$solved of $total questions solved';
 

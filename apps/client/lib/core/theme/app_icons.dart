@@ -72,4 +72,5 @@ abstract final class AppIcons {
   static const IconData masteryBuilding = LucideIcons.trendingUp;
   static const IconData masteryStrong = LucideIcons.circleCheck;
   static const IconData masteryThin = LucideIcons.circleDashed;
+  static const IconData trendFlat = LucideIcons.minus;
 }

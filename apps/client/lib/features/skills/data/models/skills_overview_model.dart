@@ -13,6 +13,7 @@ SkillsOverview skillsOverviewFromJson(
       total: attemptJsonInt(summary, 'total'),
       gradedAnswers: attemptJsonInt(summary, 'graded_answers'),
       trendMinAnswers: attemptJsonInt(summary, 'trend_min_answers', min: 1),
+      strongAt: _optInt(summary, 'strong_at'),
     ),
     skills: [
       for (final s in attemptJsonList(json, 'skills'))
@@ -30,6 +31,10 @@ SkillsOverview skillsOverviewFromJson(
       for (final t in attemptJsonList(json, 'topics'))
         _topic(attemptJsonMap(t, 'topics[]')),
     ],
+    domains: [
+      for (final d in _optList(json, 'domains'))
+        _domain(attemptJsonMap(d, 'domains[]')),
+    ],
   );
 }
 
@@ -40,6 +45,20 @@ SkillMastery _skill(Map<String, Object?> json) => SkillMastery(
   mastery: _optNum(json, 'mastery'),
   attempts: attemptJsonInt(json, 'attempts'),
   band: _band(json['band']),
+  accuracy: _optNum(json, 'accuracy'),
+  avgTime: _optDuration(json, 'avg_time_ms'),
+  history: [
+    for (final t in _optList(json, 'history'))
+      _trend(attemptJsonMap(t, 'history[]')),
+  ],
+);
+
+DomainMastery _domain(Map<String, Object?> json) => DomainMastery(
+  domain: attemptJsonString(json, 'domain'),
+  mean: _optNum(json, 'mean'),
+  band: _band(json['band']),
+  practised: attemptJsonInt(json, 'practised'),
+  total: attemptJsonInt(json, 'total'),
 );
 
 WeakSkill _weak(Map<String, Object?> json) => WeakSkill(
@@ -84,6 +103,18 @@ double _num(Map<String, Object?> json, String field) {
 
 double? _optNum(Map<String, Object?> json, String field) =>
     json[field] == null ? null : _num(json, field);
+
+/// A list that older servers do not send yet: missing or null means empty.
+List<Object?> _optList(Map<String, Object?> json, String field) =>
+    json[field] == null ? const [] : attemptJsonList(json, field);
+
+int? _optInt(Map<String, Object?> json, String field) =>
+    json[field] == null ? null : _num(json, field).round();
+
+Duration? _optDuration(Map<String, Object?> json, String field) {
+  final ms = _optNum(json, field);
+  return ms == null ? null : Duration(milliseconds: ms.round());
+}
 
 DateTime _date(String value) {
   if (!RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {

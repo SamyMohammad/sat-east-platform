@@ -35,7 +35,40 @@ SkillsOverview _loadedOverview() => SkillsOverview(
   weak: skillsOverviewFixture.weak,
   trend: skillsOverviewFixture.trend,
   topics: skillsOverviewFixture.topics,
+  domains: const [
+    DomainMastery(
+      domain: 'Algebra',
+      mean: 78,
+      band: MasteryBand.strong,
+      practised: 3,
+      total: 3,
+    ),
+    DomainMastery(
+      domain: 'Advanced Math',
+      mean: 60,
+      band: MasteryBand.building,
+      practised: 2,
+      total: 2,
+    ),
+    DomainMastery(
+      domain: 'Geometry',
+      mean: 41,
+      band: MasteryBand.weak,
+      practised: 2,
+      total: 3,
+    ),
+    DomainMastery(
+      domain: 'Problem-Solving and Data Analysis',
+      mean: null,
+      band: MasteryBand.thin,
+      practised: 0,
+      total: 2,
+    ),
+  ],
 );
+
+/// The shared fixture has two domains, so the radar falls back to bars.
+SkillsOverview _twoDomainOverview() => skillsOverviewFixture;
 
 SkillsOverview _thinOverview() => const SkillsOverview(
   summary: SkillsSummary(
@@ -73,6 +106,7 @@ void main() {
     for (final brightness in Brightness.values) {
       for (final (stateName, state) in <(String, SkillsState)>[
         ('loaded', SkillsLoaded(_loadedOverview(), 'c1')),
+        ('loaded2d', SkillsLoaded(_twoDomainOverview(), 'c1')),
         ('thin', SkillsLoaded(_thinOverview(), 'c1')),
         ('empty', const SkillsEmpty()),
         ('error', const SkillsFailed(AppError(ErrorCodes.accessExpired))),
@@ -103,7 +137,7 @@ void main() {
             tester,
             name: name,
             width: width,
-            height: stateName == 'loaded' ? 1800 : 1000,
+            height: stateName.startsWith('loaded') ? 2000 : 1000,
             brightness: brightness,
             directory: '../../baselines',
             child: Builder(

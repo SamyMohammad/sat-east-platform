@@ -197,7 +197,10 @@ void main() {
       final semantics = tester.ensureSemantics();
       await _pump(tester, SkillsLoaded(skillsOverviewFixture, 'c1'));
       expect(
-        find.bySemanticsLabel('Linear equations, 83 of 100, Strong'),
+        find.bySemanticsLabel(
+          'Linear equations, 83 of 100, Strong, 82% correct · 1m 12s avg, '
+          'up 12 points since Oct 12',
+        ),
         findsOneWidget,
       );
       semantics.dispose();
