@@ -27,16 +27,17 @@ insert into setting_cases values
   ('test_date_max_days','Access','Latest test date','days ahead',30,730,12,548),
   ('device_limit','Devices','Devices per student','devices',1,5,13,2),
   ('ai_daily_cap','AI','AI questions per day','per day',0,200,14,20),
-  ('mock_unlock_first_topics','Mock','Topics to unlock mock 1','topics',0,50,15,3),
-  ('mock_unlock_step_topics','Mock','Extra topics per next mock','topics',0,50,16,3),
-  ('mock_gap_s','Mock','Break between modules','seconds',0,900,17,120),
-  ('mock_warn_s','Mock','Mock time warning at','seconds left',0,1800,18,300),
-  ('sat_scale_margin','Mock','Score range margin','points',0,100,19,30);
+  ('mock_unlock_require_all_topics','Mock','Require all topics before mocks','1 = yes, 0 = no',0,1,15,1),
+  ('mock_unlock_first_topics','Mock','Topics to unlock mock 1','topics',0,50,16,3),
+  ('mock_unlock_step_topics','Mock','Extra topics per next mock','topics',0,50,17,3),
+  ('mock_gap_s','Mock','Break between modules','seconds',0,900,18,120),
+  ('mock_warn_s','Mock','Mock time warning at','seconds left',0,1800,19,300),
+  ('sat_scale_margin','Mock','Score range margin','points',0,100,20,30);
 grant select on setting_cases to authenticated;
 update public.settings s set value = to_jsonb(c.value),
   updated_at = '2020-01-01'::timestamptz from setting_cases c where s.key = c.key;
 select is((select count(*)::int from public.settings s join setting_cases c using(key)),
-  19,'ADM-06: every editable setting already exists');
+  20,'ADM-06: every editable setting already exists');
 
 select tests.authenticate_as('settings_student');
 select throws_ok($$ select public.teacher_get_settings() $$,

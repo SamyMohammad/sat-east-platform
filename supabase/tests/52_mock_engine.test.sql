@@ -11,6 +11,8 @@ select tests.create_supabase_user('mk2_c');   -- not enrolled
 
 update public.settings set value = '1000'::jsonb
 where key in ('rate_start_per_min', 'rate_save_per_min', 'rate_submit_per_min');
+-- This file tests the engine under the first/step rule; the all-topics switch is tested in 54.
+update public.settings set value = '0'::jsonb where key = 'mock_unlock_require_all_topics';
 
 insert into public.courses (code, title, slug) values ('SAT', 'Mock SAT', 'mock-sat') on conflict (code) do nothing;
 update public.courses set is_published = true where code = 'SAT';

@@ -41,9 +41,12 @@ Student starts mock → pick lowest form_no in student's set_no not yet taken
 
 ### 2.1 Student flow (server engine, MCK-03 part 3a)
 
-- **Unlock (MCK-09).** The student's k-th playable form (k = 1, 2, …) needs `settings.mock_unlock_first_topics + (k − 1) ×
-  settings.mock_unlock_step_topics` passed topics (a topic is passed when its quiz is passed; both numbers are
-  teacher-editable, defaults 3 and 3: form 1 after 3 topics, form 2 after 6, form 3 after 9). `k` counts only **published**
+- **Unlock (MCK-09).** With `settings.mock_unlock_require_all_topics` = 1 (default, teacher-editable, 1 or 0) every form
+  needs **all published topics of the course** (at least 1, so an empty course never unlocks a mock; a topic is passed
+  when its quiz is passed). With the switch 0, the student's k-th playable form (k = 1, 2, …) needs
+  `settings.mock_unlock_first_topics + (k − 1) × settings.mock_unlock_step_topics` passed topics (both numbers are
+  teacher-editable, defaults 3 and 3: form 1 after 3 topics, form 2 after 6, form 3 after 9). Any other switch value
+  raises `mock_settings_invalid`. `k` counts only **published**
   forms of the student's `mock_set_no` that have all three modules published, ordered by `form_no`, so drafts and gaps
   in `form_no` do not shift it. `get_mock_hub` shows each form as `locked | available | in_progress | finished` with its
   `need`; a student with an unfinished mock gets the hub even after the enrolment expired (`active_group`).
@@ -57,7 +60,7 @@ Student starts mock → pick lowest form_no in student's set_no not yet taken
   time or length (the route would show), a scale table or the margin is invalid, or M1 + module 2 is longer than the
   scale tables allow (max raw = length − 1). A scale or margin broken after start only costs the score range: module 2
   still finishes, with `est_low` / `est_high` null.
-- **Editable settings** (teacher group Mock): `mock_unlock_first_topics`, `mock_unlock_step_topics`, `mock_gap_s`,
+- **Editable settings** (teacher group Mock): `mock_unlock_require_all_topics` ("Require all topics before mocks", 1/0), `mock_unlock_first_topics`, `mock_unlock_step_topics`, `mock_gap_s`,
   `mock_warn_s` (time warning in a mock module, default 300 s, replaces `quiz_warn_s` there) and `sat_scale_margin`.
   The scale tables stay migration-only. The blueprint validator also requires M2E and M2H to have the same count and time.
 - **Timing.** The deadline is stored (`started_at + time_limit_s`); saves are accepted until deadline + `save_grace_s`.

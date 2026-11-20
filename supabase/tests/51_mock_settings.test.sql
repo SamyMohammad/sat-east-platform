@@ -57,17 +57,19 @@ select ok(not private.mock_scale_ok(pg_temp.with_at(pg_temp.flat(45, 500), 20, '
 select ok(not private.mock_scale_ok('{"a": 1}'::jsonb), 'MCK-03: an object rejected');
 select ok(not private.mock_scale_ok(null), 'MCK-03: null rejected');
 
--- Unlock thresholds: form k needs first + (k - 1) * step (3 and 3 by default).
-select is((select array_agg(private.mock_unlock_need(k) order by k) from generate_series(1, 5) k),
+-- Unlock thresholds with the all-topics switch off: form k needs first + (k - 1) * step (3 and 3 by default).
+select is(pg_temp.setting('mock_unlock_require_all_topics'), '1'::jsonb, 'MCK-09: mock_unlock_require_all_topics seed is on');
+update public.settings set value = '0'::jsonb where key = 'mock_unlock_require_all_topics';
+select is((select array_agg(private.mock_unlock_need(k, null) order by k) from generate_series(1, 5) k),
   array[3, 6, 9, 12, 15], 'MCK-09: unlock_need(1..5) with first 3, step 3');
-select is(private.mock_unlock_need(0), 3, 'MCK-09: unlock_need below 1 counts as form 1');
+select is(private.mock_unlock_need(0, null), 3, 'MCK-09: unlock_need below 1 counts as form 1');
 
 update public.settings set value = '2'::jsonb where key = 'mock_unlock_first_topics';
 update public.settings set value = '4'::jsonb where key = 'mock_unlock_step_topics';
-select is((select array_agg(private.mock_unlock_need(k) order by k) from generate_series(1, 4) k),
+select is((select array_agg(private.mock_unlock_need(k, null) order by k) from generate_series(1, 4) k),
   array[2, 6, 10, 14], 'MCK-09: unlock_need follows the edited numbers');
 delete from public.settings where key = 'mock_unlock_step_topics';
-select throws_ok($$ select private.mock_unlock_need(1) $$, 'P0001', 'mock_settings_invalid',
+select throws_ok($$ select private.mock_unlock_need(1, null) $$, 'P0001', 'mock_settings_invalid',
   'MCK-09: a missing unlock setting raises mock_settings_invalid');
 insert into public.settings (key, value) values ('mock_unlock_step_topics', '3'::jsonb);
 update public.settings set value = '3'::jsonb where key = 'mock_unlock_first_topics';
@@ -100,12 +102,12 @@ select throws_ok($$ select * from private.mock_score('M2E', 10) $$, 'P0001', 'mo
 -- Grants: helpers are private, nothing for authenticated or anon.
 select ok(not has_function_privilege('authenticated', 'private.setting_json(text)', 'execute')
   and not has_function_privilege('authenticated', 'private.mock_scale_ok(jsonb)', 'execute')
-  and not has_function_privilege('authenticated', 'private.mock_unlock_need(integer)', 'execute')
+  and not has_function_privilege('authenticated', 'private.mock_unlock_need(integer,uuid)', 'execute')
   and not has_function_privilege('authenticated', 'private.mock_score(text,integer)', 'execute'),
   'MCK-03: helpers are not executable by authenticated');
 select ok(not has_function_privilege('anon', 'private.setting_json(text)', 'execute')
   and not has_function_privilege('anon', 'private.mock_scale_ok(jsonb)', 'execute')
-  and not has_function_privilege('anon', 'private.mock_unlock_need(integer)', 'execute')
+  and not has_function_privilege('anon', 'private.mock_unlock_need(integer,uuid)', 'execute')
   and not has_function_privilege('anon', 'private.mock_score(text,integer)', 'execute'),
   'MCK-03: helpers are not executable by anon');
 
