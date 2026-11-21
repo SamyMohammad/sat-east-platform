@@ -25,6 +25,14 @@ expect service_role_jwt  1 "const k=\"$(jwt '{"iss":"supabase","role":"service_r
 expect private_key       1 '-----BEGIN PRIVATE KEY-----'
 expect paymob_name       1 'PAYMOB_HMAC_SECRET=abc'
 expect llm_key_name      1 'ANTHROPIC_API_KEY=x'
+expect groq_key          1 'const k="gsk_abcdefghijklmnopqrstuvwx1234";'
+expect brevo_api_key     1 'const k="xkeysib-0123456789abcdef0123456789abcdef";'
+expect brevo_smtp_key    1 'const k="xsmtpsib-0123456789abcdef0123456789abcdef";'
+expect sentry_auth_token 1 'const k="sntrys_abcdefghijklmnopqrstuvwx1234";'
+expect cloudflare_token  1 'CLOUDFLARE_API_TOKEN=abc'
+expect r2_access_key     1 'R2_ACCESS_KEY_ID=abc'
+expect turnstile_secret  1 'TURNSTILE_SECRET=abc'
+expect sentry_dsn_public 0 'const d="https://0123456789abcdef0123456789abcdef@o123456.ingest.sentry.io/4500000000";'
 # Binary asset (NUL byte) carrying a service_role JWT: grep -o must not skip it.
 mkdir -p "$tmp/binary_jwt"; printf 'x\000y %s' "$(jwt '{"role":"service_role"}')" > "$tmp/binary_jwt/AssetManifest.bin"
 bash "$grep_sh" "$tmp/binary_jwt" >/dev/null 2>&1 && { echo "FAIL binary_jwt (want 1)"; fails=$((fails+1)); } || echo "ok   binary_jwt"

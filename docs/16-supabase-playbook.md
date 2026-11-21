@@ -256,14 +256,15 @@ Functions to staging and the web build to Cloudflare Pages (ADR-009). The Pages 
 by CI on its first deploy (wrangler run by an AI agent turns a new Pages project into a Workers
 deploy). `keep-alive.yml` reads one row through REST every day.
 
-The repo is private on GitHub Free, so branch protection is unavailable: CI is **advisory**.
-Rule: never merge a PR whose checks are not green.
+The repo is **public**, so branch protection is available and on: the required check is `ci-ok`
+(it aggregates the client, db and functions jobs; path-skipped jobs count as OK), and force-push is off.
 Accepted risk: the `deploy` job's `if:` is not a trust boundary. Anyone who can push to this repo
-can change `ci.yml`, and once merged it runs with the staging secrets. GitHub Free has no
-Environments approval gate on a private repo; this is fine while the developer is the only writer.
+can change `ci.yml`, and once merged it runs with the staging secrets; branch protection makes every
+change go through a green PR. This is fine while the developer is the only writer (prod already
+uses the `production` Environment).
 
 CI credentials expire: `SUPABASE_ACCESS_TOKEN` (`github-ci-sat`, 90 days, created 2026-10-07 →
-rotate before 2027-01-05). `CLOUDFLARE_API_TOKEN` (`github-ci-sat-pages`, Pages: Edit only) does
+rotate before 2027-01-05; the repo variable `SUPABASE_TOKEN_EXPIRES` (ISO date) holds that date and `ops-weekly.yml` fails when it is missing or under 21 days away, so update it on rotation). `CLOUDFLARE_API_TOKEN` (`github-ci-sat-pages`, Pages: Edit only) does
 not expire. Accepted staging advisors: `multiple_permissive_policies` (teacher-all + own-row pairs),
 `rls_enabled_no_policy` on `private.*` (not exposed), `authenticated_security_definer_function_executable`
 on the RLS helpers (`is_teacher`, `has_access`, `has_access_topic`).
