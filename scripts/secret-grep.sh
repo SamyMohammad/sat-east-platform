@@ -16,6 +16,13 @@ patterns=(
   'VDOCIPHER'
   'ANTHROPIC_API_KEY'
   'OPENAI_API_KEY'
+  'gsk_[A-Za-z0-9]{20,}'
+  'xkeysib-[a-f0-9]{20,}'
+  'xsmtpsib-[a-f0-9]{20,}'
+  'sntrys_[A-Za-z0-9_=-]{20,}'
+  'CLOUDFLARE_API_TOKEN'
+  'R2_ACCESS_KEY_ID'
+  'TURNSTILE_SECRET'
 )
 found=0
 for p in "${patterns[@]}"; do

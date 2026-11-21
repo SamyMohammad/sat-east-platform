@@ -1,0 +1,27 @@
+name: Ops weekly check
+# Weekly ops checks. A failed run emails the repo owner.
+# P2 adds the Supabase Free-limit checks to this same file.
+on:
+  schedule:
+    - cron: '23 6 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  token-expiry:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      EXPIRES: ${{ vars.SUPABASE_TOKEN_EXPIRES }}
+    steps:
+      - name: SUPABASE_ACCESS_TOKEN expires in 21+ days
+        run: |
+          if [ -z "$EXPIRES" ]; then
+            echo "::error::repo variable SUPABASE_TOKEN_EXPIRES (ISO date) is not set"; exit 1
+          fi
+          exp="$(date -u -d "$EXPIRES" +%s 2>/dev/null)" || { echo "::error::SUPABASE_TOKEN_EXPIRES is not an ISO date: $EXPIRES"; exit 1; }
+          days=$(( (exp - $(date -u +%s)) / 86400 ))
+          echo "SUPABASE_ACCESS_TOKEN expires $EXPIRES ($days days left)"
+          if [ "$days" -lt 21 ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN expires in $days days ($EXPIRES): rotate it and update SUPABASE_TOKEN_EXPIRES"; exit 1
+          fi

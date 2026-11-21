@@ -58,7 +58,7 @@ exam timing.** UI polish gets lighter coverage.
 
 ## 4. CI gates
 `flutter analyze` · unit + widget tests · SQL/RLS tests against a local Supabase · secret scan of the
-web bundle · build web. Merge to `main` blocked on failure.
+web bundle · build web. Merges to `main` are blocked on a red `ci-ok` (the aggregate required check).
 
 ## 5. Content QA
 Validator in the pipeline (09 §2) + random-sample review; student "report a problem" feeds a
