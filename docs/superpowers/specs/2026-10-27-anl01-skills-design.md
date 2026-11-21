@@ -111,3 +111,44 @@ Band colours **(my call)**: weak = `incorrect`, building = `warning`, strong = `
 ## Left to the builder
 
 Exact SQL structure, index choices (e.g. on `attempt_answers(answered_at)` for the backfill), widget decomposition, copy for error states within `docs/07` §9 mapping, and the trend painter details within the tokens.
+
+## ANL-01b — charts
+
+Follow-up that adds richer visuals to the Skills screen. Backend change is one additive migration (`20261120120000_anl01b_skills_charts.sql`): `get_my_skills` keeps every existing key and gains the fields below. No new table, no new RPC; old clients keep working.
+
+### Payload additions
+
+- `summary.strong_at` — the `pass_mark` setting, the threshold of the `strong` band. The client draws the target line and the radar ring from it and never hardcodes a number.
+- `skills[].accuracy` — `correct / attempts * 100` from `skill_mastery`, one decimal; `null` when the skill has no attempts.
+- `skills[].avg_time_ms` — average answer time in ms from `skill_mastery`; `null` when there is no row.
+- `skills[].history` — `[{week_start, mastery}]`, the weekly mean of the skill's `skill_mastery_daily` rows over the same 8-week window as `trend`, oldest first. Empty (`[]`) with fewer than two weeks of points.
+- `domains[]` — one entry per domain of the course's tagged skills, ordered by domain: `{domain, mean, band, practised, total}`. `mean` is the average mastery of the practised skills (one decimal, `null` when none is practised); `band` is `private.mastery_band` over the unrounded mean and the summed attempts (same rule as the topics' `level`, so a never-practised domain is `thin`); `practised` counts skills with attempts, `total` counts all tagged skills.
+
+Example (abridged):
+
+```json
+{
+  "summary": {"solved": 2, "total": 7, "graded_answers": 5, "trend_min_answers": 10, "strong_at": 75},
+  "skills": [{"code": "T-1", "name": "Linear", "domain": "Algebra", "mastery": 40, "attempts": 6, "band": "weak",
+              "accuracy": 50.0, "avg_time_ms": 2000,
+              "history": [{"week_start": "2026-11-02", "mastery": 30.0}, {"week_start": "2026-11-09", "mastery": 45.0}]}],
+  "domains": [{"domain": "Algebra", "mean": 40.0, "band": "weak", "practised": 1, "total": 2},
+              {"domain": "Data", "mean": null, "band": "thin", "practised": 0, "total": 1}],
+  "weak": [], "trend": [], "topics": []
+}
+```
+
+### UX
+
+Order on the loaded screen: header, **domain radar card**, summary, weak skills, trend, skills by domain, topics.
+
+- **Domain radar (hero):** one axis per domain, polygon = domain `mean` (0–100), rings at 25/50/75/100 and a dashed ring at `strong_at`. Vertices are coloured by `band` and every axis label carries the word and number ("Algebra · 78 · Strong"), so colour never carries status alone. A domain with no practised skill shows a hollow vertex at 0 and "Not started". Chips: strongest domain and "Focus next" (weakest). Tapping an axis scrolls to that domain's section. The polygon grows in over `AppMotion.enter` and is static under reduced motion.
+- **Narrow widths (under 420 px):** the radar fills the card and only the number is drawn beside each dot; a legend under it lists every domain (band dot, full name, "78 · Strong") and each row scrolls to that domain. The labels are never truncated.
+- **Fewer than 3 domains:** render the same data as horizontal domain bars; a radar with two axes is just a line. When there is no "Focus next" domain and a domain is not started, the chip reads "Start next: <domain>" and scrolls to it.
+- **Per-skill sparklines:** small line of `history`, scaled to its own min and max (at least 10 points of span), with the change as icon plus number ("▲ 12"; first to last point). Beside the bar from 420 px; below that it joins the band chip and accuracy row, which wraps. Hidden when `history` has fewer than two points. `history` is intentionally not gated by `trend_min_answers`: a sparkline is per skill, and two weeks of points is its gate.
+- **Accuracy and speed line:** "82% correct · 1m 12s avg" under each skill row, hidden when `accuracy` is `null`.
+- **Trend upgrade:** dashed target line at `strong_at` with a "Strong" label, and a delta in the header ("▲ +6 this week", "▼ −3 since Oct 5", "No change") computed client-side from the last two trend points. "this week" is used only when those points are exactly 7 days apart; otherwise the copy names the previous point's date.
+
+Scroll-to-domain needs every domain heading to exist, so the screen's column builds its children eagerly (a scroll view, not a lazy list). That is fine for the expected 40 skills or fewer per course.
+
+Constraints unchanged: custom painters only (no chart package), tokens via the theme, English only, LTR.

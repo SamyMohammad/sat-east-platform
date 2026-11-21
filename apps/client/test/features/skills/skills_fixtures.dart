@@ -6,6 +6,7 @@ const Map<String, Object?> skillsPayload = {
     'total': 40,
     'graded_answers': 31,
     'trend_min_answers': 10,
+    'strong_at': 75,
   },
   'skills': [
     {
@@ -15,6 +16,12 @@ const Map<String, Object?> skillsPayload = {
       'mastery': 82.5,
       'attempts': 9,
       'band': 'strong',
+      'accuracy': 82.0,
+      'avg_time_ms': 72000,
+      'history': [
+        {'week_start': '2026-10-12', 'mastery': 70.5},
+        {'week_start': '2026-10-19', 'mastery': 82.5},
+      ],
     },
     {
       'code': 'ALG.SYS',
@@ -23,6 +30,9 @@ const Map<String, Object?> skillsPayload = {
       'mastery': 41,
       'attempts': 7,
       'band': 'weak',
+      'accuracy': 50.0,
+      'avg_time_ms': 45000,
+      'history': <Object?>[],
     },
     {
       'code': 'GEO.CIR',
@@ -31,6 +41,25 @@ const Map<String, Object?> skillsPayload = {
       'mastery': null,
       'attempts': 2,
       'band': 'thin',
+      'accuracy': null,
+      'avg_time_ms': null,
+      'history': <Object?>[],
+    },
+  ],
+  'domains': [
+    {
+      'domain': 'Algebra',
+      'mean': 61.5,
+      'band': 'building',
+      'practised': 2,
+      'total': 2,
+    },
+    {
+      'domain': 'Geometry',
+      'mean': null,
+      'band': 'thin',
+      'practised': 0,
+      'total': 1,
     },
   ],
   'weak': [
@@ -78,8 +107,9 @@ final skillsOverviewFixture = SkillsOverview(
     total: 40,
     gradedAnswers: 31,
     trendMinAnswers: 10,
+    strongAt: 75,
   ),
-  skills: const [
+  skills: [
     SkillMastery(
       code: 'ALG.LIN',
       name: 'Linear equations',
@@ -87,22 +117,46 @@ final skillsOverviewFixture = SkillsOverview(
       mastery: 82.5,
       attempts: 9,
       band: MasteryBand.strong,
+      accuracy: 82,
+      avgTime: const Duration(seconds: 72),
+      history: [
+        TrendPoint(weekStart: DateTime.utc(2026, 10, 12), mastery: 70.5),
+        TrendPoint(weekStart: DateTime.utc(2026, 10, 19), mastery: 82.5),
+      ],
     ),
-    SkillMastery(
+    const SkillMastery(
       code: 'ALG.SYS',
       name: 'Systems of equations',
       domain: 'Algebra',
       mastery: 41,
       attempts: 7,
       band: MasteryBand.weak,
+      accuracy: 50,
+      avgTime: Duration(seconds: 45),
     ),
-    SkillMastery(
+    const SkillMastery(
       code: 'GEO.CIR',
       name: 'Circles',
       domain: 'Geometry',
       mastery: null,
       attempts: 2,
       band: MasteryBand.thin,
+    ),
+  ],
+  domains: const [
+    DomainMastery(
+      domain: 'Algebra',
+      mean: 61.5,
+      band: MasteryBand.building,
+      practised: 2,
+      total: 2,
+    ),
+    DomainMastery(
+      domain: 'Geometry',
+      mean: null,
+      band: MasteryBand.thin,
+      practised: 0,
+      total: 1,
     ),
   ],
   weak: const [

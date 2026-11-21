@@ -95,5 +95,94 @@ void main() {
         throwsFormatException,
       );
     });
+
+    test('ANL-01b: parses_new_chart_fields', () {
+      final overview = skillsOverviewFromJson(skillsPayload);
+
+      expect(overview.summary.strongAt, 75);
+      final linear = overview.skills.first;
+      expect(linear.accuracy, 82);
+      expect(linear.avgTime, const Duration(seconds: 72));
+      expect(linear.history, hasLength(2));
+      expect(linear.history.last.mastery, 82.5);
+      expect(overview.domains, hasLength(2));
+      expect(overview.domains.first.domain, 'Algebra');
+      expect(overview.domains.first.mean, 61.5);
+      expect(overview.domains.first.band, MasteryBand.building);
+      expect(overview.domains.last.mean, isNull);
+      expect(overview.domains.last.band, MasteryBand.thin);
+      expect(overview.domains.last.practised, 0);
+      expect(overview.domains.last.total, 1);
+    });
+
+    test('ANL-01b: old_payload_without_chart_fields_uses_defaults', () {
+      final overview = skillsOverviewFromJson(
+        {
+          ...skillsPayload,
+          'summary': {
+            'solved': 1,
+            'total': 2,
+            'graded_answers': 3,
+            'trend_min_answers': 10,
+          },
+          'skills': [
+            {
+              'code': 'X',
+              'name': 'X',
+              'domain': 'D',
+              'mastery': 70,
+              'attempts': 9,
+              'band': 'building',
+            },
+          ],
+        }..remove('domains'),
+      );
+
+      expect(overview.summary.strongAt, isNull);
+      expect(overview.skills.single.accuracy, isNull);
+      expect(overview.skills.single.avgTime, isNull);
+      expect(overview.skills.single.history, isEmpty);
+      expect(overview.domains, isEmpty);
+    });
+
+    test('ANL-01b: null_history_and_domains_are_empty', () {
+      final overview = skillsOverviewFromJson({
+        ...skillsPayload,
+        'domains': null,
+        'skills': [
+          {
+            'code': 'X',
+            'name': 'X',
+            'domain': 'D',
+            'mastery': 70,
+            'attempts': 9,
+            'band': 'building',
+            'history': null,
+          },
+        ],
+      });
+
+      expect(overview.domains, isEmpty);
+      expect(overview.skills.single.history, isEmpty);
+    });
+
+    test('ANL-01b: mistyped_domain_mean_is_a_format_error', () {
+      expect(
+        () => skillsOverviewFromJson(
+          skillsPayloadWith({
+            'domains': [
+              {
+                'domain': 'Algebra',
+                'mean': 'high',
+                'band': 'weak',
+                'practised': 1,
+                'total': 1,
+              },
+            ],
+          }),
+        ),
+        throwsFormatException,
+      );
+    });
   });
 }

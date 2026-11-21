@@ -10,11 +10,13 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/router/route_refresh_listener.dart';
+import 'package:sat_east_client/core/theme/app_motion.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/skills/domain/entities/skills_overview.dart';
 import 'package:sat_east_client/features/skills/presentation/cubit/skills_cubit.dart';
 import 'package:sat_east_client/features/skills/presentation/cubit/skills_state.dart';
 import 'package:sat_east_client/features/skills/presentation/skills_copy.dart';
+import 'package:sat_east_client/features/skills/presentation/widgets/domain_radar_card.dart';
 import 'package:sat_east_client/features/skills/presentation/widgets/mastery_trend_chart.dart';
 import 'package:sat_east_client/features/skills/presentation/widgets/skill_bar_row.dart';
 import 'package:sat_east_client/features/skills/presentation/widgets/skills_summary_card.dart';
@@ -83,14 +85,19 @@ class _Column extends StatelessWidget {
     alignment: Alignment.topCenter,
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: AppSize.readingColumn),
-      child: ListView(
+      // Not a lazy ListView: the radar scrolls to a domain heading, which must
+      // exist even when it is off screen.
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpace.s4),
-        children: [
-          for (final child in children) ...[
-            child,
-            const SizedBox(height: AppSpace.s6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (final child in children) ...[
+              child,
+              const SizedBox(height: AppSpace.s6),
+            ],
           ],
-        ],
+        ),
       ),
     ),
   );
@@ -121,28 +128,79 @@ class _SectionTitle extends StatelessWidget {
   );
 }
 
-class _Loaded extends StatelessWidget {
+class _Loaded extends StatefulWidget {
   const _Loaded({required this.overview});
 
   final SkillsOverview overview;
 
   @override
-  Widget build(BuildContext context) => _Column(
-    children: [
-      const _Header(),
-      SkillsSummaryCard(summary: overview.summary),
-      WeakSkillsSection(weak: overview.weak),
-      MasteryTrendSection(trend: overview.trend, summary: overview.summary),
-      _SkillsByDomain(skills: overview.skills),
-      if (overview.topics.isNotEmpty) _Topics(topics: overview.topics),
-    ],
-  );
+  State<_Loaded> createState() => _LoadedState();
+}
+
+class _LoadedState extends State<_Loaded> {
+  /// One key per domain heading in the skills list, so the radar can scroll
+  /// to it.
+  final Map<String, GlobalKey> _headingKeys = {};
+
+  GlobalKey _keyFor(String domain) =>
+      _headingKeys.putIfAbsent(domain, GlobalKey.new);
+
+  void _scrollTo(String domain) {
+    final target = _headingKeys[domain]?.currentContext;
+    if (target == null) return;
+    unawaited(
+      Scrollable.ensureVisible(
+        target,
+        duration: AppMotion.resolve(context, AppMotion.enter),
+        curve: AppMotion.emphasized,
+      ),
+    );
+  }
+
+  /// "Focus next": practise the domain's weak skill when there is one,
+  /// otherwise show the domain's skills.
+  void _focus(String domain) {
+    final overview = widget.overview;
+    final inDomain = {
+      for (final s in overview.skills)
+        if (s.domain == domain) s.code,
+    };
+    final weak = overview.weak.where((w) => inDomain.contains(w.code));
+    if (weak.isEmpty) {
+      _scrollTo(domain);
+    } else {
+      context.go(AppRoutes.topic(weak.first.topicId));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final overview = widget.overview;
+    return _Column(
+      children: [
+        const _Header(),
+        if (overview.domains.isNotEmpty)
+          DomainRadarCard(
+            domains: overview.domains,
+            strongAt: overview.summary.strongAt,
+            onSelectDomain: _scrollTo,
+            onFocusDomain: _focus,
+          ),
+        SkillsSummaryCard(summary: overview.summary),
+        WeakSkillsSection(weak: overview.weak),
+        MasteryTrendSection(trend: overview.trend, summary: overview.summary),
+        _SkillsByDomain(skills: overview.skills, headingKey: _keyFor),
+        if (overview.topics.isNotEmpty) _Topics(topics: overview.topics),
+      ],
+    );
+  }
 }
 
 class _SkillsByDomain extends StatelessWidget {
-  const _SkillsByDomain({required this.skills});
+  const _SkillsByDomain({required this.skills, required this.headingKey});
 
   final List<SkillMastery> skills;
+  final GlobalKey Function(String domain) headingKey;
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +218,7 @@ class _SkillsByDomain extends StatelessWidget {
           Text(SkillsCopy.noSkills, style: theme.textTheme.bodyMedium),
         for (final MapEntry(:key, :value) in domains.entries) ...[
           Padding(
+            key: headingKey(key),
             padding: const EdgeInsets.only(top: AppSpace.s3),
             child: Semantics(
               header: true,

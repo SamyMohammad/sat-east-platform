@@ -161,7 +161,7 @@ select tests.clear_authentication();
 reset role;
 
 select is((select array_agg(key order by key) from ctx, jsonb_object_keys(v) key where k = 'a'),
-  array['skills', 'summary', 'topics', 'trend', 'weak'], 'ANL-01: shape_keys_exact (top-level keys)');
+  array['domains', 'skills', 'summary', 'topics', 'trend', 'weak'], 'ANL-01: shape_keys_exact (top-level keys)');
 select is((select v::text ~* '"(question|stem|answer|key|explanation)[a-z_]*"\s*:' from ctx where k = 'a'), false,
   'ANL-01: shape_keys_exact (no question, stem, answer, key or explanation fields anywhere)');
 
@@ -188,7 +188,12 @@ select tests.authenticate_as('get_trend');
 select is(public.get_my_skills(pg_temp.id(1)) -> 'trend', '[]'::jsonb,
   'ANL-01: a single week of data gives an empty trend');
 
-select is((select v from ctx where k = 'a'),
+-- ANL-01b fields (domains, summary.strong_at, per-skill accuracy/avg_time_ms/history) are covered
+-- by 55_skills_charts; strip them so this test keeps pinning the ANL-01 contract.
+select is((select jsonb_set(v - 'domains', '{summary}', (v -> 'summary') - 'strong_at')
+    || jsonb_build_object('skills', (select coalesce(jsonb_agg(s - 'accuracy' - 'avg_time_ms' - 'history' order by ord), '[]'::jsonb)
+                                     from jsonb_array_elements(v -> 'skills') with ordinality x(s, ord)))
+  from ctx where k = 'a'),
   jsonb_build_object(
     'summary', jsonb_build_object('solved',2,'total',7,'graded_answers',5,'trend_min_answers',10),
     'skills', '[{"code":"T46-1","name":"Linear solve","domain":"Algebra","mastery":49,"attempts":6,"band":"weak"},
@@ -207,7 +212,7 @@ select is((select (v #>> '{summary,trend_min_answers}')::int from ctx where k = 
   (select (value #>> '{}')::int from public.settings where key = 'mastery_trend_min_answers'),
   'ANL-01: trend_min_answers_from_payload equals mastery_trend_min_answers setting');
 
-select is((select v -> 'summary' from ctx where k = 'a'),
+select is((select (v -> 'summary') - 'strong_at' from ctx where k = 'a'),
   '{"solved":2,"total":7,"graded_answers":5,"trend_min_answers":10}'::jsonb,
   'ANL-01: solved_counts_distinct_correct (distinct correct questions of this course, drafts and course B excluded)');
 
@@ -247,7 +252,7 @@ select tests.authenticate_as('get_a');
 insert into ctx values ('untagged', public.get_my_skills(pg_temp.id(1)));
 select tests.clear_authentication();
 reset role;
-select is((select jsonb_build_object('summary', v -> 'summary', 'skills', v -> 'skills', 'weak', v -> 'weak', 'trend', v -> 'trend',
+select is((select jsonb_build_object('summary', (v -> 'summary') - 'strong_at', 'skills', v -> 'skills', 'weak', v -> 'weak', 'trend', v -> 'trend',
     'levels', (select jsonb_agg(t ->> 'level') from jsonb_array_elements(v -> 'topics') t))
   from ctx where k = 'untagged'),
   '{"summary":{"solved":2,"total":7,"graded_answers":5,"trend_min_answers":10},"skills":[],"weak":[],"trend":[],"levels":["thin","thin"]}'::jsonb,
