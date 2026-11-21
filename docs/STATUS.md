@@ -81,6 +81,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| P2 | Skills page charts (ANL-01b): domain radar hero, per-skill sparklines + accuracy/speed, trend target line; additive `get_my_skills` fields | #94 |
 | R4a | Persistent answer outbox for quiz and homework (hive_ce) | #84 |
 | R1a | 47 FK indexes + pgTAP FK-index invariant, `attempts_quiz_in_progress_idx`, nightly purge of `cron.job_run_details` (`cron_history_keep_days`) (NFR-01/02) | #81, #82 |
 | P1 | Student Home (LRN-07): continue card with the next step, course progress, access-expiry banner from `access_expiry_warn_days`; bell hidden | #76, #77 |
