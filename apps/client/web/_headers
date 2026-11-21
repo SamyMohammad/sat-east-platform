@@ -1,0 +1,51 @@
+# Cloudflare Pages reads this file from the output root (Flutter copies web/* into build/web).
+# Rules whose patterns both match a path ADD their headers; identical header names are
+# comma-joined. So Cache-Control is set only by the non-overlapping blocks below, and the
+# /* block carries no Cache-Control.
+
+# No COEP/CORP: they break jsDelivr, R2 and Supabase fetches; the single-thread ffmpeg core needs neither.
+# CSP is REPORT-ONLY until a clean staging pass. Evidence per origin:
+# - index.html has no inline script; flutter_bootstrap.js is an external file -> no 'unsafe-inline' in script-src.
+# - CanvasKit: buildConfig has engineRevision and no useLocalCanvasKit, so flutter.js loads
+# https://www.gstatic.com/flutter-canvaskit/<rev>/ (script + wasm fetch); build/web/canvaskit/ is only a fallback.
+# - Flutter web fetches fallback fonts from https://fonts.gstatic.com/s/ (string in main.dart.js); no google_fonts package.
+# - pdfrx 2.4.8: pdfium.wasm, pdfium_client.js and pdfium_worker.js are bundled in assets/packages/pdfrx/assets (same origin).
+# - posthog-js is vendored (vendor/posthog-js-*.js); it lazy-loads extras from eu-assets.i.posthog.com.
+# - ffmpeg core comes from cdn.jsdelivr.net as blob: URLs (VID-01 branch), hence blob: in script-src/worker-src.
+# - youtube.com / youtube-nocookie.com: main still embeds YouTube; drop them once VID-01 merges.
+/*
+  Strict-Transport-Security: max-age=31536000
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+  X-Frame-Options: DENY
+  Cross-Origin-Opener-Policy: same-origin
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://www.gstatic.com https://eu-assets.i.posthog.com https://www.youtube.com; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net https://*.r2.cloudflarestorage.com https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://www.gstatic.com https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; media-src 'self' blob:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline'; frame-src https://www.youtube-nocookie.com https://www.youtube.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
+
+# Entry points and unhashed build outputs (main.dart.js and its deferred *.part.js are not content-hashed).
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/flutter_bootstrap.js
+  Cache-Control: no-cache
+/flutter.js
+  Cache-Control: no-cache
+/flutter_service_worker.js
+  Cache-Control: no-cache
+/main.dart.js*
+  Cache-Control: no-cache
+/version.json
+  Cache-Control: no-cache
+/manifest.json
+  Cache-Control: no-cache
+
+# canvaskit/ is a same-origin fallback only and its path is not versioned -> one day.
+/canvaskit/*
+  Cache-Control: public, max-age=86400
+# vendor/ folder names carry the version.
+/vendor/*
+  Cache-Control: public, max-age=31536000, immutable
+# Flutter assets are not hashed: revalidate (ETag) so a deploy never mixes old assets with a new main.dart.js.
+/assets/*
+  Cache-Control: no-cache
