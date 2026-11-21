@@ -119,6 +119,12 @@ jobs:
             echo "$big"
             exit 1
           fi
+      # Guards against a web dir change silently dropping the Pages headers file.
+      - name: Check build/web/_headers has the security headers
+        run: |
+          test -f build/web/_headers
+          grep -q 'Content-Security-Policy' build/web/_headers
+          grep -q 'Strict-Transport-Security' build/web/_headers
 
   db:
     if: ${{ !cancelled() && needs.changes.result != 'failure' && (github.event_name != 'pull_request' || needs.changes.outputs.db == 'true') }}
