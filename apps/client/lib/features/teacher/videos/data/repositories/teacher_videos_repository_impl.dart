@@ -13,13 +13,6 @@ class TeacherVideosRepositoryImpl implements TeacherVideosRepository {
   @override
   Future<Result<VideoQuota>> quota() => _source.quota();
   @override
-  Future<Result<void>> addYoutube(
-    String topicId,
-    String title,
-    String youtubeId,
-    int durationS,
-  ) => _source.addYoutube(topicId, title, youtubeId, durationS);
-  @override
   Future<Result<void>> update(
     String assetId,
     String title,

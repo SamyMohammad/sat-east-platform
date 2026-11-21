@@ -79,6 +79,7 @@ class TeacherVideosScreen extends StatelessWidget {
               ),
               TeacherVideosReady() => TeacherVideosContent(
                 state: state,
+                topicId: topicId,
                 onReload: () =>
                     unawaited(context.read<TeacherVideosCubit>().load(topicId)),
               ),

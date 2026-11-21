@@ -112,35 +112,4 @@ void main() {
       },
     );
   }
-  testWidgets('SEC-01: YouTube has no watermark', (tester) async {
-    final cubit = _Cubit();
-    whenListen(
-      cubit,
-      const Stream<VideoPlayerState>.empty(),
-      initialState: const VideoPlayerReady(
-        playback: YoutubePlayback(youtubeId: 'dQw4w9WgXcQ', resumeS: 0),
-        status: EngineStatus.paused,
-        positionS: 0,
-        durationS: 600,
-        rate: 1,
-        fullscreen: false,
-        done: false,
-        watermarkMoveS: 7,
-      ),
-    );
-    await tester.pumpWidget(
-      MaterialApp(
-        theme: AppTheme.light(),
-        home: BlocProvider<VideoPlayerCubit>.value(
-          value: cubit,
-          child: VideoPlayerView(
-            topicId: 't',
-            random: Random(1),
-            surfaceBuilder: (_, _) => const SizedBox.expand(),
-          ),
-        ),
-      ),
-    );
-    expect(find.byType(MovingWatermark), findsNothing);
-  });
 }

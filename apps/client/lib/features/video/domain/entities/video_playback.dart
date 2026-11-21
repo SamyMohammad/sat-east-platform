@@ -20,9 +20,3 @@ final class HlsPlayback extends VideoPlayback {
 
   String get watermarkText => '$watermarkName \u00b7 $watermarkShortId';
 }
-
-final class YoutubePlayback extends VideoPlayback {
-  const YoutubePlayback({required this.youtubeId, required super.resumeS});
-
-  final String youtubeId;
-}

@@ -81,7 +81,6 @@ class VideoPlayerCubit extends Cubit<VideoPlayerState> {
     final playback = (result as Success<VideoPlayback>).value;
     final actualProvider = switch (playback) {
       HlsPlayback() => VideoProvider.r2Hls,
-      YoutubePlayback() => VideoProvider.youtube,
     };
     final engine = _engineFor(actualProvider);
     _engine = engine;
@@ -382,10 +381,6 @@ VideoPlayback _withResume(VideoPlayback playback, int resumeS) =>
         expiresAt: playback.expiresAt,
         watermarkName: playback.watermarkName,
         watermarkShortId: playback.watermarkShortId,
-        resumeS: resumeS,
-      ),
-      YoutubePlayback() => YoutubePlayback(
-        youtubeId: playback.youtubeId,
         resumeS: resumeS,
       ),
     };

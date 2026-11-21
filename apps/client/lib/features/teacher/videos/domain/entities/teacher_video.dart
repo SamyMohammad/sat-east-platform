@@ -13,7 +13,6 @@ class TeacherVideo extends Equatable {
     this.subtopicId,
     this.subtopicTitle,
     this.sizeMb,
-    this.youtubeId,
   });
 
   final String assetId;
@@ -23,7 +22,6 @@ class TeacherVideo extends Equatable {
   final int durationS;
   final int? sizeMb;
   final VideoProvider provider;
-  final String? youtubeId;
   final bool ready;
   final int sort;
 
@@ -39,7 +37,6 @@ class TeacherVideo extends Equatable {
     durationS,
     sizeMb,
     provider,
-    youtubeId,
     ready,
     sort,
   ];

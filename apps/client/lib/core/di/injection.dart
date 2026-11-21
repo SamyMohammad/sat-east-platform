@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:get_it/get_it.dart';
 import 'package:hive_ce/hive.dart';
+import 'package:http/http.dart' as http;
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
 import 'package:sat_east_client/core/attempts/data/hive_pending_answers.dart';
 import 'package:sat_east_client/core/attempts/pending_answers.dart';
@@ -113,9 +114,18 @@ import 'package:sat_east_client/features/teacher/settings/data/repositories/teac
 import 'package:sat_east_client/features/teacher/settings/domain/repositories/teacher_settings_repository.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/videos/data/datasources/teacher_videos_remote_data_source.dart';
+import 'package:sat_east_client/features/teacher/videos/data/datasources/video_upload_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/videos/data/repositories/teacher_videos_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/videos/data/repositories/video_upload_repository_impl.dart';
+import 'package:sat_east_client/features/teacher/videos/data/services/http_video_uploader.dart';
+import 'package:sat_east_client/features/teacher/videos/data/services/video_picker.dart';
+import 'package:sat_east_client/features/teacher/videos/data/services/video_transcoder.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/repositories/teacher_videos_repository.dart';
+import 'package:sat_east_client/features/teacher/videos/domain/repositories/video_upload_repository.dart';
+import 'package:sat_east_client/features/teacher/videos/domain/services/video_picker.dart';
+import 'package:sat_east_client/features/teacher/videos/domain/usecases/publish_video.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_cubit.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/cubit/upload_video_cubit.dart';
 import 'package:sat_east_client/features/topic/data/datasources/topic_remote_data_source.dart';
 import 'package:sat_east_client/features/topic/data/repositories/topic_repository_impl.dart';
 import 'package:sat_east_client/features/topic/domain/repositories/topic_repository.dart';
@@ -509,8 +519,41 @@ void configureDependencies({
     ..registerLazySingleton<TeacherVideosRepository>(
       () => TeacherVideosRepositoryImpl(getIt<TeacherVideosRemoteDataSource>()),
     )
+    ..registerLazySingleton<VideoUploadRemoteDataSource>(
+      () => VideoUploadRemoteDataSource(
+        rpc: getIt<RpcCaller>(),
+        edge: getIt<EdgeCaller>(instanceName: edgeCallerInstanceName),
+        readSettings: () => getIt<SupabaseClient>()
+            .from('settings')
+            .select('key,value')
+            .inFilter('key', [
+              'video_upload_max_source_mb',
+              'video_upload_max_duration_s',
+            ]),
+      ),
+    )
+    ..registerLazySingleton<VideoUploadRepository>(
+      () => VideoUploadRepositoryImpl(getIt<VideoUploadRemoteDataSource>()),
+    )
+    ..registerLazySingleton<VideoPicker>(createVideoPicker)
+    // Stateful (cancel flag, progress stream): a new one per upload.
+    ..registerFactory<PublishVideo>(
+      () => PublishVideo(
+        videos: getIt<TeacherVideosRepository>(),
+        uploads: getIt<VideoUploadRepository>(),
+        transcoder: createVideoTranscoder(),
+        uploader: HttpVideoUploader(http.Client()),
+      ),
+    )
     ..registerFactory<TeacherVideosCubit>(
       () => TeacherVideosCubit(getIt<TeacherVideosRepository>()),
+    )
+    ..registerFactory<UploadVideoCubit>(
+      () => UploadVideoCubit(
+        picker: getIt<VideoPicker>(),
+        uploads: getIt<VideoUploadRepository>(),
+        publish: getIt<PublishVideo>(),
+      ),
     )
     ..registerLazySingleton<TeacherNotesRemoteDataSource>(
       () => TeacherNotesRemoteDataSource(

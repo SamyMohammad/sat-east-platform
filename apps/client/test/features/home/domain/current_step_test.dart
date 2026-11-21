@@ -10,7 +10,7 @@ TopicVideo video(String id, int pct) => TopicVideo(
   assetId: id,
   title: id,
   durationS: 100,
-  provider: VideoProvider.youtube,
+  provider: VideoProvider.r2Hls,
   pct: pct,
   lastPositionS: pct,
 );

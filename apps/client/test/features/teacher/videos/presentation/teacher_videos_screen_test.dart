@@ -7,9 +7,13 @@ import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/core/video/video_provider.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/video_quota.dart';
+import 'package:sat_east_client/features/teacher/videos/domain/usecases/publish_video.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_cubit.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_state.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/cubit/upload_video_cubit.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/screens/teacher_videos_screen.dart';
+
+import '../support/video_upload_fakes.dart';
 
 class _Cubit extends MockCubit<TeacherVideosState>
     implements TeacherVideosCubit {}
@@ -22,22 +26,32 @@ void main() {
     when(cubit.close).thenAnswer((_) async {});
     when(() => cubit.delete(any())).thenAnswer((_) async {});
     when(() => cubit.rename(any(), any())).thenAnswer((_) async {});
-    when(
-      () => cubit.addYoutube(
-        title: any(named: 'title'),
-        input: any(named: 'input'),
-        durationS: any(named: 'durationS'),
-      ),
-    ).thenAnswer((_) async {});
-    getIt.registerFactory<TeacherVideosCubit>(() => cubit);
+    getIt
+      ..registerFactory<TeacherVideosCubit>(() => cubit)
+      ..registerFactory<UploadVideoCubit>(() {
+        final log = CallLog();
+        final uploads = FakeVideoUploadRepository(log);
+        return UploadVideoCubit(
+          picker: FakeVideoPicker(),
+          uploads: uploads,
+          publish: PublishVideo(
+            videos: FakeTeacherVideosRepository(log),
+            uploads: uploads,
+            transcoder: FakeVideoTranscoder(log),
+            uploader: FakeVideoUploader(log),
+          ),
+        );
+      });
   });
-  tearDown(() => getIt.unregister<TeacherVideosCubit>());
+  tearDown(() async {
+    await getIt.unregister<TeacherVideosCubit>();
+    await getIt.unregister<UploadVideoCubit>();
+  });
 
   Future<void> pump(
     WidgetTester tester, {
     double width = 1280,
     bool empty = false,
-    bool youtube = false,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = Size(width, 1000);
@@ -49,18 +63,6 @@ void main() {
         TeacherVideosData(
           videos: empty
               ? []
-              : youtube
-              ? const [
-                  TeacherVideo(
-                    assetId: 'yt',
-                    title: 'Intro',
-                    durationS: 30,
-                    provider: VideoProvider.youtube,
-                    youtubeId: 'dQw4w9WgXcQ',
-                    ready: true,
-                    sort: 1,
-                  ),
-                ]
               : const [
                   TeacherVideo(
                     assetId: 'a',
@@ -106,10 +108,9 @@ void main() {
     ) async {
       await pump(tester, width: width);
       expect(find.text('3.2 of 9 GB used'), findsOneWidget);
-      expect(
-        find.text('Upload protected videos with the video tool.'),
-        findsOneWidget,
-      );
+      expect(find.text('Upload video'), findsOneWidget);
+      expect(find.textContaining('YouTube'), findsNothing);
+      expect(find.textContaining('video tool'), findsNothing);
       expect(find.textContaining('10:00'), findsOneWidget);
       expect(find.text('Upload not finished'), findsOneWidget);
       final pending = find.byKey(const ValueKey('video-pending'));
@@ -141,50 +142,6 @@ void main() {
     await tester.pumpAndSettle();
     verify(() => cubit.delete('a')).called(1);
   });
-  testWidgets('C-2: add dialog validates YouTube input and duration', (
-    tester,
-  ) async {
-    await pump(tester);
-    await tester.tap(find.text('Add YouTube video'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Add').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Paste a YouTube link or video id.'), findsOneWidget);
-    await tester.enterText(
-      find.byKey(const ValueKey('youtube-title')),
-      'Intro',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('youtube-input')),
-      'https://youtu.be/dQw4w9WgXcQ',
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('youtube-duration')),
-      '0:00',
-    );
-    await tester.tap(find.text('Add').last);
-    await tester.pumpAndSettle();
-    verifyNever(
-      () => cubit.addYoutube(
-        title: any(named: 'title'),
-        input: any(named: 'input'),
-        durationS: any(named: 'durationS'),
-      ),
-    );
-    await tester.enterText(
-      find.byKey(const ValueKey('youtube-duration')),
-      '0:30',
-    );
-    await tester.tap(find.text('Add').last);
-    await tester.pumpAndSettle();
-    verify(
-      () => cubit.addYoutube(
-        title: 'Intro',
-        input: 'https://youtu.be/dQw4w9WgXcQ',
-        durationS: 30,
-      ),
-    ).called(1);
-  });
   testWidgets('C-2: rename dialog saves through the Cubit', (tester) async {
     await pump(tester);
     await tester.tap(find.byKey(const ValueKey('rename-a')));
@@ -194,18 +151,26 @@ void main() {
     await tester.pumpAndSettle();
     verify(() => cubit.rename('a', 'Changed')).called(1);
   });
-  testWidgets('C-2: YouTube card shows provider and dash size', (tester) async {
-    await pump(tester, youtube: true);
-    expect(find.text('YouTube'), findsOneWidget);
-    expect(find.text('\u2014 '), findsOneWidget);
-    expect(find.text('0:30'), findsOneWidget);
-  });
   testWidgets('C-2: empty list keeps quota and add action visible', (
     tester,
   ) async {
     await pump(tester, empty: true);
     expect(find.text('No videos yet.'), findsOneWidget);
-    expect(find.text('Add YouTube video'), findsOneWidget);
+    expect(find.text('Upload video'), findsOneWidget);
     expect(find.text('3.2 of 9 GB used'), findsOneWidget);
+  });
+  testWidgets('VID-01: Upload video opens the upload dialog', (tester) async {
+    await pump(tester, width: 360);
+    await tester.tap(find.text('Upload video'));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose video file'), findsOneWidget);
+    expect(
+      find.text('Keep this tab open until the upload finishes.'),
+      findsOneWidget,
+    );
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose video file'), findsNothing);
+    expect(tester.takeException(), isNull);
   });
 }

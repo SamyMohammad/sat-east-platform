@@ -16,7 +16,6 @@ Map<String, Object?> _row() => {
   'duration_s': 600,
   'size_mb': 12,
   'provider': 'r2_hls',
-  'youtube_id': null,
   'ready': false,
   'sort': 1,
 };
@@ -45,29 +44,10 @@ void main() {
       expect(video.durationS, 600);
       expect(video.sizeMb, 12);
       expect(video.provider, VideoProvider.r2Hls);
-      expect(video.youtubeId, isNull);
       expect(video.ready, isFalse);
       expect(video.sort, 1);
     },
   );
-  test('C-2: YouTube list permits nullable size and subtopic', () async {
-    final result = await source(
-      rpc: (_, _) async => [
-        _row()..addAll({
-          'provider': 'youtube',
-          'youtube_id': 'dQw4w9WgXcQ',
-          'size_mb': null,
-          'subtopic_id': null,
-          'subtopic_title': null,
-          'ready': true,
-        }),
-      ],
-    ).list('t');
-    final video = (result as Success<List<TeacherVideo>>).value.single;
-    expect(video.provider, VideoProvider.youtube);
-    expect(video.sizeMb, isNull);
-    expect(video.subtopicId, isNull);
-  });
   test('C-2: quota calls teacher_video_quota without parameters', () async {
     final result = await source(
       rpc: (fn, params) async {
@@ -78,7 +58,7 @@ void main() {
     ).quota();
     expect((result as Success<VideoQuota>).value.label, '3.2 of 9 GB used');
   });
-  test('C-2: add, update and reorder send exact RPC contracts', () async {
+  test('C-2: update and reorder send exact RPC contracts', () async {
     final calls = <(String, Map<String, Object?>)>[];
     final remote = source(
       rpc: (fn, params) async {
@@ -86,26 +66,14 @@ void main() {
         return {'ok': true, 'asset_id': 'new'};
       },
     );
-    expect(
-      await remote.addYoutube('t', 'Title', 'dQw4w9WgXcQ', 600),
-      isA<Success<void>>(),
-    );
     expect(await remote.update('a', 'Changed', 's'), isA<Success<void>>());
     expect(await remote.reorder('t', ['pending', 'a']), isA<Success<void>>());
     // Records compare maps by identity, so compare names and params apart.
     expect(calls.map((c) => c.$1), [
-      'teacher_add_youtube_video',
       'teacher_update_video',
       'teacher_reorder_videos',
     ]);
     expect(calls.map((c) => c.$2), [
-      {
-        'p_topic_id': 't',
-        'p_subtopic_id': null,
-        'p_title': 'Title',
-        'p_youtube_id': 'dQw4w9WgXcQ',
-        'p_duration_s': 600,
-      },
       {'p_asset_id': 'a', 'p_title': 'Changed', 'p_subtopic_id': 's'},
       {
         'p_topic_id': 't',
@@ -139,7 +107,7 @@ void main() {
     final result = await source(
       rpc: (_, _) async =>
           throw const PostgrestException(message: 'quota_exceeded'),
-    ).addYoutube('t', 'Title', 'dQw4w9WgXcQ', 600);
+    ).update('a', 'Title', null);
     expect((result as Failure<void>).error.code, 'quota_exceeded');
   });
   for (final field in ['duration_s', 'ready', 'sort', 'provider']) {

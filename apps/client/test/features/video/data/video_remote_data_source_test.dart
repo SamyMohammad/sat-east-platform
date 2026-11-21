@@ -51,20 +51,6 @@ void main() {
     expect(playback.watermarkText, 'Sara Ali \u00b7 3FA2C1');
     expect(playback.resumeS, 120);
   });
-  test('LRN-02: parses YouTube playback', () async {
-    final remote = source(
-      edge: (_, _) async => {
-        'provider': 'youtube',
-        'youtube_id': 'dQw4w9WgXcQ',
-        'resume_s': 12,
-      },
-    );
-    final playback =
-        (await remote.requestPlayback('v') as Success<VideoPlayback>).value
-            as YoutubePlayback;
-    expect(playback.youtubeId, 'dQw4w9WgXcQ');
-    expect(playback.resumeS, 12);
-  });
   test(
     'SEC-01: null watermark name accepted by the server becomes empty text',
     () async {
@@ -158,8 +144,7 @@ void main() {
     null,
     {},
     {'provider': 'unknown', 'resume_s': 0},
-    {'provider': 'youtube', 'resume_s': -1, 'youtube_id': 'dQw4w9WgXcQ'},
-    {'provider': 'youtube', 'resume_s': 0, 'youtube_id': 'bad'},
+    {'provider': 'youtube', 'resume_s': 0, 'youtube_id': 'dQw4w9WgXcQ'},
   ]) {
     test('SEC-01: malformed playback fails internally $response', () async {
       final result = await source(

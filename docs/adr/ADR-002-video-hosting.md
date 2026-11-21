@@ -63,3 +63,11 @@ Web is proven. Android, iOS and real R2 are still open. Changes to the design ab
        R2: run `spikes/video-hls/README.md` §2–3.**
 2. [ ] Teacher: accept the web-download risk in writing, or fund VdoCipher from launch.
 3. [ ] Naming convention for uploads: `SAT_T05_Linear_03_Parallel-Perpendicular.mp4`.
+
+## Update 2026-11-21 (VID-01: upload from the dashboard)
+- Teachers upload from the Videos screen. The browser transcodes with **ffmpeg.wasm** (single-thread, no COOP/COEP) to the same 540p AES-128 HLS the CLI produced, then uploads through presigned R2 URLs and the existing `teacher_*` RPCs. No server runs ffmpeg.
+- **YouTube is removed** (server, client, data): it had no protection and no watermark. `provider` is `r2_hls` only.
+- Measured limits (spike `spikes/video-wasm/`): ~0.2-0.6x realtime, so a 10 min video takes ~28 min with the tab open; memory stays ~0.6 GB. Caps: `video_upload_max_source_mb` (500) and `video_upload_max_duration_s` (900) in `settings`.
+- **Licence flag:** `@ffmpeg/core` 0.12.10 is `GPL-2.0-or-later` (bundles x264). Serving the wasm to users may carry source-offer obligations. Owner must decide before release; record the decision here.
+- **Licence handling (2026-11-21):** the client loads the unmodified LGPL/GPL `@ffmpeg/core@0.12.10` from jsDelivr, pinned by version and SHA-256. Upstream source: github.com/ffmpegwasm/ffmpeg.wasm (tag v0.12.10). We neither modify it nor redistribute it from our origin. The core is no longer vendored in `apps/client/web/vendor/` (it exceeded Cloudflare Pages' 25 MiB file limit).
+- A managed provider (Bunny / Cloudflare Stream) remains the upgrade path for long videos, ABR and mobile upload.

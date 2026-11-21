@@ -100,8 +100,14 @@ class _Engine implements VideoEngine, FullscreenVideoEngine {
 class _Repo implements VideoRepository {
   int requests = 0;
   final saves = <(String, WatchedSpan, int)>[];
-  Result<VideoPlayback> playback = const Success(
-    YoutubePlayback(youtubeId: 'dQw4w9WgXcQ', resumeS: 12),
+  Result<VideoPlayback> playback = Success(
+    HlsPlayback(
+      hlsUrl: 'https://cdn.test/v.m3u8',
+      expiresAt: DateTime.utc(2030),
+      watermarkName: 'Sara Ali',
+      watermarkShortId: '3FA2C1',
+      resumeS: 12,
+    ),
   );
   Result<VideoSettings> settings = const Success(
     VideoSettings(progressIntervalS: 15, watermarkMoveS: 7),
@@ -164,7 +170,7 @@ void main() {
     await cubit.close();
     await engine.disposeStreams();
   });
-  Future<void> load() => cubit.load('v', VideoProvider.youtube);
+  Future<void> load() => cubit.load('v', VideoProvider.r2Hls);
   void advance() {
     for (var s = 12; s <= 26; s++) {
       engine.positions.add(s.toDouble());
@@ -195,8 +201,14 @@ void main() {
     repo.playback = const Failure(AppError('video_needed'));
     await load();
     expect((cubit.state as VideoPlayerError).code, 'video_needed');
-    repo.playback = const Success(
-      YoutubePlayback(youtubeId: 'dQw4w9WgXcQ', resumeS: 0),
+    repo.playback = Success(
+      HlsPlayback(
+        hlsUrl: 'https://cdn.test/v.m3u8',
+        expiresAt: DateTime.utc(2030),
+        watermarkName: 'Sara Ali',
+        watermarkShortId: '3FA2C1',
+        resumeS: 0,
+      ),
     );
     await cubit.retry();
     expect(cubit.state, isA<VideoPlayerReady>());

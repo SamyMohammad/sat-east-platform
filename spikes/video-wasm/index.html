@@ -1,0 +1,87 @@
+<!doctype html>
+<meta charset="utf-8"><title>ffmpeg.wasm HLS spike</title>
+<style>body{font:14px system-ui;margin:20px;max-width:900px}pre{background:#eee;padding:8px;white-space:pre-wrap}</style>
+<h3>ffmpeg.wasm 0.12.15 / core 0.12.10 (single-thread) HLS spike</h3>
+<input type="file" id="f" accept="video/*"> <button id="go">Transcode</button> <button id="verify">Verify</button>
+<label><input type="checkbox" id="save"> POST outputs to /save (headless)</label>
+<pre id="log"></pre><pre id="stats"></pre><div id="files"></div>
+<script src="/vendor/ffmpeg/ffmpeg.js"></script>
+<script>
+const $ = (i) => document.getElementById(i);
+const log = (m) => { $('log').textContent += m + '\n'; };
+const KEY = crypto.getRandomValues(new Uint8Array(16));
+let OUT = new Map(); // name -> Uint8Array
+let peakHeap = 0;
+setInterval(() => { if (performance.memory) peakHeap = Math.max(peakHeap, performance.memory.usedJSHeapSize); }, 500);
+
+let INPUT = '';
+function args(audio) { // mirrors tools/video-pipeline/ffmpeg.ts ffmpegArgs
+  const a = ['-y', '-hide_banner', '-loglevel', 'error', '-i', INPUT, '-map', '0:v:0', '-vf', 'scale=-2:540'];
+  if (audio) a.push('-map', '0:a:0', '-c:a', 'aac', '-b:a', '96k', '-ac', '1');
+  a.push('-c:v', 'libx264', '-preset', 'veryfast', '-profile:v', 'main', '-pix_fmt', 'yuv420p',
+    '-b:v', '600k', '-maxrate:v', '650k', '-bufsize:v', '1300k',
+    '-force_key_frames', 'expr:gte(t,n_forced*6)', '-sc_threshold', '0',
+    '-f', 'hls', '-hls_time', '6', '-hls_playlist_type', 'vod', '-hls_key_info_file', '/key.info',
+    '-hls_segment_filename', '/out/%v_%03d.ts', '-master_pl_name', 'master.m3u8',
+    '-var_stream_map', audio ? 'v:0,a:0,name:540p' : 'v:0,name:540p', '/out/%v.m3u8');
+  return a;
+}
+window.runSpike = async function (file, hasAudio = true) {
+  OUT = new Map(); peakHeap = 0;
+  const t0 = performance.now();
+  const ff = new FFmpegWASM.FFmpeg();
+  const logs = [];
+  ff.on('log', ({ message }) => logs.push(message));
+  let lastP = 0;
+  ff.on('progress', ({ progress }) => { lastP = progress; if (Math.round(progress * 20) !== Math.round((window.__lp || 0) * 20)) console.log('progress ' + Math.round(progress * 100) + '% t=' + Math.round(performance.now() - t0)); window.__lp = progress; });
+  await ff.load({ coreURL: '/vendor/core/ffmpeg-core.js', wasmURL: '/vendor/core/ffmpeg-core.wasm' });
+  const tLoad = performance.now();
+  await ff.createDir('/in'); await ff.createDir('/out');
+  await ff.mount('WORKERFS', { files: [file] }, '/in');
+  await ff.writeFile('/key.bin', KEY.slice()); // slice: writeFile transfers (detaches) the buffer
+  await ff.writeFile('/key.info', 'key\n/key.bin\n');
+  INPUT = '/in/' + file.name;
+  const t1 = performance.now();
+  const code = await ff.exec(args(hasAudio));
+  const t2 = performance.now();
+  const names = (await ff.listDir('/out')).filter((n) => !n.isDir).map((n) => n.name);
+  let total = 0;
+  for (const n of names) { const d = await ff.readFile('/out/' + n); OUT.set(n, d); total += d.length; }
+  const r = { version: { ffmpeg: '0.12.15', core: '0.12.10' }, exitCode: code, fileCount: names.length, outBytes: total,
+    loadMs: Math.round(tLoad - t0), execMs: Math.round(t2 - t1), totalMs: Math.round(performance.now() - t0),
+    peakMainHeapMB: +(peakHeap / 1048576).toFixed(1), lastProgress: lastP, errLog: logs.slice(-10) };
+  ff.terminate();
+  window.__lastResult = r;
+  $('stats').textContent = JSON.stringify(r, null, 1);
+  $('files').innerHTML = [...OUT].map(([n, d]) => `<div><a href="${URL.createObjectURL(new Blob([d]))}" download="${n}">${n}</a> ${d.length}</div>`).join('');
+  return r;
+};
+window.getOutText = (n) => new TextDecoder().decode(OUT.get(n));
+window.saveAll = async function () {
+  for (const [n, d] of OUT) await fetch('/save/' + n, { method: 'POST', body: d });
+};
+// Verify: decrypt every segment with KEY, IV = media sequence number (big endian), check MPEG-TS sync bytes.
+window.verifyOutput = async function () {
+  const key = await crypto.subtle.importKey('raw', KEY, 'AES-CBC', false, ['decrypt']);
+  const res = { segments: 0, ok: 0, bad: [] };
+  const pl = getOutText('540p.m3u8');
+  res.playlistHasKeyLine = /#EXT-X-KEY:METHOD=AES-128,URI="key"/.test(pl);
+  const seq = Number((pl.match(/#EXT-X-MEDIA-SEQUENCE:(\d+)/) || [0, 0])[1]);
+  const segs = [...OUT.keys()].filter((n) => n.endsWith('.ts')).sort();
+  for (let i = 0; i < segs.length; i++) {
+    res.segments++;
+    const iv = new Uint8Array(16); new DataView(iv.buffer).setUint32(12, seq + i);
+    try {
+      const plain = new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, OUT.get(segs[i])));
+      let sync = plain.length > 0 && plain.length % 188 === 0;
+      for (let o = 0; o < plain.length && sync; o += 188) if (plain[o] !== 0x47) sync = false;
+      if (sync) res.ok++; else res.bad.push(segs[i]);
+    } catch (e) { res.bad.push(segs[i] + ':' + e.message); }
+  }
+  $('stats').textContent += '\n' + JSON.stringify(res);
+  return res;
+};
+window.getKeyHex = () => Array.from(KEY, (b) => b.toString(16).padStart(2, '0')).join('');
+$('go').onclick = async () => { const f = $('f').files[0]; if (!f) return; try { await runSpike(f); if ($('save').checked) await saveAll(); } catch (e) { log('ERR ' + e); } };
+$('verify').onclick = () => verifyOutput();
+</script>

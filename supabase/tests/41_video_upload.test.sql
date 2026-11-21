@@ -14,13 +14,13 @@ insert into public.topics(id,course_id,title,slug) values(pg_temp.u(2),pg_temp.u
 insert into public.topic_assets(id,topic_id,kind,title,provider,ready,size_mb,duration_s) values
  (pg_temp.u(11),pg_temp.u(2),'video','Pending','r2_hls',false,1,30),
  (pg_temp.u(12),pg_temp.u(2),'video','Ready','r2_hls',true,1,30),
- (pg_temp.u(13),pg_temp.u(2),'video','YouTube','youtube',false,0,30),
+ (pg_temp.u(13),pg_temp.u(2),'video','No provider',null,false,0,30),
  (pg_temp.u(14),pg_temp.u(2),'notes','Notes',null,false,null,null);
 select tests.authenticate_as('upload_student');
 select throws_ok('select public.teacher_video_upload_grant(pg_temp.u(11))','P0001','forbidden','C-2: student cannot request upload grant');
 select tests.authenticate_as('upload_teacher');
 select throws_ok('select public.teacher_video_upload_grant(pg_temp.u(12))','P0001','invalid_input','C-2: ready assets cannot be overwritten');
-select throws_ok('select public.teacher_video_upload_grant(pg_temp.u(13))','P0001','invalid_input','C-2: YouTube cannot receive HLS upload');
+select throws_ok('select public.teacher_video_upload_grant(pg_temp.u(13))','P0001','invalid_input','C-2: provider-less video cannot receive HLS upload');
 select throws_ok('select public.teacher_video_upload_grant(pg_temp.u(14))','P0001','invalid_input','C-2: notes are not video');
 select throws_ok('select public.teacher_video_upload_grant(pg_temp.u(99))','P0001','invalid_input','C-2: unknown asset refused');
 select is(public.teacher_video_upload_grant(pg_temp.u(11)),jsonb_build_object('r2_prefix','videos/'||pg_temp.u(11),'ttl_s',900),

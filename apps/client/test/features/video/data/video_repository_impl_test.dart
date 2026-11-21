@@ -20,8 +20,10 @@ void main() {
               expect(body, {'asset_id': 'v'});
               if (fails) throw const FunctionException(status: 401);
               return {
-                'provider': 'youtube',
-                'youtube_id': 'dQw4w9WgXcQ',
+                'provider': 'r2_hls',
+                'hls_url': 'https://cdn.test/v.m3u8',
+                'expires_at': 1900000000,
+                'watermark': {'name': 'Sara Ali', 'short_id': '3FA2C1'},
                 'resume_s': 0,
               };
             },
@@ -59,7 +61,7 @@ void main() {
         } else {
           expect(
             (playback as Success<VideoPlayback>).value,
-            isA<YoutubePlayback>(),
+            isA<HlsPlayback>(),
           );
           expect((progress as Success<({int pct, bool done})>).value, (
             pct: 40,

@@ -12,7 +12,13 @@ void main() {
       () async {
         final engine = createVideoEngine(provider);
         final result = await engine.attach(
-          const YoutubePlayback(youtubeId: 'dQw4w9WgXcQ', resumeS: 0),
+          HlsPlayback(
+            hlsUrl: 'https://cdn.test/v.m3u8',
+            expiresAt: DateTime.utc(2030),
+            watermarkName: 'Sara Ali',
+            watermarkShortId: '3FA2C1',
+            resumeS: 0,
+          ),
         );
         expect((result as Failure<void>).error.code, ErrorCodes.unsupported);
         await expectLater(engine.position, emitsDone);
