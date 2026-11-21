@@ -2,7 +2,7 @@
 
 > One place for "where are we". Update it in the same PR that changes a row.
 > Start every new session here, then open the linked plan.
-> Last updated: 2026-11-16
+> Last updated: 2026-11-21
 
 ## Now — pre-beta build (owner, 2026-11-12)
 
@@ -19,7 +19,7 @@ Setup and content, in parallel:
 
 | Item | Owner | State |
 |------|-------|-------|
-| Prod Supabase project `sat-prod` (eu-central-1) exists and GitHub prod vars are set, but the project is **INACTIVE (paused)** and both prod environments have no secrets (checked 2026-11-11). Restore it, move to Pro (see roadmap R0), add secrets — [prod runbook](setup/prod.md) | user | to do |
+| Prod Supabase project `sat-prod` (eu-central-1) exists and GitHub prod vars are set, but the project is **INACTIVE (paused)** and both prod environments have no secrets (checked 2026-11-11). Confirm it can still be restored, restore it (stays on **Free**: owner decided $0 on 2026-11-21), add secrets — [prod runbook](setup/prod.md) | user | to do |
 | First prod deploy (`Deploy prod` workflow) + restore drill | router + user | after the prod project exists |
 | Teacher taxonomy loaded into `skills`; first real topics (videos, notes, questions) | teacher | waiting |
 | Retire the demo seed before real SAT content (see Open: Demo course code) | router | when content arrives |
@@ -31,8 +31,7 @@ Review verdict: keep Supabase + Flutter (target is 2,000 students / 300 concurre
 
 | Phase | Items | Owner |
 |-------|-------|-------|
-| R0 — before the first real student | Restore `sat-prod` and move it to Pro (reverses "Free for beta": the project pauses, backups fail, no PITR; add PITR once revenue exists). Add prod/prod-backup secrets. Create Resend, Sentry, Turnstile and an external uptime monitor | user (billing, accounts, secrets) |
-| R0 | Green `Backup prod` + restore drill; split the backups bucket from the video bucket; Sentry DSN on staging + prod with release tags and web source maps; alert on backup failure; branch protection on `main`; confirm-email + captcha; enforce `device_header_required` and settle App Check; landing links to prod + CI deploy | router |
+| R0 — before the first real student | **Superseded by the [prod readiness plan](superpowers/specs/2026-11-21-prod-readiness-design.md) (2026-11-21):** closed beta, web, **$0** (Free Supabase, `*.pages.dev`, Brevo SMTP, Healthchecks.io + UptimeRobot + Sentry → email/Telegram). Phases: P0 VID-01 ffmpeg core from jsDelivr (#96, in review) · ~~P1 CI ≤ 4 min + branch protection~~ done (#95) · P2 prod alive on Free (keep-alive, backup alerts, restore drill, limit watch) — waits on owner accounts · P3 security (~~P3a headers + CSP report-only + NFR-07 test~~ #99; enforce CSP, Turnstile, auth settings, grant revoke, privacy + `admin_delete_student` next) · P4 monitoring · P5 performance · P6 go-live | router; owner actions listed in the spec |
 | R1 — load | ~~R1a: FK indexes, expire-cron partial index, cron history purge~~ done (#81, #82). Per-row RLS rewrite dropped — the only direct `topic_assets` read filters by `topic_id`, so the index is the fix. R1b rate-limit rollback closed by design: Postgres has no autonomous transactions, the only fixes are a `dblink` loopback (DB password inside the DB) or rewriting ~18 RPCs, and the one guess-style RPC (`redeem_activation_code`) already returns errors; flood protection belongs at the edge. R1c k6 load test workflow (#83) — first runs pending the `STAGING_JWT_SECRET` secret | router |
 | R2 — video | Spike a managed provider (Bunny Stream, compare Cloudflare Stream): ABR, CDN, resumable upload from the teacher screen, Android/iOS playback, real cost. **Owner decides** whether to drop ADR-002's "$0 R2 bill" anti-goal; only then ADR-010, new provider, mobile player, migrate videos, remove `tools/video-pipeline` | user decides, router builds |
 | R3 — mobile release | Real Android release signing; iOS flavors + matching bundle ids; FLAG_SECURE + iOS capture blocking (SEC-03) | router |
@@ -81,6 +80,8 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
+| P3a | Security + cache `_headers` (app, landing), CSP report-only, NFR-07 client test | #99 |
+| P1 | CI: path filters, file-sharded tests, `ci-ok` required check (PR 3m22, main 5m25); Dependabot, CODEOWNERS, SECURITY.md, secret-grep patterns, token-expiry check | #95 |
 | R4a | Persistent answer outbox for quiz and homework (hive_ce) | #84 |
 | R1a | 47 FK indexes + pgTAP FK-index invariant, `attempts_quiz_in_progress_idx`, nightly purge of `cron.job_run_details` (`cron_history_keep_days`) (NFR-01/02) | #81, #82 |
 | P1 | Student Home (LRN-07): continue card with the next step, course progress, access-expiry banner from `access_expiry_warn_days`; bell hidden | #76, #77 |
