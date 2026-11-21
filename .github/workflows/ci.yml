@@ -73,7 +73,18 @@ jobs:
         run: dart format --output=none --set-exit-if-changed .
       - if: matrix.shard == 0
         run: flutter analyze --fatal-infos
-      - run: flutter test --exclude-tags golden --total-shards 3 --shard-index ${{ matrix.shard }}
+      # Split by file, not --total-shards: that splits tests inside files, so every shard
+      # would still compile all files (compile is most of the time). Round-robin over a
+      # sorted list keeps shards balanced and deterministic.
+      - name: flutter test (shard ${{ matrix.shard }} of 3, by file)
+        env:
+          SHARD: ${{ matrix.shard }}
+        run: |
+          set -euo pipefail
+          mapfile -t files < <(find test -name '*_test.dart' -not -path 'test/goldens/*' | LC_ALL=C sort | awk -v s="$SHARD" '(NR - 1) % 3 == s')
+          (( ${#files[@]} )) || { echo "::error::shard $SHARD has no test files"; exit 1; }
+          echo "shard $SHARD: ${#files[@]} files"
+          flutter test --exclude-tags golden "${files[@]}"
 
   client-build:
     if: ${{ !cancelled() && needs.changes.result != 'failure' && (github.event_name != 'pull_request' || needs.changes.outputs.client == 'true') }}
