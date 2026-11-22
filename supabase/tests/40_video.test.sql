@@ -53,8 +53,8 @@ select throws_ok('select public.teacher_confirm_video_asset(current_setting(''te
 select is(public.teacher_confirm_video_asset(current_setting('test.video_a')::uuid,'00112233445566778899aabbccddeeff'),'{"ok":true}'::jsonb,'C-2: confirm ready video');
 select is(public.teacher_confirm_video_asset(current_setting('test.video_a')::uuid,'00112233445566778899aabbccddeeff'),'{"ok":true}'::jsonb,'C-2: confirmation retry is idempotent');
 select throws_ok('select public.teacher_confirm_video_asset(current_setting(''test.video_a'')::uuid,repeat(''f'',32))','P0001','invalid_input','SEC-01: confirmation cannot rotate a ready key');
-select set_config('test.video_y',public.teacher_add_youtube_video(pg_temp.v(11),null,'YouTube','abcdefgh_-1',100)->>'asset_id',true);
-select throws_ok('select public.teacher_add_youtube_video(pg_temp.v(11),null,''Bad'',''bad'',100)','P0001','invalid_input','C-2: YouTube ID validated');
+select set_config('test.video_y',public.teacher_create_video_asset(pg_temp.v(11),null,'Second ready',100,0)->>'asset_id',true);
+select is(public.teacher_confirm_video_asset(current_setting('test.video_y')::uuid,'ffeeddccbbaa99887766554433221100'),'{"ok":true}'::jsonb,'C-2: second video confirmed');
 select throws_ok('select public.teacher_create_video_asset(pg_temp.v(11),pg_temp.v(22),''Wrong subtopic'',100,0)','P0001','invalid_input','C-2: subtopic belongs to topic');
 select throws_ok('select public.teacher_create_video_asset(pg_temp.v(11),null,''Bad duration'',0,0)','P0001','invalid_input','C-2: positive duration required');
 select throws_ok('select public.teacher_create_video_asset(pg_temp.v(11),null,''Bad size'',100,-1)','P0001','invalid_input','C-2: negative size refused');
@@ -85,7 +85,7 @@ select ok(not exists(select 1 from public.audit_log where actor=tests.get_supaba
 select ok(has_column_privilege('authenticated','public.topic_assets',c,'select'),'LRN-02: metadata column grant '||c)
 from unnest(array['provider','size_mb','duration_s']) c;
 insert into public.topic_assets(id,topic_id,kind,title,duration_s,provider,size_mb,ready)
-values(pg_temp.v(41),pg_temp.v(12),'video','Locked video',100,'youtube',0,true);
+values(pg_temp.v(41),pg_temp.v(12),'video','Locked video',100,'r2_hls',0,true);
 insert into public.topic_assets(id,topic_id,kind,title,page_count,ready)
 values(pg_temp.v(42),pg_temp.v(11),'notes','Notes after video',2,true);
 
@@ -97,8 +97,8 @@ select throws_ok('select public.video_playback_grant(pg_temp.v(41))','P0001','to
 select throws_ok('select public.video_playback_grant(current_setting(''test.video_b'')::uuid)','P0001','forbidden','SEC-01: unready hidden');
 select throws_ok('select public.video_playback_grant(pg_temp.v(99))','P0001','forbidden','SEC-01: unknown hidden');
 select is((select count(*)::int from public.topic_assets where id=current_setting('test.video_b')::uuid),0,'SEC-01: RLS hides unready video');
-select is(public.video_playback_grant(current_setting('test.video_y')::uuid),
- '{"ok":true,"provider":"youtube","youtube_id":"abcdefgh_-1","resume_s":0}'::jsonb,'SEC-01: YouTube grant has no protected fields');
+select is(public.video_playback_grant(current_setting('test.video_y')::uuid)->>'provider','r2_hls','SEC-01: second video grant is r2_hls');
+select is((public.video_playback_grant(current_setting('test.video_y')::uuid)) ? 'youtube_id',false,'SEC-01: grant carries no youtube_id');
 select is(public.video_playback_grant(current_setting('test.video_a')::uuid),jsonb_build_object(
  'ok',true,'provider','r2_hls','asset_id',current_setting('test.video_a')::uuid,'user_id',auth.uid(),
  'watermark',jsonb_build_object('name','Video Student','short_id',upper(left(replace(auth.uid()::text,'-',''),6))),
@@ -119,7 +119,7 @@ select throws_ok('select public.save_video_progress(current_setting(''test.video
 select throws_ok('select public.save_video_progress(current_setting(''test.video_a'')::uuid,0,36,36)','P0001','invalid_input','LRN-02: oversized heartbeat rejected');
 select is(public.save_video_progress(current_setting('test.video_a')::uuid,35,40,40),'{"pct":80,"done":true}'::jsonb,'LRN-02: threshold at 80');
 select throws_ok('select public.get_practice_questions(pg_temp.v(11))','P0001','video_needed','LRN-02: every ready video required');
-select is(public.save_video_progress(current_setting('test.video_y')::uuid,0,35,35)->'pct','35'::jsonb,'LRN-02: YouTube progress supported');
+select is(public.save_video_progress(current_setting('test.video_y')::uuid,0,35,35)->'pct','35'::jsonb,'LRN-02: second video progress supported');
 select is(public.save_video_progress(current_setting('test.video_y')::uuid,35,70,70)->'pct','70'::jsonb,'LRN-02: progress accumulates');
 select is(public.save_video_progress(current_setting('test.video_y')::uuid,70,80,80)->'done','true'::jsonb,'LRN-02: final ready video done');
 select throws_ok('select public.get_practice_questions(pg_temp.v(11))','P0001','notes_needed','LRN-02: notes gate remains after video completion');
@@ -129,14 +129,13 @@ select is(public.video_playback_grant(current_setting('test.video_y')::uuid)->'r
 select is(public.get_topic(pg_temp.v(11))->'video_done','true'::jsonb,'LRN-02: get_topic gate agrees');
 select is(jsonb_array_length(public.get_topic(pg_temp.v(11))->'videos'),2,'LRN-02: get_topic ready videos only');
 select is(public.get_topic(pg_temp.v(11))->'videos'->0,jsonb_build_object('asset_id',current_setting('test.video_y')::uuid,
- 'title','Renamed','subtopic_title','Section','duration_s',100,'provider','youtube','pct',80,'last_position_s',80),'LRN-02: topic video fields and ordering');
+ 'title','Renamed','subtopic_title','Section','duration_s',100,'provider','r2_hls','pct',80,'last_position_s',80),'LRN-02: topic video fields and ordering');
 select is(public.get_topic(pg_temp.v(13))->'video_done','true'::jsonb,'LRN-02: no video skips gate');
 select lives_ok('select public.get_practice_questions(pg_temp.v(13))','LRN-02: no video practice unaffected');
 select throws_ok(sql,'P0001','forbidden','C-2: student denied '||name) from (values
  ('quota','select public.teacher_video_quota()'),
  ('create','select public.teacher_create_video_asset(null,null,null,null,null)'),
  ('confirm','select public.teacher_confirm_video_asset(null,null)'),
- ('youtube','select public.teacher_add_youtube_video(null,null,null,null,null)'),
  ('update','select public.teacher_update_video(null,null,null)'),
  ('reorder','select public.teacher_reorder_videos(null,null)'),
  ('list','select public.teacher_list_videos(null)'),
@@ -180,17 +179,27 @@ select is((select count(*)::int from public.video_progress where asset_id=curren
 select is((select count(*)::int from public.video_chapters where asset_id=current_setting('test.video_a')::uuid),0,'C-2: chapters deleted');
 select ok(not has_function_privilege('anon',p.oid,'execute'),'SEC-01: anon denied '||p.proname)
 from pg_proc p where p.pronamespace='public'::regnamespace and p.proname in
- ('teacher_video_quota','teacher_create_video_asset','teacher_confirm_video_asset','teacher_add_youtube_video',
+ ('teacher_video_quota','teacher_create_video_asset','teacher_confirm_video_asset',
  'teacher_update_video','teacher_reorder_videos','teacher_list_videos','teacher_video_prefix','teacher_delete_video',
  'video_playback_grant','save_video_progress');
 select ok(has_function_privilege('authenticated',p.oid,'execute'),'SEC-01: authenticated granted '||p.proname)
 from pg_proc p where p.pronamespace='public'::regnamespace and p.proname in
- ('teacher_video_quota','teacher_create_video_asset','teacher_confirm_video_asset','teacher_add_youtube_video',
+ ('teacher_video_quota','teacher_create_video_asset','teacher_confirm_video_asset',
  'teacher_update_video','teacher_reorder_videos','teacher_list_videos','teacher_video_prefix','teacher_delete_video',
  'video_playback_grant','save_video_progress');
 set local role authenticated;
 select throws_ok('select public.video_playback_grant(null)','P0001','not_authenticated','SEC-01: grant requires auth');
 select throws_ok('select public.save_video_progress(null,0,1,1)','P0001','not_authenticated','LRN-02: progress requires auth');
+reset role;
+select hasnt_function('public','teacher_add_youtube_video',array['uuid','uuid','text','text','int'],'C-2: YouTube RPC removed');
+select throws_ok($q$insert into public.topic_assets(topic_id,kind,title,provider,video_provider_id,duration_s,ready)
+ values(pg_temp.v(11),'video','YT','youtube','abcdefgh_-1',10,true)$q$,'23514',null,'C-2: youtube provider rejected by check');
+select is((select count(*)::int from public.topic_assets where provider='youtube'),0,'C-2: no youtube rows');
+select is((select value from public.settings where key='video_upload_max_source_mb'),'500'::jsonb,'C-2: max source size setting seeded');
+select is((select value from public.settings where key='video_upload_max_duration_s'),'900'::jsonb,'C-2: max duration setting seeded');
+select tests.authenticate_as('video_student');
+select is((select count(*)::int from public.settings where key in ('video_upload_max_source_mb','video_upload_max_duration_s')),2,'C-2: upload limits readable by signed-in users');
+select tests.clear_authentication();
 reset role;
 select * from finish();
 rollback;

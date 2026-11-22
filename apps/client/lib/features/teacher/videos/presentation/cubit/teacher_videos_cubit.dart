@@ -4,8 +4,6 @@ import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/video_quota.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/repositories/teacher_videos_repository.dart';
-import 'package:sat_east_client/features/teacher/videos/domain/video_duration.dart';
-import 'package:sat_east_client/features/teacher/videos/domain/youtube_id.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_state.dart';
 
 class TeacherVideosCubit extends Cubit<TeacherVideosState> {
@@ -31,20 +29,6 @@ class TeacherVideosCubit extends Cubit<TeacherVideosState> {
       Failure(:final error) => TeacherVideosFailed(error),
     });
   }
-
-  Future<void> addYoutube({
-    required String title,
-    required String input,
-    required int durationS,
-  }) => _mutate((_) {
-    final id = parseYoutubeId(input);
-    if (id == null ||
-        !TeacherVideo.validTitle(title) ||
-        !validVideoDuration(durationS)) {
-      return _invalid();
-    }
-    return _repo.addYoutube(_topicId!, title.trim(), id, durationS);
-  });
 
   Future<void> rename(String assetId, String title) => _mutate((data) {
     final video = data.video(assetId);

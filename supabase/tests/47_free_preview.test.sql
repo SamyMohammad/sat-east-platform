@@ -38,9 +38,9 @@ select q,'{"choice":"B"}','Worked solution' from unnest(array[pg_temp.fp(31),pg_
 insert into public.topic_assets(id,topic_id,kind,title,storage_path,page_count,ready) values
  (pg_temp.fp(41),pg_temp.fp(11),'notes','Free notes',pg_temp.fp(11)||'/'||pg_temp.fp(41)||'.pdf',1,true),
  (pg_temp.fp(42),pg_temp.fp(12),'notes','Private paid notes',pg_temp.fp(12)||'/'||pg_temp.fp(42)||'.pdf',1,true);
-insert into public.topic_assets(id,topic_id,kind,title,provider,video_provider_id,duration_s,ready) values
- (pg_temp.fp(43),pg_temp.fp(11),'video','Free video','youtube','abcdefghijk',10,true),
- (pg_temp.fp(44),pg_temp.fp(12),'video','Private paid video','youtube','abcdefghijk',10,true);
+insert into public.topic_assets(id,topic_id,kind,title,provider,duration_s,ready) values
+ (pg_temp.fp(43),pg_temp.fp(11),'video','Free video','r2_hls',10,true),
+ (pg_temp.fp(44),pg_temp.fp(12),'video','Private paid video','r2_hls',10,true);
 insert into storage.objects(bucket_id,name,owner)
 select 'notes',a.storage_path,tests.get_supabase_uid('fp_full') from public.topic_assets a
 where a.id in (pg_temp.fp(41),pg_temp.fp(42));

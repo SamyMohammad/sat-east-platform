@@ -10,33 +10,29 @@ import 'package:sat_east_client/features/teacher/shell/teacher_animated_rows.dar
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_cubit.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/cubit/teacher_videos_state.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/teacher_videos_copy.dart';
-import 'package:sat_east_client/features/teacher/videos/presentation/widgets/add_youtube_dialog.dart';
 import 'package:sat_east_client/features/teacher/videos/presentation/widgets/teacher_video_card.dart';
+import 'package:sat_east_client/features/teacher/videos/presentation/widgets/upload_video_dialog.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/empty_state.dart';
 
 class TeacherVideosContent extends StatelessWidget {
   const TeacherVideosContent({
     required this.state,
+    required this.topicId,
     required this.onReload,
     super.key,
   });
   final TeacherVideosReady state;
+  final String topicId;
   final VoidCallback onReload;
 
-  Future<void> _add(BuildContext context) async {
+  Future<void> _upload(BuildContext context) async {
     final cubit = context.read<TeacherVideosCubit>();
-    final draft = await showDialog<YoutubeVideoDraft>(
-      context: context,
-      builder: (_) => const AddYoutubeDialog(),
+    await showUploadVideoDialog(
+      context,
+      topicId: topicId,
+      onPublished: () => unawaited(cubit.load(topicId)),
     );
-    if (context.mounted && draft != null) {
-      await cubit.addYoutube(
-        title: draft.title,
-        input: draft.input,
-        durationS: draft.durationS,
-      );
-    }
   }
 
   @override
@@ -60,13 +56,14 @@ class TeacherVideosContent extends StatelessWidget {
               ],
             ),
             LinearProgressIndicator(value: state.data.quota.fraction),
-            const Text(TeacherVideosCopy.upload),
             Align(
               alignment: AlignmentDirectional.centerStart,
               child: FilledButton.icon(
-                onPressed: state.busy ? null : () => unawaited(_add(context)),
-                icon: const Icon(AppIcons.add),
-                label: const Text(TeacherVideosCopy.addYoutube),
+                onPressed: state.busy
+                    ? null
+                    : () => unawaited(_upload(context)),
+                icon: const Icon(AppIcons.upload),
+                label: const Text(TeacherVideosCopy.uploadVideo),
               ),
             ),
           ],

@@ -48,6 +48,19 @@ abstract final class ErrorCodes {
   static const notesInvalidPdf = 'notes_invalid_pdf';
   static const notesCleanupFailed = 'notes_cleanup_failed';
 
+  // Client-only teacher video upload checks and browser pipeline failures
+  // (UX limits; the server re-validates every reservation).
+  static const videoTooLarge = 'video_too_large';
+  static const videoTooLong = 'video_too_long';
+  static const videoTranscodeFailed = 'video_transcode_failed';
+  static const videoUploadFailed = 'video_upload_failed';
+
+  /// The ffmpeg core could not be fetched or failed its SHA-256 check.
+  static const videoEngineLoadFailed = 'video_engine_load_failed';
+
+  /// Upload failed and the pending reservation could not be removed.
+  static const videoCleanupFailed = 'video_cleanup_failed';
+
   static const _serverCodes = <String>{
     notAuthenticated,
     forbidden,

@@ -28,7 +28,6 @@ class VideoRemoteDataSource {
         final resume = _integer(json['resume_s']);
         return switch (VideoProvider.fromWire(_string(json['provider']))) {
           VideoProvider.r2Hls => _hls(json, resume),
-          VideoProvider.youtube => _youtube(json, resume),
         };
       });
 
@@ -95,14 +94,6 @@ class VideoRemoteDataSource {
       watermarkShortId: _string(watermark['short_id']),
       resumeS: resume,
     );
-  }
-
-  YoutubePlayback _youtube(Map<String, Object?> json, int resume) {
-    final id = _string(json['youtube_id']);
-    if (!RegExp(r'^[A-Za-z0-9_-]{11}$').hasMatch(id)) {
-      throw const FormatException('youtube_id');
-    }
-    return YoutubePlayback(youtubeId: id, resumeS: resume);
   }
 
   Future<Result<T>> _call<T>(Future<T> Function() action) async {

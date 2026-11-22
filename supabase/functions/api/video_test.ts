@@ -111,9 +111,9 @@ Deno.test('SEC-01: OTP uses configured Supabase URL and embeds grant TTLs in sig
   assertEquals(s.events, ['auth', 'video_playback_grant']);
 });
 
-Deno.test('SEC-01: YouTube returns only embed fields and resume position', async () => {
+Deno.test('VID-01: a legacy YouTube grant is rejected', async () => {
   const s = setup({ rpc: () => ({ data: { ok: true, provider: 'youtube', youtube_id: 'abcdefgh_-1', resume_s: 9 }, error: null }) });
-  assertEquals(await (await s.post()).json(), { provider: 'youtube', youtube_id: 'abcdefgh_-1', resume_s: 9 });
+  assertEquals((await s.post()).status, 500);
 });
 
 Deno.test('SEC-01: OTP authentication and App Check run before RPC', async () => {
@@ -267,10 +267,10 @@ Deno.test('C-2: R2 deletion completes before DB deletion', async () => {
   assertEquals(s.events, ['auth', 'teacher_video_prefix', `list:${PREFIX}/`, `delete:${PREFIX}/clip_000.ts`, 'teacher_delete_video']);
 });
 
-Deno.test('C-2: YouTube deletion skips R2', async () => {
+Deno.test('VID-01: a non-r2_hls prefix is rejected before any deletion', async () => {
   const s = setup({ rpc: (fn) => ({ data: fn === 'teacher_video_prefix' ? { provider: 'youtube', r2_prefix: null } : { ok: true }, error: null }) });
-  assertEquals((await s.post('teacher/video-delete')).status, 200);
-  assertEquals(s.events, ['auth', 'teacher_video_prefix', 'teacher_delete_video']);
+  assertEquals((await s.post('teacher/video-delete')).status, 500);
+  assertEquals(s.events, ['auth', 'teacher_video_prefix']);
 });
 
 Deno.test('C-2: R2 ListObjectsV2 paginates, decodes object names, and deletes individual objects', async () => {

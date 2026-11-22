@@ -31,11 +31,11 @@ void main() {
     Future<Object?> call(String path, Map<String, Object?> body) async {
       expect(path, 'video-otp');
       expect(body, {'asset_id': 'asset'});
-      return {'provider': 'youtube'};
+      return {'provider': 'r2_hls'};
     }
 
     expect(await call('video-otp', {'asset_id': 'asset'}), {
-      'provider': 'youtube',
+      'provider': 'r2_hls',
     });
   });
 }

@@ -34,10 +34,10 @@ const _videos = [
   ),
   TeacherVideo(
     assetId: 'b',
-    title: 'YouTube',
+    title: 'Second',
     durationS: 30,
-    provider: VideoProvider.youtube,
-    youtubeId: 'dQw4w9WgXcQ',
+    sizeMb: 2,
+    provider: VideoProvider.r2Hls,
     ready: true,
     sort: 3,
   ),
@@ -56,9 +56,6 @@ void main() {
     when(repo.quota).thenAnswer(
       (_) async => const Success(VideoQuota(usedMb: 3277, capMb: 9216)),
     );
-    when(
-      () => repo.addYoutube(any(), any(), any(), any()),
-    ).thenAnswer((_) async => const Success(null));
     when(
       () => repo.update(any(), any(), any()),
     ).thenAnswer((_) async => const Success(null));
@@ -119,23 +116,6 @@ void main() {
       verify(repo.quota).called(2);
     },
   );
-  test('C-2: addYoutube parses input and reloads list and quota', () async {
-    await cubit.load('t');
-    await cubit.addYoutube(
-      title: ' New ',
-      input: 'https://youtu.be/dQw4w9WgXcQ',
-      durationS: 30,
-    );
-    verify(() => repo.addYoutube('t', 'New', 'dQw4w9WgXcQ', 30)).called(1);
-    verify(() => repo.list('t')).called(2);
-    verify(repo.quota).called(2);
-  });
-  test('C-2: invalid input never writes', () async {
-    await cubit.load('t');
-    await cubit.addYoutube(title: 'Title', input: 'bad', durationS: 30);
-    expect((cubit.state as TeacherVideosReady).error?.code, 'invalid_input');
-    verifyNever(() => repo.addYoutube(any(), any(), any(), any()));
-  });
   test('C-2: delete failure keeps list and emits error after busy', () async {
     await cubit.load('t');
     when(
@@ -154,20 +134,11 @@ void main() {
     await observed;
     verify(() => repo.list('t')).called(1);
   });
-  for (final action in ['add', 'rename', 'move', 'delete']) {
+  for (final action in ['rename', 'move', 'delete']) {
     test('C-2: $action failure preserves videos', () async {
       await cubit.load('t');
       const result = Failure<void>(AppError('network'));
       switch (action) {
-        case 'add':
-          when(
-            () => repo.addYoutube(any(), any(), any(), any()),
-          ).thenAnswer((_) async => result);
-          await cubit.addYoutube(
-            title: 'Title',
-            input: 'dQw4w9WgXcQ',
-            durationS: 30,
-          );
         case 'rename':
           when(
             () => repo.update(any(), any(), any()),

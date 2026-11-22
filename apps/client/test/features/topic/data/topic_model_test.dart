@@ -39,7 +39,7 @@ void main() {
     expect(topic.videoDone, isTrue);
   });
   for (final provider in ['youtube', 'unknown']) {
-    test('LRN-02: validates video provider $provider', () {
+    test('LRN-02: rejects unsupported video provider $provider', () {
       final payload = topicPayload()
         ..['videos'] = [
           {
@@ -51,14 +51,7 @@ void main() {
             'last_position_s': 120,
           },
         ];
-      if (provider == 'unknown') {
-        expect(() => topicDetailFromJson(payload), throwsFormatException);
-      } else {
-        expect(
-          topicDetailFromJson(payload).videos.single.provider.name,
-          'youtube',
-        );
-      }
+      expect(() => topicDetailFromJson(payload), throwsFormatException);
     });
   }
   test('L-3: parses notes and server completion flag', () {

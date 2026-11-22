@@ -12,7 +12,6 @@
 # - pdfrx 2.4.8: pdfium.wasm, pdfium_client.js and pdfium_worker.js are bundled in assets/packages/pdfrx/assets (same origin).
 # - posthog-js is vendored (vendor/posthog-js-*.js); it lazy-loads extras from eu-assets.i.posthog.com.
 # - ffmpeg core comes from cdn.jsdelivr.net as blob: URLs (VID-01 branch), hence blob: in script-src/worker-src.
-# - youtube.com / youtube-nocookie.com: main still embeds YouTube; drop them once VID-01 merges.
 /*
   Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff
@@ -20,7 +19,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   X-Frame-Options: DENY
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://www.gstatic.com https://eu-assets.i.posthog.com https://www.youtube.com; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net https://*.r2.cloudflarestorage.com https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://www.gstatic.com https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; media-src 'self' blob:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline'; frame-src https://www.youtube-nocookie.com https://www.youtube.com; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
+  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: https://cdn.jsdelivr.net https://www.gstatic.com https://eu-assets.i.posthog.com; worker-src 'self' blob:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://cdn.jsdelivr.net https://*.r2.cloudflarestorage.com https://eu.i.posthog.com https://eu-assets.i.posthog.com https://*.ingest.sentry.io https://*.ingest.de.sentry.io https://www.gstatic.com https://fonts.gstatic.com; img-src 'self' data: blob: https://*.supabase.co; media-src 'self' blob:; font-src 'self' data: https://fonts.gstatic.com; style-src 'self' 'unsafe-inline'; frame-src 'none'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'self'
 
 # Entry points and unhashed build outputs (main.dart.js and its deferred *.part.js are not content-hashed).
 /

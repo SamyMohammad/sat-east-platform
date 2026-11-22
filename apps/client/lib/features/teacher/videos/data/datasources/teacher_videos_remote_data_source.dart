@@ -6,7 +6,6 @@ import 'package:sat_east_client/core/supabase/rpc_caller.dart';
 import 'package:sat_east_client/core/video/video_provider.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/teacher_video.dart';
 import 'package:sat_east_client/features/teacher/videos/domain/entities/video_quota.dart';
-import 'package:sat_east_client/features/teacher/videos/domain/youtube_id.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class TeacherVideosRemoteDataSource {
@@ -25,19 +24,6 @@ class TeacherVideosRemoteDataSource {
     final cap = _integer(row['cap_mb']);
     if (cap == 0) throw const FormatException('storage cap');
     return VideoQuota(usedMb: _integer(row['used_mb']), capMb: cap);
-  });
-
-  Future<Result<void>> addYoutube(
-    String topicId,
-    String title,
-    String youtubeId,
-    int durationS,
-  ) => _write('teacher_add_youtube_video', {
-    'p_topic_id': topicId,
-    'p_subtopic_id': null,
-    'p_title': title,
-    'p_youtube_id': youtubeId,
-    'p_duration_s': durationS,
   });
 
   Future<Result<void>> update(
@@ -85,11 +71,6 @@ TeacherVideo _video(Object? raw) {
   final ready = row['ready'];
   if (duration == 0 || ready is! bool) throw const FormatException('video');
   final provider = VideoProvider.fromWire(_text(row['provider']));
-  final youtubeId = _optionalText(row['youtube_id']);
-  if (provider == VideoProvider.youtube &&
-      (youtubeId == null || parseYoutubeId(youtubeId) != youtubeId)) {
-    throw const FormatException('youtube id');
-  }
   return TeacherVideo(
     assetId: _text(row['asset_id']),
     title: _text(row['title']),
@@ -100,7 +81,6 @@ TeacherVideo _video(Object? raw) {
     subtopicId: _optionalText(row['subtopic_id']),
     subtopicTitle: _optionalText(row['subtopic_title']),
     sizeMb: row['size_mb'] == null ? null : _integer(row['size_mb']),
-    youtubeId: youtubeId,
   );
 }
 

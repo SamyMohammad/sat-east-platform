@@ -39,7 +39,7 @@ const _video = VideoStep(
     assetId: 'video-id',
     title: 'Lesson',
     durationS: 100,
-    provider: VideoProvider.youtube,
+    provider: VideoProvider.r2Hls,
     pct: 0,
     lastPositionS: 0,
   ),

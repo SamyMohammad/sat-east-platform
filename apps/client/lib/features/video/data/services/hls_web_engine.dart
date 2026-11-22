@@ -3,7 +3,7 @@ import 'dart:js_interop';
 
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
-import 'package:sat_east_client/features/video/data/services/video_script_loader.dart';
+import 'package:sat_east_client/core/web/script_loader.dart';
 import 'package:sat_east_client/features/video/data/services/web_video_engine.dart';
 import 'package:sat_east_client/features/video/domain/entities/video_playback.dart';
 import 'package:sat_east_client/features/video/domain/services/video_engine.dart';
@@ -67,7 +67,7 @@ class HlsWebEngine extends WebVideoEngine {
     final generation = ++_generation;
     emitStatus(EngineStatus.loading);
     try {
-      await loadVideoScript('vendor/hls-1.7.3.min.js');
+      await loadScript('vendor/hls-1.7.3.min.js');
       if (disposed || generation != _generation) {
         return const Failure(AppError(ErrorCodes.internal));
       }

@@ -90,10 +90,10 @@ class TeacherVideoCard extends StatelessWidget {
               crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 Text(TeacherVideosCopy.duration(video.durationS)),
-                Text(TeacherVideosCopy.size(video.sizeMb, video.provider)),
-                AppChip(
+                Text(TeacherVideosCopy.size(video.sizeMb)),
+                const AppChip(
                   icon: AppIcons.video,
-                  label: TeacherVideosCopy.provider(video.provider),
+                  label: TeacherVideosCopy.protectedLabel,
                 ),
               ],
             ),

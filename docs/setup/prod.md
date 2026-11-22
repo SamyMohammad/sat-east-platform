@@ -76,7 +76,9 @@ database rows, dumps or activation codes into logs, issues or artifacts.
    Keep old passphrases until all backups using them have expired.
 5. Open your **video bucket → Settings → CORS policy**, add the exact production
    origin to the existing allowed origins, preserve the existing methods/headers,
-   and save. Do not add a wildcard or make the bucket public.
+   and save. The rule must also allow the `PUT` method and the `Content-Type` request
+   header from the app origins: teachers upload encrypted HLS segments straight from the
+   browser with presigned URLs (VID-01). Do not add a wildcard or make the bucket public.
 6. R2's **10 GB-month Standard free allowance is shared** by videos and backups
    across the account ([R2 pricing](https://developers.cloudflare.com/r2/pricing/)).
    Thirty daily dumps plus pre-deploy dumps count too. In the teacher's settings,

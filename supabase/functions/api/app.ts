@@ -107,10 +107,6 @@ export function createApp(deps: Deps) {
         : fail(c, 'internal', 'Something went wrong.');
     }
     if (grant.ok !== true || !Number.isSafeInteger(grant.resume_s) || (grant.resume_s as number) < 0) throw new Error('Invalid grant.');
-    if (grant.provider === 'youtube') {
-      if (typeof grant.youtube_id !== 'string' || !/^[A-Za-z0-9_-]{11}$/.test(grant.youtube_id)) throw new Error('Invalid grant.');
-      return c.json({ provider: 'youtube', youtube_id: grant.youtube_id, resume_s: grant.resume_s });
-    }
     if (grant.provider !== 'r2_hls' || grant.asset_id !== id || typeof grant.user_id !== 'string' || grant.user_id !== caller.userId
       || !Number.isSafeInteger(grant.key_ttl_s) || (grant.key_ttl_s as number) <= 0
       || !Number.isSafeInteger(grant.playlist_ttl_s) || (grant.playlist_ttl_s as number) <= 0) throw new Error('Invalid grant.');
@@ -192,7 +188,7 @@ export function createApp(deps: Deps) {
       const keys = await video.storage.list(prefix);
       if (keys.some((key) => !key.startsWith(prefix))) throw new Error('Invalid deletion prefix.');
       await video.storage.delete(keys);
-    } else if (data?.provider !== 'youtube' || data.r2_prefix !== null) {
+    } else {
       throw new Error('Invalid deletion prefix.');
     }
     const { data: result, error } = await caller.rpc('teacher_delete_video', { p_asset_id: id });

@@ -6,7 +6,7 @@ import 'package:web/web.dart' as web;
 final _loads = <String, Future<void>>{};
 
 /// Shares in-flight loads; a failed load can be retried without a page reload.
-Future<void> loadVideoScript(String path) =>
+Future<void> loadScript(String path) =>
     _loads.putIfAbsent(path, () => _load(path));
 
 Future<void> _load(String path) async {
@@ -19,7 +19,7 @@ Future<void> _load(String path) async {
     }).toJS
     ..onerror = ((web.Event _) {
       if (!loaded.isCompleted) {
-        loaded.completeError(StateError('Video script unavailable'));
+        loaded.completeError(StateError('Script unavailable'));
       }
     }).toJS;
   web.document.head!.appendChild(script);
