@@ -1,6 +1,5 @@
 name: Ops weekly check
 # Weekly ops checks. A failed run emails the repo owner.
-# P2 adds the Supabase Free-limit checks to this same file.
 on:
   schedule:
     - cron: '23 6 * * 1'
@@ -25,3 +24,82 @@ jobs:
           if [ "$days" -lt 21 ]; then
             echo "::error::SUPABASE_ACCESS_TOKEN expires in $days days ($EXPIRES): rotate it and update SUPABASE_TOKEN_EXPIRES"; exit 1
           fi
+      - name: Alert on failure (Telegram)
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -z "$TG_TOKEN" ] || curl -fsS -m 10 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \n            -d chat_id="$TG_CHAT" --data-urlencode "text=Ops weekly check FAILED (SUPABASE_ACCESS_TOKEN expiry): $RUN_URL" || true
+  free-limits:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    environment: ${{ matrix.target == 'prod' && 'production-backup' || '' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [staging, prod]
+    env:
+      # Supabase Free plan limits and the alert threshold (docs/setup/prod.md section 8).
+      DB_LIMIT_BYTES: '524288000'
+      STORAGE_LIMIT_BYTES: '1073741824'
+      ALERT_PERCENT: '70'
+      TARGET: ${{ matrix.target }}
+      PROJECT_REF: ${{ matrix.target == 'prod' && vars.PROD_PROJECT_REF || vars.STAGING_PROJECT_REF }}
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      # PROD_DB_PASSWORD is scoped to the production-backup environment (backup-prod.yml).
+      PGPASSWORD: ${{ matrix.target == 'prod' && secrets.PROD_DB_PASSWORD || matrix.target == 'staging' && secrets.STAGING_DB_PASSWORD || '' }}
+    steps:
+      - name: Skip until the project exists
+        id: gate
+        run: |
+          if [ -z "$PROJECT_REF" ]; then
+            echo "::notice::$TARGET project ref is not set yet - limit check skipped"
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v7
+        if: steps.gate.outputs.run == 'true'
+        with:
+          persist-credentials: false
+      - uses: supabase/setup-cli@v3
+        if: steps.gate.outputs.run == 'true'
+        with:
+          version: 2.117.0
+      - name: Database and storage stay under the Free limits
+        if: steps.gate.outputs.run == 'true'
+        run: |
+          set -euo pipefail
+          # Diagnostics may contain URLs or SQL; keep them out of public logs (see db-backup.sh).
+          log="$(mktemp)"
+          fail() { echo "::error::$TARGET free-limit check failed: $1"; exit 1; }
+          SUPABASE_DB_PASSWORD="$PGPASSWORD" supabase link --project-ref "$PROJECT_REF" >"$log" 2>&1 || fail 'supabase link (diagnostics withheld)'
+          trap 'rm -f -- "$log" supabase/.temp/pooler-url' EXIT
+          [ -s supabase/.temp/pooler-url ] || fail 'pooler URL missing'
+          url="$(cat supabase/.temp/pooler-url)"
+          echo "::add-mask::$url"
+          export PGSSLMODE=require PGCONNECT_TIMEOUT=30
+          sizes="$(psql "$url" -XAtq -F ' ' -v ON_ERROR_STOP=1 -c \n            "select pg_database_size(current_database()), coalesce(sum((metadata->>'size')::bigint),0) from storage.objects" 2>"$log")" \n            || fail 'size query (diagnostics withheld)'
+          read -r db_bytes storage_bytes <<< "$sizes"
+          [[ "$db_bytes" =~ ^[0-9]+$ && "$storage_bytes" =~ ^[0-9]+$ ]] || fail 'unexpected size query output'
+          db_pct=$(( db_bytes * 100 / DB_LIMIT_BYTES ))
+          storage_pct=$(( storage_bytes * 100 / STORAGE_LIMIT_BYTES ))
+          echo "$TARGET database: $db_bytes of $DB_LIMIT_BYTES bytes (${db_pct}%)"
+          echo "$TARGET storage:  $storage_bytes of $STORAGE_LIMIT_BYTES bytes (${storage_pct}%)"
+          over=''
+          [ "$db_pct" -lt "$ALERT_PERCENT" ] || over="database ${db_pct}%"
+          if [ "$storage_pct" -ge "$ALERT_PERCENT" ]; then over="${over:+$over, }storage ${storage_pct}%"; fi
+          if [ -n "$over" ]; then
+            echo "METRIC=$over" >> "$GITHUB_ENV"
+            fail "$over of the Free limit (alert at ${ALERT_PERCENT}%)"
+          fi
+      - name: Alert on failure (Telegram)
+        if: failure()
+        env:
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -z "$TG_TOKEN" ] || curl -fsS -m 10 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \n            -d chat_id="$TG_CHAT" --data-urlencode "text=Free-limit check FAILED for $TARGET (${METRIC:-check error}): $RUN_URL" || true
