@@ -154,6 +154,8 @@ database rows, dumps or activation codes into logs, issues or artifacts.
 | `R2_ACCOUNT_ID` | Both | R2 S3 endpoint's account ID (same account ID if using one Cloudflare account) |
 | `R2_ACCESS_KEY_ID` | Both | backups-only R2 token's Access Key ID |
 | `R2_SECRET_ACCESS_KEY` | Both | backups-only R2 token's Secret Access Key |
+| `HC_PING_BACKUP` | Repository | Healthchecks.io `prod-backup` check ping URL (secret: anyone with it can fake a success) |
+| `TELEGRAM_BOT_TOKEN` / `TELEGRAM_CHAT_ID` | Repository | `@sat_east_alerts_bot` token (BotFather) and the owner's chat id; backup failures message this chat |
 
 4. Both environments need the same backup values. `GH_TOKEN` is supplied
    automatically from `github.token` with `actions: read`; do not create a PAT for it.

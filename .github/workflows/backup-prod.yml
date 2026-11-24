@@ -54,6 +54,11 @@ jobs:
           "$RUNNER_TEMP/aws-installer/aws/install" \
             --install-dir "$RUNNER_TEMP/backup-tools/aws-cli" --bin-dir "$RUNNER_TEMP/backup-tools/bin"
           echo "$RUNNER_TEMP/backup-tools/bin" >> "$GITHUB_PATH"
+      - name: Healthchecks start
+        if: steps.gate.outputs.run == 'true'
+        env:
+          HC_PING: ${{ secrets.HC_PING_BACKUP }}
+        run: '[ -z "$HC_PING" ] || curl -fsS -m 10 --retry 3 "$HC_PING/start" || true'
       - name: Encrypt and upload database backup
         if: steps.gate.outputs.run == 'true'
         env:
@@ -66,3 +71,19 @@ jobs:
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
           BACKUP_BUCKET: ${{ vars.BACKUP_BUCKET }}
         run: bash scripts/db-backup.sh
+      - name: Healthchecks success
+        if: steps.gate.outputs.run == 'true'
+        env:
+          HC_PING: ${{ secrets.HC_PING_BACKUP }}
+        run: '[ -z "$HC_PING" ] || curl -fsS -m 10 --retry 3 "$HC_PING" || true'
+      - name: Alert on failure (Healthchecks + Telegram)
+        if: failure()
+        env:
+          HC_PING: ${{ secrets.HC_PING_BACKUP }}
+          TG_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          [ -z "$HC_PING" ] || curl -fsS -m 10 --retry 3 "$HC_PING/fail" || true
+          [ -z "$TG_TOKEN" ] || curl -fsS -m 10 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+            -d chat_id="$TG_CHAT" --data-urlencode "text=Prod backup FAILED: $RUN_URL" || true
