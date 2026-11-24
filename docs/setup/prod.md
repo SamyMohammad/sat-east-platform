@@ -225,6 +225,16 @@ database rows, dumps or activation codes into logs, issues or artifacts.
 
 ## 7. Run one restore drill before inviting students
 
+**Scripted drill:** `scripts/restore-drill.ps1` automates steps 2-7 below on a trusted
+Windows machine with Docker and gpg: `scripts/restore-drill.ps1 -DumpFile .estore.dump.gpg`
+(or `-R2Object prod/<object>.dump.gpg` with the R2 env vars and `aws`). It decrypts,
+restores into a throwaway `postgres:17` container, prints core row counts, fails on
+empty `questions`/`question_keys` or unexpected restore errors, and always removes
+the container and decrypted files. Supabase-only extensions (`pg_cron`, `supabase_vault`)
+fail on vanilla Postgres by design and are ignored. `-SelfTest` rehearses the whole
+path against the local Supabase DB with a throwaway passphrase. The manual steps
+below remain the reference, and RLS checks as student/teacher stay manual.
+
 1. Ask the developer to start a disposable **local Supabase Postgres 17** instance,
    or a dedicated scratch Supabase project (subject to the Free project limit).
    It needs Supabase roles/extensions and managed schemas; an empty vanilla
@@ -280,3 +290,11 @@ not Storage object bytes, R2 videos, Edge Function secrets, project/Auth setting
 or external configuration. Preserve original videos/PDFs separately and keep
 secrets in the password manager. Before paid/public launch, revisit Pro + PITR,
 SMTP, backup monitoring, media recovery and a fully rehearsed production restore.
+
+## 8. Free-tier limits
+
+`ops-weekly.yml` (job `free-limits`) measures database size and Storage bytes for
+staging and, once `PROD_PROJECT_REF` is set, prod. It fails and alerts on Telegram above
+70% of the Free limits (500 MB database, 1 GB Storage). Upgrade to Pro when any metric
+passes 80% or the cohort passes 300 students. Egress (5 GB) cannot be queried, so watch
+the Supabase usage emails.
