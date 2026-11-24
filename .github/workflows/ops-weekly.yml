@@ -31,7 +31,8 @@ jobs:
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          [ -z "$TG_TOKEN" ] || curl -fsS -m 10 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \n            -d chat_id="$TG_CHAT" --data-urlencode "text=Ops weekly check FAILED (SUPABASE_ACCESS_TOKEN expiry): $RUN_URL" || true
+          [ -z "$TG_TOKEN" ] || curl -fsS -m 10 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+            -d chat_id="$TG_CHAT" --data-urlencode "text=Ops weekly check FAILED (SUPABASE_ACCESS_TOKEN expiry): $RUN_URL" || true
   free-limits:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -81,7 +82,9 @@ jobs:
           url="$(cat supabase/.temp/pooler-url)"
           echo "::add-mask::$url"
           export PGSSLMODE=require PGCONNECT_TIMEOUT=30
-          sizes="$(psql "$url" -XAtq -F ' ' -v ON_ERROR_STOP=1 -c \n            "select pg_database_size(current_database()), coalesce(sum((metadata->>'size')::bigint),0) from storage.objects" 2>"$log")" \n            || fail 'size query (diagnostics withheld)'
+          sizes="$(psql "$url" -XAtq -F ' ' -v ON_ERROR_STOP=1 -c \
+            "select pg_database_size(current_database()), coalesce(sum((metadata->>'size')::bigint),0) from storage.objects" 2>"$log")" \
+            || fail 'size query (diagnostics withheld)'
           read -r db_bytes storage_bytes <<< "$sizes"
           [[ "$db_bytes" =~ ^[0-9]+$ && "$storage_bytes" =~ ^[0-9]+$ ]] || fail 'unexpected size query output'
           db_pct=$(( db_bytes * 100 / DB_LIMIT_BYTES ))
@@ -102,4 +105,5 @@ jobs:
           TG_CHAT: ${{ secrets.TELEGRAM_CHAT_ID }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          [ -z "$TG_TOKEN" ] || curl -fsS -m 10 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \n            -d chat_id="$TG_CHAT" --data-urlencode "text=Free-limit check FAILED for $TARGET (${METRIC:-check error}): $RUN_URL" || true
+          [ -z "$TG_TOKEN" ] || curl -fsS -m 10 "https://api.telegram.org/bot$TG_TOKEN/sendMessage" \
+            -d chat_id="$TG_CHAT" --data-urlencode "text=Free-limit check FAILED for $TARGET (${METRIC:-check error}): $RUN_URL" || true
