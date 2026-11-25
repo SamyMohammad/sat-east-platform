@@ -3,6 +3,7 @@
   "SUPABASE_URL": "https://<project-ref>.supabase.co",
   "SUPABASE_PUBLISHABLE_KEY": "<publishable key from supabase status / dashboard>",
   "ENABLE_PURCHASE": false,
+  "LANDING_URL": "https://menshawy-landing.tech11.workers.dev",
   "SENTRY_DSN": "",
   "POSTHOG_KEY": "",
   "POSTHOG_HOST": "https://eu.i.posthog.com"

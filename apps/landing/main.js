@@ -3,6 +3,15 @@
 // index.html hrefs, which keep links working without JS.
 const APP_ORIGIN = 'https://sat-staging.pages.dev';
 
+// Contact address for privacy and terms requests. Placeholder: replace before
+// go-live (docs/setup/prod.md). This is the only place the address is written.
+const CONTACT_EMAIL = 'privacy@example.com';
+
+for (const link of document.querySelectorAll('[data-contact]')) {
+  link.href = 'mailto:' + CONTACT_EMAIL;
+  link.textContent = CONTACT_EMAIL;
+}
+
 for (const link of document.querySelectorAll('[data-app]')) {
   link.href = APP_ORIGIN + link.dataset.app;
 }

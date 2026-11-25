@@ -14,6 +14,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:sat_east_client/features/auth/presentation/widgets/legal_agreement_line.dart';
 import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -143,12 +144,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
           builder: (context, _) =>
               _PasswordRules(FormRules.passwordRules(_password.text)),
         ),
-        Text(
-          'By creating an account you agree to the Terms and Privacy policy.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
+        const LegalAgreementLine(),
       ],
     );
   }

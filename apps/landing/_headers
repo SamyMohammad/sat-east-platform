@@ -1,6 +1,7 @@
 # Cloudflare Pages / Workers assets read this file from the deployed root (wrangler.jsonc assets.directory is ".").
 # Overlapping rules ADD headers; Cache-Control is only set by the non-overlapping blocks below.
 
+# The `/*` block below covers privacy.html and terms.html too (same rules: no inline code, same-origin main.js only).
 # REPORT-ONLY. index.html has no inline <script>/<style>/style="" and loads only same-origin
 # vendor/gsap/*.js, main.js, styles.css, fonts/*.woff2 and assets/*; the single data: URI is a CSS background.
 # Links to the app (sat-staging.pages.dev) are navigations, not governed by CSP.
@@ -16,6 +17,14 @@
 /
   Cache-Control: no-cache
 /index.html
+  Cache-Control: no-cache
+/privacy
+  Cache-Control: no-cache
+/privacy.html
+  Cache-Control: no-cache
+/terms
+  Cache-Control: no-cache
+/terms.html
   Cache-Control: no-cache
 /main.js
   Cache-Control: no-cache
