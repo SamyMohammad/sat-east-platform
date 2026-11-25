@@ -39,10 +39,10 @@ insert into public.device_changes (user_id, changed_at) values
 select tests.authenticate_as('student_a');
 select throws_ok($$ update public.profiles set full_name = 'Renamed' where id = auth.uid() $$,
                  '42501', null, 'AUTH-04: student cannot update own full_name');
-select lives_ok($$ update public.profiles set phone = '+201000000030' where id = auth.uid() $$,
-                'AUTH-04: student can still update own phone');
-select is((select phone from public.profiles where id = auth.uid()), '+201000000030',
-          'AUTH-04: own phone update persists');
+select throws_ok($$ update public.profiles set phone = '+201000000030' where id = auth.uid() $$,
+                 '42501', null, 'AUTH-04/P3: student cannot update own phone directly (no UPDATE grant)');
+select is((select phone from public.profiles where id = auth.uid()), null,
+          'AUTH-04/P3: own phone is unchanged after the denied update');
 
 select set_config('test.account_devices', public.list_my_devices('device-account-a-laptop')::text, true);
 select is((select array_agg(d ->> 'id' order by ordinal)

@@ -256,9 +256,10 @@ audit_log(id bigserial, actor uuid, action text, entity text, entity_id uuid,
 
 Teacher: **all** on every table (one `for all … is_teacher()` policy), except `audit_log` (select
 only; rows are written by `security definer` functions). Grants: `anon` gets select on the catalogue tables
-only. `authenticated` gets DML on every table, because the teacher is an `authenticated` user; RLS
-is the student gate. Column grants narrow `profiles` (update), `notifications` (update),
-`orders` (select) and `topic_assets` (select), and `audit_log` is select-only. These column limits apply to the teacher too:
+only. `authenticated` and `anon` are **read-only** on `public` (P3.4, 2026-11-25): RLS gates reads, and every write
+goes through a `security definer` RPC or an Edge Function (`service_role`). New tables get no write grant by default;
+the write policies below stay as defense in depth. Column grants narrow `orders` (select) and `topic_assets` (select),
+and `audit_log` is select-only. These column limits apply to the teacher too:
 `orders.raw_payload`, `topic_assets` paths and `profiles.role` are read or changed only from the
 dashboard or an Edge Function. Agreed in row 3 (docs/15 §1, 2026-10-07).
 
@@ -304,7 +305,7 @@ Notes Storage additionally checks that an existing enrolment is active; its free
 preview branch applies only when no enrolment row exists.
 
 Traps closed by row 3 (from the row 2b review), each with a pgTAP test:
-- `profiles.role` cannot be self-updated (column-level `update` grant).
+- `profiles.role` cannot be self-updated (no `update` grant on `profiles` at all since P3.4).
 - `attempt_answers` is unreadable while the attempt is `in_progress`.
 - `orders.raw_payload` is not granted; `mock_forms` has no student access.
 - Every `user_id` / `thread_id` FK used by a "select own" policy has an index.

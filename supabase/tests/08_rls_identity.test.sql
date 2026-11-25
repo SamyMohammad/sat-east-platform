@@ -15,19 +15,19 @@ insert into public.notifications (user_id, kind) values
 
 select tests.authenticate_as('student_a');
 select is((select count(*)::int from public.profiles), 1, 'NFR-08: student sees only own profile');
-select lives_ok($$ update public.profiles set phone = '0100' where id = auth.uid() $$,
-                'NFR-08: student updates own phone (full_name is locked, AUTH-04)');
+select throws_ok($$ update public.profiles set phone = '0100' where id = auth.uid() $$, '42501', null,
+                 'NFR-08/P3: student cannot update own profile directly (no UPDATE grant)');
 select throws_ok($$ update public.profiles set role = 'teacher' where id = auth.uid() $$, '42501', null,
                  'NFR-08: student cannot change own role');
-select is_empty($$ update public.profiles set phone = 'x' where id <> auth.uid() returning id $$,
-                'NFR-08: student cannot update another profile');
+select throws_ok($$ update public.profiles set phone = 'x' where id <> auth.uid() returning id $$, '42501', null,
+                 'NFR-08/P3: student cannot update another profile');
 select is((select count(*)::int from public.devices), 1, 'NFR-08: student sees only own devices');
-select lives_ok($$ update public.notifications set read_at = now() where user_id = auth.uid() $$,
-                'NFR-08: student marks own notification read');
+select throws_ok($$ update public.notifications set read_at = now() where user_id = auth.uid() $$, '42501', null,
+                 'NFR-08/P3: student cannot mark a notification read directly (no UPDATE grant)');
 select throws_ok($$ update public.notifications set kind = 'x' $$, '42501', null,
-                 'NFR-08: student can only update read_at');
-select lives_ok($$ insert into public.push_tokens (user_id, token, platform) values (auth.uid(), 't-a', 'web') $$,
-                'NFR-08: student registers own push token');
+                 'NFR-08/P3: student cannot update notification columns');
+select throws_ok($$ insert into public.push_tokens (user_id, token, platform) values (auth.uid(), 't-a', 'web') $$, '42501', null,
+                 'NFR-08/P3: student cannot insert own push token directly (no INSERT grant)');
 select throws_ok(format($$ insert into public.push_tokens (user_id, token, platform) values (%L, 't-b', 'web') $$,
                         tests.get_supabase_uid('student_b')), '42501', null,
                  'NFR-08: student cannot register a token for someone else');
