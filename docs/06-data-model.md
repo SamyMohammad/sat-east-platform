@@ -10,6 +10,10 @@ Rules the first migration applies where the sketches below leave them open (F-2,
   because content is retired via `status`, not deleted. Authorship references (`owner_id`,
   `created_by`, `redeemed_by`, `unlocked_by`, `actor`) are `on delete set null`. `orders.user_id`
   is `restrict`: an account with payment records is never hard-deleted.
+  **Student deletion (P3.7, NFR-12):** `admin_delete_student` (teacher only) deletes the `auth.users` row; the
+  cascade removes the profile and every own-data table, `activation_codes.redeemed_by` becomes null (the
+  code stays used), and one `audit_log` row (`student_deleted`, counts only, no name/email/phone) remains.
+  It refuses students with orders (`student_has_orders`).
   `attempt_answers (attempt_id, question_id)` references `attempt_questions`, so only questions
   in the frozen draw can be answered.
 - **Not null:** FKs, enums, `created_at` and every column the sketch marks `not null` or uses as a

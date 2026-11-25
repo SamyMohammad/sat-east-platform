@@ -7,6 +7,7 @@ import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/teacher/settings/data/models/setting_spec_model.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/cubit/delete_student_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
@@ -25,18 +26,23 @@ Future<FakeTeacherSettingsRepository> pumpSettings(
   addTearDown(tester.view.reset);
   final repo = repository ?? FakeTeacherSettingsRepository();
   final cubit = TeacherSettingsCubit(repo, now: () => savedTime);
+  final deleteCubit = DeleteStudentCubit(repo);
   addTearDown(() async {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.pumpAndSettle();
     await cubit.close();
+    await deleteCubit.close();
   });
   await cubit.load();
   await tester.pumpWidget(
     MaterialApp(
       theme: AppTheme.light(),
       home: TeacherShell(
-        child: BlocProvider.value(
-          value: cubit,
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider.value(value: cubit),
+            BlocProvider.value(value: deleteCubit),
+          ],
           child: const TeacherSettingsView(),
         ),
       ),

@@ -8,9 +8,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/theme/app_tokens.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/entities/setting_spec.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/cubit/delete_student_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_state.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/teacher_settings_copy.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/widgets/delete_student_card.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/widgets/settings_group_card.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/widgets/settings_save_bar.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
@@ -21,12 +23,19 @@ import 'package:sat_east_client/shared/widgets/error_retry.dart';
 class TeacherSettingsScreen extends StatelessWidget {
   const TeacherSettingsScreen({super.key});
   @override
-  Widget build(BuildContext context) => BlocProvider<TeacherSettingsCubit>(
-    create: (_) {
-      final cubit = getIt<TeacherSettingsCubit>();
-      unawaited(cubit.load());
-      return cubit;
-    },
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: [
+      BlocProvider<TeacherSettingsCubit>(
+        create: (_) {
+          final cubit = getIt<TeacherSettingsCubit>();
+          unawaited(cubit.load());
+          return cubit;
+        },
+      ),
+      BlocProvider<DeleteStudentCubit>(
+        create: (_) => getIt<DeleteStudentCubit>(),
+      ),
+    ],
     child: const TeacherSettingsView(),
   );
 }
@@ -54,9 +63,7 @@ class TeacherSettingsView extends StatelessWidget {
                 next is TeacherSettingsLoaded &&
                 listEquals(previous.specs, next.specs)),
         builder: (context, state) => switch (state) {
-          TeacherSettingsLoading() => const Center(
-            child: AppSkeleton(),
-          ),
+          TeacherSettingsLoading() => const Center(child: AppSkeleton()),
           TeacherSettingsFailed(:final error) => ErrorRetry(
             title: teacherSettingsError(error.code),
             message: '',
@@ -105,6 +112,7 @@ class _SettingsBody extends StatelessWidget {
                       group: group,
                       specs: specs.where((s) => s.group == group).toList(),
                     ),
+                  const DeleteStudentCard(),
                 ],
               ),
             ),

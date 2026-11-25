@@ -4,4 +4,7 @@ import 'package:sat_east_client/features/teacher/settings/domain/entities/settin
 abstract interface class TeacherSettingsRepository {
   Future<Result<List<SettingSpec>>> load();
   Future<Result<void>> save(Map<String, int> changed);
+
+  /// Hard-deletes the student with [email] (teacher only, irreversible).
+  Future<Result<void>> deleteStudent(String email);
 }

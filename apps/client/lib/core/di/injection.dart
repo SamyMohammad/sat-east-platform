@@ -112,6 +112,7 @@ import 'package:sat_east_client/features/teacher/review/presentation/cubit/revie
 import 'package:sat_east_client/features/teacher/settings/data/datasources/teacher_settings_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/settings/data/repositories/teacher_settings_repository_impl.dart';
 import 'package:sat_east_client/features/teacher/settings/domain/repositories/teacher_settings_repository.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/cubit/delete_student_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/videos/data/datasources/teacher_videos_remote_data_source.dart';
 import 'package:sat_east_client/features/teacher/videos/data/datasources/video_upload_remote_data_source.dart';
@@ -398,6 +399,9 @@ void configureDependencies({
     )
     ..registerFactory<TeacherSettingsCubit>(
       () => TeacherSettingsCubit(getIt<TeacherSettingsRepository>()),
+    )
+    ..registerFactory<DeleteStudentCubit>(
+      () => DeleteStudentCubit(getIt<TeacherSettingsRepository>()),
     )
     ..registerLazySingleton<FilePickerService>(createFilePicker)
     ..registerLazySingleton<QuestionImportRemoteDataSource>(
