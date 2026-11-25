@@ -153,6 +153,7 @@ grant  execute on function public.example_rpc(uuid) to authenticated;
 6. فيه `grant execute ... to authenticated` بس (مش `anon`)؟
 7. فيه رقم ثابت (pass mark، cooldown...)؟ لازم يتقري من `settings`.
 8. فيه pgTAP test جديد، و`supabase test db` نجح؟
+9. No table write grant (`insert`/`update`/`delete`) to `authenticated`/`anon`; writes go through an RPC (P3.4).
 
 > Canonical English checklist (9 items, incl. table grants): `supabase/templates/README.md`.
 

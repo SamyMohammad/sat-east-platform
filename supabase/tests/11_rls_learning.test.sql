@@ -58,9 +58,9 @@ select throws_ok($$ insert into public.ai_messages (thread_id, role, content)
 select throws_ok($$ insert into public.attempts (user_id, kind, course_id)
                     values (auth.uid(), 'quiz', '00000000-0000-0000-0000-0000000000c1') $$, '42501', null,
                  'NFR-08: student cannot create attempts directly (RPC only)');
-select lives_ok($$ insert into public.official_scores (user_id, course_id, score, taken_on)
-                   values (auth.uid(), '00000000-0000-0000-0000-0000000000c1', 650, current_date) $$,
-                'NFR-08: student records own official score');
+select throws_ok($$ insert into public.official_scores (user_id, course_id, score, taken_on)
+                    values (auth.uid(), '00000000-0000-0000-0000-0000000000c1', 650, current_date) $$, '42501', null,
+                 'NFR-08/P3: student cannot record own official score directly (no INSERT grant)');
 select throws_ok(format($$ insert into public.official_scores (user_id, course_id, score, taken_on)
                            values (%L, '00000000-0000-0000-0000-0000000000c1', 800, current_date) $$,
                         tests.get_supabase_uid('student_b')), '42501', null,
@@ -73,9 +73,9 @@ select throws_ok($$ insert into public.devices (user_id, device_fingerprint) val
 select throws_ok($$ insert into public.topic_progress (user_id, topic_id, quiz_passed_at)
                     values (auth.uid(), '00000000-0000-0000-0000-0000000000d1', now()) $$, '42501', null,
                  'NFR-08: student cannot write own progress (unlocks are server-side)');
-select is_empty($$ update public.attempts set status = 'submitted'
-                   where id = '00000000-0000-0000-0000-0000000000a1' returning id $$,
-                'NFR-07: student cannot submit an attempt directly (would expose answers)');
+select throws_ok($$ update public.attempts set status = 'submitted'
+                    where id = '00000000-0000-0000-0000-0000000000a1' returning id $$, '42501', null,
+                 'NFR-07/P3: student cannot submit an attempt directly (would expose answers)');
 -- C-6: reports go through report_question only (rate limit, access, one open per question).
 select throws_ok($$ insert into public.question_reports (question_id, user_id, reason)
                    values ('00000000-0000-0000-0000-0000000000f1', auth.uid(), 'typo') $$,
