@@ -24,8 +24,10 @@ class AuthRepositoryImpl implements AuthRepository {
   Stream<void> get passwordRecovery => _remote.passwordRecovery;
 
   @override
-  Future<Result<void>> requestPasswordReset(String email) =>
-      _remote.requestPasswordReset(email);
+  Future<Result<void>> requestPasswordReset(
+    String email, {
+    String? captchaToken,
+  }) => _remote.requestPasswordReset(email, captchaToken: captchaToken);
 
   @override
   Future<Result<void>> updatePassword(String password) =>
@@ -42,14 +44,25 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<Result<AppUser>> signIn({
     required String email,
     required String password,
-  }) => _remote.signIn(email: email, password: password);
+    String? captchaToken,
+  }) => _remote.signIn(
+    email: email,
+    password: password,
+    captchaToken: captchaToken,
+  );
 
   @override
   Future<Result<SignUpOutcome>> signUp({
     required String email,
     required String password,
     required String fullName,
-  }) => _remote.signUp(email: email, password: password, fullName: fullName);
+    String? captchaToken,
+  }) => _remote.signUp(
+    email: email,
+    password: password,
+    fullName: fullName,
+    captchaToken: captchaToken,
+  );
 
   @override
   Future<Result<void>> signOut() => _remote.signOut();

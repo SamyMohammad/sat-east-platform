@@ -27,6 +27,12 @@ abstract final class Env {
     defaultValue: 'https://eu.i.posthog.com',
   );
 
+  /// Cloudflare Turnstile site key (public by design). Empty → captcha off:
+  /// no widget, no token, auth flows unchanged.
+  static const String turnstileSiteKey = String.fromEnvironment(
+    'TURNSTILE_SITE_KEY',
+  );
+
   /// Public base URL of the landing site, which serves the Terms and Privacy
   /// pages. Public value, safe to ship in the client (ADR-008).
   static const String landingUrl = String.fromEnvironment(

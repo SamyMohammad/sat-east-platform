@@ -37,6 +37,9 @@ abstract final class ErrorCodes {
   static const emailNotConfirmed = 'email_not_confirmed';
   static const emailTaken = 'email_taken';
   static const weakPassword = 'weak_password';
+
+  /// GoTrue rejected the Turnstile token (missing, expired or invalid).
+  static const captchaFailed = 'captcha_failed';
   static const linkExpired = 'link_expired';
   static const network = 'network';
   static const unsupported = 'unsupported';

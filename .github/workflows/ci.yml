@@ -236,9 +236,12 @@ jobs:
       # Web build = purchase surface (ADR-006), so ENABLE_PURCHASE is true.
       - name: Build web (staging)
         working-directory: apps/client
+        env:
+          # Public Turnstile site key; empty = captcha off (docs/setup/auth.md).
+          TURNSTILE_SITE_KEY: ${{ vars.STAGING_TURNSTILE_SITE_KEY }}
         run: |
-          jq -n --arg url "$SUPABASE_URL" --arg key "$PUBLISHABLE_KEY" \
-            '{FLAVOR:"staging",SUPABASE_URL:$url,SUPABASE_PUBLISHABLE_KEY:$key,ENABLE_PURCHASE:true}' > env/staging.json
+          jq -n --arg url "$SUPABASE_URL" --arg key "$PUBLISHABLE_KEY" --arg turnstile "$TURNSTILE_SITE_KEY" \
+            '{FLAVOR:"staging",SUPABASE_URL:$url,SUPABASE_PUBLISHABLE_KEY:$key,ENABLE_PURCHASE:true,TURNSTILE_SITE_KEY:$turnstile}' > env/staging.json
           flutter pub get
           flutter build web --release --dart-define-from-file=env/staging.json
           bash ../../scripts/secret-grep.sh build/web

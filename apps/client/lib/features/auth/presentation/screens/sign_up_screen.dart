@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sat_east_client/core/captcha/captcha.dart';
+import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_icons.dart';
@@ -14,6 +16,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:sat_east_client/features/auth/presentation/widgets/captcha_slot.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/legal_agreement_line.dart';
 import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -31,7 +34,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final _password = TextEditingController();
   final _emailFocus = FocusNode();
   final _passwordFocus = FocusNode();
-  late final Listenable _form = Listenable.merge([_name, _email, _password]);
+  final _captcha = CaptchaController();
+  final Captcha _provider = getIt<Captcha>();
+  late final Listenable _form = Listenable.merge([
+    _name,
+    _email,
+    _password,
+    _captcha,
+  ]);
 
   @override
   void initState() {
@@ -49,20 +59,31 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _password.dispose();
     _emailFocus.dispose();
     _passwordFocus.dispose();
+    _captcha.dispose();
     super.dispose();
   }
 
   bool get _valid =>
       _name.text.trim().isNotEmpty &&
       FormRules.looksLikeEmail(_email.text) &&
-      FormRules.passwordRules(_password.text).allMet;
+      FormRules.passwordRules(_password.text).allMet &&
+      (!_provider.enabled || _captcha.hasToken);
 
   void _submit() {
     final cubit = context.read<AuthCubit>();
     if (!_valid || cubit.state is AuthBusy) return;
-    unawaited(
-      cubit.signUp(_email.text.trim(), _password.text, _name.text.trim()),
+    unawaited(_signUp(cubit));
+  }
+
+  Future<void> _signUp(AuthCubit cubit) async {
+    await cubit.signUp(
+      _email.text.trim(),
+      _password.text,
+      _name.text.trim(),
+      captchaToken: _captcha.token,
     );
+    // Tokens are single-use, whatever the outcome.
+    if (mounted) _captcha.reset();
   }
 
   @override
@@ -136,7 +157,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             textInputAction: TextInputAction.done,
             autofillHints: const [AutofillHints.newPassword],
             onSubmitted: (_) => _submit(),
-            error: weak ? const Text('Choose a stronger password.') : null,
+            error: weak ? Text(authErrorCopy(ErrorCodes.weakPassword)) : null,
           ),
         ),
         ListenableBuilder(
@@ -144,6 +165,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
           builder: (context, _) =>
               _PasswordRules(FormRules.passwordRules(_password.text)),
         ),
+        if (_provider.enabled)
+          CaptchaSlot(captcha: _provider, controller: _captcha),
         const LegalAgreementLine(),
       ],
     );

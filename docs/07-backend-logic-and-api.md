@@ -313,5 +313,5 @@ log everything for teacher review.
 Its authentication, input-validation and rate-limit errors are raised with the code as the message.
 
 Client-only codes (GoTrue / transport; never returned by an RPC or Edge Function):
-`invalid_credentials`, `email_not_confirmed`, `email_taken`, `weak_password`, `network`. `rate_limited` is reused for GoTrue rate limits.
+`invalid_credentials`, `email_not_confirmed`, `email_taken`, `weak_password`, `captcha_failed` (GoTrue rejected the Turnstile token), `network`. `rate_limited` is reused for GoTrue rate limits.
 Video upload (browser transcode, VID-01): `video_too_large`, `video_too_long` (source over settings.video_upload_max_source_mb / video_upload_max_duration_s), `video_transcode_failed`, `video_engine_load_failed` (ffmpeg core could not be fetched from the CDN or failed its pinned SHA-256 check), `video_upload_failed`, `video_cleanup_failed` (reservation could not be deleted after a failed upload).

@@ -2,9 +2,12 @@
 # Overlapping rules ADD headers; Cache-Control is only set by the non-overlapping blocks below.
 
 # The `/*` block below covers privacy.html and terms.html too (same rules: no inline code, same-origin main.js only).
-# REPORT-ONLY. index.html has no inline <script>/<style>/style="" and loads only same-origin
+# ENFORCED (P3b). index.html has no inline <script>/<style>/style="" and loads only same-origin
 # vendor/gsap/*.js, main.js, styles.css, fonts/*.woff2 and assets/*; the single data: URI is a CSS background.
 # Links to the app (sat-staging.pages.dev) are navigations, not governed by CSP.
+# Vendored GSAP only touches styles through the CSSOM (allowed); its two setAttribute("style") calls are
+# feature-detection on throwaway elements. To allow a new origin later: edit the CSP line, deploy, check the
+# browser console for "Refused to ..." errors on all three pages.
 /*
   Strict-Transport-Security: max-age=31536000
   X-Content-Type-Options: nosniff
@@ -12,7 +15,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
   X-Frame-Options: DENY
   Cross-Origin-Opener-Policy: same-origin
-  Content-Security-Policy-Report-Only: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'
 
 /
   Cache-Control: no-cache

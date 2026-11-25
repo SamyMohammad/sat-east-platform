@@ -88,18 +88,22 @@ class AuthCubit extends Cubit<AuthState> {
     });
   }
 
-  Future<void> requestPasswordReset(String email) => _guarded((gen) async {
-    emit(const AuthBusy());
-    final result = await _auth.requestPasswordReset(email);
-    if (_stale(gen)) return;
-    switch (result) {
-      case Success():
-        _expiredRecovery = false;
-        emit(AuthResetLinkSent(email));
-      case Failure(:final error):
-        emit(AuthSignedOut(error: error));
-    }
-  });
+  Future<void> requestPasswordReset(String email, {String? captchaToken}) =>
+      _guarded((gen) async {
+        emit(const AuthBusy());
+        final result = await _auth.requestPasswordReset(
+          email,
+          captchaToken: captchaToken,
+        );
+        if (_stale(gen)) return;
+        switch (result) {
+          case Success():
+            _expiredRecovery = false;
+            emit(AuthResetLinkSent(email));
+          case Failure(:final error):
+            emit(AuthSignedOut(error: error));
+        }
+      });
 
   Future<void> setNewPassword(String password) async {
     if (state is! AuthRecovery) return;
@@ -150,36 +154,46 @@ class AuthCubit extends Cubit<AuthState> {
     }
   }
 
-  Future<void> signIn(String email, String password) => _guarded((gen) async {
-    emit(const AuthBusy());
-    final result = await _auth.signIn(email: email, password: password);
-    if (_stale(gen)) return;
-    switch (result) {
-      case Success(:final value):
-        await _register(value, gen);
-      case Failure(:final error):
-        emit(AuthSignedOut(error: error));
-    }
-  });
-
-  Future<void> signUp(String email, String password, String fullName) =>
+  Future<void> signIn(String email, String password, {String? captchaToken}) =>
       _guarded((gen) async {
         emit(const AuthBusy());
-        final result = await _auth.signUp(
+        final result = await _auth.signIn(
           email: email,
           password: password,
-          fullName: fullName,
+          captchaToken: captchaToken,
         );
         if (_stale(gen)) return;
         switch (result) {
-          case Success(value: SignUpOutcome.confirmationSent):
-            emit(AuthConfirmationSent(email));
-          case Success(value: SignUpOutcome.signedIn):
-            await _register(await _auth.getCurrentUser(), gen);
+          case Success(:final value):
+            await _register(value, gen);
           case Failure(:final error):
             emit(AuthSignedOut(error: error));
         }
       });
+
+  Future<void> signUp(
+    String email,
+    String password,
+    String fullName, {
+    String? captchaToken,
+  }) => _guarded((gen) async {
+    emit(const AuthBusy());
+    final result = await _auth.signUp(
+      email: email,
+      password: password,
+      fullName: fullName,
+      captchaToken: captchaToken,
+    );
+    if (_stale(gen)) return;
+    switch (result) {
+      case Success(value: SignUpOutcome.confirmationSent):
+        emit(AuthConfirmationSent(email));
+      case Success(value: SignUpOutcome.signedIn):
+        await _register(await _auth.getCurrentUser(), gen);
+      case Failure(:final error):
+        emit(AuthSignedOut(error: error));
+    }
+  });
 
   Future<void> removeDevice(String deviceId) async {
     final gate = state;

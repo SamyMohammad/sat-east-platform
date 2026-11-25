@@ -11,14 +11,34 @@ Supabase dashboard → Authentication → URL Configuration:
   `https://sat-staging.pages.dev/?flow=recovery`. Native reset deep links are
   deferred until the store builds.
 
+### Password policy
+Hosted projects must match `supabase/config.toml`: minimum length **8** and required characters
+**letters and digits** (`password_requirements = "letters_digits"`). Dashboard → Authentication →
+Sign In / Providers → Email (or Attack Protection / password settings). The client mirrors the rule
+for UX only; GoTrue re-validates and answers `weak_password`.
+
+### Captcha (Cloudflare Turnstile)
+Sign-up, sign-in and password-reset requests carry a Turnstile token (web build only).
+1. Cloudflare dashboard → Turnstile → add a widget. Hostnames: `sat-staging.pages.dev` and the prod
+   web hostname. Managed mode.
+2. Supabase dashboard → Authentication → Attack Protection → enable CAPTCHA, provider
+   **Turnstile**, paste the **secret key** there (never in the repo or in `env/*.json`).
+3. Put the **site key** (public) in the client build as `TURNSTILE_SITE_KEY` in `env/<flavor>.json`.
+   Empty means captcha off: no widget and no token. Turn the Supabase CAPTCHA setting on only
+   together with a client build that has the key, otherwise sign-in is rejected with
+   `captcha_failed`.
+4. The CSP in `apps/client/web/_headers` already allows `https://challenges.cloudflare.com`.
+   Local Supabase keeps captcha off (`[auth.captcha]` stays commented in `config.toml`).
+
 The default Site URL is `http://localhost:3000`. If it is left as is, the confirmation link still
 confirms the email, but it then redirects to localhost and shows "This site can't be reached".
 
 ## 1. Email sender (SMTP), needed before beta
 Supabase's built-in mailer is rate-limited and meant only for testing.
-1. Create a sender account, e.g. Resend (docs/05 lists it for receipts). Verify the sending domain.
-2. Supabase dashboard → Project settings → Authentication → SMTP: fill in host, port, user and
-   password. The password goes only here, never in the repo.
+1. Use Brevo SMTP (host `smtp-relay.brevo.com`, port `587`). Verify the sending domain.
+2. Supabase dashboard → Project settings → Authentication → SMTP: fill in host, port, login and
+   key. The login and key live in the GitHub secrets `BREVO_SMTP_LOGIN` / `BREVO_SMTP_KEY` and are
+   set on prod at go-live; they never go in the repo.
 3. Authentication → Providers → Email: turn **Confirm email** on (staging and prod). Local dev
    keeps `enable_confirmations = false` in `supabase/config.toml`.
 4. Edit the confirmation and reset-password templates to read in English (UI copy rule 8).

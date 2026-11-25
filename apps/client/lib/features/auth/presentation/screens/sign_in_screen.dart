@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sat_east_client/core/captcha/captcha.dart';
+import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
@@ -10,6 +12,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_footer_link.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:sat_east_client/features/auth/presentation/widgets/captcha_slot.dart';
 import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
 
@@ -24,6 +27,8 @@ class _SignInScreenState extends State<SignInScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _passwordFocus = FocusNode();
+  final _captcha = CaptchaController();
+  final Captcha _provider = getIt<Captcha>();
 
   @override
   void initState() {
@@ -39,13 +44,26 @@ class _SignInScreenState extends State<SignInScreen> {
     _email.dispose();
     _password.dispose();
     _passwordFocus.dispose();
+    _captcha.dispose();
     super.dispose();
   }
 
+  bool get _canSubmit => !_provider.enabled || _captcha.hasToken;
+
   void _submit() {
     final cubit = context.read<AuthCubit>();
-    if (cubit.state is AuthBusy) return;
-    unawaited(cubit.signIn(_email.text.trim(), _password.text));
+    if (cubit.state is AuthBusy || !_canSubmit) return;
+    unawaited(_signIn(cubit));
+  }
+
+  Future<void> _signIn(AuthCubit cubit) async {
+    await cubit.signIn(
+      _email.text.trim(),
+      _password.text,
+      captchaToken: _captcha.token,
+    );
+    // Tokens are single-use, whatever the outcome.
+    if (mounted) _captcha.reset();
   }
 
   @override
@@ -84,13 +102,18 @@ class _SignInScreenState extends State<SignInScreen> {
           autofillHints: const [AutofillHints.password],
           onSubmitted: (_) => _submit(),
         ),
+        if (_provider.enabled)
+          CaptchaSlot(captcha: _provider, controller: _captcha),
         BlocSelector<AuthCubit, AuthState, bool>(
           selector: (state) => state is AuthBusy,
-          builder: (context, busy) => LoadingButton(
-            label: 'Sign in',
-            isLoading: busy,
-            expanded: true,
-            onPressed: _submit,
+          builder: (context, busy) => ListenableBuilder(
+            listenable: _captcha,
+            builder: (context, _) => LoadingButton(
+              label: 'Sign in',
+              isLoading: busy,
+              expanded: true,
+              onPressed: _canSubmit ? _submit : null,
+            ),
           ),
         ),
         const AuthFooterLink(

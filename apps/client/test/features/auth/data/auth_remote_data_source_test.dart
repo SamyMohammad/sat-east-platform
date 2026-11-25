@@ -350,4 +350,121 @@ void main() {
       );
     });
   });
+
+  group('P3-2: captcha token', () {
+    const captchaError = AuthApiException(
+      'captcha verification process failed',
+      statusCode: '400',
+      code: 'captcha_failed',
+    );
+
+    test('P3-2: signIn passes the captcha token to GoTrue', () async {
+      when(
+        () => auth.signInWithPassword(
+          email: 'a@b.co',
+          password: 'pw',
+          captchaToken: 'tok',
+        ),
+      ).thenAnswer((_) async => AuthResponse(session: _session(_user())));
+
+      final result = await source.signIn(
+        email: 'a@b.co',
+        password: 'pw',
+        captchaToken: 'tok',
+      );
+
+      expect(result, isA<Success<AppUser>>());
+    });
+
+    test('P3-2: signUp passes the captcha token to GoTrue', () async {
+      when(
+        () => auth.signUp(
+          email: 'a@b.co',
+          password: 'pw',
+          data: {'full_name': 'Sam Ali'},
+          captchaToken: 'tok',
+        ),
+      ).thenAnswer((_) async => AuthResponse(user: _user()));
+
+      final result = await source.signUp(
+        email: 'a@b.co',
+        password: 'pw',
+        fullName: 'Sam Ali',
+        captchaToken: 'tok',
+      );
+
+      expect(
+        (result as Success<SignUpOutcome>).value,
+        SignUpOutcome.confirmationSent,
+      );
+    });
+
+    test('P3-2: signIn maps captcha_failed to captcha_failed', () async {
+      when(
+        () => auth.signInWithPassword(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          captchaToken: any(named: 'captchaToken'),
+        ),
+      ).thenThrow(captchaError);
+
+      final result = await source.signIn(
+        email: 'a@b.co',
+        password: 'pw',
+        captchaToken: 'bad',
+      );
+
+      expect((result as Failure<AppUser>).error.code, ErrorCodes.captchaFailed);
+    });
+
+    test('P3-2: signUp maps captcha_failed to captcha_failed', () async {
+      when(
+        () => auth.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          data: any(named: 'data'),
+          captchaToken: any(named: 'captchaToken'),
+        ),
+      ).thenThrow(captchaError);
+
+      final result = await source.signUp(
+        email: 'a@b.co',
+        password: 'pw',
+        fullName: 'Sam Ali',
+        captchaToken: 'bad',
+      );
+
+      expect(
+        (result as Failure<SignUpOutcome>).error.code,
+        ErrorCodes.captchaFailed,
+      );
+    });
+
+    test('P3-2: reset passes the token and maps captcha_failed', () async {
+      when(
+        () => auth.resetPasswordForEmail(
+          'a@b.co',
+          redirectTo: any(named: 'redirectTo'),
+          captchaToken: 'tok',
+        ),
+      ).thenAnswer((_) async {});
+      expect(
+        await source.requestPasswordReset('a@b.co', captchaToken: 'tok'),
+        isA<Success<void>>(),
+      );
+
+      when(
+        () => auth.resetPasswordForEmail(
+          any(),
+          redirectTo: any(named: 'redirectTo'),
+          captchaToken: any(named: 'captchaToken'),
+        ),
+      ).thenThrow(captchaError);
+      final failed = await source.requestPasswordReset(
+        'a@b.co',
+        captchaToken: 'bad',
+      );
+      expect((failed as Failure<void>).error.code, ErrorCodes.captchaFailed);
+    });
+  });
 }

@@ -67,7 +67,13 @@ void main() {
         await tester.tap(loadingButton('Sign in'));
         await tester.pump();
 
-        verify(() => cubit.signIn('a@b.co', 'Password1')).called(1);
+        verify(
+          () => cubit.signIn(
+            'a@b.co',
+            'Password1',
+            captchaToken: any(named: 'captchaToken', that: isNull),
+          ),
+        ).called(1);
       });
 
       testWidgets('P1-2: the password toggle shows and hides the text', (
@@ -196,7 +202,13 @@ void main() {
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pump();
 
-        verifyNever(() => cubit.signIn(any(), any()));
+        verifyNever(
+          () => cubit.signIn(
+            any(),
+            any(),
+            captchaToken: any(named: 'captchaToken'),
+          ),
+        );
       });
 
       testWidgets('P1-2: calls clearError once after the first frame', (

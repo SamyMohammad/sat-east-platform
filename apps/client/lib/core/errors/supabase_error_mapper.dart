@@ -14,6 +14,7 @@ AppError mapAuthException(AuthException e) {
     'email_not_confirmed' => ErrorCodes.emailNotConfirmed,
     'user_already_exists' || 'email_exists' => ErrorCodes.emailTaken,
     'weak_password' => ErrorCodes.weakPassword,
+    'captcha_failed' => ErrorCodes.captchaFailed,
     'session_not_found' ||
     'session_expired' ||
     'refresh_token_not_found' => ErrorCodes.notAuthenticated,
