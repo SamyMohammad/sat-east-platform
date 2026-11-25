@@ -22,7 +22,7 @@ Workflow: `supabase migration new <name>` → paste template → rename → writ
 4. `security definer` function? Then `set search_path = ''` and fully-qualified names (`public.x`).
 5. Function checks `auth.uid()` on its first line?
 6. `grant execute … to authenticated` only (not `anon`), after `revoke … from public, anon`?
-7. Table grants match the policies (nothing is granted by default — hardening Layer 3)? No `anon` grant unless the data is public.
+7. Table grants match the policies (nothing is granted by default — hardening Layer 3)? No `anon` grant unless the data is public. No write grant (`insert`/`update`/`delete`) to `authenticated`/`anon` — writes go through an RPC (pgTAP `55` enforces it).
 8. Any fixed number (pass mark, cooldown …)? It must be read from `settings`.
 9. New pgTAP test, and `scripts/db-test.ps1` passes?
 

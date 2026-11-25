@@ -80,7 +80,7 @@ Shared hotspots: `lib/core/di/injection.dart`, `lib/core/router/`, `pubspec.yaml
 
 | Phase 0 row | Story / Req | PR |
 |-------------|-------------|----|
-| P3.4 | Revoke blanket `authenticated`/`anon` write grants on `public` (read-only; writes via RPC/EF), pgTAP `55`; VID-01 manual staging check done (upload + playback, owner 2026-11-25) | this PR |
+| P3.4 | Revoke blanket `authenticated`/`anon` write grants on `public` (read-only; writes via RPC/EF), pgTAP `55`; VID-01 manual staging check done (upload + playback, owner 2026-11-25) | #103 |
 | P3a | Security + cache `_headers` (app, landing), CSP report-only, NFR-07 client test | #99 |
 | P1 | CI: path filters, file-sharded tests, `ci-ok` required check (PR 3m22, main 5m25); Dependabot, CODEOWNERS, SECURITY.md, secret-grep patterns, token-expiry check | #95 |
 | R4a | Persistent answer outbox for quiz and homework (hive_ce) | #84 |
