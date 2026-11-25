@@ -4,6 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sat_east_client/core/captcha/captcha.dart';
+import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/core/theme/app_theme.dart';
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart';
@@ -32,10 +34,24 @@ const List<String> _paths = [
 MockAuthCubit mockCubit(AuthState state) {
   final cubit = MockAuthCubit();
   whenListen(cubit, const Stream<AuthState>.empty(), initialState: state);
-  when(() => cubit.signIn(any(), any())).thenAnswer((_) async {});
-  when(() => cubit.signUp(any(), any(), any())).thenAnswer((_) async {});
+  when(
+    () => cubit.signIn(any(), any(), captchaToken: any(named: 'captchaToken')),
+  ).thenAnswer((_) async {});
+  when(
+    () => cubit.signUp(
+      any(),
+      any(),
+      any(),
+      captchaToken: any(named: 'captchaToken'),
+    ),
+  ).thenAnswer((_) async {});
   when(() => cubit.removeDevice(any())).thenAnswer((_) async {});
-  when(() => cubit.requestPasswordReset(any())).thenAnswer((_) async {});
+  when(
+    () => cubit.requestPasswordReset(
+      any(),
+      captchaToken: any(named: 'captchaToken'),
+    ),
+  ).thenAnswer((_) async {});
   when(() => cubit.setNewPassword(any())).thenAnswer((_) async {});
   when(cubit.signOut).thenAnswer((_) async {});
   when(cubit.checkDevice).thenAnswer((_) async {});
@@ -51,7 +67,13 @@ Future<void> pumpAuthScreen(
   required Widget screen,
   required String path,
   required Size size,
+  Captcha captcha = const NoCaptcha(),
 }) async {
+  if (getIt.isRegistered<Captcha>()) await getIt.unregister<Captcha>();
+  getIt.registerSingleton<Captcha>(captcha);
+  addTearDown(() async {
+    if (getIt.isRegistered<Captcha>()) await getIt.unregister<Captcha>();
+  });
   tester.view.physicalSize = size;
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);

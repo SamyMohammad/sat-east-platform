@@ -446,6 +446,97 @@ void main() {
     );
   });
 
+  group('P3-2: captcha token', () {
+    const captcha = AppError(ErrorCodes.captchaFailed);
+
+    test('P3-2: signIn forwards the token to the repository', () async {
+      when(
+        () => auth.signIn(
+          email: 'a@b.co',
+          password: 'pw',
+          captchaToken: 'tok',
+        ),
+      ).thenAnswer((_) async => const Success(_user));
+      final cubit = build();
+      addTearDown(cubit.close);
+
+      await cubit.signIn('a@b.co', 'pw', captchaToken: 'tok');
+
+      expect(cubit.state, const AuthSignedIn(_user));
+    });
+
+    test('P3-2: signUp forwards the token to the repository', () async {
+      when(
+        () => auth.signUp(
+          email: 'a@b.co',
+          password: 'pw',
+          fullName: 'Sam Ali',
+          captchaToken: 'tok',
+        ),
+      ).thenAnswer((_) async => const Success(SignUpOutcome.confirmationSent));
+      final cubit = build();
+      addTearDown(cubit.close);
+
+      await cubit.signUp('a@b.co', 'pw', 'Sam Ali', captchaToken: 'tok');
+
+      expect(cubit.state, const AuthConfirmationSent('a@b.co'));
+    });
+
+    test('P3-2: reset forwards the token to the repository', () async {
+      when(
+        () => auth.requestPasswordReset('a@b.co', captchaToken: 'tok'),
+      ).thenAnswer((_) async => const Success<void>(null));
+      final cubit = build();
+      addTearDown(cubit.close);
+
+      await cubit.requestPasswordReset('a@b.co', captchaToken: 'tok');
+
+      expect(cubit.state, const AuthResetLinkSent('a@b.co'));
+    });
+
+    blocTest<AuthCubit, AuthState>(
+      'P3-2: signIn exposes captcha_failed',
+      setUp: () => when(
+        () => auth.signIn(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          captchaToken: any(named: 'captchaToken'),
+        ),
+      ).thenAnswer((_) async => const Failure<AppUser>(captcha)),
+      build: build,
+      act: (c) => c.signIn('a@b.co', 'pw', captchaToken: 'bad'),
+      expect: () => [const AuthBusy(), const AuthSignedOut(error: captcha)],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P3-2: signUp exposes captcha_failed',
+      setUp: () => when(
+        () => auth.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+          fullName: any(named: 'fullName'),
+          captchaToken: any(named: 'captchaToken'),
+        ),
+      ).thenAnswer((_) async => const Failure<SignUpOutcome>(captcha)),
+      build: build,
+      act: (c) => c.signUp('a@b.co', 'pw', 'Sam Ali', captchaToken: 'bad'),
+      expect: () => [const AuthBusy(), const AuthSignedOut(error: captcha)],
+    );
+
+    blocTest<AuthCubit, AuthState>(
+      'P3-2: reset exposes captcha_failed',
+      setUp: () => when(
+        () => auth.requestPasswordReset(
+          any(),
+          captchaToken: any(named: 'captchaToken'),
+        ),
+      ).thenAnswer((_) async => const Failure<void>(captcha)),
+      build: build,
+      act: (c) => c.requestPasswordReset('a@b.co', captchaToken: 'bad'),
+      expect: () => [const AuthBusy(), const AuthSignedOut(error: captcha)],
+    );
+  });
+
   group('P1-2: signIn', () {
     setUp(() {
       when(

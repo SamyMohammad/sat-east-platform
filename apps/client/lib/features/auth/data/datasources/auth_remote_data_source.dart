@@ -80,9 +80,16 @@ class AuthRemoteDataSource {
     ),
   );
 
-  Future<Result<void>> requestPasswordReset(String email) async {
+  Future<Result<void>> requestPasswordReset(
+    String email, {
+    String? captchaToken,
+  }) async {
     try {
-      await _auth.resetPasswordForEmail(email, redirectTo: _resetRedirectTo);
+      await _auth.resetPasswordForEmail(
+        email,
+        redirectTo: _resetRedirectTo,
+        captchaToken: captchaToken,
+      );
       return const Success(null);
     } on AuthException catch (e) {
       if (e.code == 'user_not_found') return const Success(null);
@@ -167,11 +174,13 @@ class AuthRemoteDataSource {
   Future<Result<AppUser>> signIn({
     required String email,
     required String password,
+    String? captchaToken,
   }) async {
     try {
       final response = await _auth.signInWithPassword(
         email: email,
         password: password,
+        captchaToken: captchaToken,
       );
       final user = await _withRole(response.user ?? response.session?.user);
       if (user == null) return const Failure(AppError(ErrorCodes.internal));
@@ -187,12 +196,14 @@ class AuthRemoteDataSource {
     required String email,
     required String password,
     required String fullName,
+    String? captchaToken,
   }) async {
     try {
       final response = await _auth.signUp(
         email: email,
         password: password,
         data: {'full_name': fullName},
+        captchaToken: captchaToken,
       );
       // Supabase enumeration protection: an existing email comes back as a
       // user with no identities and no session.

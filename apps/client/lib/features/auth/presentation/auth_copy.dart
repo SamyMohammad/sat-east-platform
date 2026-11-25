@@ -10,7 +10,10 @@ String authErrorCopy(String code) => switch (code) {
   ErrorCodes.network => 'No connection. Check your internet and try again.',
   ErrorCodes.rateLimited => 'Too many attempts. Wait a minute and try again.',
   ErrorCodes.linkExpired => 'This link has expired. Request a new one.',
-  ErrorCodes.weakPassword => 'Choose a stronger password.',
+  ErrorCodes.weakPassword =>
+    'Use at least 8 characters with letters and numbers.',
+  ErrorCodes.captchaFailed =>
+    "We couldn't verify you're human. Try the check again.",
   _ => 'Something went wrong. Try again.',
 };
 

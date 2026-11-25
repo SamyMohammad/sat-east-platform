@@ -179,7 +179,14 @@ void main() {
         await tester.tap(loadingButton('Create account'));
         await tester.pump();
 
-        verify(() => cubit.signUp('a@b.co', 'Password1', 'Sam Ali')).called(1);
+        verify(
+          () => cubit.signUp(
+            'a@b.co',
+            'Password1',
+            'Sam Ali',
+            captchaToken: any(named: 'captchaToken', that: isNull),
+          ),
+        ).called(1);
       });
 
       testWidgets('P1-2: Create account is loading while busy', (tester) async {
@@ -290,7 +297,14 @@ void main() {
         await tester.testTextInput.receiveAction(TextInputAction.done);
         await tester.pump();
 
-        verifyNever(() => cubit.signUp(any(), any(), any()));
+        verifyNever(
+          () => cubit.signUp(
+            any(),
+            any(),
+            any(),
+            captchaToken: any(named: 'captchaToken'),
+          ),
+        );
       });
 
       testWidgets('P1-2: weakPassword shows the stronger password copy', (
@@ -301,7 +315,10 @@ void main() {
           const AuthSignedOut(error: AppError(ErrorCodes.weakPassword)),
         );
 
-        expect(find.text('Choose a stronger password.'), findsOneWidget);
+        expect(
+          find.text('Use at least 8 characters with letters and numbers.'),
+          findsOneWidget,
+        );
         expect(tester.takeException(), isNull);
       });
     });

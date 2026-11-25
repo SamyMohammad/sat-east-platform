@@ -6,6 +6,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:sat_east_client/core/captcha/captcha.dart';
 import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/errors/error_codes.dart';
 import 'package:sat_east_client/core/errors/result.dart';
@@ -69,6 +70,9 @@ import 'fake_topic_cubit.dart';
 part 'fake_quiz_cubit.dart';
 
 void main() {
+  setUp(() => getIt.registerSingleton<Captcha>(const NoCaptcha()));
+  tearDown(() => getIt.unregister<Captcha>());
+
   setUp(registerFakeHomeCubit);
   tearDown(unregisterFakeHomeCubit);
   testWidgets(

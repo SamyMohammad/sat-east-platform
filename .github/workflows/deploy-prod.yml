@@ -87,12 +87,13 @@ jobs:
         env:
           SENTRY_DSN: ${{ vars.PROD_SENTRY_DSN }}
           POSTHOG_KEY: ${{ vars.PROD_POSTHOG_KEY }}
+          TURNSTILE_SITE_KEY: ${{ vars.PROD_TURNSTILE_SITE_KEY }}
         run: |
           # Closed beta has no Paymob setup yet; keep purchase UI disabled (ADR-006).
           jq -n --arg url "$SUPABASE_URL" --arg key "$PUBLISHABLE_KEY" \
-            --arg sentry "$SENTRY_DSN" --arg posthog "$POSTHOG_KEY" \
+            --arg sentry "$SENTRY_DSN" --arg posthog "$POSTHOG_KEY" --arg turnstile "$TURNSTILE_SITE_KEY" \
             '{FLAVOR:"prod",SUPABASE_URL:$url,SUPABASE_PUBLISHABLE_KEY:$key,ENABLE_PURCHASE:false,
-              SENTRY_DSN:$sentry,POSTHOG_KEY:$posthog,POSTHOG_HOST:"https://eu.i.posthog.com"}' > env/prod.json
+              SENTRY_DSN:$sentry,POSTHOG_KEY:$posthog,POSTHOG_HOST:"https://eu.i.posthog.com",TURNSTILE_SITE_KEY:$turnstile}' > env/prod.json
           flutter pub get
           flutter build web --release --dart-define-from-file=env/prod.json
           bash ../../scripts/secret-grep.sh build/web

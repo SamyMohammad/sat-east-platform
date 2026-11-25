@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sat_east_client/core/captcha/captcha.dart';
+import 'package:sat_east_client/core/di/injection.dart';
 import 'package:sat_east_client/core/router/app_router.dart';
 import 'package:sat_east_client/features/auth/domain/form_rules.dart';
 import 'package:sat_east_client/features/auth/presentation/auth_copy.dart';
@@ -10,6 +12,7 @@ import 'package:sat_east_client/features/auth/presentation/cubit/auth_cubit.dart
 import 'package:sat_east_client/features/auth/presentation/cubit/auth_state.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_card.dart';
 import 'package:sat_east_client/features/auth/presentation/widgets/auth_text_field.dart';
+import 'package:sat_east_client/features/auth/presentation/widgets/captcha_slot.dart';
 import 'package:sat_east_client/shared/widgets/app_banner.dart';
 import 'package:sat_east_client/shared/widgets/app_illustration.dart';
 import 'package:sat_east_client/shared/widgets/loading_button.dart';
@@ -23,19 +26,33 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _email = TextEditingController();
+  final _captcha = CaptchaController();
+  final Captcha _provider = getIt<Captcha>();
+
+  bool get _canSubmit =>
+      FormRules.looksLikeEmail(_email.text) &&
+      (!_provider.enabled || _captcha.hasToken);
 
   @override
   void dispose() {
     _email.dispose();
+    _captcha.dispose();
     super.dispose();
   }
 
   void _submit() {
     final cubit = context.read<AuthCubit>();
-    if (!FormRules.looksLikeEmail(_email.text) || cubit.state is AuthBusy) {
-      return;
-    }
-    unawaited(cubit.requestPasswordReset(_email.text.trim()));
+    if (!_canSubmit || cubit.state is AuthBusy) return;
+    unawaited(_request(cubit));
+  }
+
+  Future<void> _request(AuthCubit cubit) async {
+    await cubit.requestPasswordReset(
+      _email.text.trim(),
+      captchaToken: _captcha.token,
+    );
+    // Tokens are single-use, whatever the outcome.
+    if (mounted) _captcha.reset();
   }
 
   @override
@@ -47,12 +64,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         BlocSelector<AuthCubit, AuthState, bool>(
           selector: (state) => state is AuthBusy,
           builder: (context, busy) => ListenableBuilder(
-            listenable: _email,
+            listenable: Listenable.merge([_email, _captcha]),
             builder: (context, _) => LoadingButton(
               label: 'Send reset link',
               expanded: true,
               isLoading: busy,
-              onPressed: FormRules.looksLikeEmail(_email.text) ? _submit : null,
+              onPressed: _canSubmit ? _submit : null,
             ),
           ),
         ),
@@ -88,6 +105,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         autofillHints: const [AutofillHints.email],
         onSubmitted: (_) => _submit(),
       ),
+      if (_provider.enabled)
+        CaptchaSlot(captcha: _provider, controller: _captcha),
     ],
   );
 }

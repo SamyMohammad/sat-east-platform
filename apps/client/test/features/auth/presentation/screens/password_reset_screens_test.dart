@@ -54,7 +54,12 @@ void main() {
       await tester.enterText(find.byType(TextField), ' student@example.com ');
       await tester.pump();
       await tester.tap(loadingButton('Send reset link'));
-      verify(() => cubit.requestPasswordReset('student@example.com')).called(1);
+      verify(
+        () => cubit.requestPasswordReset(
+          'student@example.com',
+          captchaToken: any(named: 'captchaToken', that: isNull),
+        ),
+      ).called(1);
       expect(tester.takeException(), isNull);
     });
 
@@ -164,7 +169,10 @@ void main() {
     });
 
     for (final (code, copy) in [
-      (ErrorCodes.weakPassword, 'Choose a stronger password.'),
+      (
+        ErrorCodes.weakPassword,
+        'Use at least 8 characters with letters and numbers.',
+      ),
       (ErrorCodes.network, 'No connection. Check your internet and try again.'),
       (
         ErrorCodes.rateLimited,

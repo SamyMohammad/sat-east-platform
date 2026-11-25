@@ -6,6 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:sat_east_client/core/analytics/analytics_service.dart';
 import 'package:sat_east_client/core/attempts/data/hive_pending_answers.dart';
 import 'package:sat_east_client/core/attempts/pending_answers.dart';
+import 'package:sat_east_client/core/captcha/captcha.dart';
+import 'package:sat_east_client/core/captcha/turnstile_captcha.dart';
+import 'package:sat_east_client/core/env/env.dart';
 import 'package:sat_east_client/core/links/external_link_launcher.dart';
 import 'package:sat_east_client/core/observability/error_reporter.dart';
 import 'package:sat_east_client/core/supabase/edge_caller.dart';
@@ -169,6 +172,7 @@ void configureDependencies({
       instanceName: edgeCallerInstanceName,
     )
     ..registerLazySingleton<ExternalLinkLauncher>(() => launchExternalLink)
+    ..registerLazySingleton<Captcha>(() => createCaptcha(Env.turnstileSiteKey))
     ..registerSingleton<ErrorReporter>(errorReporter)
     ..registerSingleton<AnalyticsService>(analytics)
     ..registerLazySingleton<PendingAnswers>(

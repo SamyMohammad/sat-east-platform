@@ -10,18 +10,23 @@ abstract interface class AuthRepository {
   Future<AppUser?> getCurrentUser();
   Stream<AppUser?> get userChanges;
   Stream<void> get passwordRecovery;
-  Future<Result<void>> requestPasswordReset(String email);
+  Future<Result<void>> requestPasswordReset(
+    String email, {
+    String? captchaToken,
+  });
   Future<Result<void>> updatePassword(String password);
   Future<Result<MyProfile>> getMyProfile();
   Future<Result<List<MyEnrollment>>> listMyEnrollments();
   Future<Result<AppUser>> signIn({
     required String email,
     required String password,
+    String? captchaToken,
   });
   Future<Result<SignUpOutcome>> signUp({
     required String email,
     required String password,
     required String fullName,
+    String? captchaToken,
   });
   Future<Result<void>> signOut();
 }
