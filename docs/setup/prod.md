@@ -298,3 +298,7 @@ staging and, once `PROD_PROJECT_REF` is set, prod. It fails and alerts on Telegr
 70% of the Free limits (500 MB database, 1 GB Storage). Upgrade to Pro when any metric
 passes 80% or the cohort passes 300 students. Egress (5 GB) cannot be queried, so watch
 the Supabase usage emails.
+
+## 9. Go-live checklist (replace before go-live)
+
+- [ ] Replace the placeholder privacy contact `privacy@example.com` (one constant per app: landing and client) with the real address. Student deletion requests arrive there and the teacher completes them with `admin_delete_student` (Settings, "Delete a student").

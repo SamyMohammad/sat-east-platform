@@ -10,4 +10,7 @@ class TeacherSettingsRepositoryImpl implements TeacherSettingsRepository {
   Future<Result<List<SettingSpec>>> load() => _remote.load();
   @override
   Future<Result<void>> save(Map<String, int> changed) => _remote.save(changed);
+  @override
+  Future<Result<void>> deleteStudent(String email) =>
+      _remote.deleteStudent(email);
 }

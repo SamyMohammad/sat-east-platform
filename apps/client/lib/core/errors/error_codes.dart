@@ -29,6 +29,8 @@ abstract final class ErrorCodes {
   static const mockLocked = 'mock_locked';
   static const mockNoneAvailable = 'mock_none_available';
   static const mockSettingsInvalid = 'mock_settings_invalid';
+  static const studentNotFound = 'student_not_found';
+  static const studentHasOrders = 'student_has_orders';
 
   // Client-only (GoTrue / transport).
   static const invalidCredentials = 'invalid_credentials';
@@ -91,6 +93,8 @@ abstract final class ErrorCodes {
     mockLocked,
     mockNoneAvailable,
     mockSettingsInvalid,
+    studentNotFound,
+    studentHasOrders,
   };
 
   /// Whether [code] is a `docs/07` §9 server code.

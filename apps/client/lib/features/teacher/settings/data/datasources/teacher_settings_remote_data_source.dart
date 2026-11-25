@@ -30,6 +30,13 @@ class TeacherSettingsRemoteDataSource {
         }
       });
 
+  Future<Result<void>> deleteStudent(String email) =>
+      _call<void>('admin_delete_student', {'p_email': email}, (raw) {
+        if (raw is! Map<String, Object?> || raw['ok'] != true) {
+          throw const FormatException('delete response');
+        }
+      });
+
   Future<Result<T>> _call<T>(
     String fn,
     Map<String, Object?> params,

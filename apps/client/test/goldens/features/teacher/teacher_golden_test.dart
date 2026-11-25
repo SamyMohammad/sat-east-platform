@@ -20,6 +20,7 @@ import 'package:sat_east_client/features/teacher/questions/presentation/cubit/qu
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_bank_screen.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/screens/question_editor_screen.dart';
 import 'package:sat_east_client/features/teacher/review/presentation/screens/review_queue_screen.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/cubit/delete_student_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/screens/teacher_settings_screen.dart';
 import 'package:sat_east_client/features/teacher/shell/teacher_shell.dart';
@@ -81,8 +82,15 @@ void main() {
               addTearDown(cubit.close);
               await cubit.load();
               cubit.edit('pass_mark', 80);
-              body = BlocProvider.value(
-                value: cubit,
+              final deleteCubit = DeleteStudentCubit(
+                FakeTeacherSettingsRepository(),
+              );
+              addTearDown(deleteCubit.close);
+              body = MultiBlocProvider(
+                providers: [
+                  BlocProvider.value(value: cubit),
+                  BlocProvider.value(value: deleteCubit),
+                ],
                 child: const TeacherSettingsView(),
               );
               location = '/teacher/settings';

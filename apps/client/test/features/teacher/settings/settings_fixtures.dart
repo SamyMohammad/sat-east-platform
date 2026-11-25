@@ -60,6 +60,9 @@ class FakeTeacherSettingsRepository implements TeacherSettingsRepository {
   Result<void> saveResult = const Success(null);
   Future<Result<List<SettingSpec>>>? pendingLoad;
   Future<Result<void>>? pendingSave;
+  Result<void> deleteResult = const Success(null);
+  Future<Result<void>>? pendingDelete;
+  final List<String> deletes = [];
   void Function()? onLoad;
   int loads = 0;
   final List<Map<String, int>> saves = [];
@@ -74,5 +77,11 @@ class FakeTeacherSettingsRepository implements TeacherSettingsRepository {
   Future<Result<void>> save(Map<String, int> changed) {
     saves.add(Map.of(changed));
     return pendingSave ?? Future.value(saveResult);
+  }
+
+  @override
+  Future<Result<void>> deleteStudent(String email) {
+    deletes.add(email);
+    return pendingDelete ?? Future.value(deleteResult);
   }
 }

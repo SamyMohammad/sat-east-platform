@@ -39,6 +39,7 @@ import 'package:sat_east_client/features/teacher/notes/presentation/cubit/teache
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_bank_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_editor_cubit.dart';
 import 'package:sat_east_client/features/teacher/questions/presentation/cubit/question_import_cubit.dart';
+import 'package:sat_east_client/features/teacher/settings/presentation/cubit/delete_student_cubit.dart';
 import 'package:sat_east_client/features/teacher/settings/presentation/cubit/teacher_settings_cubit.dart';
 import 'package:sat_east_client/features/topic/presentation/cubit/topic_state.dart';
 import 'package:sat_east_client/features/topic/presentation/screens/topic_screen.dart';
@@ -148,6 +149,9 @@ void main() {
       ..registerFactory<TeacherSettingsCubit>(
         () => TeacherSettingsCubit(FakeTeacherSettingsRepository()),
       )
+      ..registerFactory<DeleteStudentCubit>(
+        () => DeleteStudentCubit(FakeTeacherSettingsRepository()),
+      )
       ..registerFactory<QuestionImportCubit>(
         () => QuestionImportCubit(FakeImportRepository(), FakeFilePicker()),
       )
@@ -180,6 +184,7 @@ void main() {
   tearDown(() => getIt.unregister<NotesViewerCubit>());
   tearDown(() => getIt.unregister<CourseBuilderCubit>());
   tearDown(() => getIt.unregister<TeacherSettingsCubit>());
+  tearDown(() => getIt.unregister<DeleteStudentCubit>());
   tearDown(() => getIt.unregister<QuestionImportCubit>());
   tearDown(() => getIt.unregister<QuestionBankCubit>());
   tearDown(() => getIt.unregister<QuestionEditorCubit>());
