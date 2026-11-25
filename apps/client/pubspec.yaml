@@ -28,23 +28,23 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  cupertino_icons: ^1.0.8
+  cupertino_icons: ^2.0.0
   equatable: ^3.0.0
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
   flutter_math_fork: 0.7.4
-  flutter_svg: ^2.3.0
+  flutter_svg: ^2.5.0
   get_it: ^9.3.0
-  go_router: ^18.0.2
-  hive_ce: ^2.20.1
-  hive_ce_flutter: ^2.4.0
+  go_router: ^18.1.4
+  hive_ce: ^2.24.0
+  hive_ce_flutter: ^2.6.0
   http: ^1.6.0
-  lucide_icons_flutter: ^4.0.1
-  pdfrx: 2.4.8
+  lucide_icons_flutter: ^4.0.3
+  pdfrx: 3.1.0
   posthog_flutter: ^5.53.0
-  sentry_flutter: ^9.30.1
-  supabase_flutter: ^2.18.0
+  sentry_flutter: ^10.6.0
+  supabase_flutter: ^2.18.3
   url_launcher: ^6.3.3
   web: ^1.1.1
 
@@ -53,7 +53,7 @@ dev_dependencies:
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.5
-  very_good_analysis: ^10.3.0
+  very_good_analysis: ^11.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
