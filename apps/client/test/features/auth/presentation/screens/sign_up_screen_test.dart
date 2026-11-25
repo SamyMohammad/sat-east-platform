@@ -57,11 +57,11 @@ void main() {
         expect(find.text('Password'), findsOneWidget);
         expect(find.byType(TextField), findsNWidgets(3));
         expect(
-          find.text(
-            'By creating an account you agree to the Terms and Privacy policy.',
-          ),
+          find.text('By creating an account you agree to the'),
           findsOneWidget,
         );
+        expect(loadingButton('Terms'), findsOneWidget);
+        expect(loadingButton('Privacy Policy'), findsOneWidget);
         expect(find.text('Already have an account?'), findsOneWidget);
         expect(find.text('Sign in'), findsOneWidget);
         expect(tester.takeException(), isNull);

@@ -19,6 +19,8 @@ npx wrangler@4 deploy
 
 ## Before launch
 
+- `privacy.html` and `terms.html` are DRAFTS under review (note shown at the top). Replace the placeholder contact address `CONTACT_EMAIL` in `main.js` (`privacy@example.com`) and have the owner or a lawyer approve the text, then remove the draft note.
+
 - The app links point at the **staging** app (`https://sat-staging.pages.dev`), so sign-ups land in the staging database. When the prod app is deployed (domain Q-01), update `APP_ORIGIN` in `main.js` and the `href`s in `index.html`, then redeploy.
 - When a custom domain is added, point `og:image` in `index.html` at it (it uses the workers.dev URL today).
 - Mark Cognia as awarded only after the credential arrives.

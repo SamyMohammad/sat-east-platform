@@ -27,6 +27,13 @@ abstract final class Env {
     defaultValue: 'https://eu.i.posthog.com',
   );
 
+  /// Public base URL of the landing site, which serves the Terms and Privacy
+  /// pages. Public value, safe to ship in the client (ADR-008).
+  static const String landingUrl = String.fromEnvironment(
+    'LANDING_URL',
+    defaultValue: 'https://menshawy-landing.tech11.workers.dev',
+  );
+
   /// Compile-time, so prod builds tree-shake dev-only code (e.g. the gallery).
   static const bool isProd = _flavor == 'prod';
 
