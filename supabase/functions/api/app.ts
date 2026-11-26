@@ -41,6 +41,10 @@ export type Deps = {
   reportError: (error: unknown, context: { route: string; userId?: string; code?: string }) => Promise<void>;
   log?: (line: string) => void;
   videoAllowedOrigins?: string[];
+  /** Cheap DB reachability check for GET /health. Missing -> reported unhealthy. */
+  ping?: () => Promise<boolean>;
+  /** Epoch milliseconds; injectable for tests. */
+  now?: () => number;
   /** Undefined when video secrets are unavailable; other routes remain usable. */
   video?: {
     secret: string;
@@ -88,6 +92,25 @@ export function createApp(deps: Deps) {
       return fail(c, 'internal', 'Something went wrong.');
     }
   };
+
+  // Uptime monitor target (docs/07 §1.2): no auth, no data. One DB ping per 10 s per isolate.
+  const HEALTH_TTL_MS = 10_000;
+  const now = deps.now ?? Date.now;
+  let health: { ok: boolean; at: number } | undefined;
+  app.get('/health', async (c) => {
+    const t = now();
+    if (!health || t - health.at >= HEALTH_TTL_MS || t < health.at) {
+      let ok = false;
+      try {
+        ok = deps.ping ? await deps.ping() : false;
+      } catch {
+        ok = false;
+      }
+      health = { ok, at: t };
+    }
+    c.header('cache-control', 'no-store');
+    return c.json({ ok: health.ok }, health.ok ? 200 : 503);
+  });
 
   app.post('/video-otp', videoRoute('video-otp', async (c) => {
     const caller = await deps.authenticate(c.req.raw);

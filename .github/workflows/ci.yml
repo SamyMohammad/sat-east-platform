@@ -239,11 +239,31 @@ jobs:
         env:
           # Public Turnstile site key; empty = captcha off (docs/setup/auth.md).
           TURNSTILE_SITE_KEY: ${{ vars.STAGING_TURNSTILE_SITE_KEY }}
+          # Public DSN; empty = Sentry off (docs/setup/observability.md).
+          SENTRY_DSN: ${{ vars.STAGING_SENTRY_DSN }}
         run: |
           jq -n --arg url "$SUPABASE_URL" --arg key "$PUBLISHABLE_KEY" --arg turnstile "$TURNSTILE_SITE_KEY" \
-            '{FLAVOR:"staging",SUPABASE_URL:$url,SUPABASE_PUBLISHABLE_KEY:$key,ENABLE_PURCHASE:true,TURNSTILE_SITE_KEY:$turnstile}' > env/staging.json
+            --arg sentry "$SENTRY_DSN" --arg release "$GITHUB_SHA" \
+            '{FLAVOR:"staging",SUPABASE_URL:$url,SUPABASE_PUBLISHABLE_KEY:$key,ENABLE_PURCHASE:true,TURNSTILE_SITE_KEY:$turnstile,
+              SENTRY_DSN:$sentry,SENTRY_RELEASE:$release}' > env/staging.json
           flutter pub get
-          flutter build web --release --dart-define-from-file=env/staging.json
+          flutter build web --release --source-maps --dart-define-from-file=env/staging.json
+      - name: Upload source maps to Sentry, then strip them
+        working-directory: apps/client
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_CLI: '@sentry/cli@3.8.2'
+        run: |
+          if [ -n "$SENTRY_AUTH_TOKEN" ] && [ -n "$SENTRY_ORG" ]; then
+            npx -y "$SENTRY_CLI" sourcemaps upload --org "$SENTRY_ORG" --project client \
+              --release "$GITHUB_SHA" build/web
+          else
+            echo '::notice::Sentry source maps skipped (SENTRY_AUTH_TOKEN / SENTRY_ORG not set)'
+          fi
+          # Maps never ship to Pages, whether or not they were uploaded.
+          find build/web -name '*.map' -delete
+          ! find build/web -name '*.map' | grep -q .
           bash ../../scripts/secret-grep.sh build/web
       # Created here, not by hand: wrangler run from an AI agent turns a new Pages project into
       # a Workers deploy (wrangler >= 4.130). CI is not an agent, so this stays on Pages (ADR-009).

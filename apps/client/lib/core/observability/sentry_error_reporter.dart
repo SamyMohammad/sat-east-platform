@@ -35,13 +35,15 @@ void configureSentry(
   SentryFlutterOptions options, {
   required String dsn,
   required String environment,
+  required String release,
 }) {
+  if (release.isNotEmpty) options.release = release;
   options
     ..dsn = dsn
     ..environment = environment
     ..sendDefaultPii = false
-    // Errors only for now; performance tracing is a later decision.
-    ..tracesSampleRate = 0
+    // Light performance sampling, only when Sentry is on at all.
+    ..tracesSampleRate = dsn.isEmpty ? 0 : 0.05
     ..beforeSend = ((event, hint) => scrubEvent(event))
     ..beforeBreadcrumb = ((crumb, hint) => scrubBreadcrumb(crumb));
 }

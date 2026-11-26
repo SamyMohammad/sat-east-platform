@@ -100,6 +100,8 @@ class _TurnstileViewState extends State<_TurnstileView> {
       final options = JSObject()
         ..['sitekey'] = widget.siteKey.toJS
         ..['theme'] = 'auto'.toJS
+        // English-only product: don't follow the browser language.
+        ..['language'] = 'en'.toJS
         ..['callback'] = ((JSString token) {
           controller.setToken(token.toDart);
         }).toJS
