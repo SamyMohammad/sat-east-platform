@@ -92,10 +92,27 @@ jobs:
           # Closed beta has no Paymob setup yet; keep purchase UI disabled (ADR-006).
           jq -n --arg url "$SUPABASE_URL" --arg key "$PUBLISHABLE_KEY" \
             --arg sentry "$SENTRY_DSN" --arg posthog "$POSTHOG_KEY" --arg turnstile "$TURNSTILE_SITE_KEY" \
+            --arg release "$GITHUB_SHA" \
             '{FLAVOR:"prod",SUPABASE_URL:$url,SUPABASE_PUBLISHABLE_KEY:$key,ENABLE_PURCHASE:false,
-              SENTRY_DSN:$sentry,POSTHOG_KEY:$posthog,POSTHOG_HOST:"https://eu.i.posthog.com",TURNSTILE_SITE_KEY:$turnstile}' > env/prod.json
+              SENTRY_DSN:$sentry,SENTRY_RELEASE:$release,POSTHOG_KEY:$posthog,POSTHOG_HOST:"https://eu.i.posthog.com",TURNSTILE_SITE_KEY:$turnstile}' > env/prod.json
           flutter pub get
-          flutter build web --release --dart-define-from-file=env/prod.json
+          flutter build web --release --source-maps --dart-define-from-file=env/prod.json
+      - name: Upload source maps to Sentry, then strip them
+        working-directory: apps/client
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_CLI: '@sentry/cli@3.8.2'
+        run: |
+          if [ -n "$SENTRY_AUTH_TOKEN" ] && [ -n "$SENTRY_ORG" ]; then
+            npx -y "$SENTRY_CLI" sourcemaps upload --org "$SENTRY_ORG" --project client \
+              --release "$GITHUB_SHA" build/web
+          else
+            echo '::notice::Sentry source maps skipped (SENTRY_AUTH_TOKEN / SENTRY_ORG not set)'
+          fi
+          # Maps never ship to Pages, whether or not they were uploaded.
+          find build/web -name '*.map' -delete
+          ! find build/web -name '*.map' | grep -q .
           bash ../../scripts/secret-grep.sh build/web
       # CI creates Pages, avoiding the agent-triggered Workers behavior (ADR-009).
       - name: Ensure Pages project exists

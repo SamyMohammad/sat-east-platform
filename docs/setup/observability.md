@@ -10,14 +10,39 @@ keys go only into Edge Function or CI secrets.
    - **Flutter**, named `client`;
    - **Deno**, named `edge-functions`.
 3. For the client, copy the `client` DSN into `apps/client/env/<flavor>.json` as `"SENTRY_DSN"`.
-   Use one DSN for all flavors: `environment` is set from `FLAVOR`. For the staging deploy, add
-   it to the CI env step in `.github/workflows/ci.yml` (repo variable `STAGING_SENTRY_DSN`) when
-   staging should report.
+   Use one DSN for all flavors: `environment` is set from `FLAVOR`. CI reads it from the repo
+   variables `STAGING_SENTRY_DSN` (staging deploy) and `PROD_SENTRY_DSN` (prod deploy). Empty
+   means Sentry is off. Every web build sets `SENTRY_RELEASE` to the commit SHA automatically.
 4. For Edge Functions, copy the `edge-functions` DSN in as a secret:
    `supabase secrets set SENTRY_DSN_EF=<dsn> SENTRY_ENVIRONMENT=staging --project-ref <ref>`.
-5. Check it: run the app with the DSN, then throw a test error from a debug button or with
+5. Source maps (readable stack traces). Web deploys build with `--source-maps`. When both
+   of these exist, CI uploads the maps to Sentry (`@sentry/cli`, pinned in the workflows,
+   project `client`, release = commit SHA):
+   - repo variable `SENTRY_ORG` (the org slug, e.g. `sat-east`);
+   - repo secret `SENTRY_AUTH_TOKEN` (create it in Sentry → Settings → Auth Tokens, scope
+     `project:releases`; add `org:read` only if the upload asks for it).
+   If either is missing the upload is skipped with a notice. Either way, the `.map` files are
+   deleted from `build/web` before the deploy, so they are never served from Pages.
+6. Alert rules (Sentry → Alerts, project `client` and `edge-functions`):
+   - "A new issue is created" → email the owner;
+   - issue spike (for example more than 10 events in 1 hour) → email the owner;
+   - Telegram, if free: Sentry has no first-party Telegram integration, so use a webhook
+     (Settings → Integrations → Webhooks) pointing at a Telegram bot relay, or skip it.
+7. Check it: run the app with the DSN, then throw a test error from a debug button or with
    `Sentry.captureMessage`. In Sentry → Issues, the event should carry a user id only, with no
    email and no request body.
+
+## 1b. Uptime monitoring (UptimeRobot, free plan)
+Create two HTTP(s) monitors with a 5-minute interval:
+1. The web app URL (the Pages domain), expecting HTTP 200.
+2. `https://<project-ref>.supabase.co/functions/v1/api/health`, expecting HTTP 200. The route
+   needs no auth and returns only `{"ok":true}`; it answers 503 when the database ping fails.
+   Do this for staging and prod.
+
+Alert contacts: email, plus Telegram (UptimeRobot → My Settings → Alert Contacts → Telegram).
+
+The prod `/health` monitor also keeps the free Supabase project awake, so it replaces the prod
+keep-alive workflow (P2.1). Keep the staging keep-alive until a staging monitor exists.
 
 ## 2. PostHog (product events)
 1. Create a free account at posthog.com and pick the **EU** cloud (closer to Egypt and the Gulf).

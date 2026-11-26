@@ -36,7 +36,22 @@ function videoFromEnv(): Deps['video'] {
   };
 }
 
+// Anon read of one published course row through PostgREST: proves API + DB are up, needs no
+// migration, and returns no data to the caller.
+async function pingDb(): Promise<boolean> {
+  const url = Deno.env.get('SUPABASE_URL')?.trim();
+  const key = Deno.env.get('SUPABASE_ANON_KEY')?.trim();
+  if (!url || !key) return false;
+  const res = await fetch(`${url}/rest/v1/courses?select=id&limit=1`, {
+    headers: { apikey: key, authorization: `Bearer ${key}` },
+    signal: AbortSignal.timeout(3000),
+  });
+  await res.body?.cancel();
+  return res.ok;
+}
+
 const app = createApp({
+  ping: pingDb,
   appCheck: appCheckConfigFromEnv(),
   reportError: captureError,
   video: videoFromEnv(),

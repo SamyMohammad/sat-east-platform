@@ -20,6 +20,9 @@ abstract final class Env {
   /// Public client keys (docs/05 §6, ADR-008). Empty → the service is off.
   static const String sentryDsn = String.fromEnvironment('SENTRY_DSN');
 
+  /// Commit SHA of the build; ties events to the uploaded source maps.
+  static const String sentryRelease = String.fromEnvironment('SENTRY_RELEASE');
+
   static const String posthogKey = String.fromEnvironment('POSTHOG_KEY');
 
   static const String posthogHost = String.fromEnvironment(

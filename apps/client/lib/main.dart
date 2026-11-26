@@ -25,6 +25,7 @@ Future<void> main() async {
       options,
       dsn: Env.sentryDsn,
       environment: Env.flavor.name,
+      release: Env.sentryRelease,
     ),
     appRunner: () => _start(const SentryErrorReporter()),
   );
