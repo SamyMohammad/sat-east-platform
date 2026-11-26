@@ -53,7 +53,7 @@ jobs:
           [[ "$LOAD_DURATION" =~ ^[0-9]+[smh]$ ]] \
             || { echo "::error::duration must look like 90s, 5m or 1h"; exit 1; }
       - uses: actions/checkout@v7
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 22
       - uses: supabase/setup-cli@v3
@@ -115,7 +115,7 @@ jobs:
           done
       - name: Upload k6 summary
         if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: k6-summary
           path: |
